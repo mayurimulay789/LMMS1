@@ -10,6 +10,7 @@ import { loadUser } from "./store/slices/authSlice"
 import Navbar from "./Components/Navbar"
 import Footer from "./Components/Footer"
 import ProtectedRoute from "./Components/ProtectedRoute"
+import ProtectedAdminRoute from "../src/Components/ProtectedAdminRoute.jsx"
 
 // Public Pages
 import HomePage from "./Pages/HomePage"
@@ -23,9 +24,10 @@ import RegisterPage from "./Pages/RegisterPage"
 // Protected Pages
 import DashboardPage from "./Pages/DashboardPage"
 import AssessmentsPage from "./Pages/AssesmentsPage"
-// import CheckoutPage from "./Pages/CheckoutPage"
+import CheckoutPage from "./Pages/CheckoutPage"
 import CertificatesPage from "./Pages/CertificatesPage"
 import CertificateVerificationPage from "./Pages/CertificateVerificationPage"
+import AdminDashboardPage from "./Pages/AdminDashboardPage"
 
 // Payment Pages
 import PaymentSuccessPage from "./Pages/PaymentSucessPage"
@@ -77,7 +79,7 @@ function AppContent() {
             path="/checkout/:courseId"
             element={
               <ProtectedRoute>
-                {/* <CheckoutPage /> */}
+                <CheckoutPage /> 
               </ProtectedRoute>
             }
           />
@@ -95,14 +97,14 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          {/* <Route
+          <Route
               path="/admin"
               element={
                 <ProtectedAdminRoute>
                   <AdminDashboardPage />
                 </ProtectedAdminRoute>
               }
-            /> */}
+            />
              {/* <Route
               path="/courses/:courseId/forum"
               element={

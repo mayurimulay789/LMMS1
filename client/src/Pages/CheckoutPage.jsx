@@ -75,7 +75,7 @@ const CheckoutPage = () => {
 
   const fetchCourse = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/courses/${courseId}`)
+      const response = await fetch(`http://localhost:2000/api/courses/${courseId}`)
       if (response.ok) {
         const data = await response.json()
         setCourse(data)
@@ -157,7 +157,7 @@ const CheckoutPage = () => {
           order_id: orderId,
           handler: async (response) => {
             try {
-              const verifyResponse = await fetch("http://localhost:5000/api/payments/verify", {
+              const verifyResponse = await fetch("http://localhost:2000/api/payments/verify", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
