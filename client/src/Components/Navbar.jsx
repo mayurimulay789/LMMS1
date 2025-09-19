@@ -116,6 +116,7 @@ const Navbar = () => {
                       <BookOpen className="h-4 w-4 mr-2" />
                       Certificates
                     </Link>
+                    {/* for admin panel*/}
                     {user?.role === "admin" && (
                       <Link
                         to="/admin"
@@ -124,6 +125,18 @@ const Navbar = () => {
                       >
                         <Settings className="h-4 w-4 mr-2" />
                         Admin Panel
+                      </Link>
+                    )}
+
+                    {/* for instoructor panel */}
+                    {user?.role === "instructor" && (
+                      <Link
+                        to="/instructor"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Instructor Panel
                       </Link>
                     )}
                     <hr className="my-1" />
