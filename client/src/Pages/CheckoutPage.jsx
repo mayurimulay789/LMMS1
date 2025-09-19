@@ -176,7 +176,7 @@ const CheckoutPage = () => {
                 navigate(`/payment/failed?course_id=${courseId}`)
               }
             } catch (error) {
-              console.error("Payment verification error:", error)
+              console.error("Payment verification error....:", error)
               navigate(`/payment/failed?course_id=${courseId}`)
             }
           },
