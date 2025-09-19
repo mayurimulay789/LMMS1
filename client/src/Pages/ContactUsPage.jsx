@@ -109,7 +109,7 @@ const ContactUsPage = () => {
     {
       icon: MapPin,
       title: "Office",
-      content: "123 Learning Street, Education City, EC 12345",
+      content: "1234 Learning Street, Education City, EC 12345",
       description: "Come say hello at our office",
     },
   ]
