@@ -34,7 +34,7 @@ const AboutUsPage = () => {
 
   const team = [
     {
-      name: "Sarah Johnson",
+      name: "Sarah",
       role: "CEO",
       image: "/placeholder.svg?height=300&width=300",
       bio: "Former tech executive with 15+ years in education technology.",
