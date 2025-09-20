@@ -48,7 +48,7 @@ const CoursesPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/courses/meta/categories")
+      const response = await fetch("http://localhost:2000/api/courses/meta/categories")
       if (response.ok) {
         const data = await response.json()
         setCategories(data)
@@ -68,7 +68,7 @@ const CoursesPage = () => {
         ...Object.fromEntries(Object.entries(filters).filter(([_, value]) => value && value !== "all" && value !== "")),
       })
 
-      const response = await fetch(`http://localhost:5000/api/courses?${queryParams}`)
+      const response = await fetch(`http://localhost:2000/api/courses?${queryParams}`)
       if (response.ok) {
         const data = await response.json()
         setCourses(data.courses)

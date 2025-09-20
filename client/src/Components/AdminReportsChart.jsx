@@ -28,7 +28,7 @@ const AdminReportsChart = ({ type }) => {
   const fetchChartData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:5000/api/admin/reports/${type}`, {
+      const response = await fetch(`http://localhost:2000/api/admin/reports/${type}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

@@ -57,7 +57,7 @@ export const loadUser = createAsyncThunk("auth/loadUser", async (_, { rejectWith
       return rejectWithValue("No token found")
     }
 
-    const response = await fetch("http://localhost:5000/api/auth/me", {
+    const response = await fetch("http://localhost:2000/api/auth/me", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

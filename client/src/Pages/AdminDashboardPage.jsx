@@ -2,10 +2,17 @@
 
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { Users, BookOpen, DollarSign, TrendingUp, Download } from "lucide-react"
+import { Users, BookOpen, TrendingUp, Download, } from "lucide-react"
 import AdminReportsChart from "../Components/AdminReportsChart"
 import AdminUserTable from "../Components/AdminUserTable"
 import AdminCourseForm from "../Components/AdminCourseForm"
+
+import { IndianRupee } from "lucide-react"
+
+// Custom Indian Rupee Icon component
+const IndianRupeeIcon = (props) => (
+  <IndianRupee {...props} />
+)
 
 const AdminDashboardPage = () => {
   const dispatch = useDispatch()
@@ -26,7 +33,7 @@ const AdminDashboardPage = () => {
   const fetchAdminStats = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:5000/api/admin/stats", {
+      const response = await fetch("http://localhost:2000/api/admin/stats", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -61,8 +68,8 @@ const AdminDashboardPage = () => {
     },
     {
       title: "Total Revenue",
-      value: `$${stats.totalRevenue.toLocaleString()}`,
-      icon: DollarSign,
+      value: `₹${stats.totalRevenue.toLocaleString()}`,
+      icon: IndianRupeeIcon,
       color: "bg-purple-500",
       change: "+23%",
     },
@@ -181,7 +188,7 @@ const AdminDashboardPage = () => {
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">Payment received</p>
-                    <p className="text-xs text-gray-600">$299 - JavaScript Masterclass - 10 minutes ago</p>
+                    <p className="text-xs text-gray-600">₹299 - JavaScript Masterclass - 10 minutes ago</p>
                   </div>
                 </div>
               </div>

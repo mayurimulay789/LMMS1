@@ -100,7 +100,7 @@ const FileUpload = ({
 
         xhr.open(
           "POST",
-          `${process.env.REACT_APP_SERVER_URL || "http://localhost:5000"}${getUploadEndpoint(uploadType)}`,
+          `${process.env.REACT_APP_SERVER_URL || "http://localhost:2000"}${getUploadEndpoint(uploadType)}`,
         )
         xhr.setRequestHeader("Authorization", `Bearer ${token}`)
         xhr.send(formData)
