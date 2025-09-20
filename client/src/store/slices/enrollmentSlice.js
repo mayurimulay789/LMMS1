@@ -5,7 +5,7 @@ export const fetchUserEnrollments = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:5000/api/enrollments/me", {
+      const response = await fetch("http://localhost:2000/api/enrollments/me", {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },

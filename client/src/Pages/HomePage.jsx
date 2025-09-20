@@ -22,7 +22,7 @@ const HomePage = () => {
 
   const fetchFeaturedCourses = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/courses/meta/featured")
+      const response = await fetch("http://localhost:2000/api/courses/meta/featured")
       if (response.ok) {
         const data = await response.json()
         setFeaturedCourses(data)
