@@ -15,9 +15,11 @@ import {
   PieChart,
   Pie,
   Cell,
+  AreaChart,
+  Area,
 } from "recharts"
 
-const AdminReportsChart = ({ type }) => {
+const InstructorReportsChart = ({ type }) => {
   const [chartData, setChartData] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -28,7 +30,7 @@ const AdminReportsChart = ({ type }) => {
   const fetchChartData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/reports/${type}`, {
+      const response = await fetch(`http://localhost:2000/api/instructor/reports/${type}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -38,10 +40,12 @@ const AdminReportsChart = ({ type }) => {
       if (response.ok) {
         const data = await response.json()
         setChartData(data)
+      } else {
+        // Mock data for demonstration
+        setMockData()
       }
     } catch (error) {
       console.error("Error fetching chart data:", error)
-      // Mock data for demonstration
       setMockData()
     } finally {
       setIsLoading(false)
@@ -51,30 +55,29 @@ const AdminReportsChart = ({ type }) => {
   const setMockData = () => {
     if (type === "revenue") {
       setChartData([
-        { month: "Jan", revenue: 4000, enrollments: 240 },
-        { month: "Feb", revenue: 3000, enrollments: 198 },
-        { month: "Mar", revenue: 5000, enrollments: 300 },
-        { month: "Apr", revenue: 4500, enrollments: 278 },
-        { month: "May", revenue: 6000, enrollments: 389 },
-        { month: "Jun", revenue: 5500, enrollments: 349 },
+        { month: "Jan", revenue: 1200 },
+        { month: "Feb", revenue: 1800 },
+        { month: "Mar", revenue: 1500 },
+        { month: "Apr", revenue: 2300 },
+        { month: "May", revenue: 2800 },
+        { month: "Jun", revenue: 3200 },
       ])
     } else if (type === "enrollments") {
       setChartData([
-        { name: "JavaScript", value: 400, color: "#8884d8" },
-        { name: "React", value: 300, color: "#82ca9d" },
-        { name: "Node.js", value: 200, color: "#ffc658" },
-        { name: "Python", value: 150, color: "#ff7300" },
-        { name: "Other", value: 100, color: "#00ff00" },
+        { course: "React Masterclass", enrollments: 145 },
+        { course: "JavaScript Basics", enrollments: 210 },
+        { course: "Node.js Advanced", enrollments: 98 },
+        { course: "Python for Beginners", enrollments: 167 },
       ])
     } else if (type === "detailed") {
       setChartData([
-        { date: "2024-01-01", users: 120, courses: 15, revenue: 2400 },
-        { date: "2024-01-02", users: 132, courses: 16, revenue: 2600 },
-        { date: "2024-01-03", users: 145, courses: 18, revenue: 2800 },
-        { date: "2024-01-04", users: 158, courses: 19, revenue: 3000 },
-        { date: "2024-01-05", users: 167, courses: 20, revenue: 3200 },
-        { date: "2024-01-06", users: 178, courses: 22, revenue: 3400 },
-        { date: "2024-01-07", users: 189, courses: 23, revenue: 3600 },
+        { date: "2024-01-01", students: 45, revenue: 450, questions: 12 },
+        { date: "2024-01-02", students: 52, revenue: 520, questions: 8 },
+        { date: "2024-01-03", students: 48, revenue: 480, questions: 15 },
+        { date: "2024-01-04", students: 61, revenue: 610, questions: 10 },
+        { date: "2024-01-05", students: 55, revenue: 550, questions: 7 },
+        { date: "2024-01-06", students: 67, revenue: 670, questions: 14 },
+        { date: "2024-01-07", students: 72, revenue: 720, questions: 9 },
       ])
     }
   }
@@ -95,53 +98,42 @@ const AdminReportsChart = ({ type }) => {
       case "revenue":
         return (
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
+            <AreaChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={2} />
-            </LineChart>
+              <Area type="monotone" dataKey="revenue" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+            </AreaChart>
           </ResponsiveContainer>
         )
 
       case "enrollments":
         return (
           <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="course" />
+              <YAxis />
               <Tooltip />
-            </PieChart>
+              <Bar dataKey="enrollments" fill="#82ca9d" />
+            </BarChart>
           </ResponsiveContainer>
         )
 
       case "detailed":
         return (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={chartData}>
+            <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="users" fill="#8884d8" />
-              <Bar dataKey="courses" fill="#82ca9d" />
-              <Bar dataKey="revenue" fill="#ffc658" />
-            </BarChart>
+              <Line type="monotone" dataKey="students" stroke="#8884d8" strokeWidth={2} />
+              <Line type="monotone" dataKey="revenue" stroke="#82ca9d" strokeWidth={2} />
+              <Line type="monotone" dataKey="questions" stroke="#ffc658" strokeWidth={2} />
+            </LineChart>
           </ResponsiveContainer>
         )
 
@@ -155,9 +147,9 @@ const AdminReportsChart = ({ type }) => {
       case "revenue":
         return "Revenue Trends"
       case "enrollments":
-        return "Course Enrollments by Category"
+        return "Enrollments by Course"
       case "detailed":
-        return "Detailed Analytics"
+        return "Performance Analytics"
       default:
         return "Analytics"
     }
@@ -171,4 +163,4 @@ const AdminReportsChart = ({ type }) => {
   )
 }
 
-export default AdminReportsChart
+export default InstructorReportsChart

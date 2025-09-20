@@ -13,6 +13,7 @@ const AdminCourseForm = () => {
     category: "",
     price: "",
     instructor: "",
+    level: "Beginner",
     thumbnail: null,
     lessons: [],
   })
@@ -25,7 +26,7 @@ const AdminCourseForm = () => {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:5000/api/admin/courses", {
+      const response = await fetch("http://localhost:2000/api/admin/courses", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -84,7 +85,7 @@ const AdminCourseForm = () => {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:5000/api/upload/course-${type}`, {
+      const response = await fetch(`http://localhost:2000/api/upload/course-${type}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -125,6 +126,7 @@ const AdminCourseForm = () => {
           title: "",
           description: "",
           videoUrl: "",
+          order: prev.lessons.length + 1, // Add order field
           materials: [],
         },
       ],
@@ -151,8 +153,17 @@ const AdminCourseForm = () => {
     try {
       const token = localStorage.getItem("token")
       const url = editingCourse
-        ? `http://localhost:5000/api/admin/courses/${editingCourse._id}`
-        : "http://localhost:5000/api/admin/courses"
+        ? `http://localhost:2000/api/admin/courses/${editingCourse._id}`
+        : "http://localhost:2000/api/admin/courses"
+
+      // Transform lessons to include order field for API
+      const submitData = {
+        ...formData,
+        lessons: formData.lessons.map((lesson, index) => ({
+          ...lesson,
+          order: lesson.order || index + 1, // Ensure order is set
+        }))
+      }
 
       const response = await fetch(url, {
         method: editingCourse ? "PUT" : "POST",
@@ -160,7 +171,7 @@ const AdminCourseForm = () => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       })
 
       if (response.ok) {
@@ -179,6 +190,7 @@ const AdminCourseForm = () => {
       category: "",
       price: "",
       instructor: "",
+      level: "Beginner",
       thumbnail: null,
       lessons: [],
     })
@@ -194,6 +206,7 @@ const AdminCourseForm = () => {
       category: course.category,
       price: course.price,
       instructor: course.instructor,
+      level: course.level || "Beginner",
       thumbnail: course.thumbnail,
       lessons: course.lessons || [],
     })
@@ -204,7 +217,7 @@ const AdminCourseForm = () => {
     if (window.confirm("Are you sure you want to delete this course?")) {
       try {
         const token = localStorage.getItem("token")
-        const response = await fetch(`http://localhost:5000/api/admin/courses/${courseId}`, {
+        const response = await fetch(`http://localhost:2000/api/admin/courses/${courseId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -292,7 +305,7 @@ const AdminCourseForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
                 <input
                   type="number"
                   name="price"
@@ -315,6 +328,21 @@ const AdminCourseForm = () => {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
+                <select
+                  name="level"
+                  value={formData.level}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
               </div>
             </div>
 
@@ -455,7 +483,7 @@ const AdminCourseForm = () => {
             <div key={course._id} className="p-6 hover:bg-gray-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <ImageIcon
+                  <img
                     src={course.thumbnail || "/placeholder.svg"}
                     alt={course.title}
                     className="h-16 w-16 object-cover rounded-lg"
@@ -465,7 +493,7 @@ const AdminCourseForm = () => {
                     <p className="text-sm text-gray-600">{course.description}</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <span className="text-sm text-gray-500">Category: {course.category}</span>
-                      <span className="text-sm text-gray-500">Price: ${course.price}</span>
+                      <span className="text-sm text-gray-500">Price: ₹{course.price}</span>
                       <span className="text-sm text-gray-500">Enrollments: {course.enrollments}</span>
                     </div>
                   </div>

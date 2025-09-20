@@ -35,8 +35,8 @@ app.use(morgan("combined"))
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true,
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: false,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   }),
@@ -176,16 +176,8 @@ console.log('JWT_SECRET loaded:', process.env.JWT_SECRET ? '*****' : 'MISSING!')
 
 // Graceful shutdown
 
-
-app.use(cors({
-  origin: "http://localhost:5173", // your frontend URL
-  credentials: true, // if you need cookies/auth
-}));
-
-
-
 // Start server
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 2000
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`)
   console.log(`📚 MERN LMS API Server with Razorpay`)

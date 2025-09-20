@@ -242,7 +242,7 @@ const DashboardPage = () => {
                         <button
                           onClick={() =>
                             window.open(
-                              `http://localhost:5000/api/certificates/pdf/${certificate.certificateId}`,
+                              `http://localhost:2000/api/certificates/pdf/${certificate.certificateId}`,
                               "_blank",
                             )
                           }
@@ -254,7 +254,7 @@ const DashboardPage = () => {
                           onClick={() => {
                             // Download logic here
                             const link = document.createElement("a")
-                            link.href = `http://localhost:5000/api/certificates/download/${certificate.certificateId}`
+                            link.href = `http://localhost:2000/api/certificates/download/${certificate.certificateId}`
                             link.download = `${certificate.certificateNumber}.pdf`
                             link.click()
                           }}
