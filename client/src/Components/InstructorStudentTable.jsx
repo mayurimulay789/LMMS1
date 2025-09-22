@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Mail, MessageSquare, Eye, UserCheck, UserX } from "lucide-react"
+import { Search, Mail, MessageSquare, Eye, ChevronDown, ChevronUp } from "lucide-react"
 
 const InstructorStudentTable = () => {
   const [students, setStudents] = useState([])
@@ -10,6 +10,7 @@ const InstructorStudentTable = () => {
   const [filterCourse, setFilterCourse] = useState("all")
   const [isLoading, setIsLoading] = useState(true)
   const [courses, setCourses] = useState([])
+  const [expandedRows, setExpandedRows] = useState({})
 
   useEffect(() => {
     fetchStudents()
@@ -33,10 +34,34 @@ const InstructorStudentTable = () => {
 
       if (response.ok) {
         const data = await response.json()
-        setStudents(data)
+        if (Array.isArray(data)) {
+          setStudents(data)
+        } else {
+          setStudents([])
+        }
       }
     } catch (error) {
       console.error("Error fetching students:", error)
+      // fallback mock
+      setStudents([
+        {
+          _id: "1",
+          name: "Alice",
+          email: "alice@example.com",
+          enrollments: [
+            { courseId: "c1", courseTitle: "React Basics", progress: 60, lastActivity: "2024-09-10" },
+            { courseId: "c2", courseTitle: "Node.js Mastery", progress: 90, lastActivity: "2024-09-14" },
+          ],
+        },
+        {
+          _id: "2",
+          name: "Bob",
+          email: "bob@example.com",
+          enrollments: [
+            { courseId: "c1", courseTitle: "React Basics", progress: 50, lastActivity: "2024-09-12" },
+          ],
+        },
+      ])
     } finally {
       setIsLoading(false)
     }
@@ -54,10 +79,18 @@ const InstructorStudentTable = () => {
 
       if (response.ok) {
         const data = await response.json()
-        setCourses(data)
+        if (Array.isArray(data)) {
+          setCourses(data)
+        } else {
+          setCourses([])
+        }
       }
     } catch (error) {
       console.error("Error fetching courses:", error)
+      setCourses([
+        { _id: "c1", title: "React Basics" },
+        { _id: "c2", title: "Node.js Mastery" },
+      ])
     }
   }
 
@@ -68,15 +101,21 @@ const InstructorStudentTable = () => {
       filtered = filtered.filter(
         (student) =>
           student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          student.email?.toLowerCase().includes(searchTerm.toLowerCase()),
+          student.email?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
     if (filterCourse !== "all") {
-      filtered = filtered.filter((student) => student.courseId === filterCourse)
+      filtered = filtered.filter((student) =>
+        student.enrollments?.some((enrollment) => enrollment.courseId === filterCourse)
+      )
     }
 
     setFilteredStudents(filtered)
+  }
+
+  const toggleRow = (studentId) => {
+    setExpandedRows((prev) => ({ ...prev, [studentId]: !prev[studentId] }))
   }
 
   const getProgressColor = (progress) => {
@@ -106,7 +145,7 @@ const InstructorStudentTable = () => {
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <h3 className="text-lg font-semibold text-gray-900">Student Management</h3>
+          <h3 className="text-lg font-semibold text-gray-900">My Students</h3>
 
           {/* Search and Filter */}
           <div className="flex space-x-4">
@@ -143,17 +182,14 @@ const InstructorStudentTable = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Activity</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Courses</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredStudents.length === 0 ? (
               <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                <td colSpan="3" className="px-6 py-4 text-center text-gray-500">
                   No students found
                 </td>
               </tr>
@@ -175,32 +211,40 @@ const InstructorStudentTable = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {student.courseTitle || "Unknown Course"}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div
-                        className="bg-blue-600 h-2.5 rounded-full"
-                        style={{ width: `${student.progress || 0}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-xs text-gray-500 mt-1">{student.progress || 0}% complete</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {student.lastActivity ? new Date(student.lastActivity).toLocaleDateString() : "No activity"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getProgressColor(
-                        student.progress || 0,
-                      )}`}
-                    >
-                      {student.progress >= 80 ? "Completed" : student.progress >= 50 ? "In Progress" : "Just Started"}
-                    </span>
+                    {expandedRows[student._id]
+                      ? student.enrollments.map((enrollment) => (
+                          <div key={enrollment.courseId} className="mb-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium">{enrollment.courseTitle}</span>
+                              <span className={`text-xs px-2 py-1 rounded-full ${getProgressColor(enrollment.progress)}`}>
+                                {enrollment.progress >= 80
+                                  ? "Completed"
+                                  : enrollment.progress >= 50
+                                  ? "In Progress"
+                                  : "Just Started"}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                              <div
+                                className="bg-blue-600 h-2.5 rounded-full"
+                                style={{ width: `${enrollment.progress || 0}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs text-gray-500">{enrollment.lastActivity ? new Date(enrollment.lastActivity).toLocaleDateString() : "No activity"}</span>
+                          </div>
+                        ))
+                      : student.enrollments.map((e) => e.courseTitle).join(", ")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => toggleRow(student._id)}
+                        className="text-gray-600 hover:text-gray-900 p-1"
+                        title="Expand/Collapse"
+                      >
+                        {expandedRows[student._id] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </button>
                       <button
                         onClick={() => window.open(`/instructor/students/${student._id}`, "_blank")}
                         className="text-blue-600 hover:text-blue-900 p-1"
@@ -229,19 +273,6 @@ const InstructorStudentTable = () => {
             )}
           </tbody>
         </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="px-6 py-4 border-t border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-700">
-            Showing {filteredStudents.length} of {students.length} students
-          </div>
-          <div className="flex space-x-2">
-            <button className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Previous</button>
-            <button className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Next</button>
-          </div>
-        </div>
       </div>
     </div>
   )

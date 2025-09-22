@@ -1,11 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Eye, Edit, BarChart3, Plus, ImageIcon } from "lucide-react"
+import { Edit, Plus, Trash2 } from "lucide-react"
+import InstructorCourseForm from "./InstructorCourseForm"
 
 const InstructorCourseList = () => {
   const [courses, setCourses] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [filterStatus, setFilterStatus] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [showForm, setShowForm] = useState(false)
+  const [editingCourse, setEditingCourse] = useState(null)
 
   useEffect(() => {
     fetchCourses()
@@ -15,12 +20,8 @@ const InstructorCourseList = () => {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch("http://localhost:2000/api/instructor/courses", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${token}` },
       })
-
       if (response.ok) {
         const data = await response.json()
         setCourses(data)
@@ -32,100 +33,148 @@ const InstructorCourseList = () => {
     }
   }
 
+  const deleteCourse = async (courseId) => {
+    if (!window.confirm("Are you sure you want to delete this course?")) return
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch(`http://localhost:2000/api/instructor/courses/${courseId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (response.ok) {
+        setCourses((prev) => prev.filter((c) => c._id !== courseId))
+      }
+    } catch (error) {
+      console.error("Error deleting course:", error)
+    }
+  }
+
+  const handleCreateCourse = () => {
+    setEditingCourse(null)
+    setShowForm(true)
+  }
+
+  const handleEditCourse = (course) => {
+    setEditingCourse(course)
+    setShowForm(true)
+  }
+
+  const handleFormSuccess = (savedCourse) => {
+    if (editingCourse) {
+      // update existing
+      setCourses((prev) => prev.map((c) => (c._id === savedCourse._id ? savedCourse : c)))
+    } else {
+      // add new
+      setCourses((prev) => [...prev, savedCourse])
+    }
+    setShowForm(false)
+    setEditingCourse(null)
+  }
+
+  const filteredCourses = courses.filter((course) => {
+    const matchesStatus = filterStatus === "all" || course.status === filterStatus
+    const matchesSearch =
+      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.description.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesStatus && matchesSearch
+  })
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-gray-300 rounded w-1/4"></div>
-          <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-20 bg-gray-300 rounded"></div>
-            ))}
-          </div>
-        </div>
+        <p>Loading courses...</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">My Courses</h3>
+        <h3 className="text-2xl font-bold text-gray-900">My Courses</h3>
         <button
-          onClick={() => window.open("/instructor/courses/create", "_self")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          onClick={handleCreateCourse}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
         >
           <Plus className="h-4 w-4" />
           <span>Create Course</span>
         </button>
       </div>
 
-      {/* Courses List */}
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-6 border-b border-gray-200">
-          <h4 className="text-lg font-medium text-gray-900">Course List</h4>
-        </div>
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-sm p-4 flex justify-between">
+        <input
+          type="text"
+          placeholder="Search courses..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="px-3 py-2 border rounded-lg w-64"
+        />
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="px-3 py-2 border rounded-lg"
+        >
+          <option value="all">All</option>
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+      </div>
 
-        <div className="divide-y divide-gray-200">
-          {courses.map((course) => (
-            <div key={course._id} className="p-6 hover:bg-gray-50">
-              <div className="flex items-center justify-between">
+      {/* Course List */}
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        {filteredCourses.length === 0 ? (
+          <p className="p-6 text-gray-600">No courses found.</p>
+        ) : (
+          <div className="divide-y">
+            {filteredCourses.map((course) => (
+              <div key={course._id} className="p-6 flex justify-between items-center">
                 <div className="flex items-center space-x-4">
-                  <ImageIcon
+                  <img
                     src={course.thumbnail || "/placeholder.svg"}
                     alt={course.title}
-                    className="h-16 w-16 object-cover rounded-lg"
+                    className="h-16 w-16 rounded object-cover"
                   />
                   <div>
-                    <h5 className="text-lg font-medium text-gray-900">{course.title}</h5>
-                    <p className="text-sm text-gray-600 line-clamp-1">{course.description}</p>
-                    <div className="flex items-center space-x-4 mt-2">
-                      <span className="text-sm text-gray-500">Students: {course.enrollments || 0}</span>
-                      <span className="text-sm text-gray-500">Rating: {course.rating || 0}/5</span>
-                      <span className="text-sm text-gray-500">Revenue: ${course.revenue || 0}</span>
-                    </div>
+                    <h4 className="font-semibold">{course.title}</h4>
+                    <p className="text-sm text-gray-600">{course.description}</p>
                   </div>
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      course.status === "published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {course.status}
-                  </span>
-
-                  <button
-                    onClick={() => window.open(`/courses/${course._id}`, "_blank")}
-                    className="text-blue-600 hover:text-blue-800 p-2"
-                    title="View Course"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </button>
-
-                  <button
-                    onClick={() => window.open(`/instructor/courses/${course._id}/edit`, "_self")}
-                    className="text-green-600 hover:text-green-800 p-2"
-                    title="Edit Course"
-                  >
+                <div className="flex space-x-2">
+                  <button onClick={() => handleEditCourse(course)} className="text-green-600">
                     <Edit className="h-4 w-4" />
                   </button>
-
-                  <button
-                    onClick={() => window.open(`/instructor/courses/${course._id}/analytics`, "_self")}
-                    className="text-purple-600 hover:text-purple-800 p-2"
-                    title="View Analytics"
-                  >
-                    <BarChart3 className="h-4 w-4" />
+                  <button onClick={() => deleteCourse(course._id)} className="text-red-600">
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Modal Form */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 relative">
+            <button
+              onClick={() => {
+                setShowForm(false)
+                setEditingCourse(null)
+              }}
+              className="absolute top-3 right-3 text-gray-600"
+            >
+              ✕
+            </button>
+            <InstructorCourseForm
+              mode={editingCourse ? "edit" : "create"}
+              course={editingCourse}
+              onSuccess={handleFormSuccess}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

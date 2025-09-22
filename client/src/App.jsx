@@ -30,6 +30,7 @@ import ProtectedAdminRoute from "./Components/ProtectedAdminRoute.jsx"
 import ProtectedInstructorRoute from "./Components/ProtectedInstructorRoute.jsx"
 import AdminDashboardPage from "./Pages/AdminDashboardPage.jsx"
 import InstructorDashboardPage from "./Pages/InstructorDashboardPage.jsx"
+import InstructorCourseForm from "./Components/InstructorCourseForm.jsx"
 // Payment Pages
 import PaymentSuccessPage from "./Pages/PaymentSucessPage"
 import PaymentFailedPage from "./Pages/PaymentFailedPage"
@@ -113,6 +114,15 @@ function AppContent() {
               element={
                 <ProtectedInstructorRoute>
                   <InstructorDashboardPage />
+                </ProtectedInstructorRoute>
+              }
+            />
+
+            <Route
+              path="/instructor/courses/create"
+              element={
+                <ProtectedInstructorRoute>
+                  <InstructorCourseForm />
                 </ProtectedInstructorRoute>
               }
             />

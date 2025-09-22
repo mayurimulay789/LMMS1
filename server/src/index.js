@@ -74,6 +74,7 @@ const paymentRoutes = require("../routes/payments")
 const certificateRoutes = require("../routes/certificates")
 const adminRoutes = require("../routes/admin")
 const uploadRoutes = require("../routes/upload")
+const instructorRoutes = require("../routes/instructor")
 
 // Use routes
 app.use("/api/auth", authRoutes)
@@ -84,6 +85,7 @@ app.use("/api/payments", paymentRoutes)
 app.use("/api/certificates", certificateRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/upload", uploadRoutes)
+app.use("/api/instructor", instructorRoutes)
 
 app.use("/api/*splat", (req, res) => {
   res.status(404).json({
