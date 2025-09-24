@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, Share2, Heart } from "lucide-react"
 import { motion } from "framer-motion"
-
 
 const CourseDetailPage = () => {
   const { id } = useParams()
@@ -16,11 +15,7 @@ const CourseDetailPage = () => {
   const [activeTab, setActiveTab] = useState("overview")
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [userProgress, setUserProgress] = useState(null)
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
-  const [showVideoControls, setShowVideoControls] = useState(false)
-  const [relatedCourses, setRelatedCourses] = useState([])
-  const [relatedCoursesLoading, setRelatedCoursesLoading] = useState(false)
-  const videoRef = useRef(null)
+
   useEffect(() => {
     fetchCourseDetails()
   }, [id])
@@ -45,10 +40,6 @@ const CourseDetailPage = () => {
         setCourse(data)
         setIsEnrolled(data.isEnrolled)
         setUserProgress(data.userProgress)
-        // Fetch related courses
-        if (data.category) {
-          fetchRelatedCourses(data.category)
-        }
       }
     } catch (error) {
       console.error("Error fetching course details:", error)
@@ -104,35 +95,6 @@ const CourseDetailPage = () => {
 
   const formatPrice = (price) => {
     return price === 0 ? "Free" : `₹${price}`
-  }
-
-  const handlePlayVideo = () => {
-    if (videoRef.current) {
-      setIsVideoPlaying(true)
-      setShowVideoControls(true)
-      videoRef.current.play().catch((error) => {
-        console.error('Error playing video:', error)
-        // Fallback: try to show controls if play fails
-        videoRef.current.controls = true
-      })
-    }
-  }
-
-  const fetchRelatedCourses = async (category) => {
-    setRelatedCoursesLoading(true)
-    try {
-      const response = await fetch(`http://localhost:2000/api/courses?category=${category}&limit=4`)
-      if (response.ok) {
-        const data = await response.json()
-        // Filter out the current course
-        const filteredCourses = data.courses.filter(course => course._id !== id)
-        setRelatedCourses(filteredCourses)
-      }
-    } catch (error) {
-      console.error("Error fetching related courses:", error)
-    } finally {
-      setRelatedCoursesLoading(false)
-    }
   }
 
   const tabs = [
@@ -213,12 +175,12 @@ const CourseDetailPage = () => {
 
                 <div className="flex items-center space-x-4">
                   <img
-                    src={course.createdBy?.profile?.avatar || course.instructorImage || "/placeholder.svg"}
-                    alt={course.createdBy?.name || course.instructor}
+                    src={course.createdBy?.avatar || course.instructorImage || "/placeholder.svg"}
+                    alt={course.instructor || course.createdBy?.name}
                     className="w-12 h-12 rounded-full"
                   />
                   <div>
-                    <p className="font-medium">Created by {course.createdBy?.name || course.instructor}</p>
+                    <p className="font-medium">Created by {course.instructor || course.createdBy?.name}</p>
                     <p className="text-sm text-gray-300">
                       Last updated {new Date(course.lastUpdated).toLocaleDateString()}
                     </p>
@@ -235,60 +197,14 @@ const CourseDetailPage = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="bg-white rounded-lg shadow-lg overflow-hidden"
               >
-                <div className="relative bg-gray-100">
-                  {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
-                    <video
-                      ref={videoRef}
-                      src={course.thumbnail}
-                      className="w-full h-48 object-cover"
-                      muted
-                      controls={false}
-                      preload="metadata"
-                      onError={(e) => {
-                        console.log('CourseDetail video load error:', e)
-                        console.log('CourseDetail video src:', course.thumbnail)
-                        e.target.style.display = 'none'
-                        const fallback = e.target.parentElement.querySelector('.coursedetail-video-fallback') || document.createElement('div')
-                        fallback.className = 'coursedetail-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
-                        fallback.textContent = 'VIDEO'
-                        if (!e.target.parentElement.querySelector('.coursedetail-video-fallback')) {
-                          e.target.parentElement.appendChild(fallback)
-                        }
-                      }}
-                      onLoadedData={(e) => {
-                        console.log('CourseDetail video loaded successfully')
-                        const fallback = e.target.parentElement.querySelector('.coursedetail-video-fallback')
-                        if (fallback) fallback.remove()
-                      }}
-                    />
-                  ) : (
-                    <img
-                      src={course.thumbnail || "/placeholder.svg"}
-                      alt={course.title}
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        console.log('CourseDetail image load error:', e)
-                        console.log('CourseDetail image src:', course.thumbnail)
-                        e.target.style.display = 'none'
-                        const fallback = e.target.parentElement.querySelector('.coursedetail-image-fallback') || document.createElement('div')
-                        fallback.className = 'coursedetail-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
-                        fallback.textContent = 'IMG'
-                        if (!e.target.parentElement.querySelector('.coursedetail-image-fallback')) {
-                          e.target.parentElement.appendChild(fallback)
-                        }
-                      }}
-                      onLoad={(e) => {
-                        console.log('CourseDetail image loaded successfully')
-                        const fallback = e.target.parentElement.querySelector('.coursedetail-image-fallback')
-                        if (fallback) fallback.remove()
-                      }}
-                    />
-                  )}
+                <div className="relative">
+                  <img
+                    src={course.thumbnail || "/placeholder.svg"}
+                    alt={course.title}
+                    className="w-full h-48 object-cover"
+                  />
                   <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <button
-                      onClick={handlePlayVideo}
-                      className="bg-white bg-opacity-90 rounded-full p-4 hover:bg-opacity-100 transition-all"
-                    >
+                    <button className="bg-white bg-opacity-90 rounded-full p-4 hover:bg-opacity-100 transition-all">
                       <Play className="h-8 w-8 text-gray-900 ml-1" />
                     </button>
                   </div>
@@ -445,9 +361,7 @@ const CourseDetailPage = () => {
 
               {activeTab === "curriculum" && (
                 <div>
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900">Course Curriculum</h3>
-                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Course Curriculum</h3>
                   <div className="space-y-4">
                     {course.lessons.map((lesson, index) => (
                       <div key={lesson._id} className="border border-gray-200 rounded-lg p-4">
@@ -488,8 +402,8 @@ const CourseDetailPage = () => {
                   {course.createdBy ? (
                     <div className="flex items-start space-x-6">
                       <img
-                        src={course.instructorImage || course.createdBy?.profile?.avatar || "/placeholder.svg"}
-                        alt={course.createdBy?.name || "Instructor"}
+                        src={course.instructorImage || course.createdBy.avatar || "/placeholder.svg"}
+                        alt={course.createdBy.name || "Instructor"}
                         className="w-24 h-24 rounded-full"
                       />
                       <div>
@@ -561,68 +475,22 @@ const CourseDetailPage = () => {
               {/* Related Courses */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Related Courses</h4>
-                {relatedCoursesLoading ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="animate-pulse flex space-x-3">
-                        <div className="w-16 h-12 bg-gray-300 rounded"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                          <div className="h-3 bg-gray-300 rounded w-3/4"></div>
-                        </div>
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex space-x-3">
+                      <img
+                        src={`/placeholder.svg?height=60&width=80`}
+                        alt="Course thumbnail"
+                        className="w-20 h-15 object-cover rounded"
+                      />
+                      <div>
+                        <h5 className="font-medium text-gray-900 text-sm">Advanced JavaScript</h5>
+                        <p className="text-xs text-gray-600">By Jane Smith</p>
+                        <p className="text-sm font-semibold text-gray-900">₹149</p>
                       </div>
-                    ))}
-                  </div>
-                ) : relatedCourses.length > 0 ? (
-                  <div className="space-y-4">
-                    {relatedCourses.map((course) => (
-                      <div key={course._id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/courses/${course._id}`)}>
-                        {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
-                          <video
-                            src={course.thumbnail}
-                            className="w-16 h-12 object-cover rounded"
-                            muted
-                            onError={(e) => {
-                              e.target.style.display = 'none'
-                              const fallback = e.target.parentElement.querySelector('.related-video-fallback') || document.createElement('div')
-                              fallback.className = 'related-video-fallback w-16 h-12 flex items-center justify-center bg-gray-200 text-gray-600 font-medium text-xs rounded'
-                              fallback.textContent = 'VIDEO'
-                              if (!e.target.parentElement.querySelector('.related-video-fallback')) {
-                                e.target.parentElement.appendChild(fallback)
-                              }
-                            }}
-                            onLoadedData={(e) => {
-                              const fallback = e.target.parentElement.querySelector('.related-video-fallback')
-                              if (fallback) fallback.remove()
-                            }}
-                          />
-                        ) : (
-                          <img
-                            src={course.thumbnail || "/placeholder.svg"}
-                            alt={course.title}
-                            className="w-16 h-12 object-cover rounded"
-                            onError={(e) => {
-                              e.target.src = "/placeholder.svg"
-                            }}
-                          />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-gray-900 text-sm truncate">{course.title}</h5>
-                          <p className="text-xs text-gray-600 truncate">By {course.createdBy?.name || course.instructor}</p>
-                          <div className="flex items-center justify-between mt-1">
-                            <span className="text-sm font-semibold text-gray-900">{formatPrice(course.price)}</span>
-                            <div className="flex items-center space-x-1">
-                              <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                              <span className="text-xs text-gray-600">{course.avgRating}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-600">No related courses found.</p>
-                )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

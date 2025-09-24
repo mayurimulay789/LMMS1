@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Upload, X, Save, Eye, Edit, Trash2, ImageIcon, Clock } from "lucide-react"
+import { Plus, Upload, X, Save, Eye, Edit, Trash2, ImageIcon } from "lucide-react"
 
 const AdminCourseForm = () => {
   const [courses, setCourses] = useState([])
@@ -82,14 +82,11 @@ const AdminCourseForm = () => {
 
   const handleFileUpload = async (file, type) => {
     const formDataUpload = new FormData()
-    formDataUpload.append(type === 'thumbnail' ? 'thumbnail' : 'video', file)
-
-    // Use correct endpoints based on file type
-    const endpoint = type === 'thumbnail' ? 'course-media' : 'lesson-video'
+    formDataUpload.append(type, file)
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/upload/${endpoint}`, {
+      const response = await fetch(`http://localhost:2000/api/upload/course-${type}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -99,14 +96,7 @@ const AdminCourseForm = () => {
 
       if (response.ok) {
         const data = await response.json()
-        console.log('Upload successful:', data)
-        console.log('File type:', data.data.type)
-        console.log('File URL:', data.data.url)
         return data.data.url
-      } else {
-        const errorData = await response.json()
-        console.error('Upload failed:', errorData)
-        return null
       }
     } catch (error) {
       console.error(`Error uploading ${type}:`, error)
@@ -117,29 +107,12 @@ const AdminCourseForm = () => {
   const handleThumbnailUpload = async (e) => {
     const file = e.target.files[0]
     if (file) {
-      console.log('Selected file:', file)
-      console.log('File type:', file.type)
-      console.log('File name:', file.name)
-
       const url = await handleFileUpload(file, "thumbnail")
       if (url) {
-        console.log('Setting thumbnail URL:', url)
         setFormData((prev) => ({
           ...prev,
           thumbnail: url,
         }))
-
-        // Test if video URL is accessible
-        if (url.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i)) {
-          console.log('Testing video URL accessibility...')
-          fetch(url, { method: 'HEAD' })
-            .then(response => {
-              console.log('Video URL accessibility test:', response.status, response.statusText)
-            })
-            .catch(error => {
-              console.error('Video URL accessibility test failed:', error)
-            })
-        }
       }
     }
   }
@@ -147,33 +120,12 @@ const AdminCourseForm = () => {
   const handleInstructorImageUpload = async (e) => {
     const file = e.target.files[0]
     if (file) {
-      const formDataUpload = new FormData()
-      formDataUpload.append("instructorImage", file)
-
-      // Include courseId if editing an existing course
-      if (editingCourse) {
-        formDataUpload.append("courseId", editingCourse._id)
-      }
-
-      try {
-        const token = localStorage.getItem("token")
-        const response = await fetch(`http://localhost:2000/api/upload/instructor-image`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formDataUpload,
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setFormData((prev) => ({
-            ...prev,
-            instructorImage: data.data.url,
-          }))
-        }
-      } catch (error) {
-        console.error("Error uploading instructor image:", error)
+      const url = await handleFileUpload(file, "instructorImage")
+      if (url) {
+        setFormData((prev) => ({
+          ...prev,
+          instructorImage: url,
+        }))
       }
     }
   }
@@ -297,58 +249,6 @@ const AdminCourseForm = () => {
     }
   }
 
-  const recalculateCourseDurations = async (courseId) => {
-    try {
-      const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/courses/${courseId}/recalculate-duration`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        alert(`Duration recalculated successfully! Total duration: ${data.course.duration} minutes`)
-        fetchCourses() // Refresh the courses list
-      } else {
-        const errorData = await response.json()
-        alert(`Error recalculating duration: ${errorData.message}`)
-      }
-    } catch (error) {
-      console.error("Error recalculating course duration:", error)
-      alert("Error recalculating course duration")
-    }
-  }
-
-  const recalculateAllDurations = async () => {
-    if (window.confirm("Are you sure you want to recalculate durations for ALL courses? This may take a while.")) {
-      try {
-        const token = localStorage.getItem("token")
-        const response = await fetch("http://localhost:2000/api/admin/courses/recalculate-durations", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          alert(`Duration recalculation completed! Success: ${data.success}, Failed: ${data.failed}`)
-          fetchCourses() // Refresh the courses list
-        } else {
-          const errorData = await response.json()
-          alert(`Error recalculating durations: ${errorData.message}`)
-        }
-      } catch (error) {
-        console.error("Error recalculating all durations:", error)
-        alert("Error recalculating all durations")
-      }
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
@@ -369,22 +269,13 @@ const AdminCourseForm = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">Course Management</h3>
-        <div className="flex space-x-2">
-          <button
-            onClick={recalculateAllDurations}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-          >
-            <Clock className="h-4 w-4" />
-            <span>Recalculate All Durations</span>
-          </button>
-          <button
-            onClick={() => setIsCreating(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Create Course</span>
-          </button>
-        </div>
+        <button
+          onClick={() => setIsCreating(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Create Course</span>
+        </button>
       </div>
 
       {/* Course Form */}
@@ -426,10 +317,6 @@ const AdminCourseForm = () => {
                   <option value="Design">Design</option>
                   <option value="Marketing">Marketing</option>
                   <option value="Business">Business</option>
-                  <option value="Creative">Creative</option>
-                  <option value="Technology">Technology</option>
-                  <option value="Health">Health</option>
-                  <option value="Language">Language</option>
                 </select>
               </div>
 
@@ -522,7 +409,7 @@ const AdminCourseForm = () => {
               <div className="flex items-center space-x-4">
                 <input
                   type="file"
-                  accept="image/*,video/*"
+                  accept="image/*"
                   onChange={handleThumbnailUpload}
                   className="hidden"
                   id="thumbnail-upload"
@@ -532,69 +419,16 @@ const AdminCourseForm = () => {
                   className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 flex items-center space-x-2"
                 >
                   <Upload className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm text-gray-600">Upload Thumbnail (Image or Video)</span>
+                  <span className="text-sm text-gray-600">Upload Thumbnail</span>
                 </label>
                 {formData.thumbnail && (
-                  <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                    {formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
-                      <video
-                        src={formData.thumbnail}
-                        className="h-full w-full object-cover"
-                        muted
-                        controls={false}
-                        preload="metadata"
-                        onMouseEnter={(e) => {
-                          e.target.play().catch(err => console.log('Video play failed:', err))
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.pause()
-                          e.target.currentTime = 0
-                        }}
-                        onError={(e) => {
-                          console.log('Video load error:', e)
-                          console.log('Video src:', formData.thumbnail)
-                          // Fallback to showing file type indicator
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.video-fallback') || document.createElement('div')
-                          fallback.className = 'video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'VIDEO'
-                          if (!e.target.parentElement.querySelector('.video-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoadedData={(e) => {
-                          console.log('Video loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.video-fallback')
-                          if (fallback) fallback.remove()
-                        }}
-                      />
-                    ) : (
-                      <img
-                        src={formData.thumbnail || "/placeholder.svg"}
-                        alt="Thumbnail preview"
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          console.log('Image load error:', e)
-                          console.log('Image src:', formData.thumbnail)
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.image-fallback') || document.createElement('div')
-                          fallback.className = 'image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'IMG'
-                          if (!e.target.parentElement.querySelector('.image-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoad={(e) => {
-                          console.log('Image loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.image-fallback')
-                          if (fallback) fallback.remove()
-                        }}
-                      />
-                    )}
-                  </div>
+                  <img
+                    src={formData.thumbnail || "/placeholder.svg"}
+                    alt="Thumbnail preview"
+                    className="h-16 w-16 object-cover rounded-lg"
+                  />
                 )}
               </div>
-              <p className="text-xs text-gray-500 mt-1">Supports: Images (JPG, PNG, GIF) and Videos (MP4, WebM, MOV)</p>
             </div>
 
             {/* Lessons */}
@@ -693,55 +527,11 @@ const AdminCourseForm = () => {
             <div key={course._id} className="p-6 hover:bg-gray-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                    {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
-                      <video
-                        src={course.thumbnail}
-                        className="h-full w-full object-cover"
-                        muted
-                        controls={false}
-                        preload="metadata"
-                        onError={(e) => {
-                          console.log('Course video load error:', e)
-                          console.log('Course video src:', course.thumbnail)
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.course-video-fallback') || document.createElement('div')
-                          fallback.className = 'course-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'VIDEO'
-                          if (!e.target.parentElement.querySelector('.course-video-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoadedData={(e) => {
-                          console.log('Course video loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.course-video-fallback')
-                          if (fallback) fallback.remove()
-                        }}
-                      />
-                    ) : (
-                      <img
-                        src={course.thumbnail || "/placeholder.svg"}
-                        alt={course.title}
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          console.log('Course image load error:', e)
-                          console.log('Course image src:', course.thumbnail)
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.course-image-fallback') || document.createElement('div')
-                          fallback.className = 'course-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'IMG'
-                          if (!e.target.parentElement.querySelector('.course-image-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoad={(e) => {
-                          console.log('Course image loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.course-image-fallback')
-                          if (fallback) fallback.remove()
-                        }}
-                      />
-                    )}
-                  </div>
+                  <img
+                    src={course.thumbnail || "/placeholder.svg"}
+                    alt={course.title}
+                    className="h-16 w-16 object-cover rounded-lg"
+                  />
                   <div>
                     <h5 className="text-lg font-medium text-gray-900">{course.title}</h5>
                     <p className="text-sm text-gray-600">{course.description}</p>
@@ -767,14 +557,6 @@ const AdminCourseForm = () => {
                     className="text-blue-600 hover:text-blue-800 p-2"
                   >
                     <Eye className="h-4 w-4" />
-                  </button>
-
-                  <button
-                    onClick={() => recalculateCourseDurations(course._id)}
-                    className="text-purple-600 hover:text-purple-800 p-2"
-                    title="Recalculate Duration"
-                  >
-                    <Clock className="h-4 w-4" />
                   </button>
 
                   <button onClick={() => startEditing(course)} className="text-green-600 hover:text-green-800 p-2">

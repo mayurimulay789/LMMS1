@@ -1,18 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Link } from "react-router-dom"
-import { BookOpen, Clock, Award, TrendingUp, Play, Download, Eye, User, Edit2 } from "lucide-react"
+import { BookOpen, Clock, Award, TrendingUp, Play, Download, Eye } from "lucide-react"
 import { fetchUserEnrollments, fetchUserProgress, fetchUserCertificates } from "../store/slices/enrollmentSlice"
-import { loadUser } from "../store/slices/authSlice"
-import ProfileForm from "../Components/ProfileForm"
 
 const DashboardPage = () => {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
   const { enrollments, progress, certificates, isLoading } = useSelector((state) => state.enrollment)
-  const [showProfileForm, setShowProfileForm] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -58,12 +55,6 @@ const DashboardPage = () => {
 
   const getNextLesson = (courseId) => {
     return progress[courseId]?.nextLesson || "Introduction"
-  }
-
-  const handleProfileUpdate = (updatedUser) => {
-    // Update the user in the auth state
-    dispatch({ type: 'auth/userUpdated', payload: updatedUser })
-    setShowProfileForm(false)
   }
 
   if (isLoading) {
@@ -186,79 +177,6 @@ const DashboardPage = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Personal Information & Bio */}
-            {showProfileForm ? (
-              <ProfileForm
-                user={user}
-                onSave={handleProfileUpdate}
-                onCancel={() => setShowProfileForm(false)}
-              />
-            ) : (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <User className="h-5 w-5 mr-2" />
-                    Personal Information
-                  </h3>
-                  <button
-                    onClick={() => setShowProfileForm(true)}
-                    className="text-blue-600 hover:text-blue-800 flex items-center space-x-1 text-sm"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                    <span>Edit</span>
-                  </button>
-                </div>
-
-                {/* Profile Avatar */}
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-16 h-16 rounded-full border-2 border-gray-300 overflow-hidden bg-gray-100 flex items-center justify-center">
-                    {user?.profile?.avatar ? (
-                      <img
-                        src={user.profile.avatar}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="h-8 w-8 text-gray-400" />
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-900">{user?.name}</h4>
-                    <p className="text-sm text-gray-600 capitalize">{user?.role}</p>
-                  </div>
-                </div>
-
-                {/* Bio Display */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Bio</h4>
-                  <p className="text-gray-600 bg-gray-50 p-3 rounded-md min-h-[80px]">
-                    {user?.profile?.bio || "No bio added yet. Click edit to add your bio."}
-                  </p>
-                </div>
-
-                {/* Quick Info */}
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-700">Email: </span>
-                    <span className="text-gray-600">{user?.email}</span>
-                  </div>
-                  {user?.profile?.website && (
-                    <div>
-                      <span className="font-medium text-gray-700">Website: </span>
-                      <a
-                        href={user.profile.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        {user.profile.website}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* Recent Activity */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>

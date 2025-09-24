@@ -153,6 +153,8 @@ router.post("/users/:userId/delete", async (req, res) => {
 
 
 
+
+
 // Get all courses for admin
 router.get("/courses", async (req, res) => {
   try {
@@ -179,56 +181,10 @@ router.get("/courses", async (req, res) => {
 // Create new course
 router.post("/courses", async (req, res) => {
   try {
-    const { calculateLessonsDurations } = require("../utils/videoUtils")
-
     const course = new Course({
       ...req.body,
       createdBy: req.user.id,
     })
-
-    // Calculate durations for lessons with video URLs
-    if (course.lessons && course.lessons.length > 0) {
-      try {
-        const result = await calculateLessonsDurations(course.lessons)
-        course.lessons = result.lessons
-        course.duration = result.totalDuration
-        console.log(`Calculated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
-      } catch (durationError) {
-        console.error("Error calculating lesson durations:", durationError)
-        // Continue with course creation even if duration calculation fails
-      }
-    }
-
-    await course.save()
-    res.status(201).json(course)
-  } catch (error) {
-    console.error("Error creating course:", error)
-    res.status(500).json({ message: "Failed to create course" })
-  }
-})
-
-// Create new course with automatic duration calculation
-router.post("/courses-with-durations", async (req, res) => {
-  try {
-    const { calculateLessonsDurations } = require("../utils/videoUtils")
-
-    const course = new Course({
-      ...req.body,
-      createdBy: req.user.id,
-    })
-
-    // Calculate durations for lessons with video URLs
-    if (course.lessons && course.lessons.length > 0) {
-      try {
-        const result = await calculateLessonsDurations(course.lessons)
-        course.lessons = result.lessons
-        course.duration = result.totalDuration
-        console.log(`Calculated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
-      } catch (durationError) {
-        console.error("Error calculating lesson durations:", durationError)
-        // Continue with course creation even if duration calculation fails
-      }
-    }
 
     await course.save()
     res.status(201).json(course)
@@ -241,66 +197,12 @@ router.post("/courses-with-durations", async (req, res) => {
 // Update course
 router.put("/courses/:courseId", async (req, res) => {
   try {
-    const { calculateLessonsDurations } = require("../utils/videoUtils")
-
-    const course = await Course.findById(req.params.courseId)
+    const course = await Course.findByIdAndUpdate(req.params.courseId, req.body, { new: true })
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" })
     }
 
-    // Update course fields
-    Object.assign(course, req.body)
-
-    // Calculate durations for lessons with video URLs
-    if (course.lessons && course.lessons.length > 0) {
-      try {
-        const result = await calculateLessonsDurations(course.lessons)
-        course.lessons = result.lessons
-        course.duration = result.totalDuration
-        console.log(`Updated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
-      } catch (durationError) {
-        console.error("Error calculating lesson durations:", durationError)
-        // Continue with course update even if duration calculation fails
-      }
-    }
-
-    await course.save()
-    res.json(course)
-  } catch (error) {
-    console.error("Error updating course:", error)
-    res.status(500).json({ message: "Failed to update course" })
-  }
-})
-
-// Update course with automatic duration calculation
-router.put("/courses/:courseId/with-durations", async (req, res) => {
-  try {
-    const { calculateLessonsDurations } = require("../utils/videoUtils")
-
-    const course = await Course.findById(req.params.courseId)
-
-    if (!course) {
-      return res.status(404).json({ message: "Course not found" })
-    }
-
-    // Update course fields
-    Object.assign(course, req.body)
-
-    // Calculate durations for lessons with video URLs
-    if (course.lessons && course.lessons.length > 0) {
-      try {
-        const result = await calculateLessonsDurations(course.lessons)
-        course.lessons = result.lessons
-        course.duration = result.totalDuration
-        console.log(`Updated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
-      } catch (durationError) {
-        console.error("Error calculating lesson durations:", durationError)
-        // Continue with course update even if duration calculation fails
-      }
-    }
-
-    await course.save()
     res.json(course)
   } catch (error) {
     console.error("Error updating course:", error)
@@ -324,55 +226,6 @@ router.delete("/courses/:courseId", async (req, res) => {
   } catch (error) {
     console.error("Error deleting course:", error)
     res.status(500).json({ message: "Failed to delete course" })
-  }
-})
-
-// Recalculate durations for all courses
-router.post("/courses/recalculate-durations", async (req, res) => {
-  try {
-    const results = await Course.recalculateAllDurations()
-
-    res.json({
-      message: "Duration recalculation completed",
-      ...results
-    })
-  } catch (error) {
-    console.error("Error recalculating durations:", error)
-    res.status(500).json({ message: "Failed to recalculate durations", error: error.message })
-  }
-})
-
-// Recalculate duration for a specific course
-router.post("/courses/:courseId/recalculate-duration", async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.courseId)
-
-    if (!course) {
-      return res.status(404).json({ message: "Course not found" })
-    }
-
-    const updated = await course.recalculateDurations()
-
-    if (updated) {
-      res.json({
-        message: "Course duration recalculated successfully",
-        course: {
-          id: course._id,
-          title: course.title,
-          duration: course.duration,
-          lessons: course.lessons.map(lesson => ({
-            id: lesson._id,
-            title: lesson.title,
-            duration: lesson.duration
-          }))
-        }
-      })
-    } else {
-      res.status(400).json({ message: "No lessons found to recalculate" })
-    }
-  } catch (error) {
-    console.error("Error recalculating course duration:", error)
-    res.status(500).json({ message: "Failed to recalculate course duration", error: error.message })
   }
 })
 

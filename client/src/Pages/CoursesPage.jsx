@@ -55,7 +55,7 @@ const CoursesPage = () => {
       }
     } catch (error) {
       console.error("Error fetching categories:", error)
-      setCategories(["Programming", "Design", "Marketing", "Business"])
+      setCategories(["Programming", "Design", "Marketing", "Business", "Creative", "Technology", "Health", "Language"])
     }
   }
 
@@ -65,7 +65,13 @@ const CoursesPage = () => {
       const queryParams = new URLSearchParams({
         page: pagination.currentPage,
         limit: 12,
-        ...Object.fromEntries(Object.entries(filters).filter(([_, value]) => value && value !== "all" && value !== "")),
+      })
+
+      // Add filter parameters only if they have valid values
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value !== "all" && value !== "") {
+          queryParams.append(key, value)
+        }
       })
 
       const response = await fetch(`http://localhost:2000/api/courses?${queryParams}`)
@@ -196,9 +202,9 @@ const CoursesPage = () => {
   const priceRanges = [
     { value: "all", label: "All Prices" },
     { value: "free", label: "Free" },
-    { value: "0-50", label: "$0 - $50" },
-    { value: "50-100", label: "$50 - $100" },
-    { value: "100+", label: "$100+" },
+    { value: "0-50", label: "₹0 - ₹50" },
+    { value: "50-100", label: "₹50 - ₹100" },
+    { value: "100+", label: "₹100+" },
   ]
 
   const levels = [

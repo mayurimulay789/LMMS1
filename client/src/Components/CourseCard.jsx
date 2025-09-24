@@ -22,7 +22,7 @@ const CourseCard = ({ course, index = 0 }) => {
   } = course
 
   const formatPrice = (price) => {
-    return price === 0 ? "Free" : `$${price}`
+    return price === 0 ? "Free" : `₹${price}`
   }
 
   const formatDuration = (duration) => {
@@ -42,12 +42,54 @@ const CourseCard = ({ course, index = 0 }) => {
     >
       <Link to={`/courses/${_id}`} className="block">
         {/* Course Thumbnail */}
-        <div className="relative h-48 overflow-hidden">
-          <img
-            src={thumbnail || "/placeholder.svg?height=200&width=400"}
-            alt={title}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-          />
+        <div className="relative h-48 overflow-hidden bg-gray-100">
+          {thumbnail && thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
+            <video
+              src={thumbnail}
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+              muted
+              controls={false}
+              preload="metadata"
+              onError={(e) => {
+                console.log('CourseCard video load error:', e)
+                console.log('CourseCard video src:', thumbnail)
+                e.target.style.display = 'none'
+                const fallback = e.target.parentElement.querySelector('.coursecard-video-fallback') || document.createElement('div')
+                fallback.className = 'coursecard-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
+                fallback.textContent = 'VIDEO'
+                if (!e.target.parentElement.querySelector('.coursecard-video-fallback')) {
+                  e.target.parentElement.appendChild(fallback)
+                }
+              }}
+              onLoadedData={(e) => {
+                console.log('CourseCard video loaded successfully')
+                const fallback = e.target.parentElement.querySelector('.coursecard-video-fallback')
+                if (fallback) fallback.remove()
+              }}
+            />
+          ) : (
+            <img
+              src={thumbnail || "/placeholder.svg?height=200&width=400"}
+              alt={title}
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+              onError={(e) => {
+                console.log('CourseCard image load error:', e)
+                console.log('CourseCard image src:', thumbnail)
+                e.target.style.display = 'none'
+                const fallback = e.target.parentElement.querySelector('.coursecard-image-fallback') || document.createElement('div')
+                fallback.className = 'coursecard-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
+                fallback.textContent = 'IMG'
+                if (!e.target.parentElement.querySelector('.coursecard-image-fallback')) {
+                  e.target.parentElement.appendChild(fallback)
+                }
+              }}
+              onLoad={(e) => {
+                console.log('CourseCard image loaded successfully')
+                const fallback = e.target.parentElement.querySelector('.coursecard-image-fallback')
+                if (fallback) fallback.remove()
+              }}
+            />
+          )}
           <div className="absolute top-4 left-4">
             <span className="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">{category}</span>
           </div>
@@ -72,9 +114,16 @@ const CourseCard = ({ course, index = 0 }) => {
           </div>
 
           {/* Instructor */}
-          <div className="mb-4">
+          <div className="flex items-center space-x-3 mb-4">
+            {course.createdBy?.profile?.avatar && (
+              <img
+                src={course.createdBy.profile.avatar}
+                alt={course.createdBy?.name || instructor}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            )}
             <p className="text-sm text-gray-700">
-              By <span className="font-medium text-blue-600">{instructor}</span>
+              By <span className="font-medium text-blue-600">{course.createdBy?.name || instructor}</span>
             </p>
           </div>
 
@@ -114,7 +163,7 @@ const CourseCard = ({ course, index = 0 }) => {
           <div className="flex items-center justify-between">
             <div className="text-2xl font-bold text-gray-900">
               {formatPrice(price)}
-              {price > 0 && <span className="text-sm font-normal text-gray-500 ml-1">USD</span>}
+              {price > 0 && <span className="text-sm font-normal text-gray-500 ml-1">₹</span>}
             </div>
             <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
               View Course

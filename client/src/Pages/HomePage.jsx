@@ -22,7 +22,7 @@ const HomePage = () => {
 
   const fetchFeaturedCourses = async () => {
     try {
-      const response = await fetch("http://localhost:2000/api/courses/meta/featured")
+const response = await fetch("http://localhost:2000/api/courses/meta/featured-five")
       if (response.ok) {
         const data = await response.json()
         setFeaturedCourses(data)
@@ -355,3 +355,25 @@ const HomePage = () => {
 }
 
 export default HomePage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

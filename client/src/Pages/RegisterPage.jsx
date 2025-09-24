@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { Eye, EyeOff, Mail, Lock, User, BookOpen } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, BookOpen, GraduationCap, UserCheck } from "lucide-react"
 import { registerUser, clearError } from "../store/slices/authSlice"
 
 const RegisterPage = () => {
@@ -12,6 +12,7 @@ const RegisterPage = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "student", // Add role with default value
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -154,6 +155,46 @@ const RegisterPage = () => {
                 />
               </div>
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+            </div>
+
+            {/* Role Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                I want to join as
+              </label>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="student"
+                    name="role"
+                    value="student"
+                    checked={formData.role === "student"}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  />
+                  <label htmlFor="student" className="ml-3 flex items-center text-sm text-gray-700">
+                    <GraduationCap className="h-4 w-4 mr-2 text-blue-600" />
+                    Student - Learn from expert instructors
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="instructor"
+                    name="role"
+                    value="instructor"
+                    checked={formData.role === "instructor"}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  />
+                  <label htmlFor="instructor" className="ml-3 flex items-center text-sm text-gray-700">
+                    <UserCheck className="h-4 w-4 mr-2 text-green-600" />
+                    Instructor - Share your knowledge and teach
+                  </label>
+                </div>
+              </div>
+              {errors.role && <p className="mt-1 text-sm text-red-600">{errors.role}</p>}
             </div>
 
             {/* Password */}
