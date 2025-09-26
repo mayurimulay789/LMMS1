@@ -155,6 +155,7 @@ const ReviewForm = () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault()
+   
   if (!rating || !comment) return alert("Please provide rating and comment")
   setLoading(true)
   await submitReview(rating, comment)
