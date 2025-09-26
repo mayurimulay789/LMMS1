@@ -147,21 +147,50 @@ const CourseDetailPage = () => {
     { id: "instructor", label: "Instructor" },
     { id: "reviews", label: "Reviews" },
   ]
-const ReviewForm = () => {
+const ReviewForm = ({ courseId, onReviewSubmitted }) => {
    const [rating, setRating] = useState(0)
   const [comment, setComment] = useState("")
   const [loading, setLoading] = useState(false)
 
+  const submitReview = async (rating, comment) => {
+    const token = localStorage.getItem("token")
+    const response = await fetch(`/api/courseReviews/${courseId}/reviews`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ rating, comment }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || "Failed to submit review")
+    }
+
+    return response.json()
+  }
 
 const handleSubmit = async (e) => {
   e.preventDefault()
+<<<<<<< HEAD
    
   if (!rating || !comment) return alert("Please provide rating and comment")
+=======
+  if (rating === 0 || !comment.trim()) return alert("Please provide rating and comment")
+>>>>>>> 9920a4bf4db65636142c45a71d2b93db323e35bb
   setLoading(true)
-  await submitReview(rating, comment)
-  setRating(0)
-  setComment("")
-  setLoading(false)
+  try {
+    await submitReview(rating, comment.trim())
+    setRating(0)
+    setComment("")
+    if (onReviewSubmitted) onReviewSubmitted()
+  } catch (error) {
+    console.error("Error submitting review:", error)
+    alert(error.message)
+  } finally {
+    setLoading(false)
+  }
 }
 
 if (!isAuthenticated) 
@@ -171,67 +200,19 @@ return (
   <form onSubmit={handleSubmit} className="space-y-3 mb-6">
     <div>
       <label className="block mb-1 font-medium">Rating</label>
-      <fieldset className="starability-slot">
-        <input
-          type="radio"
-          id="no-rate"
-          className="input-no-rate"
-          name="review[rating]"
-          value="0"
-          checked={rating === 0}
-          onChange={(e) => setRating(Number(e.target.value))}
-          aria-label="No rating."
-        />
-        <input
-          type="radio"
-          id="first-rate1"
-          name="review[rating]"
-          value="1"
-          checked={rating === 1}
-          onChange={(e) => setRating(Number(e.target.value))}
-        />
-        <label htmlFor="first-rate1" title="Terrible">1 star</label>
-
-        <input
-          type="radio"
-          id="first-rate2"
-          name="review[rating]"
-          value="2"
-          checked={rating === 2}
-          onChange={(e) => setRating(Number(e.target.value))}
-        />
-        <label htmlFor="first-rate2" title="Not good">2 stars</label>
-
-        <input
-          type="radio"
-          id="first-rate3"
-          name="review[rating]"
-          value="3"
-          checked={rating === 3}
-          onChange={(e) => setRating(Number(e.target.value))}
-        />
-        <label htmlFor="first-rate3" title="Average">3 stars</label>
-
-        <input
-          type="radio"
-          id="first-rate4"
-          name="review[rating]"
-          value="4"
-          checked={rating === 4}
-          onChange={(e) => setRating(Number(e.target.value))}
-        />
-        <label htmlFor="first-rate4" title="Very good">4 stars</label>
-
-        <input
-          type="radio"
-          id="first-rate5"
-          name="review[rating]"
-          value="5"
-          checked={rating === 5}
-          onChange={(e) => setRating(Number(e.target.value))}
-        />
-        <label htmlFor="first-rate5" title="Amazing">5 stars</label>
-      </fieldset>
+      <div className="flex space-x-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => setRating(star)}
+            className={`text-2xl ${rating >= star ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+            title={`${star} star${star > 1 ? 's' : ''}`}
+          >
+            ★
+          </button>
+        ))}
+      </div>
     </div>
 
     <div>
