@@ -59,20 +59,42 @@ const CourseDetailPage = () => {
     }
   }
 
-  const handleEnroll = () => {
-    if (!isAuthenticated) {
-      navigate("/login")
-      return
-    }
-
-    if (course.price === 0) {
-      // Free course - direct enrollment
-      enrollInCourse()
-    } else {
-      // Paid course - redirect to checkout
-      navigate(`/checkout/${course._id}`)
-    }
+const handleEnroll = async () => {
+  if (!isAuthenticated) {
+    navigate("/login")
+    return
   }
+
+  // Check enrollment status before proceeding
+  try {
+    const token = localStorage.getItem("token")
+    const response = await fetch(`http://localhost:2000/api/enrollments/${course._id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      if (data) {
+        // Already enrolled
+        setIsEnrolled(true)
+        fetchCourseDetails()
+        return
+      }
+    }
+  } catch (error) {
+    console.error("Error checking enrollment before enroll:", error)
+  }
+
+  if (course.price === 0) {
+    // Free course - direct enrollment
+    enrollInCourse()
+  } else {
+    // Paid course - redirect to checkout
+    navigate(`/checkout/${course._id}`)
+  }
+}
 
   const enrollInCourse = async () => {
     try {
@@ -450,7 +472,17 @@ const CourseDetailPage = () => {
                   </div>
                   <div className="space-y-4">
                     {course.lessons.map((lesson, index) => (
-                      <div key={lesson._id} className="border border-gray-200 rounded-lg p-4">
+                      <div
+                        key={lesson._id}
+                        className={`border border-gray-200 rounded-lg p-4 ${
+                          isEnrolled ? "cursor-pointer hover:shadow-md hover:border-blue-300 transition-all" : ""
+                        }`}
+                        onClick={() => {
+                          if (isEnrolled) {
+                            navigate(`/courses/${course._id}/learn?lesson=${lesson._id}`)
+                          }
+                        }}
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
                             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -469,12 +501,24 @@ const CourseDetailPage = () => {
                               </div>
                             </div>
                           </div>
-                          {lesson.preview && (
-                            <button className="text-blue-600 hover:text-blue-800 flex items-center space-x-1">
+                          {lesson.preview ? (
+                            <button
+                              className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                // Handle preview - could navigate to learn page with preview mode
+                                navigate(`/courses/${course._id}/learn?lesson=${lesson._id}`)
+                              }}
+                            >
                               <Play className="h-4 w-4" />
                               <span>Preview</span>
                             </button>
-                          )}
+                          ) : isEnrolled ? (
+                            <div className="text-blue-600 flex items-center space-x-1">
+                              <Play className="h-4 w-4" />
+                              <span className="text-sm">Watch</span>
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     ))}

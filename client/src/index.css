@@ -8,5 +8,35 @@
   @tailwind components;
   @tailwind utilities;
   
+  /* Custom scrollbar styles for webkit browsers */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
   
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
   
+  /* Custom white scrollbar styles */
+  .scrollbar-white {
+    scrollbar-color: white #f1f5f9;  /* Firefox */
+  }
+  
+  .scrollbar-white::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .scrollbar-white::-webkit-scrollbar-track {
+    background: #f1f5f9;  /* Light gray track */
+  }
+  
+  .scrollbar-white::-webkit-scrollbar-thumb {
+    background: white;  /* White thumb */
+    border-radius: 4px;
+  }
+  
+  .scrollbar-white::-webkit-scrollbar-thumb:hover {
+    background: #e2e8f0;  /* Slightly darker white on hover */
+  }

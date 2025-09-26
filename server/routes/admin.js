@@ -404,7 +404,7 @@ router.get("/reports/:type", async (req, res) => {
 
       case "enrollments":
         // Get course category enrollment distribution
-        data = await Course.aggregate([
+        const enrollmentData = await Course.aggregate([
           {
             $lookup: {
               from: "enrollments",
@@ -420,6 +420,25 @@ router.get("/reports/:type", async (req, res) => {
             },
           },
         ])
+
+        // Add color mapping for chart visualization
+        const colorMap = {
+          "Programming": "#8884d8",
+          "Design": "#82ca9d",
+          "Marketing": "#ffc658",
+          "Business": "#ff7300",
+          "Creative": "#00ff00",
+          "Technology": "#ff0000",
+          "Health": "#0000ff",
+          "Language": "#ff00ff",
+          "Other": "#ffa500"
+        }
+
+        data = enrollmentData.map(item => ({
+          name: item._id || "Other",
+          value: item.value,
+          color: colorMap[item._id] || "#8884d8" // Default color if category not in map
+        }))
         break
 
       case "detailed":

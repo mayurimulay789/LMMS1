@@ -251,9 +251,11 @@ const response = await fetch("http://localhost:2000/api/courses/meta/featured-fi
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="flex overflow-x-scroll gap-6 pb-4 scrollbar-white">
               {featuredCourses.map((course, index) => (
-                <CourseCard key={course._id} course={course} index={index} />
+                <div key={course._id} className="flex-none w-80">
+                  <CourseCard course={course} index={index} />
+                </div>
               ))}
             </div>
           )}

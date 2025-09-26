@@ -42,7 +42,7 @@ const CourseCard = ({ course, index = 0 }) => {
     >
       <Link to={`/courses/${_id}`} className="block">
         {/* Course Thumbnail */}
-        <div className="relative h-48 overflow-hidden bg-gray-100">
+        <div className="relative h-48 overflow-hidden bg-gray-200">
           {thumbnail && thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
             <video
               src={thumbnail}

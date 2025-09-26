@@ -165,8 +165,9 @@ router.post("/verify", auth, async (req, res) => {
       user: userId,
       course: payment.course._id,
       payment: payment._id,
+      status: "active",
       progress: {
-        totalLessons: 10, // This should be calculated based on actual course content
+        totalLessons: payment.course.lessons.length,
         completionPercentage: 0,
         lastAccessedAt: new Date(),
       },
@@ -375,8 +376,9 @@ async function handleSuccessfulPayment(paymentEntity) {
         user: payment.user,
         course: payment.course,
         payment: payment._id,
+        status: "active",
         progress: {
-          totalLessons: 10,
+          totalLessons: payment.course.lessons.length,
           completionPercentage: 0,
           lastAccessedAt: new Date(),
         },

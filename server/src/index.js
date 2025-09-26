@@ -73,6 +73,7 @@ const enrollmentRoutes = require("../routes/enrollment")
 const paymentRoutes = require("../routes/payments")
 const certificateRoutes = require("../routes/certificates")
 const adminRoutes = require("../routes/admin")
+const instructorRoutes = require("../routes/instructor")
 const uploadRoutes = require("../routes/upload")
 
 // Use routes
@@ -83,6 +84,7 @@ app.use("/api/enrollments", enrollmentRoutes)
 app.use("/api/payments", paymentRoutes)
 app.use("/api/certificates", certificateRoutes)
 app.use("/api/admin", adminRoutes)
+app.use("/api/instructor", instructorRoutes)
 app.use("/api/upload", uploadRoutes)
 
 app.use("/api/*splat", (req, res) => {

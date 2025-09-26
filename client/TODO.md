@@ -1,19 +1,15 @@
-# Currency Symbol Update - $ to ₹
+# TODO: Fix Lesson Playback Issue
 
-## Plan Approved ✅
+## Plan Overview
+Fix the issue where enrolled users cannot click on lessons to play videos. Create a dedicated learning page, add routing, and make lessons clickable.
 
-### Files to Update:
-1. [ ] LMMS1/client/src/Pages/CoursesPage.jsx - Update price range filters
-2. [ ] LMMS1/client/src/Pages/CourseDetailPage.jsx - Update formatPrice function and related courses
-3. [ ] LMMS1/client/src/Pages/CourseDetailPage_backup.jsx - Update formatPrice function and price display
-4. [ ] LMMS1/client/src/Pages/AdminCoursesPage.jsx - Update price display template
-5. [ ] LMMS1/client/src/Pages/PaymentSucessPage.jsx - Update amount display
-6. [ ] LMMS1/client/src/Components/CourseCard.jsx - Update formatPrice function and RS text
+## Steps
 
-### Testing Steps:
-1. [ ] Start development server
-2. [ ] Verify all price displays show ₹ instead of $
-3. [ ] Test course filtering by price ranges
-4. [ ] Test course detail pages
-5. [ ] Test admin course management
-6. [ ] Test payment success page
+- [ ] Step 1: Create LearnPage.jsx - New page to display course lessons and video player for enrolled users.
+- [ ] Step 2: Add route for LearnPage in App.jsx - Protected route at `/courses/:courseId/learn`.
+- [ ] Step 3: Update CourseDetailPage.jsx - Make non-preview lessons clickable for enrolled users, navigating to LearnPage with selected lesson.
+- [ ] Step 4: Test the implementation - Verify navigation, enrollment check, and video playback for YouTube and other videos.
+
+## Follow-up
+- Ensure video playback works for different formats.
+- Handle errors gracefully (e.g., invalid enrollment, missing videos).

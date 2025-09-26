@@ -17,7 +17,7 @@ import {
   Cell,
 } from "recharts"
 
-const AdminReportsChart = ({ type }) => {
+const InstructorReportsChart = ({ type }) => {
   const [chartData, setChartData] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -28,7 +28,7 @@ const AdminReportsChart = ({ type }) => {
   const fetchChartData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/reports/${type}`, {
+      const response = await fetch(`http://localhost:2000/api/instructor/reports/${type}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -42,8 +42,8 @@ const AdminReportsChart = ({ type }) => {
         setChartData(processedData)
       }
     } catch (error) {
-      console.error("Error fetching chart data:", error)
-      // Mock data for demonstration
+      console.error("Error fetching instructor chart data:", error)
+      // Mock data for demonstration - instructor specific
       setMockData()
     } finally {
       setIsLoading(false)
@@ -53,50 +53,42 @@ const AdminReportsChart = ({ type }) => {
   const setMockData = () => {
     if (type === "revenue") {
       setChartData([
-        { month: "Jan", revenue: 4000, enrollments: 240 },
-        { month: "Feb", revenue: 3000, enrollments: 198 },
-        { month: "Mar", revenue: 5000, enrollments: 300 },
-        { month: "Apr", revenue: 4500, enrollments: 278 },
-        { month: "May", revenue: 6000, enrollments: 389 },
-        { month: "Jun", revenue: 5500, enrollments: 349 },
+        { month: "Jan", revenue: 2000, enrollments: 120 },
+        { month: "Feb", revenue: 1500, enrollments: 99 },
+        { month: "Mar", revenue: 2500, enrollments: 150 },
+        { month: "Apr", revenue: 2250, enrollments: 139 },
+        { month: "May", revenue: 3000, enrollments: 194 },
+        { month: "Jun", revenue: 2750, enrollments: 174 },
       ])
     } else if (type === "enrollments") {
       setChartData([
-        { name: "Programming", value: 400, color: "#8884d8" },
-        { name: "Design", value: 300, color: "#82ca9d" },
-        { name: "Marketing", value: 200, color: "#ffc658" },
-        { name: "Business", value: 150, color: "#ff7300" },
-        { name: "Other", value: 100, color: "#00ff00" },
+        { name: "My Course 1", value: 200, color: "#8884d8" },
+        { name: "My Course 2", value: 150, color: "#82ca9d" },
+        { name: "My Course 3", value: 100, color: "#ffc658" },
+        { name: "My Course 4", value: 75, color: "#ff7300" },
+        { name: "Other Courses", value: 50, color: "#00ff00" },
       ])
     } else if (type === "detailed") {
       setChartData([
-        { date: "2024-01-01", users: 120, courses: 15, revenue: 2400 },
-        { date: "2024-01-02", users: 132, courses: 16, revenue: 2600 },
-        { date: "2024-01-03", users: 145, courses: 18, revenue: 2800 },
-        { date: "2024-01-04", users: 158, courses: 19, revenue: 3000 },
-        { date: "2024-01-05", users: 167, courses: 20, revenue: 3200 },
-        { date: "2024-01-06", users: 178, courses: 22, revenue: 3400 },
-        { date: "2024-01-07", users: 189, courses: 23, revenue: 3600 },
+        { date: "2024-01-01", enrollments: 60, revenue: 1200 },
+        { date: "2024-01-02", enrollments: 66, revenue: 1300 },
+        { date: "2024-01-03", enrollments: 72, revenue: 1400 },
+        { date: "2024-01-04", enrollments: 79, revenue: 1500 },
+        { date: "2024-01-05", enrollments: 83, revenue: 1600 },
+        { date: "2024-01-06", enrollments: 89, revenue: 1700 },
+        { date: "2024-01-07", enrollments: 94, revenue: 1800 },
       ])
     }
   }
 
   // Add fallback colors for data without color property
-  // Color Reference Guide:
-  // Programming: #8884d8 (Blue), Design: #82ca9d (Green), Marketing: #ffc658 (Yellow)
-  // Business: #ff7300 (Orange), Creative: #00ff00 (Light Green), Technology: #ff0000 (Red)
-  // Health: #0000ff (Dark Blue), Language: #ff00ff (Magenta), Other: #ffa500 (Orange)
   const addFallbackColors = (data) => {
     const colorMap = {
-      "Programming": "#8884d8",
-      "Design": "#82ca9d",
-      "Marketing": "#ffc658",
-      "Business": "#ff7300",
-      "Creative": "#00ff00",
-      "Technology": "#ff0000",
-      "Health": "#0000ff",
-      "Language": "#ff00ff",
-      "Other": "#ffa500"
+      "My Course 1": "#8884d8",
+      "My Course 2": "#82ca9d",
+      "My Course 3": "#ffc658",
+      "My Course 4": "#ff7300",
+      "Other Courses": "#00ff00"
     }
 
     return data.map((item, index) => ({
@@ -128,14 +120,14 @@ const AdminReportsChart = ({ type }) => {
 
         return (
           <div className="space-y-6">
-            {/* Modern Card Design */}
+            {/* Modern Card Design - Instructor Specific */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Total Revenue Card */}
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100 text-sm font-medium">Total Revenue</p>
-                    <p className="text-2xl font-bold">${totalRevenue.toLocaleString()}</p>
+                    <p className="text-blue-100 text-sm font-medium">My Total Revenue</p>
+                    <p className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</p>
                   </div>
                   <div className="bg-blue-400 bg-opacity-30 rounded-lg p-3">
                     <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -150,7 +142,7 @@ const AdminReportsChart = ({ type }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-100 text-sm font-medium">Average Revenue</p>
-                    <p className="text-2xl font-bold">${avgRevenue.toLocaleString()}</p>
+                    <p className="text-2xl font-bold">₹{avgRevenue.toLocaleString()}</p>
                   </div>
                   <div className="bg-green-400 bg-opacity-30 rounded-lg p-3">
                     <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -164,7 +156,7 @@ const AdminReportsChart = ({ type }) => {
               <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-purple-100 text-sm font-medium">Growth Rate</p>
+                    <p className="text-purple-100 text-sm font-medium">My Growth Rate</p>
                     <p className="text-2xl font-bold">
                       {chartData.length > 1 ?
                         ((chartData[chartData.length - 1].revenue - chartData[0].revenue) / chartData[0].revenue * 100).toFixed(1) + '%'
@@ -174,14 +166,14 @@ const AdminReportsChart = ({ type }) => {
                   </div>
                   <div className="bg-purple-400 bg-opacity-30 rounded-lg p-3">
                     <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd"/>
+                      <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 00-1.414 0L8 10.414l-4.293 4.293a1 1 0 011.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293a1 1 0 011.414-1.414z" clipRule="evenodd"/>
                     </svg>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Monthly Performance Cards */}
+            {/* Monthly Performance Cards - Adapted for Instructor */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {chartData.map((item, index) => {
                 const prevItem = chartData[index - 1]
@@ -232,8 +224,8 @@ const AdminReportsChart = ({ type }) => {
 
                       {/* Revenue Amount */}
                       <div className="space-y-2">
-                        <p className="text-sm text-gray-600">Revenue</p>
-                        <p className="text-2xl font-bold text-gray-900">${item.revenue.toLocaleString()}</p>
+                        <p className="text-sm text-gray-600">My Revenue</p>
+                        <p className="text-2xl font-bold text-gray-900">₹{item.revenue.toLocaleString()}</p>
                       </div>
 
                       {/* Progress Bar */}
@@ -281,9 +273,9 @@ const AdminReportsChart = ({ type }) => {
               })}
             </div>
 
-            {/* Summary Statistics */}
+            {/* Summary Statistics - Instructor Specific */}
             <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6">
-              <h4 className="text-lg font-bold text-gray-900 mb-4">Performance Summary</h4>
+              <h4 className="text-lg font-bold text-gray-900 mb-4">My Performance Summary</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
                   <div className="bg-green-100 rounded-lg p-4 inline-block">
@@ -292,7 +284,7 @@ const AdminReportsChart = ({ type }) => {
                     </svg>
                   </div>
                   <p className="text-sm text-gray-600">Best Month</p>
-                  <p className="text-lg font-bold text-gray-900">{maxMonth}: ${maxRevenue.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-gray-900">{maxMonth}: ₹{maxRevenue.toLocaleString()}</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-blue-100 rounded-lg p-4 inline-block">
@@ -301,7 +293,7 @@ const AdminReportsChart = ({ type }) => {
                     </svg>
                   </div>
                   <p className="text-sm text-gray-600">Total Revenue</p>
-                  <p className="text-lg font-bold text-gray-900">${totalRevenue.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-gray-900">₹{totalRevenue.toLocaleString()}</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-orange-100 rounded-lg p-4 inline-block">
@@ -310,7 +302,7 @@ const AdminReportsChart = ({ type }) => {
                     </svg>
                   </div>
                   <p className="text-sm text-gray-600">Average/Month</p>
-                  <p className="text-lg font-bold text-gray-900">${avgRevenue.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-gray-900">₹{avgRevenue.toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -340,52 +332,36 @@ const AdminReportsChart = ({ type }) => {
               </PieChart>
             </ResponsiveContainer>
 
-            {/* Color Reference Guide */}
+            {/* Color Reference Guide - Instructor Specific */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-sm font-semibold text-gray-900 mb-3">Category Color Reference</h4>
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">My Courses Color Reference</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#8884d8" }}></div>
-                  <span className="text-gray-700">Programming</span>
+                  <span className="text-gray-700">My Course 1</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#82ca9d" }}></div>
-                  <span className="text-gray-700">Design</span>
+                  <span className="text-gray-700">My Course 2</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ffc658" }}></div>
-                  <span className="text-gray-700">Marketing</span>
+                  <span className="text-gray-700">My Course 3</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ff7300" }}></div>
-                  <span className="text-gray-700">Business</span>
+                  <span className="text-gray-700">My Course 4</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#00ff00" }}></div>
-                  <span className="text-gray-700">Creative</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ff0000" }}></div>
-                  <span className="text-gray-700">Technology</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#0000ff" }}></div>
-                  <span className="text-gray-700">Health</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ff00ff" }}></div>
-                  <span className="text-gray-700">Language</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ffa500" }}></div>
-                  <span className="text-gray-700">Other</span>
+                  <span className="text-gray-700">Other Courses</span>
                 </div>
               </div>
             </div>
 
             {/* Legend with detailed information */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              <h4 className="text-sm font-semibold text-gray-900 mb-2 col-span-full">Enrollment Summary</h4>
+              <h4 className="text-sm font-semibold text-gray-900 mb-2 col-span-full">My Enrollment Summary</h4>
               {chartData.map((entry, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <div
@@ -410,9 +386,8 @@ const AdminReportsChart = ({ type }) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="users" fill="#8884d8" />
-              <Bar dataKey="courses" fill="#82ca9d" />
-              <Bar dataKey="revenue" fill="#ffc658" />
+              <Bar dataKey="enrollments" fill="#8884d8" />
+              <Bar dataKey="revenue" fill="#82ca9d" />
             </BarChart>
           </ResponsiveContainer>
         )
@@ -425,13 +400,13 @@ const AdminReportsChart = ({ type }) => {
   const getTitle = () => {
     switch (type) {
       case "revenue":
-        return "Revenue Trends"
+        return "My Revenue Trends"
       case "enrollments":
-        return "Course Enrollments by Category"
+        return "My Course Enrollments"
       case "detailed":
-        return "Detailed Analytics"
+        return "My Detailed Analytics"
       default:
-        return "Analytics"
+        return "My Analytics"
     }
   }
 
@@ -443,4 +418,4 @@ const AdminReportsChart = ({ type }) => {
   )
 }
 
-export default AdminReportsChart
+export default InstructorReportsChart

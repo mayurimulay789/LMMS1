@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const Enrollment = require("../models/Enrollment")
 const Course = require("../models/Course")
+const Payment = require("../models/Payment")
 const auth = require("../middleware/auth")
 
 // Get user's enrollments
@@ -24,12 +25,17 @@ router.get("/me", auth, async (req, res) => {
 // Get specific enrollment
 router.get("/:courseId", auth, async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(404).json({ message: "Enrollment not found" })
+    }
+
     const { courseId } = req.params
     const userId = req.user.id
 
     const enrollment = await Enrollment.findOne({
       user: userId,
       course: courseId,
+      status: "active"
     })
       .populate("course")
       .populate("payment")
@@ -42,6 +48,61 @@ router.get("/:courseId", auth, async (req, res) => {
   } catch (error) {
     console.error("Error fetching enrollment:", error)
     res.status(500).json({ message: "Failed to fetch enrollment" })
+  }
+})
+
+// Create enrollment (for free courses)
+router.post("/", auth, async (req, res) => {
+  try {
+    const { courseId } = req.body
+    const userId = req.user.id
+
+    // Check if course exists and is free
+    const course = await Course.findById(courseId)
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" })
+    }
+
+    if (course.price > 0) {
+      return res.status(400).json({ message: "This course requires payment" })
+    }
+
+    // Check if user is already enrolled
+    const existingEnrollment = await Enrollment.findOne({
+      user: userId,
+      course: courseId,
+    })
+    if (existingEnrollment) {
+      return res.status(400).json({ message: "Already enrolled in this course" })
+    }
+
+    // Create enrollment
+    const enrollment = new Enrollment({
+      user: userId,
+      course: courseId,
+      payment: null, // No payment for free courses
+      status: "active",
+      progress: {
+        totalLessons: course.lessons.length,
+        completionPercentage: 0,
+        lastAccessedAt: new Date(),
+      },
+    })
+
+    await enrollment.save()
+
+    // Update course enrollment count
+    await Course.findByIdAndUpdate(courseId, {
+      $inc: { enrollmentCount: 1 },
+    })
+
+    res.status(201).json({
+      message: "Successfully enrolled in course",
+      enrollment: enrollment,
+    })
+  } catch (error) {
+    console.error("Error creating enrollment:", error)
+    res.status(500).json({ message: "Failed to enroll in course" })
   }
 })
 

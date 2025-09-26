@@ -91,6 +91,7 @@ const courseSchema = new mongoose.Schema(
     instructorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
     instructorImage: {
       type: String, // URL to instructor image for this course
@@ -124,7 +125,7 @@ const courseSchema = new mongoose.Schema(
     },
     thumbnail: {
       type: String,
-      required: true,
+      default: "https://via.placeholder.com/400x225?text=Course+Thumbnail",
     },
     thumbnailPublicId: String, // Cloudinary public ID for thumbnail
     previewVideo: String,

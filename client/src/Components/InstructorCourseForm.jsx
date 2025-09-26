@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react"
 import { Plus, Upload, X, Save, Eye, Edit, Trash2, ImageIcon, Clock } from "lucide-react"
 
-const AdminCourseForm = () => {
+const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
   const [courses, setCourses] = useState([])
   const [isCreating, setIsCreating] = useState(false)
   const [editingCourse, setEditingCourse] = useState(null)
+  const [courseCount, setCourseCount] = useState(0)
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -25,7 +26,7 @@ const AdminCourseForm = () => {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/admin/courses", {
+      const response = await fetch("http://localhost:2000/api/instructor/courses", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -35,36 +36,11 @@ const AdminCourseForm = () => {
       if (response.ok) {
         const data = await response.json()
         setCourses(data)
+        setCourseCount(data.length)
       }
     } catch (error) {
       console.error("Error fetching courses:", error)
-      // Mock data for demonstration
-      setCourses([
-        {
-          _id: "1",
-          title: "JavaScript Fundamentals",
-          description: "Learn the basics of JavaScript programming",
-          category: "Programming",
-          price: 99,
-          instructor: "John Doe",
-          thumbnail: "/placeholder.svg",
-          lessons: 12,
-          enrollments: 150,
-          status: "published",
-        },
-        {
-          _id: "2",
-          title: "React Development",
-          description: "Build modern web applications with React",
-          category: "Programming",
-          price: 149,
-          instructor: "Jane Smith",
-          thumbnail: "/placeholder.svg",
-          lessons: 18,
-          enrollments: 89,
-          status: "draft",
-        },
-      ])
+      setCourses([])
     } finally {
       setIsLoading(false)
     }
@@ -82,7 +58,6 @@ const AdminCourseForm = () => {
     const formDataUpload = new FormData()
     formDataUpload.append(type === 'thumbnail' ? 'thumbnail' : 'video', file)
 
-    // Use correct endpoints based on file type
     const endpoint = type === 'thumbnail' ? 'course-media' : 'lesson-video'
 
     try {
@@ -97,13 +72,9 @@ const AdminCourseForm = () => {
 
       if (response.ok) {
         const data = await response.json()
-        console.log('Upload successful:', data)
-        console.log('File type:', data.data.type)
-        console.log('File URL:', data.data.url)
         return data.data.url
       } else {
-        const errorData = await response.json()
-        console.error('Upload failed:', errorData)
+        console.error('Upload failed:', response.statusText)
         return null
       }
     } catch (error) {
@@ -115,34 +86,15 @@ const AdminCourseForm = () => {
   const handleThumbnailUpload = async (e) => {
     const file = e.target.files[0]
     if (file) {
-      console.log('Selected file:', file)
-      console.log('File type:', file.type)
-      console.log('File name:', file.name)
-
       const url = await handleFileUpload(file, "thumbnail")
       if (url) {
-        console.log('Setting thumbnail URL:', url)
         setFormData((prev) => ({
           ...prev,
           thumbnail: url,
         }))
-
-        // Test if video URL is accessible
-        if (url.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i)) {
-          console.log('Testing video URL accessibility...')
-          fetch(url, { method: 'HEAD' })
-            .then(response => {
-              console.log('Video URL accessibility test:', response.status, response.statusText)
-            })
-            .catch(error => {
-              console.error('Video URL accessibility test failed:', error)
-            })
-        }
       }
     }
   }
-
-
 
   const addLesson = () => {
     setFormData((prev) => ({
@@ -154,7 +106,7 @@ const AdminCourseForm = () => {
           title: "",
           description: "",
           videoUrl: "",
-          order: prev.lessons.length + 1, // Add order field
+          order: prev.lessons.length + 1,
           materials: [],
         },
       ],
@@ -181,20 +133,14 @@ const AdminCourseForm = () => {
     try {
       const token = localStorage.getItem("token")
       const url = editingCourse
-        ? `http://localhost:2000/api/admin/courses/${editingCourse._id}`
-        : "http://localhost:2000/api/admin/courses"
+        ? `http://localhost:2000/api/instructor/courses/${editingCourse._id}`
+        : "http://localhost:2000/api/instructor/courses"
 
-      // Transform lessons to include order field for API
       const submitData = {
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
-        price: formData.price,
-        level: formData.level,
-        thumbnail: formData.thumbnail,
+        ...formData,
         lessons: formData.lessons.map((lesson, index) => ({
           ...lesson,
-          order: lesson.order || index + 1, // Ensure order is set
+          order: lesson.order || index + 1,
         }))
       }
 
@@ -210,6 +156,12 @@ const AdminCourseForm = () => {
       if (response.ok) {
         resetForm()
         fetchCourses()
+        setCourseCount(prev => editingCourse ? prev : prev + 1)
+        if (editingCourse) {
+          onCourseUpdated && onCourseUpdated()
+        } else {
+          onCourseCreated && onCourseCreated()
+        }
       }
     } catch (error) {
       console.error("Error saving course:", error)
@@ -248,7 +200,7 @@ const AdminCourseForm = () => {
     if (window.confirm("Are you sure you want to delete this course?")) {
       try {
         const token = localStorage.getItem("token")
-        const response = await fetch(`http://localhost:2000/api/admin/courses/${courseId}`, {
+        const response = await fetch(`http://localhost:2000/api/instructor/courses/${courseId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -257,39 +209,13 @@ const AdminCourseForm = () => {
 
         if (response.ok) {
           fetchCourses()
+          setCourseCount(prev => prev - 1)
         }
       } catch (error) {
         console.error("Error deleting course:", error)
       }
     }
   }
-
-  const recalculateCourseDurations = async (courseId) => {
-    try {
-      const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/courses/${courseId}/recalculate-duration`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        alert(`Duration recalculated successfully! Total duration: ${data.course.duration} minutes`)
-        fetchCourses() // Refresh the courses list
-      } else {
-        const errorData = await response.json()
-        alert(`Error recalculating duration: ${errorData.message}`)
-      }
-    } catch (error) {
-      console.error("Error recalculating course duration:", error)
-      alert("Error recalculating course duration")
-    }
-  }
-
-
 
   if (isLoading) {
     return (
@@ -310,16 +236,17 @@ const AdminCourseForm = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Course Management</h3>
-        <div className="flex space-x-2">
-          <button
-            onClick={() => setIsCreating(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Create Course</span>
-          </button>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Course Management</h3>
+          <p className="text-sm text-gray-600">Total Courses: {courseCount}</p>
         </div>
+        <button
+          onClick={() => setIsCreating(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Create Course</span>
+        </button>
       </div>
 
       {/* Course Form */}
@@ -382,8 +309,6 @@ const AdminCourseForm = () => {
                 />
               </div>
 
-
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
                 <select
@@ -413,8 +338,6 @@ const AdminCourseForm = () => {
               />
             </div>
 
-
-
             {/* Thumbnail Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Course Thumbnail</label>
@@ -431,7 +354,7 @@ const AdminCourseForm = () => {
                   className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 flex items-center space-x-2"
                 >
                   <Upload className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm text-gray-600">Upload Thumbnail (Image or Video)</span>
+                  <span className="text-sm text-gray-600">Upload Thumbnail</span>
                 </label>
                 {formData.thumbnail && (
                   <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
@@ -442,58 +365,17 @@ const AdminCourseForm = () => {
                         muted
                         controls={false}
                         preload="metadata"
-                        onMouseEnter={(e) => {
-                          e.target.play().catch(err => console.log('Video play failed:', err))
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.pause()
-                          e.target.currentTime = 0
-                        }}
-                        onError={(e) => {
-                          console.log('Video load error:', e)
-                          console.log('Video src:', formData.thumbnail)
-                          // Fallback to showing file type indicator
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.video-fallback') || document.createElement('div')
-                          fallback.className = 'video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'VIDEO'
-                          if (!e.target.parentElement.querySelector('.video-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoadedData={(e) => {
-                          console.log('Video loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.video-fallback')
-                          if (fallback) fallback.remove()
-                        }}
                       />
                     ) : (
                       <img
                         src={formData.thumbnail || "/placeholder.svg"}
                         alt="Thumbnail preview"
                         className="h-full w-full object-cover"
-                        onError={(e) => {
-                          console.log('Image load error:', e)
-                          console.log('Image src:', formData.thumbnail)
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.image-fallback') || document.createElement('div')
-                          fallback.className = 'image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'IMG'
-                          if (!e.target.parentElement.querySelector('.image-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoad={(e) => {
-                          console.log('Image loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.image-fallback')
-                          if (fallback) fallback.remove()
-                        }}
                       />
                     )}
                   </div>
                 )}
               </div>
-              <p className="text-xs text-gray-500 mt-1">Supports: Images (JPG, PNG, GIF) and Videos (MP4, WebM, MOV)</p>
             </div>
 
             {/* Lessons */}
@@ -584,7 +466,7 @@ const AdminCourseForm = () => {
       {/* Courses List */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
-          <h4 className="text-lg font-medium text-gray-900">Existing Courses</h4>
+          <h4 className="text-lg font-medium text-gray-900">My Courses</h4>
         </div>
 
         <div className="divide-y divide-gray-200">
@@ -600,44 +482,12 @@ const AdminCourseForm = () => {
                         muted
                         controls={false}
                         preload="metadata"
-                        onError={(e) => {
-                          console.log('Course video load error:', e)
-                          console.log('Course video src:', course.thumbnail)
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.course-video-fallback') || document.createElement('div')
-                          fallback.className = 'course-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'VIDEO'
-                          if (!e.target.parentElement.querySelector('.course-video-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoadedData={(e) => {
-                          console.log('Course video loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.course-video-fallback')
-                          if (fallback) fallback.remove()
-                        }}
                       />
                     ) : (
                       <img
                         src={course.thumbnail || "/placeholder.svg"}
                         alt={course.title}
                         className="h-full w-full object-cover"
-                        onError={(e) => {
-                          console.log('Course image load error:', e)
-                          console.log('Course image src:', course.thumbnail)
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.course-image-fallback') || document.createElement('div')
-                          fallback.className = 'course-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'IMG'
-                          if (!e.target.parentElement.querySelector('.course-image-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoad={(e) => {
-                          console.log('Course image loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.course-image-fallback')
-                          if (fallback) fallback.remove()
-                        }}
                       />
                     )}
                   </div>
@@ -653,27 +503,11 @@ const AdminCourseForm = () => {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      course.status === "published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {course.status}
-                  </span>
-
                   <button
                     onClick={() => window.open(`/courses/${course._id}`, "_blank")}
                     className="text-blue-600 hover:text-blue-800 p-2"
                   >
                     <Eye className="h-4 w-4" />
-                  </button>
-
-                  <button
-                    onClick={() => recalculateCourseDurations(course._id)}
-                    className="text-purple-600 hover:text-purple-800 p-2"
-                    title="Recalculate Duration"
-                  >
-                    <Clock className="h-4 w-4" />
                   </button>
 
                   <button onClick={() => startEditing(course)} className="text-green-600 hover:text-green-800 p-2">
@@ -693,4 +527,4 @@ const AdminCourseForm = () => {
   )
 }
 
-export default AdminCourseForm
+export default InstructorCourseForm

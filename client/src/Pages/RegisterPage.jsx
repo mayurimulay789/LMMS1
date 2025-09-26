@@ -24,7 +24,14 @@ const RegisterPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard")
+      const user = JSON.parse(localStorage.getItem("user"))
+      if (user?.role === "admin") {
+        navigate("/admin")
+      } else if (user?.role === "instructor") {
+        navigate("/instructor")
+      } else {
+        navigate("/dashboard")
+      }
     }
   }, [isAuthenticated, navigate])
 

@@ -96,7 +96,10 @@ router.get("/", async (req, res) => {
     // Get enrollment count for each course
     const coursesWithStats = await Promise.all(
       courses.map(async (course) => {
-        const enrollmentCount = await Enrollment.countDocuments({ course: course._id, status: "active" })
+        const enrollmentCount = await Enrollment.countDocuments({ 
+          course: course._id, 
+          status: { $ne: "suspended" }
+        })
         const avgRating =
           course.reviews.length > 0
             ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
@@ -185,7 +188,10 @@ router.get("/:id", async (req, res) => {
     }
 
     // Get enrollment count and average rating
-    const enrollmentCount = await Enrollment.countDocuments({ course: course._id, status: "active" })
+    const enrollmentCount = await Enrollment.countDocuments({ 
+      course: course._id, 
+      status: { $ne: "suspended" }
+    })
     const avgRating =
       course.reviews.length > 0
         ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
@@ -199,7 +205,7 @@ router.get("/:id", async (req, res) => {
       const enrollment = await Enrollment.findOne({
         user: req.user.id,
         course: course._id,
-        status: "active",
+        status: { $ne: "suspended" }
       })
       isEnrolled = !!enrollment
 
@@ -246,7 +252,7 @@ router.get("/:id/lessons", auth, async (req, res) => {
     const enrollment = await Enrollment.findOne({
       user: req.user.id,
       course: req.params.id,
-      status: "active",
+      status: { $ne: "suspended" }
     })
 
     if (!enrollment) {
@@ -293,7 +299,7 @@ router.post("/:id/reviews", auth, async (req, res) => {
     const enrollment = await Enrollment.findOne({
       user: req.user.id,
       course: req.params.id,
-      status: "active",
+      status: { $ne: "suspended" }
     })
 
     if (!enrollment) {
