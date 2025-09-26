@@ -1,5 +1,6 @@
 const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") }); // ✅ Load from correct path
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") }); 
+
 
 const express = require("express")
 const mongoose = require("mongoose")
@@ -74,6 +75,7 @@ const paymentRoutes = require("../routes/payments")
 const certificateRoutes = require("../routes/certificates")
 const adminRoutes = require("../routes/admin")
 const uploadRoutes = require("../routes/upload")
+const courseReviewsRoutes = require("../routes/courseReviews")
 
 // Use routes
 app.use("/api/auth", authRoutes)
@@ -84,6 +86,7 @@ app.use("/api/payments", paymentRoutes)
 app.use("/api/certificates", certificateRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/upload", uploadRoutes)
+app.use("/api/courseReviews", courseReviewsRoutes)
 
 app.use("/api/*splat", (req, res) => {
   res.status(404).json({
@@ -96,6 +99,7 @@ app.use("/api/*splat", (req, res) => {
       "/api/enrollments",
       "/api/payments",
       "/api/certificates",
+      "/api/courseReviews",
     ],
   })
 })

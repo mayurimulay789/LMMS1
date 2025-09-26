@@ -1,10 +1,12 @@
-"use client"
+ "use client"
 
 import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, Share2, Heart } from "lucide-react"
 import { motion } from "framer-motion"
+import ReviewForm from "../Components/ReviewForm"
+
 
 
 const CourseDetailPage = () => {
@@ -20,6 +22,8 @@ const CourseDetailPage = () => {
   const [showVideoControls, setShowVideoControls] = useState(false)
   const [relatedCourses, setRelatedCourses] = useState([])
   const [relatedCoursesLoading, setRelatedCoursesLoading] = useState(false)
+  const [reviews, setReviews] = useState([])
+  
   const videoRef = useRef(null)
   useEffect(() => {
     fetchCourseDetails()
@@ -45,6 +49,7 @@ const CourseDetailPage = () => {
         setCourse(data)
         setIsEnrolled(data.isEnrolled)
         setUserProgress(data.userProgress)
+        setReviews(data.reviews || [])
         // Fetch related courses
         if (data.category) {
           fetchRelatedCourses(data.category)
@@ -59,40 +64,55 @@ const CourseDetailPage = () => {
     }
   }
 
-  const handleEnroll = () => {
+  const handleEnroll = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return alert("Please login first");
+
+  const response = await fetch("http://localhost:2000/api/enrollments", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ courseId: course._id }),
+  });
+
+  const data = await response.json();
+  if (response.ok) {
+    alert("Enrolled successfully!");
+    setIsEnrolled(true);  // Unlock course content & reviews
+  } else {
+    alert(data.message);
+  }
+};
+
+
+ 
+  
+
+  const submitReview = async (rating, comment) => {
     if (!isAuthenticated) {
       navigate("/login")
       return
     }
-
-    if (course.price === 0) {
-      // Free course - direct enrollment
-      enrollInCourse()
-    } else {
-      // Paid course - redirect to checkout
-      navigate(`/checkout/${course._id}`)
-    }
-  }
-
-  const enrollInCourse = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/enrollments`, {
+      const res = await fetch(`http://localhost:2000/api/courses/${id}/reviews`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ courseId: course._id }),
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ rating, comment }),
       })
-
-      if (response.ok) {
-        setIsEnrolled(true)
-        // Refresh course data
-        fetchCourseDetails()
+      if (res.ok) {
+        const newReview = await res.json()
+        setReviews([newReview, ...reviews]) // Add new review to state
+        alert("Review submitted successfully")
+      } else {
+        const err = await res.json()
+        alert(err.message || "Failed to submit review")
       }
-    } catch (error) {
-      console.error("Error enrolling in course:", error)
+    } catch (err) {
+      console.error(err)
+      alert("Something went wrong")
     }
   }
 
@@ -141,6 +161,115 @@ const CourseDetailPage = () => {
     { id: "instructor", label: "Instructor" },
     { id: "reviews", label: "Reviews" },
   ]
+const ReviewForm = () => {
+   const [rating, setRating] = useState(0)
+  const [comment, setComment] = useState("")
+  const [loading, setLoading] = useState(false)
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  if (!rating || !comment) return alert("Please provide rating and comment")
+  setLoading(true)
+  await submitReview(rating, comment)
+  setRating(0)
+  setComment("")
+  setLoading(false)
+}
+
+if (!isAuthenticated) 
+  return <p className="text-gray-600">Please log in to submit a review.</p>;
+
+return (
+  <form onSubmit={handleSubmit} className="space-y-3 mb-6">
+    <div>
+      <label className="block mb-1 font-medium">Rating</label>
+      <fieldset className="starability-slot">
+        <input
+          type="radio"
+          id="no-rate"
+          className="input-no-rate"
+          name="review[rating]"
+          value="0"
+          checked={rating === 0}
+          onChange={(e) => setRating(Number(e.target.value))}
+          aria-label="No rating."
+        />
+        <input
+          type="radio"
+          id="first-rate1"
+          name="review[rating]"
+          value="1"
+          checked={rating === 1}
+          onChange={(e) => setRating(Number(e.target.value))}
+        />
+        <label htmlFor="first-rate1" title="Terrible">1 star</label>
+
+        <input
+          type="radio"
+          id="first-rate2"
+          name="review[rating]"
+          value="2"
+          checked={rating === 2}
+          onChange={(e) => setRating(Number(e.target.value))}
+        />
+        <label htmlFor="first-rate2" title="Not good">2 stars</label>
+
+        <input
+          type="radio"
+          id="first-rate3"
+          name="review[rating]"
+          value="3"
+          checked={rating === 3}
+          onChange={(e) => setRating(Number(e.target.value))}
+        />
+        <label htmlFor="first-rate3" title="Average">3 stars</label>
+
+        <input
+          type="radio"
+          id="first-rate4"
+          name="review[rating]"
+          value="4"
+          checked={rating === 4}
+          onChange={(e) => setRating(Number(e.target.value))}
+        />
+        <label htmlFor="first-rate4" title="Very good">4 stars</label>
+
+        <input
+          type="radio"
+          id="first-rate5"
+          name="review[rating]"
+          value="5"
+          checked={rating === 5}
+          onChange={(e) => setRating(Number(e.target.value))}
+        />
+        <label htmlFor="first-rate5" title="Amazing">5 stars</label>
+      </fieldset>
+    </div>
+
+    <div>
+      <label className="block mb-1 font-medium">Comment</label>
+      <textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        className="w-full p-2 border rounded"
+        rows={3}
+        placeholder="Write your review..."
+      />
+    </div>
+
+    <button
+      type="submit"
+      disabled={loading}
+      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+    >
+      {loading ? "Submitting..." : "Submit Review"}
+    </button>
+  </form>
+)
+}
+
+  
 
   if (isLoading) {
     return (
@@ -521,37 +650,46 @@ const CourseDetailPage = () => {
               )}
 
               {activeTab === "reviews" && (
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h3>
-                  <div className="space-y-6">
-                    {course.reviews.map((review) => (
-                      <div key={review._id} className="border-b border-gray-200 pb-6">
-                        <div className="flex items-start space-x-4">
-                          <img
-                            src={review.user.avatar || "/placeholder.svg"}
-                            alt={review.user.name}
-                            className="w-12 h-12 rounded-full"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h4 className="font-medium text-gray-900">{review.user.name}</h4>
-                              <div className="flex items-center">
-                                {[...Array(review.rating)].map((_, i) => (
-                                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                                ))}
-                              </div>
-                              <span className="text-sm text-gray-600">
-                                {new Date(review.createdAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <p className="text-gray-700">{review.comment}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+  <div>
+    <h3 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h3>
+
+    {/* Review Form */}
+    <div className="mb-6">
+      <ReviewForm courseId={course._id} onReviewSubmitted={fetchCourseDetails} />
+    </div>
+
+    {/* List of existing reviews */}
+    <div className="space-y-6">
+      {course.reviews.map((review) => (
+        <div key={review._id} className="border-b border-gray-200 pb-6">
+          <div className="flex items-start space-x-4">
+            <img
+              src={review.user.avatar || "/placeholder.svg"}
+              alt={review.user.name}
+              className="w-12 h-12 rounded-full"
+            />
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 mb-2">
+                <h4 className="font-medium text-gray-900">{review.user.name}</h4>
+                <div className="flex items-center">
+                  {[...Array(review.rating)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                  ))}
                 </div>
-              )}
+                <span className="text-sm text-gray-600">
+                  {new Date(review.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <p className="text-gray-700">{review.comment}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+              
             </motion.div>
           </div>
 
@@ -632,4 +770,4 @@ const CourseDetailPage = () => {
   )
 }
 
-export default CourseDetailPage
+export default CourseDetailPage 

@@ -296,17 +296,9 @@ router.post("/:id/reviews", auth, async (req, res) => {
       status: "active",
     })
 
-    if (!enrollment) {
-      return res.status(403).json({ message: "You must be enrolled to review this course" })
-    }
+   
 
-    // Check if user already reviewed
-    const existingReview = course.reviews.find((review) => review.user.toString() === req.user.id)
-
-    if (existingReview) {
-      return res.status(400).json({ message: "You have already reviewed this course" })
-    }
-
+    
     // Add review
     course.reviews.push({
       user: req.user.id,
