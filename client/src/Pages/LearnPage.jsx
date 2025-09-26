@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { Play, Clock, CheckCircle, ArrowLeft, Lock } from "lucide-react"
@@ -17,6 +17,12 @@ const LearnPage = () => {
   const [selectedLesson, setSelectedLesson] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [progress, setProgress] = useState(null)
+  const [markingComplete, setMarkingComplete] = useState(false)
+
+  const youtubePlayerRef = useRef(null)
+  const [youtubePlayer, setYoutubePlayer] = useState(null)
+  const [isYouTubeLoaded, setIsYouTubeLoaded] = useState(false)
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -57,6 +63,9 @@ const LearnPage = () => {
 
         if (!data.isEnrolled) {
           setError("You are not enrolled in this course")
+        } else {
+          // Fetch progress if enrolled
+          await fetchProgress()
         }
       } else {
         setError("Course not found")
@@ -67,6 +76,121 @@ const LearnPage = () => {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const fetchProgress = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch(`http://localhost:2000/api/enrollments/progress/${courseId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setProgress(data.progress)
+      }
+    } catch (error) {
+      console.error("Error fetching progress:", error)
+    }
+  }
+
+  const markLessonComplete = async (lessonId) => {
+    // Prevent duplicate calls
+    if (isLessonCompleted(lessonId)) return;
+
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch(`http://localhost:2000/api/enrollments/progress`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseId,
+          lessonId,
+          timeSpent: 0, // For now, not tracking time
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setProgress(data.progress)
+      } else {
+        const error = await response.json()
+        console.error("Failed to mark lesson complete:", error.message || "Unknown error")
+      }
+    } catch (error) {
+      console.error("Error marking lesson complete:", error)
+    }
+  }
+
+  // YouTube API setup
+  useEffect(() => {
+    if (!selectedLesson || !isYouTubeUrl(selectedLesson.videoUrl)) {
+      // Clean up previous player if switching away from YouTube
+      if (youtubePlayer) {
+        youtubePlayer.destroy()
+        setYoutubePlayer(null)
+      }
+      return
+    }
+
+    // Load YouTube IFrame API if not loaded
+    if (!window.YT) {
+      const tag = document.createElement('script')
+      tag.src = "https://www.youtube.com/iframe_api"
+      const firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
+      window.onYouTubeIframeAPIReady = initializeYouTubePlayer
+    } else {
+      initializeYouTubePlayer()
+    }
+
+    function initializeYouTubePlayer() {
+      if (youtubePlayerRef.current && !youtubePlayer) {
+        const player = new window.YT.Player(youtubePlayerRef.current, {
+          videoId: getYouTubeVideoId(selectedLesson.videoUrl),
+          width: '100%',
+          height: '100%',
+          playerVars: {
+            'playsinline': 1,
+            'controls': 1,
+            'rel': 0,
+            'modestbranding': 1
+          },
+          events: {
+            'onReady': (event) => {
+              setYoutubePlayer(event.target)
+              setIsYouTubeLoaded(true)
+            },
+            'onStateChange': (event) => {
+              if (event.data === window.YT.PlayerState.ENDED) {
+                markLessonComplete(selectedLesson._id)
+              }
+            }
+          }
+        })
+        setYoutubePlayer(player)
+      }
+    }
+
+    return () => {
+      if (youtubePlayer) {
+        youtubePlayer.destroy()
+        setYoutubePlayer(null)
+        setIsYouTubeLoaded(false)
+      }
+      delete window.onYouTubeIframeAPIReady
+    }
+  }, [selectedLesson])
+
+  const isLessonCompleted = (lessonId) => {
+    return progress?.completedLessons?.some(lesson => lesson.lessonId === lessonId)
   }
 
   const formatDuration = (minutes) => {
@@ -98,14 +222,14 @@ const LearnPage = () => {
 
     if (isYouTubeUrl(lesson.videoUrl)) {
       return (
-        <div className="aspect-video">
-          <iframe
-            src={getYouTubeEmbedUrl(lesson.videoUrl)}
-            title={lesson.title}
-            className="w-full h-full rounded-lg"
-            allowFullScreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
+        <div className="aspect-video relative">
+          <div ref={youtubePlayerRef} className="w-full h-full rounded-lg">
+            {!isYouTubeLoaded && (
+              <div className="flex items-center justify-center h-full bg-gray-100">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            )}
+          </div>
         </div>
       )
     }
@@ -117,11 +241,18 @@ const LearnPage = () => {
           controls
           className="w-full h-full rounded-lg"
           preload="metadata"
+          onEnded={() => markLessonComplete(lesson._id)}
         >
           Your browser does not support the video tag.
         </video>
       </div>
     )
+  }
+
+  const getYouTubeVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
   }
 
   if (isLoading) {
@@ -182,6 +313,19 @@ const LearnPage = () => {
             <h1 className="text-xl font-semibold text-gray-900">{course.title}</h1>
             <p className="text-sm text-gray-600">Continue your learning journey</p>
           </div>
+          {progress && (
+            <div className="text-right">
+              <div className="text-sm text-gray-600 mb-1">
+                Progress: {progress.completionPercentage}%
+              </div>
+              <div className="w-24 bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress.completionPercentage}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -224,9 +368,14 @@ const LearnPage = () => {
                           </span>
                         </div>
                       </div>
-                      {selectedLesson?._id === lesson._id && (
-                        <CheckCircle className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                      )}
+                      <div className="flex items-center space-x-1">
+                        {isLessonCompleted(lesson._id) && (
+                          <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        )}
+                        {selectedLesson?._id === lesson._id && !isLessonCompleted(lesson._id) && (
+                          <div className="w-4 h-4 border-2 border-blue-600 rounded-full flex-shrink-0"></div>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -255,6 +404,18 @@ const LearnPage = () => {
                 <div className="mb-6">
                   {renderVideoPlayer(selectedLesson)}
                 </div>
+
+                {isLessonCompleted(selectedLesson._id) && (
+                  <div className="mb-6">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
+                      <CheckCircle className="h-6 w-6 text-green-600" />
+                      <div>
+                        <p className="text-green-800 font-medium">Lesson Completed!</p>
+                        <p className="text-green-600 text-sm">Great job! Continue to the next lesson.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Lesson Resources */}
                 {selectedLesson.resources && selectedLesson.resources.length > 0 && (
