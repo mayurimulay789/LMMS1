@@ -141,7 +141,7 @@ router.get("/top", async (req, res) => {
 })
 
 // GET /courses/:id - Get single course
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
   try {
     const course = await Course.findById(req.params.id)
       .populate("createdBy", "name email avatar profile")
@@ -302,17 +302,9 @@ router.post("/:id/reviews", auth, async (req, res) => {
       status: { $ne: "suspended" }
     })
 
-    if (!enrollment) {
-      return res.status(403).json({ message: "You must be enrolled to review this course" })
-    }
+   
 
-    // Check if user already reviewed
-    const existingReview = course.reviews.find((review) => review.user.toString() === req.user.id)
-
-    if (existingReview) {
-      return res.status(400).json({ message: "You have already reviewed this course" })
-    }
-
+    
     // Add review
     course.reviews.push({
       user: req.user.id,

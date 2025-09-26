@@ -296,7 +296,7 @@ const CheckoutPage = () => {
             </div>
 
             {/* Promo Code */}
-            <div className="p-6 bg-white rounded-lg shadow-sm">
+            {/* <div className="p-6 bg-white rounded-lg shadow-sm">
               <h2 className="mb-4 text-xl font-semibold text-gray-900">Promo Code</h2>
               <form onSubmit={handlePromoCodeSubmit} className="flex space-x-3">
                 <div className="relative flex-1">
@@ -334,7 +334,7 @@ const CheckoutPage = () => {
                   <span className="text-red-800">{error}</span>
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Payment Method */}
             <div className="p-6 bg-white rounded-lg shadow-sm">
@@ -357,162 +357,189 @@ const CheckoutPage = () => {
 
             {/* Billing Information */}
             <div className="p-6 bg-white rounded-lg shadow-sm">
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">Billing Information</h2>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">First Name *</label>
-                  <div className="relative">
-                    <User className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={billingInfo.firstName}
-                      onChange={handleBillingInfoChange}
-                      className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                </div>
+  <h2 className="mb-4 text-xl font-semibold text-gray-900">Billing Information</h2>
+  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    {/* First Name */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">First Name *</label>
+      <div className="relative">
+        <User className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
+        <input
+          type="text"
+          name="firstName"
+          value={billingInfo.firstName}
+          onChange={handleBillingInfoChange}
+          className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          required
+          pattern="^[A-Za-z\s]+$"
+          title="First name should only contain letters."
+        />
+      </div>
+    </div>
 
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Last Name *</label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={billingInfo.lastName}
-                    onChange={handleBillingInfoChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
+    {/* Last Name */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">Last Name *</label>
+      <input
+        type="text"
+        name="lastName"
+        value={billingInfo.lastName}
+        onChange={handleBillingInfoChange}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        required
+        pattern="^[A-Za-z\s]+$"
+        title="Last name should only contain letters."
+      />
+    </div>
 
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Email Address *</label>
-                  <div className="relative">
-                    <Mail className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-                    <input
-                      type="email"
-                      name="email"
-                      value={billingInfo.email}
-                      onChange={handleBillingInfoChange}
-                      className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                </div>
+    {/* Email */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">Email Address *</label>
+      <div className="relative">
+        <Mail className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
+        <input
+          type="email"
+          name="email"
+          value={billingInfo.email}
+          onChange={handleBillingInfoChange}
+          className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          required
+          title="Enter a valid email address."
+        />
+      </div>
+    </div>
 
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Phone Number *</label>
-                  <div className="relative">
-                    <Phone className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={billingInfo.phone}
-                      onChange={handleBillingInfoChange}
-                      className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                </div>
+    {/* Phone */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">Phone Number *</label>
+      <div className="relative">
+        <Phone className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
+        <input
+          type="tel"
+          name="phone"
+          value={billingInfo.phone}
+          onChange={handleBillingInfoChange}
+          className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          required
+          pattern="^[0-9]{10}$"
+          maxLength={10}
+          title="Enter a valid 10-digit phone number."
+        />
+      </div>
+    </div>
 
-                <div className="md:col-span-2">
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Address *</label>
-                  <div className="relative">
-                    <MapPin className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-                    <input
-                      type="text"
-                      name="address"
-                      value={billingInfo.address}
-                      onChange={handleBillingInfoChange}
-                      className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                </div>
+    {/* Address */}
+    <div className="md:col-span-2">
+      <label className="block mb-2 text-sm font-medium text-gray-700">Address *</label>
+      <div className="relative">
+        <MapPin className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
+        <input
+          type="text"
+          name="address"
+          value={billingInfo.address}
+          onChange={handleBillingInfoChange}
+          className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          required
+        />
+      </div>
+    </div>
 
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">City *</label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={billingInfo.city}
-                    onChange={handleBillingInfoChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
+    {/* City */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">City *</label>
+      <input
+        type="text"
+        name="city"
+        value={billingInfo.city}
+        onChange={handleBillingInfoChange}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        required
+        pattern="^[A-Za-z\s]+$"
+        title="City should only contain letters."
+      />
+    </div>
 
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">State *</label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={billingInfo.state}
-                    onChange={handleBillingInfoChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
+    {/* State */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">State *</label>
+      <input
+        type="text"
+        name="state"
+        value={billingInfo.state}
+        onChange={handleBillingInfoChange}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        required
+        pattern="^[A-Za-z\s]+$"
+        title="State should only contain letters."
+      />
+    </div>
 
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">ZIP Code *</label>
-                  <input
-                    type="text"
-                    name="zipCode"
-                    value={billingInfo.zipCode}
-                    onChange={handleBillingInfoChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
+    {/* ZIP Code */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">ZIP Code *</label>
+      <input
+        type="text"
+        name="zipCode"
+        value={billingInfo.zipCode}
+        onChange={handleBillingInfoChange}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        required
+        pattern="^[0-9]{5,6}$"
+        title="Enter a valid 5 or 6 digit ZIP Code."
+      />
+    </div>
 
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Country *</label>
-                  <select
-                    name="country"
-                    value={billingInfo.country}
-                    onChange={handleBillingInfoChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  >
-                    <option value="IN">India</option>
-                    <option value="US">United States</option>
-                    <option value="CA">Canada</option>
-                    <option value="UK">United Kingdom</option>
-                    <option value="AU">Australia</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+    {/* Country */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">Country *</label>
+      <select
+        name="country"
+        value={billingInfo.country}
+        onChange={handleBillingInfoChange}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        required
+      >
+        <option value="IN">India</option>
+        <option value="US">United States</option>
+        <option value="CA">Canada</option>
+        <option value="UK">United Kingdom</option>
+        <option value="AU">Australia</option>
+      </select>
+    </div>
 
-            {/* Terms and Conditions */}
-            <div className="p-6 bg-white rounded-lg shadow-sm">
-              <div className="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={termsAccepted}
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
-                  className="w-4 h-4 mt-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="terms" className="text-sm text-gray-700">
-                  I agree to the{" "}
-                  <a href="/terms" className="text-blue-600 underline hover:text-blue-800">
-                    Terms of Service
-                  </a>
-                  ,{" "}
-                  <a href="/privacy" className="text-blue-600 underline hover:text-blue-800">
-                    Privacy Policy
-                  </a>
-                  , and{" "}
-                  <a href="/refund" className="text-blue-600 underline hover:text-blue-800">
-                    Refund Policy
-                  </a>
-                  . I understand that I will have immediate access to this course upon successful payment.
-                </label>
-              </div>
-            </div>
+    {/* Terms and Conditions inside billing */}
+    <div className="md:col-span-2 mt-4">
+      <div className="flex items-start space-x-3">
+        <input
+          type="checkbox"
+          id="terms"
+          checked={termsAccepted}
+          onChange={(e) => setTermsAccepted(e.target.checked)}
+          className="w-4 h-4 mt-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          required
+        />
+        <label htmlFor="terms" className="text-sm text-gray-700">
+          I agree to the{" "}
+          <a href="/terms" className="text-blue-600 underline hover:text-blue-800">
+            Terms of Service
+          </a>
+          ,{" "}
+          <a href="/privacy" className="text-blue-600 underline hover:text-blue-800">
+            Privacy Policy
+          </a>
+          , and{" "}
+          <a href="/refund" className="text-blue-600 underline hover:text-blue-800">
+            Refund Policy
+          </a>
+          . I understand that I will have immediate access to this course upon successful payment.
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+             
           </div>
 
           {/* Sidebar */}
@@ -565,26 +592,11 @@ const CheckoutPage = () => {
 
               <div className="space-y-2 text-xs text-center text-gray-500">
                 <p>By completing your purchase, you agree to our terms and conditions</p>
-                <div className="flex items-center justify-center space-x-2">
-                  <Shield className="w-4 h-4 text-green-600" />
-                  <span>256-bit SSL encryption</span>
-                </div>
+                
               </div>
             </div>
 
-            {/* Security Features */}
-            <div className="p-4 border border-green-200 rounded-lg bg-green-50">
-              <div className="flex items-center mb-3 space-x-2">
-                <Shield className="w-5 h-5 text-green-600" />
-                <span className="font-semibold text-green-800">Security Guarantee</span>
-              </div>
-              <ul className="space-y-1 text-sm text-green-700">
-                <li>• SSL encrypted checkout</li>
-                <li>• PCI DSS compliant</li>
-                <li>• Fraud protection enabled</li>
-                <li>• 30-day money-back guarantee</li>
-              </ul>
-            </div>
+           
 
             {/* What's Included */}
             <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
