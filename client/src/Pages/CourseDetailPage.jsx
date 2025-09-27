@@ -23,7 +23,73 @@ const CourseDetailPage = () => {
   const [relatedCourses, setRelatedCourses] = useState([])
   const [relatedCoursesLoading, setRelatedCoursesLoading] = useState(false)
   const [reviews, setReviews] = useState([])
+  const [comment, setComment] = useState("");
+const [rating, setRating] = useState(0);
+const [loading, setLoading] = useState(false);
+const [successMessage, setSuccessMessage] = useState("");
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (rating === 0 || !comment.trim()) {
+    return alert("Please provide rating and comment");
+}
+
+
+  if (!course?._id) {
+    return alert("Course details not loaded yet.");
+  }
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please login again.");
+    navigate("/login");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    console.log("Submitting review:", { rating, comment });
+
+    const response = await fetch(
+      `http://localhost:2000/api/courses/${course._id}/reviews`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          rating: Number(rating),     // ensure number
+          comment: comment.trim(),    // ensure no spaces
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to submit review");
+    }
+
+    // Reset form
+    setRating(1);
+    setComment("");
+    alert("Your review has been submitted successfully!");
+    //setSuccessMessage("Your review has been submitted successfully!");
+    setReviews((prev) => [data, ...prev]);
+    // Refresh course details to show new review
   
+  } catch (err) {
+    console.error("Review submission error:", err);
+    alert(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   const videoRef = useRef(null)
   useEffect(() => {
     fetchCourseDetails()
@@ -46,6 +112,8 @@ const CourseDetailPage = () => {
 
       if (response.ok) {
         const data = await response.json()
+  console.log("Fetched course:", data);
+  setCourse(data);
         setCourse(data)
         setIsEnrolled(data.isEnrolled)
         setUserProgress(data.userProgress)
@@ -147,95 +215,10 @@ const CourseDetailPage = () => {
     { id: "instructor", label: "Instructor" },
     { id: "reviews", label: "Reviews" },
   ]
-const ReviewForm = ({ courseId, onReviewSubmitted }) => {
-   const [rating, setRating] = useState(0)
-  const [comment, setComment] = useState("")
-  const [loading, setLoading] = useState(false)
+// import { useState } from "react"
 
-  const submitReview = async (rating, comment) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`/api/courseReviews/${courseId}/reviews`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ rating, comment }),
-    })
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to submit review")
-    }
 
-    return response.json()
-  }
-
-const handleSubmit = async (e) => {
-  e.preventDefault()
-<<<<<<< HEAD
-   
-  if (!rating || !comment) return alert("Please provide rating and comment")
-=======
-  if (rating === 0 || !comment.trim()) return alert("Please provide rating and comment")
->>>>>>> 9920a4bf4db65636142c45a71d2b93db323e35bb
-  setLoading(true)
-  try {
-    await submitReview(rating, comment.trim())
-    setRating(0)
-    setComment("")
-    if (onReviewSubmitted) onReviewSubmitted()
-  } catch (error) {
-    console.error("Error submitting review:", error)
-    alert(error.message)
-  } finally {
-    setLoading(false)
-  }
-}
-
-if (!isAuthenticated) 
-  return <p className="text-gray-600">Please log in to submit a review.</p>;
-
-return (
-  <form onSubmit={handleSubmit} className="space-y-3 mb-6">
-    <div>
-      <label className="block mb-1 font-medium">Rating</label>
-      <div className="flex space-x-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => setRating(star)}
-            className={`text-2xl ${rating >= star ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
-            title={`${star} star${star > 1 ? 's' : ''}`}
-          >
-            ★
-          </button>
-        ))}
-      </div>
-    </div>
-
-    <div>
-      <label className="block mb-1 font-medium">Comment</label>
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        className="w-full p-2 border rounded"
-        rows={3}
-        placeholder="Write your review..."
-      />
-    </div>
-
-    <button
-      type="submit"
-      disabled={loading}
-      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-    >
-      {loading ? "Submitting..." : "Submit Review"}
-    </button>
-  </form>
-)
-}
 
   
 
@@ -641,44 +624,131 @@ return (
 
               {activeTab === "reviews" && (
   <div>
-    <h3 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h3>
+  <h3 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h3>
 
-    {/* Review Form */}
-    <div className="mb-6">
-      <ReviewForm courseId={course._id} onReviewSubmitted={fetchCourseDetails} />
-    </div>
+  {!isAuthenticated ? (
+    <p className="text-gray-600">Please log in to submit a review.</p>
+  ) : (
+    <form onSubmit={handleSubmit} className="space-y-3 mb-6">
+      <div>
+        <label className="block mb-1 font-medium">Rating</label>
+        <fieldset className="starability-slot">
+          <input
+            type="radio"
+            id="no-rate"
+            className="input-no-rate"
+            name="review[rating]"
+            value="0"
+            defaultChecked
+            aria-label="No rating."
+          />
+         <input
+  type="radio"
+  id="first-rate1"
+  name="review[rating]"
+  value="1"
+  checked={rating === 1}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate1" title="Terrible">1 star</label>
 
-    {/* List of existing reviews */}
-    <div className="space-y-6">
-      {course.reviews.map((review) => (
-        <div key={review._id} className="border-b border-gray-200 pb-6">
-          <div className="flex items-start space-x-4">
-            <img
-              src={review.user.avatar || "/placeholder.svg"}
-              alt={review.user.name}
-              className="w-12 h-12 rounded-full"
-            />
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-2">
-                <h4 className="font-medium text-gray-900">{review.user.name}</h4>
-                <div className="flex items-center">
-                  {[...Array(review.rating)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-600">
-                  {new Date(review.createdAt).toLocaleDateString()}
-                </span>
+<input
+  type="radio"
+  id="first-rate2"
+  name="review[rating]"
+  value="2"
+  checked={rating === 2}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate2" title="Not good">2 stars</label>
+
+<input
+  type="radio"
+  id="first-rate3"
+  name="review[rating]"
+  value="3"
+  checked={rating === 3}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate3" title="Average">3 stars</label>
+
+<input
+  type="radio"
+  id="first-rate4"
+  name="review[rating]"
+  value="4"
+  checked={rating === 4}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate4" title="Very good">4 stars</label>
+
+<input
+  type="radio"
+  id="first-rate5"
+  name="review[rating]"
+  value="5"
+  checked={rating === 5}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate5" title="Amazing">5 stars</label>
+
+        </fieldset>
+      </div>
+
+      <div>
+        <label className="block mb-1 font-medium">Comment</label>
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="w-full p-2 border rounded"
+          rows={3}
+          placeholder="Write your review..."
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        {loading ? "Submitting..." : "Submit Review"}
+      </button>
+    </form>
+  )}
+
+  {/* List of existing reviews */}
+  {reviews.length > 0  ? (
+     reviews.map((review) => (
+      <div key={review._id} className="border-b border-gray-200 pb-6">
+        <div className="flex items-start space-x-4">
+          <img
+            src={review.user?.avatar || "/placeholder.svg"}
+            alt={review.user?.name || "Student"}
+            className="w-12 h-12 rounded-full"
+          />
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-2">
+              <h4 className="font-medium text-gray-900">{review.name || "Anonymous"}</h4>
+
+              <div className="flex items-center">
+                {[...Array(review.rating)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                ))}
               </div>
-              <p className="text-gray-700">{review.comment}</p>
+              <span className="text-sm text-gray-600">
+                {new Date(review.createdAt).toLocaleDateString()}
+              </span>
             </div>
+            <p className="text-gray-700">{review.comment}</p>
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-)}
-
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-600">No reviews yet.</p>
+  )}
+</div>
+              )}
               
             </motion.div>
           </div>

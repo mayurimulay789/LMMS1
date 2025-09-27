@@ -88,7 +88,7 @@ app.use("/api/certificates", certificateRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/instructor", instructorRoutes)
 app.use("/api/upload", uploadRoutes)
-app.use("/api/courseReviews", courseReviewsRoutes)
+app.use("/api/courses", courseReviewsRoutes)
 
 app.use("/api/*splat", (req, res) => {
   res.status(404).json({

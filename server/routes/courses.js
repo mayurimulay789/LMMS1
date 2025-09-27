@@ -285,48 +285,7 @@ router.get("/:id/lessons", auth, async (req, res) => {
   }
 })
 
-// POST /courses/:id/reviews - Add course review
-router.post("/:id/reviews", auth, async (req, res) => {
-  try {
-    const { rating, comment } = req.body
-    const course = await Course.findById(req.params.id)
 
-    if (!course) {
-      return res.status(404).json({ message: "Course not found" })
-    }
-
-    // Check if user is enrolled
-    const enrollment = await Enrollment.findOne({
-      user: req.user.id,
-      course: req.params.id,
-      status: { $ne: "suspended" }
-    })
-
-   
-
-    
-    // Add review
-    course.reviews.push({
-      user: req.user.id,
-      rating,
-      comment,
-      createdAt: new Date(),
-    })
-
-    await course.save()
-
-    // Populate the new review
-    await course.populate("reviews.user", "name avatar")
-
-    res.status(201).json({
-      message: "Review added successfully",
-      review: course.reviews[course.reviews.length - 1],
-    })
-  } catch (error) {
-    console.error("Error adding review:", error)
-    res.status(500).json({ message: "Failed to add review" })
-  }
-})
 
 // GET /courses/meta/categories - Get all categories
 router.get("/meta/categories", async (req, res) => {

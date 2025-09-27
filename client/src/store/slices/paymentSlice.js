@@ -5,7 +5,7 @@ export const createPaymentOrder = createAsyncThunk(
   async ({ courseId, amount, promoCode, billingInfo }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:5000/api/payments/create-order", {
+      const response = await fetch("http://localhost:2000/api/payments/create-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,7 +32,7 @@ export const verifyPayment = createAsyncThunk(
   async (paymentData, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:5000/api/payments/verify", {
+      const response = await fetch("http://localhost:2000/api/payments/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ export const fetchUserPayments = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:5000/api/payments/history", {
+      const response = await fetch("http://localhost:2000/api/payments/history", {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
@@ -83,7 +83,7 @@ export const validatePromoCode = createAsyncThunk(
   async ({ code, courseId }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:5000/api/payments/validate-promo", {
+      const response = await fetch("http://localhost:2000/api/payments/validate-promo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +110,7 @@ export const requestRefund = createAsyncThunk(
   async ({ paymentId, reason }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:5000/api/payments/refund", {
+      const response = await fetch("http://localhost:2000/api/payments/refund", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
