@@ -9,22 +9,29 @@ const Enrollment = require("../models/Enrollment"); // check enrollment
 router.post("/:id/reviews", auth, async (req, res) => {
   const { rating, comment } = req.body;
 
+  console.log("User:", req.user);
+  console.log("Course ID:", req.params.id);
+  console.log("Body:", req.body);
+
+  if (rating <= 0 || !comment?.trim()) {
+  return res.status(400).json({ message: "Rating and comment are required" });
+}
+
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findOne({ _id: req.params.id });
+
     if (!course) return res.status(404).json({ message: "Course not found" });
 
-    // Check if user is enrolled
     const enrollment = await Enrollment.findOne({
-      user: req.user._id,
+      user: req.user?._id,
       course: course._id,
     });
     if (!enrollment) return res.status(403).json({ message: "Enroll first to review" });
 
-    // Create review
     const review = new CourseReview({
       course: course._id,
       user: req.user._id,
-      name: req.user.name,
+      name: req.user.name || "Anonymous",
       avatar: req.user.avatar || null,
       rating,
       comment,
@@ -32,16 +39,22 @@ router.post("/:id/reviews", auth, async (req, res) => {
 
     await review.save();
 
-    // Update course avg rating & review count
     const allReviews = await CourseReview.find({ course: course._id });
-    course.avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
-    course.reviewCount = allReviews.length;
-    await course.save();
+    const avgRating =
+      allReviews.length > 0
+        ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+        : 0;
+
+    // ✅ Instead of course.save(), just update the fields
+    await Course.findByIdAndUpdate(course._id, {
+      avgRating,
+      reviewCount: allReviews.length,
+    });
 
     res.status(201).json(review);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error adding review:", err);
+    res.status(500).json({ message: err.message, stack: err.stack });
   }
 });
 

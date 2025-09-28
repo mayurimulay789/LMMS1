@@ -1,0 +1,2 @@
+- [x] Add Sign In and Sign Up buttons to the top right corner of the navbar in Navbar.jsx
+- [x] Modify navbar to show user profile name with dropdown menu when authenticated

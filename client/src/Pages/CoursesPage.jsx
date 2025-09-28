@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Search, Grid, List, SlidersHorizontal } from "lucide-react"
 import CourseCard from "../Components/CourseCard"
@@ -29,9 +29,16 @@ const CoursesPage = () => {
     totalPages: 1,
     total: 0,
   })
+  const categoriesFetchedRef = useRef(false)
 
   useEffect(() => {
-    fetchCategories()
+    if (!categoriesFetchedRef.current) {
+      fetchCategories()
+      categoriesFetchedRef.current = true
+    }
+  }, [])
+
+  useEffect(() => {
     fetchCourses()
   }, [filters, pagination.currentPage])
 

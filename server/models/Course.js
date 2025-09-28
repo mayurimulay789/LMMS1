@@ -169,6 +169,10 @@ const courseSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    avgRating: {        // 🔹 add this
+  type: Number,
+  default: 0,
+},
     isPublished: {
       type: Boolean,
       default:true,

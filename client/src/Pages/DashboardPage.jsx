@@ -209,25 +209,6 @@ const DashboardPage = () => {
                   </button>
                 </div>
 
-                {/* Profile Avatar */}
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-16 h-16 rounded-full border-2 border-gray-300 overflow-hidden bg-gray-100 flex items-center justify-center">
-                    {user?.profile?.avatar ? (
-                      <img
-                        src={user.profile.avatar}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="h-8 w-8 text-gray-400" />
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-900">{user?.name}</h4>
-                    <p className="text-sm text-gray-600 capitalize">{user?.role}</p>
-                  </div>
-                </div>
-
                 {/* Bio Display */}
                 <div className="mb-4">
                   <h4 className="text-sm font-medium text-gray-700 mb-2">Bio</h4>
@@ -238,10 +219,6 @@ const DashboardPage = () => {
 
                 {/* Quick Info */}
                 <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-700">Email: </span>
-                    <span className="text-gray-600">{user?.email}</span>
-                  </div>
                   {user?.profile?.website && (
                     <div>
                       <span className="font-medium text-gray-700">Website: </span>
@@ -255,6 +232,14 @@ const DashboardPage = () => {
                       </a>
                     </div>
                   )}
+                  <div>
+                    <span className="font-medium text-gray-700">Role: </span>
+                    <span className="text-gray-600 capitalize">{user?.role}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700">Email: </span>
+                    <span className="text-gray-600">{user?.email}</span>
+                  </div>
                 </div>
               </div>
             )}

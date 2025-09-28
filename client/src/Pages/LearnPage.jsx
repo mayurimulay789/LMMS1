@@ -152,31 +152,54 @@ const LearnPage = () => {
     }
 
     function initializeYouTubePlayer() {
-      if (youtubePlayerRef.current && !youtubePlayer) {
-        const player = new window.YT.Player(youtubePlayerRef.current, {
-          videoId: getYouTubeVideoId(selectedLesson.videoUrl),
-          width: '100%',
-          height: '100%',
-          playerVars: {
-            'playsinline': 1,
-            'controls': 1,
-            'rel': 0,
-            'modestbranding': 1
-          },
-          events: {
-            'onReady': (event) => {
-              setYoutubePlayer(event.target)
-              setIsYouTubeLoaded(true)
+      const initPlayer = () => {
+        if (youtubePlayerRef.current && !youtubePlayer && window.YT && window.YT.Player) {
+          const player = new window.YT.Player(youtubePlayerRef.current, {
+            videoId: getYouTubeVideoId(selectedLesson.videoUrl),
+            width: '100%',
+            height: '100%',
+            playerVars: {
+              'playsinline': 1,
+              'controls': 1,
+              'rel': 0,
+              'modestbranding': 1,
+              'iv_load_policy': 3,
+              'autohide': 1,
+              'fs': 0,
+              'disablekb': 1
             },
-            'onStateChange': (event) => {
-              if (event.data === window.YT.PlayerState.ENDED) {
-                markLessonComplete(selectedLesson._id)
+            events: {
+              'onReady': (event) => {
+                setYoutubePlayer(event.target)
+                setIsYouTubeLoaded(true)
+              },
+              'onStateChange': (event) => {
+                if (event.data === window.YT.PlayerState.ENDED) {
+                  markLessonComplete(selectedLesson._id)
+                }
               }
             }
-          }
-        })
-        setYoutubePlayer(player)
+          })
+          setYoutubePlayer(player)
+          return true
+        }
+        return false
       }
+
+      if (initPlayer()) return
+
+      // Retry if API not ready
+      const maxRetries = 50 // 5 seconds
+      let retries = 0
+      const interval = setInterval(() => {
+        retries++
+        if (initPlayer() || retries >= maxRetries) {
+          clearInterval(interval)
+        }
+      }, 100)
+
+      // Cleanup on unmount or lesson change
+      return () => clearInterval(interval)
     }
 
     return () => {
