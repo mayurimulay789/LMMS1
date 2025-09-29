@@ -111,25 +111,25 @@ export default function Navbar() {
           <div className="bg-white rounded-full px-8 py-2 flex items-center justify-between gap-4">
             {/* Navigation menu */}
             <nav className="flex items-center space-x-6">
-              <a href="#" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
+              <Link to="/" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
                 Home
-              </a>
+              </Link>
 
-              <a href="#" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
+              <Link to="/courses" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
                 Courses
-              </a>
+              </Link>
 
               <a href="#" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
                 Refer & Earn
               </a>
 
-              <a href="#" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
+              <Link to="/about" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
                 About
-              </a>
+              </Link>
 
-              <a href="#" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
+              <Link to="/contact" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
                 Contact Us
-              </a>
+              </Link>
 
               <a href="#" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">
                 More

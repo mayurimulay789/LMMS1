@@ -5,6 +5,7 @@ import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { BookOpen, Users, Award, TrendingUp, Play, Star, ArrowRight, Quote } from "lucide-react"
 import CourseCard from "../Components/CourseCard"
+import InstructorApplicationForm from "../Components/InstructorApplicationForm"
 
 const HomePage = () => {
   const [featuredCourses, setFeaturedCourses] = useState([])
@@ -15,6 +16,7 @@ const HomePage = () => {
     completionRate: 94,
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [showApplicationForm, setShowApplicationForm] = useState(false)
   const fetchedRef = useRef(false)
 
   useEffect(() => {
@@ -405,13 +407,13 @@ const HomePage = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Link
-              to="/register"
+            <button
+              onClick={() => setShowApplicationForm(true)}
               className="bg-white text-rose-900 px-8 py-4 rounded-lg font-semibold hover:bg-rose-50 transition-colors inline-flex items-center space-x-2"
             >
               <span>Get Application Form</span>
               <ArrowRight className="h-5 w-5" />
-            </Link>
+            </button>
           </div>
         </div>
       </section>
@@ -496,6 +498,26 @@ const HomePage = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Application Form Modal */}
+      {showApplicationForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Instructor Application Form</h2>
+                <button
+                  onClick={() => setShowApplicationForm(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              <InstructorApplicationForm onClose={() => setShowApplicationForm(false)} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
