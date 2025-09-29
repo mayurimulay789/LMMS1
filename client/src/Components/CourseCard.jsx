@@ -62,7 +62,6 @@ const CourseCard = ({ course, index = 0 }) => {
                 }
               }}
               onLoadedData={(e) => {
-                console.log('CourseCard video loaded successfully')
                 const fallback = e.target.parentElement.querySelector('.coursecard-video-fallback')
                 if (fallback) fallback.remove()
               }}
@@ -84,7 +83,6 @@ const CourseCard = ({ course, index = 0 }) => {
                 }
               }}
               onLoad={(e) => {
-                console.log('CourseCard image loaded successfully')
                 const fallback = e.target.parentElement.querySelector('.coursecard-image-fallback')
                 if (fallback) fallback.remove()
               }}

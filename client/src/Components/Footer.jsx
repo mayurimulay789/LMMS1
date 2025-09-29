@@ -19,13 +19,20 @@ const Footer = () => {
     company: [
       { name: "About Us", path: "/about" },
       { name: "Contact", path: "/contact" },
-      { name: "FAQ", path: "/about#faq" },
+      { name: "FAQ", path: "/about#faq" }, // replaced Careers with FAQ
+      // removed Blog
     ],
     courses: [
       { name: "Programming", path: "/courses?category=Programming" },
       { name: "Design", path: "/courses?category=Design" },
       { name: "Marketing", path: "/courses?category=Marketing" },
       { name: "Business", path: "/courses?category=Business" },
+    ],
+    support: [
+      { name: "Help Center", path: "/help" },
+      { name: "Privacy Policy", path: "/privacy" },
+      { name: "Terms of Service", path: "/terms" },
+      { name: "Cookie Policy", path: "/cookies" },
     ],
   }
 
@@ -37,30 +44,30 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-primary-800 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
-              <BookOpen className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold">LearnHub</span>
+              <BookOpen className="h-8 w-8 text-white" />
+              <span className="text-xl font-bold text-white">LearnHub</span>
             </Link>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-white/80 text-sm leading-relaxed">
               Empowering learners worldwide with high-quality online courses.
               Join thousands of students and advance your career with expert-led
               instruction.
             </p>
             <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-sm text-gray-300">
+              <div className="flex items-center space-x-2 text-sm text-white/80">
                 <Mail className="h-4 w-4" />
                 <span>support@learnhub.com</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-300">
+              <div className="flex items-center space-x-2 text-sm text-white/80">
                 <Phone className="h-4 w-4" />
                 <span>+1 (555) 123-4567</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-300">
+              <div className="flex items-center space-x-2 text-sm text-white/80">
                 <MapPin className="h-4 w-4" />
                 <span>San Francisco, CA</span>
               </div>
@@ -69,13 +76,13 @@ const Footer = () => {
 
           {/* Company Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">Company</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-gray-300 hover:text-white text-sm transition-colors duration-200"
+                    className="text-white/80 hover:text-white text-sm transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
@@ -86,13 +93,30 @@ const Footer = () => {
 
           {/* Course Categories */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Categories</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">Categories</h3>
             <ul className="space-y-2">
               {footerLinks.courses.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-gray-300 hover:text-white text-sm transition-colors duration-200"
+                    className="text-white/80 hover:text-white text-sm transition-colors duration-200"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Support Links */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-white">Support</h3>
+            <ul className="space-y-2">
+              {footerLinks.support.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.path}
+                    className="text-white/80 hover:text-white text-sm transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
@@ -102,25 +126,27 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Removed Stay Updated section */}
+
         {/* Bottom Section */}
-        <div className="border-t border-gray-800 mt-8 pt-8">
-          <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <p className="text-gray-300 text-sm">
+        <div className="border-t border-primary-800 mt-8 pt-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <p className="text-white/80 text-sm">
               © {currentYear} LearnHub. All rights reserved.
             </p>
 
             {/* Social Links */}
-            <div className="flex space-x-6">
+            <div className="flex space-x-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
+                  className="text-white/70 hover:text-white transition-colors duration-200"
                   aria-label={social.name}
                 >
-                  <social.icon className="h-6 w-6" /> {/* Larger icons */}
+                  <social.icon className="h-5 w-5" />
                 </a>
               ))}
             </div>

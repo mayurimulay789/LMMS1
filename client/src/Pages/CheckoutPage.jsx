@@ -338,42 +338,22 @@ const CheckoutPage = () => {
 
             {/* Payment Method */}
             <div className="p-6 bg-white rounded-lg shadow-sm">
-  <h2 className="mb-4 text-xl font-semibold text-gray-900">Payment Method</h2>
-  <div className="p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
-    <div className="flex items-center space-x-3">
-      <CreditCard className="w-6 h-6 text-blue-600" />
-      <div className="flex-1">
-        <p className="font-medium text-gray-900">Razorpay Secure Payment</p>
-        <p className="text-sm text-gray-600">
-          Credit/Debit Card, UPI, Net Banking, Wallets
-        </p>
-      </div>
-
-      {/* ✅ Larger professional logos */}
-      <div className="flex space-x-4 items-center">
-        {/* Visa SVG */}
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="h-7">
-          <path fill="#1A1F71" d="M512 75v362H0V75h512z" />
-          <path fill="#fff" d="M217.3 347l-33.2-204.7h53.2l33.2 204.7h-53.2zm-83.3 0h-50.9L51.5 142.3h50.7l31.8 204.7zm180.6 0l-32.5-204.7h50.7l18.6 117.9 55.1-117.9h53.7L353.3 347h-38.7zm183.1 0h-47.4l-8.2-41.9h-63.2l-8.2 41.9h-47.4l55.1-204.7h63.9L497.7 347z"/>
-        </svg>
-
-        {/* Mastercard SVG */}
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 504 504" className="h-8">
-          <circle cx="177" cy="252" r="126" fill="#EB001B"/>
-          <circle cx="327" cy="252" r="126" fill="#F79E1B"/>
-          <path d="M252 126c34.8 22.9 58 62.3 58 126s-23.2 103.1-58 126c-34.8-22.9-58-62.3-58-126s23.2-103.1 58-126z" fill="#FF5F00"/>
-        </svg>
-
-        {/* UPI SVG */}
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-11">
-          <path fill="#3C9" d="M4 24h56v16H4z"/>
-          <text x="10" y="37" fontSize="14" fill="#fff" fontWeight="bold">UPI</text>
-        </svg>
-      </div>
-    </div>
-  </div>
-</div>
-
+              <h2 className="mb-4 text-xl font-semibold text-gray-900">Payment Method</h2>
+              <div className="p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
+                <div className="flex items-center space-x-3">
+                  <CreditCard className="w-5 h-5 text-blue-600" />
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">Razorpay Secure Payment</p>
+                    <p className="text-sm text-gray-600">Credit/Debit Card, UPI, Net Banking, Wallets</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <img src="/placeholder.svg?height=24&width=38" alt="Visa" className="h-6" />
+                    <img src="/placeholder.svg?height=24&width=38" alt="Mastercard" className="h-6" />
+                    <img src="/placeholder.svg?height=24&width=38" alt="UPI" className="h-6" />
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Billing Information */}
             <div className="p-6 bg-white rounded-lg shadow-sm">
@@ -528,7 +508,33 @@ const CheckoutPage = () => {
     </div>
 
     {/* Terms and Conditions inside billing */}
-    
+    <div className="md:col-span-2 mt-4">
+      <div className="flex items-start space-x-3">
+        <input
+          type="checkbox"
+          id="terms"
+          checked={termsAccepted}
+          onChange={(e) => setTermsAccepted(e.target.checked)}
+          className="w-4 h-4 mt-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          required
+        />
+        <label htmlFor="terms" className="text-sm text-gray-700">
+          I agree to the{" "}
+          <a href="/terms" className="text-blue-600 underline hover:text-blue-800">
+            Terms of Service
+          </a>
+          ,{" "}
+          <a href="/privacy" className="text-blue-600 underline hover:text-blue-800">
+            Privacy Policy
+          </a>
+          , and{" "}
+          <a href="/refund" className="text-blue-600 underline hover:text-blue-800">
+            Refund Policy
+          </a>
+          . I understand that I will have immediate access to this course upon successful payment.
+        </label>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -565,41 +571,11 @@ const CheckoutPage = () => {
                   <span className="text-blue-600">₹{finalPrice.toFixed(2)}</span>
                 </div>
               </div>
-              {/* ✅ Terms and Conditions section */}
-              
-<div className="md:col-span-2 mt-4">
-  <div className="flex items-start  space-x-3">
-    <input
-      type="checkbox"
-      id="terms"
-      checked={termsAccepted}
-      onChange={(e) => setTermsAccepted(e.target.checked)}
-      className="w-4 h-4 mt-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-      required
-    />
-    <label htmlFor="terms" className="text-sm mb-3 text-gray-700">
-      I agree to the{" "}
-      <a href="/terms" className="text-blue-600 underline hover:text-blue-800">
-        Terms of Service
-      </a>
-      ,{" "}
-      <a href="/privacy" className="text-blue-600 underline hover:text-blue-800">
-        Privacy Policy
-      </a>
-      , and{" "}
-      <a href="/refund" className="text-blue-600 underline hover:text-blue-800">
-        Refund Policy
-      </a>
-      . I understand that I will have immediate access to this course upon successful payment.
-    </label>
-  </div>
-</div>
 
-
-              <button 
+              <button
                 onClick={handlePayment}
                 disabled={processingPayment || paymentLoading || !termsAccepted}
-                className="flex items-center justify-center w-full  px-4 py-4 mb-3 font-semibold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center w-full px-4 py-4 mb-4 font-semibold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {processingPayment || paymentLoading ? (
                   <>

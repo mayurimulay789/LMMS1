@@ -4,9 +4,80 @@ const User = require("../models/User")
 const Course = require("../models/Course")
 const Payment = require("../models/Payment")
 const Enrollment = require("../models/Enrollment")
+const InstructorApplication = require("../models/InstructorApplication")
+const { sendInstructorApplicationEmail, sendAdminApplicationNotification } = require("../services/emailService")
 const auth = require("../middleware/auth")
 const instructorMiddleware = require("../middleware/instructorMiddleware")
 const mongoose = require("mongoose");
+
+// Instructor application submission (no auth required)
+router.post("/apply", async (req, res) => {
+  try {
+    const { applicantName, email, phone, experience, qualifications, motivation } = req.body;
+
+    // Basic validation
+    if (!applicantName || !email || !phone || !experience || !qualifications || !motivation) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Create application
+    const application = new InstructorApplication({
+      applicantName,
+      email,
+      phone,
+      experience,
+      qualifications,
+      motivation,
+    });
+
+    await application.save();
+
+    console.log('Application saved successfully. ID:', application._id);
+    console.log('Now attempting to send confirmation email to:', email);
+
+    // Send confirmation email to applicant
+    try {
+      await sendInstructorApplicationEmail({
+        applicantName,
+        email,
+        phone,
+        experience,
+        qualifications,
+        motivation,
+      });
+      console.log('Applicant confirmation email sent for application:', application._id);
+    } catch (applicantEmailError) {
+      console.error('Applicant email sending failed for application', application._id, ':', applicantEmailError);
+      // Don't fail the application if email fails, just log it
+    }
+
+    // Send notification email to admin
+    if (process.env.ADMIN_EMAIL) {
+      try {
+        await sendAdminApplicationNotification({
+          applicantName,
+          email,
+          phone,
+          experience,
+          qualifications,
+          motivation,
+          applicationId: application._id,
+        });
+        console.log('Admin notification email sent for application:', application._id);
+      } catch (adminEmailError) {
+        console.error('Admin notification email failed for application', application._id, ':', adminEmailError);
+        // Don't fail the application if admin email fails, just log it
+      }
+    } else {
+      console.log('No ADMIN_EMAIL configured, skipping admin notification');
+    }
+
+    res.status(201).json({ message: "Application submitted successfully", applicationId: application._id });
+  } catch (error) {
+    console.error("Error submitting application:", error);
+    res.status(500).json({ message: "Failed to submit application" });
+  }
+});
 
 // Apply auth and instructor middleware to all routes
 router.use(auth)

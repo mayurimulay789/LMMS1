@@ -76,7 +76,8 @@ router.get("/users", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch users" })
   }
 })
-// ✅ Bulk user actions — move this ABOVE individual user routes
+
+// Bulk user actions
 router.post("/users/bulk/:action", async (req, res) => {
   try {
     const { action } = req.params;
@@ -117,8 +118,6 @@ router.post("/users/bulk/:action", async (req, res) => {
   }
 });
 
-
-
 // User management actions
 router.post("/users/:userId/activate", async (req, res) => {
   try {
@@ -150,9 +149,6 @@ router.post("/users/:userId/delete", async (req, res) => {
   }
 })
 
-
-
-
 // Get all courses for admin
 router.get("/courses", async (req, res) => {
   try {
@@ -183,6 +179,8 @@ router.post("/courses", async (req, res) => {
 
     const course = new Course({
       ...req.body,
+      instructor: req.user.name,
+      instructorId: req.user._id,
       createdBy: req.user.id,
     })
 
@@ -214,6 +212,8 @@ router.post("/courses-with-durations", async (req, res) => {
 
     const course = new Course({
       ...req.body,
+      instructor: req.user.name,
+      instructorId: req.user._id,
       createdBy: req.user.id,
     })
 
@@ -249,8 +249,31 @@ router.put("/courses/:courseId", async (req, res) => {
       return res.status(404).json({ message: "Course not found" })
     }
 
-    // Update course fields
-    Object.assign(course, req.body)
+    // Check if course was created by an instructor
+    const creator = await User.findById(course.createdBy);
+    if (creator && creator.role === 'instructor') {
+      return res.status(403).json({ message: "Admins cannot update courses created by instructors" });
+    }
+
+    // Prepare update fields, excluding immutable ones
+    const updateFields = { ...req.body };
+    delete updateFields.instructorId;
+    delete updateFields.instructor;
+    delete updateFields.createdBy;
+
+    // Apply updates
+    Object.assign(course, updateFields);
+
+    // Ensure immutable fields are set
+    if (!course.instructorId) {
+      course.instructorId = req.user._id;
+    }
+    if (!course.instructor) {
+      course.instructor = req.user.name;
+    }
+    if (!course.createdBy) {
+      course.createdBy = req.user._id;
+    }
 
     // Calculate durations for lessons with video URLs
     if (course.lessons && course.lessons.length > 0) {
@@ -284,8 +307,31 @@ router.put("/courses/:courseId/with-durations", async (req, res) => {
       return res.status(404).json({ message: "Course not found" })
     }
 
-    // Update course fields
-    Object.assign(course, req.body)
+    // Check if course was created by an instructor
+    const creator = await User.findById(course.createdBy);
+    if (creator && creator.role === 'instructor') {
+      return res.status(403).json({ message: "Admins cannot update courses created by instructors" });
+    }
+
+    // Prepare update fields, excluding immutable ones
+    const updateFields = { ...req.body };
+    delete updateFields.instructorId;
+    delete updateFields.instructor;
+    delete updateFields.createdBy;
+
+    // Apply updates
+    Object.assign(course, updateFields);
+
+    // Ensure immutable fields are set
+    if (!course.instructorId) {
+      course.instructorId = req.user._id;
+    }
+    if (!course.instructor) {
+      course.instructor = req.user.name;
+    }
+    if (!course.createdBy) {
+      course.createdBy = req.user._id;
+    }
 
     // Calculate durations for lessons with video URLs
     if (course.lessons && course.lessons.length > 0) {

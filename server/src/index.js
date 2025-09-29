@@ -31,7 +31,7 @@ app.use(limiter)
 app.use(compression())
 
 // Logging middleware
-app.use(morgan("combined"))
+// app.use(morgan("combined"))
 
 // CORS configuration
 app.use(
@@ -53,10 +53,9 @@ app.use("/uploads", express.static(path.join(__dirname, "public/uploads")))
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("MongoDB connected successfully"))
-  .catch(err => console.error("MongoDB connection error:", err));
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch(err => console.error("❌ MongoDB connection error:", err));
   
-console.log("RAZORPAY_KEY_ID:", process.env.RAZORPAY_KEY_ID);
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
@@ -88,7 +87,7 @@ app.use("/api/certificates", certificateRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/instructor", instructorRoutes)
 app.use("/api/upload", uploadRoutes)
-app.use("/api/courses", courseReviewsRoutes)
+app.use("/api/courseReviews", courseReviewsRoutes)
 
 app.use("/api/*splat", (req, res) => {
   res.status(404).json({
@@ -150,7 +149,6 @@ app.use((err, req, res, next) => {
       field: field,
     })
   }
-console.log('JWT_SECRET loaded:', process.env.JWT_SECRET ? '*****' : 'MISSING!');
 
   if (err.name === "JsonWebTokenError") {
     return res.status(401).json({
