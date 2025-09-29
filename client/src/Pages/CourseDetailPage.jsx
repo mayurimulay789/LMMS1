@@ -52,20 +52,15 @@ const handleSubmit = async (e) => {
 
     console.log("Submitting review:", { rating, comment });
 
-    const response = await fetch(
-      `http://localhost:2000/api/courses/${course._id}/reviews`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          rating: Number(rating),     // ensure number
-          comment: comment.trim(),    // ensure no spaces
-        }),
-      }
-    );
+    await fetch(`http://localhost:2000/api/courseReviews/${courseId}/reviews`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify({ rating: 5, comment: "Great course!" }),
+})
+
 
     const data = await response.json();
 

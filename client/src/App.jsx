@@ -16,6 +16,7 @@ import ProtectedInstructorRoute from "./Components/ProtectedInstructorRoute"
 // Public Pages
 import HomePage from "./Pages/HomePage"
 import CoursesPage from "./Pages/CoursesPage"
+import MyCoursesPage from "./Pages/MyCoursesPage";
 import CourseDetailPage from "./Pages/CourseDetailPage"
 import ContactUsPage from "./Pages/ContactUsPage"
 import AboutUsPage from "./Pages/AboutUsPage"
@@ -60,6 +61,7 @@ function AppContent() {
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/my-courses" element={<MyCoursesPage />} />
 
           {/* Protected Routes */}
           <Route
