@@ -34,6 +34,9 @@ const imageStorage = createCloudinaryStorage("images", ["jpg", "jpeg", "png", "g
 const videoStorage = createCloudinaryStorage("videos", ["mp4", "avi", "mov", "wmv", "flv"])
 const documentStorage = createCloudinaryStorage("documents", ["pdf", "doc", "docx", "ppt", "pptx"])
 
+// Storage for course thumbnails (supports both images and videos)
+const thumbnailStorage = createCloudinaryStorage("thumbnails", ["jpg", "jpeg", "png", "gif", "webp", "mp4", "avi", "mov", "wmv", "flv"])
+
 // Multer configurations
 const uploadImage = multer({
   storage: imageStorage,
@@ -56,9 +59,18 @@ const uploadDocument = multer({
   },
 })
 
+const uploadThumbnail = multer({
+  storage: thumbnailStorage,
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB for thumbnails (videos can be larger)
+  },
+})
+
 module.exports = {
   cloudinary,
   uploadImage,
   uploadVideo,
   uploadDocument,
+  thumbnailStorage,
+  uploadThumbnail,
 }

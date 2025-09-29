@@ -24,7 +24,7 @@ const PaymentFailedPage = () => {
 
   const fetchErrorDetails = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/payments/error-details/${sessionId}`)
+      const response = await fetch(`http://localhost:2000/api/payments/error-details/${sessionId}`)
       if (response.ok) {
         const data = await response.json()
         setErrorDetails(data)

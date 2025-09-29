@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Search, Grid, List, SlidersHorizontal } from "lucide-react"
 import CourseCard from "../Components/CourseCard"
@@ -29,9 +29,16 @@ const CoursesPage = () => {
     totalPages: 1,
     total: 0,
   })
+  const categoriesFetchedRef = useRef(false)
 
   useEffect(() => {
-    fetchCategories()
+    if (!categoriesFetchedRef.current) {
+      fetchCategories()
+      categoriesFetchedRef.current = true
+    }
+  }, [])
+
+  useEffect(() => {
     fetchCourses()
   }, [filters, pagination.currentPage])
 
@@ -48,14 +55,14 @@ const CoursesPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/courses/meta/categories")
+      const response = await fetch("http://localhost:2000/api/courses/meta/categories")
       if (response.ok) {
         const data = await response.json()
         setCategories(data)
       }
     } catch (error) {
       console.error("Error fetching categories:", error)
-      setCategories(["Programming", "Design", "Marketing", "Business"])
+      setCategories(["Programming", "Design", "Marketing", "Business", "Creative", "Technology", "Health", "Language"])
     }
   }
 
@@ -65,10 +72,16 @@ const CoursesPage = () => {
       const queryParams = new URLSearchParams({
         page: pagination.currentPage,
         limit: 12,
-        ...Object.fromEntries(Object.entries(filters).filter(([_, value]) => value && value !== "all" && value !== "")),
       })
 
-      const response = await fetch(`http://localhost:5000/api/courses?${queryParams}`)
+      // Add filter parameters only if they have valid values
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value !== "all" && value !== "") {
+          queryParams.append(key, value)
+        }
+      })
+
+      const response = await fetch(`http://localhost:2000/api/courses?${queryParams}`)
       if (response.ok) {
         const data = await response.json()
         setCourses(data.courses)
@@ -196,9 +209,9 @@ const CoursesPage = () => {
   const priceRanges = [
     { value: "all", label: "All Prices" },
     { value: "free", label: "Free" },
-    { value: "0-50", label: "$0 - $50" },
-    { value: "50-100", label: "$50 - $100" },
-    { value: "100+", label: "$100+" },
+    { value: "0-50", label: "₹0 - ₹50" },
+    { value: "50-100", label: "₹50 - ₹100" },
+    { value: "100+", label: "₹100+" },
   ]
 
   const levels = [

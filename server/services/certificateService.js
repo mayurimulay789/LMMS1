@@ -76,9 +76,16 @@ class CertificateService {
         doc.on("error", reject)
       })
 
+      // Generate certificate number
+      const year = new Date().getFullYear()
+      const month = String(new Date().getMonth() + 1).padStart(2, "0")
+      const random = Math.random().toString(36).substr(2, 6).toUpperCase()
+      const certificateNumber = `CERT-${year}${month}-${random}`
+
       // Create certificate record in database
       const certificate = new Certificate({
         certificateId,
+        certificateNumber,
         user: user._id,
         course: course._id,
         enrollment: enrollment._id,

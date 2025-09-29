@@ -7,7 +7,7 @@ const auth = require("../middleware/auth")
 // Register user
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body
+    const { name, email, password, role } = req.body
 
     // Check if user already exists
     const existingUser = await User.findOne({ email })
@@ -20,6 +20,7 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password,
+      role: role || "student", // Use provided role or default to student
     })
 
     await user.save()
@@ -88,6 +89,40 @@ router.get("/me", auth, async (req, res) => {
     res.json({ user })
   } catch (error) {
     console.error("Get user error:", error)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+// Update user profile
+router.put("/profile", auth, async (req, res) => {
+  try {
+    const { bio, website, social, avatar } = req.body
+    const userId = req.user.id
+
+    // Build profile object with only provided fields
+    const profileUpdate = {}
+    if (bio !== undefined) profileUpdate.bio = bio
+    if (website !== undefined) profileUpdate.website = website
+    if (social !== undefined) profileUpdate.social = social
+    if (avatar !== undefined) profileUpdate.avatar = avatar
+
+    // Update user profile
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { profile: profileUpdate },
+      { new: true, runValidators: true }
+    ).select("-password")
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    res.json({
+      message: "Profile updated successfully",
+      user
+    })
+  } catch (error) {
+    console.error("Profile update error:", error)
     res.status(500).json({ message: "Server error" })
   }
 })

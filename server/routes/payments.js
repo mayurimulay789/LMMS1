@@ -114,92 +114,99 @@ router.post("/create-order", auth, async (req, res) => {
 // Verify payment and create enrollment
 router.post("/verify", auth, async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body
-    const userId = req.user.id
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const userId = req.user.id;
 
-    // Verify signature
-    const body = razorpay_order_id + "|" + razorpay_payment_id
+    console.log("=== Razorpay Verification Debug ===");
+    console.log("Server secret:", process.env.RAZORPAY_KEY_SECRET);
+    console.log("Incoming order id:", razorpay_order_id);
+    console.log("Incoming payment id:", razorpay_payment_id);
+    console.log("Incoming signature:", razorpay_signature);
+
+    // Compute expected signature
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(body.toString())
-      .digest("hex")
+      .digest("hex");
 
+    console.log("Expected signature:", expectedSignature);
+
+    // Compare signatures
     if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({ message: "Payment verification failed" })
+      console.error("⚠️ Payment verification failed: signatures do not match!");
+      return res.status(400).json({
+        message: "Payment verification failed",
+        expectedSignature,
+        receivedSignature: razorpay_signature
+      });
     }
+
+    console.log("✅ Signature verified successfully");
 
     // Find the payment record
     const payment = await Payment.findOne({
-      razorpay_order_id: razorpay_order_id,
+      razorpay_order_id,
       user: userId,
-    }).populate("course")
+    }).populate("course");
 
     if (!payment) {
-      return res.status(404).json({ message: "Payment record not found" })
+      return res.status(404).json({ message: "Payment record not found" });
     }
 
     if (payment.status === "completed") {
-      // Already processed
       const enrollment = await Enrollment.findOne({
         user: userId,
         course: payment.course._id,
-      })
+      });
 
       return res.json({
         status: "success",
-        payment: payment,
+        payment,
         course: payment.course,
-        enrollment: enrollment,
-      })
+        enrollment,
+      });
     }
 
     // Update payment status
-    payment.status = "completed"
-    payment.razorpay_payment_id = razorpay_payment_id
-    payment.razorpay_signature = razorpay_signature
-    payment.completedAt = new Date()
-    await payment.save()
+    payment.status = "completed";
+    payment.razorpay_payment_id = razorpay_payment_id;
+    payment.razorpay_signature = razorpay_signature;
+    payment.completedAt = new Date();
+    await payment.save();
 
     // Create enrollment
     const enrollment = new Enrollment({
       user: userId,
       course: payment.course._id,
       payment: payment._id,
+      status: "active",
       progress: {
         totalLessons: 10, // This should be calculated based on actual course content
         completionPercentage: 0,
         lastAccessedAt: new Date(),
       },
-    })
-
-    await enrollment.save()
+    });
+    await enrollment.save();
 
     // Update course enrollment count
     await Course.findByIdAndUpdate(payment.course._id, {
       $inc: { enrollmentCount: 1 },
-    })
-
-    // Update promo code usage if applicable
-    if (payment.promoCode) {
-      await PromoCode.findOneAndUpdate({ code: payment.promoCode }, { $inc: { usedCount: 1 } })
-    }
-
-    // Update user's last login
-    await User.findByIdAndUpdate(userId, {
-      lastLoginAt: new Date(),
-    })
+    });
 
     res.json({
       status: "success",
-      payment: payment,
+      payment,
       course: payment.course,
-      enrollment: enrollment,
-    })
+      enrollment,
+    });
+
   } catch (error) {
-    console.error("Payment verification error:", error)
-    res.status(500).json({ message: "Failed to verify payment" })
+    console.error("Payment verification error:", error);
+    res.status(500).json({ message: "Failed to verify payment", error: error.message });
   }
 })
+
 
 // Validate promo code
 router.post("/validate-promo", auth, async (req, res) => {
@@ -375,8 +382,9 @@ async function handleSuccessfulPayment(paymentEntity) {
         user: payment.user,
         course: payment.course,
         payment: payment._id,
+        status: "active",
         progress: {
-          totalLessons: 10,
+          totalLessons: payment.course.lessons.length,
           completionPercentage: 0,
           lastAccessedAt: new Date(),
         },

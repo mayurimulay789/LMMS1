@@ -11,6 +11,7 @@ import Navbar from "./Components/Navbar"
 import Footer from "./Components/Footer"
 import ProtectedRoute from "./Components/ProtectedRoute"
 import ProtectedAdminRoute from "../src/Components/ProtectedAdminRoute.jsx"
+import ProtectedInstructorRoute from "./Components/ProtectedInstructorRoute"
 
 // Public Pages
 import HomePage from "./Pages/HomePage"
@@ -23,11 +24,13 @@ import RegisterPage from "./Pages/RegisterPage"
 
 // Protected Pages
 import DashboardPage from "./Pages/DashboardPage"
+import LearnPage from "./Pages/LearnPage"
 import AssessmentsPage from "./Pages/AssesmentsPage"
 import CheckoutPage from "./Pages/CheckoutPage"
 import CertificatesPage from "./Pages/CertificatesPage"
 import CertificateVerificationPage from "./Pages/CertificateVerificationPage"
 import AdminDashboardPage from "./Pages/AdminDashboardPage"
+import InstructorDashboardPage from "./Pages/InstructorDashboardPage"
 
 // Payment Pages
 import PaymentSuccessPage from "./Pages/PaymentSucessPage"
@@ -45,7 +48,7 @@ function AppContent() {
   }, [dispatch])
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       <main>
         <Routes>
@@ -68,6 +71,14 @@ function AppContent() {
             }
           />
           <Route
+            path="/courses/:courseId/learn"
+            element={
+              <ProtectedRoute>
+                <LearnPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/courses/:courseId/assessments"
             element={
               <ProtectedRoute>
@@ -79,7 +90,7 @@ function AppContent() {
             path="/checkout/:courseId"
             element={
               <ProtectedRoute>
-                <CheckoutPage /> 
+                <CheckoutPage />
               </ProtectedRoute>
             }
           />
@@ -103,6 +114,14 @@ function AppContent() {
                 <ProtectedAdminRoute>
                   <AdminDashboardPage />
                 </ProtectedAdminRoute>
+              }
+            />
+          <Route
+              path="/instructor"
+              element={
+                <ProtectedInstructorRoute>
+                  <InstructorDashboardPage />
+                </ProtectedInstructorRoute>
               }
             />
              {/* <Route
