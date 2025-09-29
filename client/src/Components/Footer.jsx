@@ -19,20 +19,13 @@ const Footer = () => {
     company: [
       { name: "About Us", path: "/about" },
       { name: "Contact", path: "/contact" },
-      { name: "FAQ", path: "/about#faq" }, // replaced Careers with FAQ
-      // removed Blog
+      { name: "FAQ", path: "/about#faq" },
     ],
     courses: [
       { name: "Programming", path: "/courses?category=Programming" },
       { name: "Design", path: "/courses?category=Design" },
       { name: "Marketing", path: "/courses?category=Marketing" },
       { name: "Business", path: "/courses?category=Business" },
-    ],
-    support: [
-      { name: "Help Center", path: "/help" },
-      { name: "Privacy Policy", path: "/privacy" },
-      { name: "Terms of Service", path: "/terms" },
-      { name: "Cookie Policy", path: "/cookies" },
     ],
   }
 
@@ -46,7 +39,7 @@ const Footer = () => {
   return (
     <footer className="bg-primary-800 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
@@ -110,13 +103,13 @@ const Footer = () => {
 
           {/* Support Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">Support</h3>
+            <h3 className="text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-white/80 hover:text-white text-sm transition-colors duration-200"
+                    className="text-gray-300 hover:text-white text-sm transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
@@ -126,17 +119,15 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Removed Stay Updated section */}
-
         {/* Bottom Section */}
-        <div className="border-t border-primary-800 mt-8 pt-8">
+        <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <p className="text-white/80 text-sm">
+            <p className="text-gray-300 text-sm">
               © {currentYear} LearnHub. All rights reserved.
             </p>
 
             {/* Social Links */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-6">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
@@ -146,7 +137,7 @@ const Footer = () => {
                   className="text-white/70 hover:text-white transition-colors duration-200"
                   aria-label={social.name}
                 >
-                  <social.icon className="h-5 w-5" />
+                  <social.icon className="h-6 w-6" /> {/* Larger icons */}
                 </a>
               ))}
             </div>
