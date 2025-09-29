@@ -41,7 +41,14 @@ const CertificatesPage = () => {
       }
 
       const data = await response.json()
-      setCertificates(data)
+
+      // Ensure each certificate has a completion value
+      const withCompletion = data.map((cert) => ({
+        ...cert,
+        completion: cert.completion || 0, // fallback if API doesn’t return it
+      }))
+
+      setCertificates(withCompletion)
     } catch (error) {
       console.error("Error fetching certificates:", error)
       toast.error("Failed to load certificates")
@@ -57,7 +64,6 @@ const CertificatesPage = () => {
         cert.instructor.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
-    // Sort certificates
     switch (sortBy) {
       case "newest":
         filtered.sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate))
@@ -72,10 +78,8 @@ const CertificatesPage = () => {
         filtered.sort((a, b) => a.instructor.localeCompare(b.instructor))
         break
       case "grade":
-        filtered.sort((a, b) => {
-          const gradeOrder = { "A+": 10, A: 9, "A-": 8, "B+": 7, B: 6, "B-": 5, "C+": 4, C: 3, "C-": 2, D: 1, F: 0 }
-          return (gradeOrder[b.grade] || 0) - (gradeOrder[a.grade] || 0)
-        })
+        const gradeOrder = { "A+": 10, A: 9, "A-": 8, "B+": 7, B: 6, "B-": 5, "C+": 4, C: 3, "C-": 2, D: 1, F: 0 }
+        filtered.sort((a, b) => (gradeOrder[b.grade] || 0) - (gradeOrder[a.grade] || 0))
         break
       default:
         break
@@ -92,9 +96,7 @@ const CertificatesPage = () => {
         },
       })
 
-      if (!response.ok) {
-        throw new Error("Failed to download certificate")
-      }
+      if (!response.ok) throw new Error("Failed to download certificate")
 
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
@@ -163,15 +165,14 @@ const CertificatesPage = () => {
   const downloadAllCertificates = async () => {
     try {
       toast.loading("Preparing download...")
-
       for (const certificate of certificates) {
-        await handleDownload(certificate.certificateId)
-        // Add small delay between downloads
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        if (certificate.completion === 100) {
+          await handleDownload(certificate.certificateId)
+          await new Promise((resolve) => setTimeout(resolve, 500))
+        }
       }
-
       toast.dismiss()
-      toast.success("All certificates downloaded!")
+      toast.success("All unlocked certificates downloaded!")
     } catch (error) {
       toast.dismiss()
       toast.error("Failed to download all certificates")
@@ -183,8 +184,9 @@ const CertificatesPage = () => {
     const thisYear = certificates.filter(
       (cert) => new Date(cert.issueDate).getFullYear() === new Date().getFullYear(),
     ).length
-    const averageScore = certificates.reduce((sum, cert) => sum + (cert.finalScore || 0), 0) / totalCertificates || 0
-    const topGrades = certificates.filter((cert) => ["A+", "A", "A-"].includes(cert.grade)).length
+    const unlocked = certificates.filter((cert) => cert.completion === 100)
+    const averageScore = unlocked.reduce((sum, cert) => sum + (cert.finalScore || 0), 0) / (unlocked.length || 1)
+    const topGrades = unlocked.filter((cert) => ["A+", "A", "A-"].includes(cert.grade)).length
 
     return { totalCertificates, thisYear, averageScore: Math.round(averageScore), topGrades }
   }
@@ -193,16 +195,16 @@ const CertificatesPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen py-8 bg-gray-50">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="w-1/4 h-8 mb-6 bg-gray-200 rounded"></div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-white rounded-lg p-6 shadow-sm">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                <div key={i} className="p-6 bg-white rounded-lg shadow-sm">
+                  <div className="w-3/4 h-4 mb-4 bg-gray-200 rounded"></div>
+                  <div className="w-1/2 h-3 mb-2 bg-gray-200 rounded"></div>
+                  <div className="w-2/3 h-3 bg-gray-200 rounded"></div>
                 </div>
               ))}
             </div>
@@ -213,21 +215,21 @@ const CertificatesPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 bg-gray-50">
+      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
-                <Award className="h-8 w-8 text-primary-600" />
+              <h1 className="flex items-center space-x-3 text-3xl font-bold text-gray-900">
+                <Award className="w-8 h-8 text-primary-600" />
                 <span>My Certificates</span>
               </h1>
-              <p className="text-gray-600 mt-2">View and manage your earned certificates</p>
+              <p className="mt-2 text-gray-600">View and manage your earned certificates</p>
             </div>
-            {certificates.length > 0 && (
-              <button onClick={downloadAllCertificates} className="btn btn-primary flex items-center space-x-2">
-                <Download className="h-4 w-4" />
+            {certificates.some((c) => c.completion === 100) && (
+              <button onClick={downloadAllCertificates} className="flex items-center space-x-2 btn btn-primary">
+                <Download className="w-4 h-4" />
                 <span>Download All</span>
               </button>
             )}
@@ -240,7 +242,7 @@ const CertificatesPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+            className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-4"
           >
             <div className="stat-card">
               <div className="flex items-center justify-between">
@@ -248,7 +250,7 @@ const CertificatesPage = () => {
                   <p className="stat-label">Total Certificates</p>
                   <p className="stat-value">{stats.totalCertificates}</p>
                 </div>
-                <Trophy className="h-8 w-8 text-primary-600" />
+                <Trophy className="w-8 h-8 text-primary-600" />
               </div>
             </div>
             <div className="stat-card">
@@ -257,7 +259,7 @@ const CertificatesPage = () => {
                   <p className="stat-label">This Year</p>
                   <p className="stat-value">{stats.thisYear}</p>
                 </div>
-                <Calendar className="h-8 w-8 text-success-600" />
+                <Calendar className="w-8 h-8 text-success-600" />
               </div>
             </div>
             <div className="stat-card">
@@ -266,7 +268,7 @@ const CertificatesPage = () => {
                   <p className="stat-label">Average Score</p>
                   <p className="stat-value">{stats.averageScore}%</p>
                 </div>
-                <BookOpen className="h-8 w-8 text-warning-600" />
+                <BookOpen className="w-8 h-8 text-warning-600" />
               </div>
             </div>
             <div className="stat-card">
@@ -275,44 +277,7 @@ const CertificatesPage = () => {
                   <p className="stat-label">Top Grades</p>
                   <p className="stat-value">{stats.topGrades}</p>
                 </div>
-                <Award className="h-8 w-8 text-error-600" />
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Search and Filter */}
-        {certificates.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8"
-          >
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search certificates by course name or instructor..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="input pl-10"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <Filter className="h-4 w-4 text-gray-400" />
-                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="input w-auto">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="course-name">Course Name</option>
-                    <option value="instructor">Instructor</option>
-                    <option value="grade">Grade</option>
-                  </select>
-                </div>
+                <Award className="w-8 h-8 text-error-600" />
               </div>
             </div>
           </motion.div>
@@ -324,19 +289,19 @@ const CertificatesPage = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-center py-16"
+            className="py-16 text-center"
           >
-            <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Certificates Yet</h3>
-            <p className="text-gray-600 mb-6">Complete courses to earn your first certificate!</p>
+            <Award className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="mb-2 text-xl font-semibold text-gray-900">No Certificates Yet</h3>
+            <p className="mb-6 text-gray-600">Complete courses to earn your first certificate!</p>
             <a href="/courses" className="btn btn-primary">
               Browse Courses
             </a>
           </motion.div>
         ) : filteredCertificates.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
-            <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Certificates Found</h3>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">
+            <Search className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="mb-2 text-xl font-semibold text-gray-900">No Certificates Found</h3>
             <p className="text-gray-600">Try adjusting your search terms or filters.</p>
           </motion.div>
         ) : (
@@ -344,7 +309,7 @@ const CertificatesPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
           >
             {filteredCertificates.map((certificate, index) => (
               <motion.div
@@ -353,12 +318,31 @@ const CertificatesPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <CertificateCard
-                  certificate={certificate}
-                  onDownload={handleDownload}
-                  onShare={handleShare}
-                  onView={handleView}
-                />
+                {certificate.completion === 100 ? (
+                  <CertificateCard
+                    certificate={certificate}
+                    onDownload={handleDownload}
+                    onShare={handleShare}
+                    onView={handleView}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-6 text-center bg-gray-100 rounded-lg shadow-sm">
+                    <Award className="w-12 h-12 mb-3 text-gray-400" />
+                    <h3 className="text-lg font-semibold text-gray-700">{certificate.courseName}</h3>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Complete all lessons to unlock your certificate
+                    </p>
+                    <div className="flex items-center w-full mt-4 space-x-2">
+                      <div className="w-full h-2 bg-gray-300 rounded-full">
+                        <div
+                          className="h-2 rounded-full bg-primary-500"
+                          style={{ width: `${certificate.completion || 0}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm text-gray-600">{certificate.completion || 0}%</span>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             ))}
           </motion.div>
@@ -366,31 +350,31 @@ const CertificatesPage = () => {
 
         {/* Share Modal */}
         {showShareModal && selectedCertificate && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-lg p-6 w-full max-w-md"
+              className="w-full max-w-md p-6 bg-white rounded-lg"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Share Certificate</h3>
                 <button onClick={() => setShowShareModal(false)} className="text-gray-400 hover:text-gray-600">
-                  <X className="h-5 w-5" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
               <div className="mb-6">
-                <p className="text-sm text-gray-600 mb-2">Certificate for:</p>
+                <p className="mb-2 text-sm text-gray-600">Certificate for:</p>
                 <p className="font-medium text-gray-900">{selectedCertificate.courseName}</p>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Verification Link</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Verification Link</label>
                 <div className="flex">
-                  <input type="text" value={shareUrl} readOnly className="input flex-1 rounded-r-none" />
+                  <input type="text" value={shareUrl} readOnly className="flex-1 rounded-r-none input" />
                   <button
                     onClick={() => copyToClipboard(shareUrl)}
-                    className="btn btn-outline rounded-l-none border-l-0"
+                    className="border-l-0 rounded-l-none btn btn-outline"
                   >
                     Copy
                   </button>
@@ -402,25 +386,25 @@ const CertificatesPage = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => shareToSocial("linkedin", selectedCertificate)}
-                    className="btn btn-outline flex items-center justify-center space-x-2"
+                    className="flex items-center justify-center space-x-2 btn btn-outline"
                   >
                     <span>LinkedIn</span>
                   </button>
                   <button
                     onClick={() => shareToSocial("twitter", selectedCertificate)}
-                    className="btn btn-outline flex items-center justify-center space-x-2"
+                    className="flex items-center justify-center space-x-2 btn btn-outline"
                   >
                     <span>Twitter</span>
                   </button>
                   <button
                     onClick={() => shareToSocial("facebook", selectedCertificate)}
-                    className="btn btn-outline flex items-center justify-center space-x-2"
+                    className="flex items-center justify-center space-x-2 btn btn-outline"
                   >
                     <span>Facebook</span>
                   </button>
                   <button
                     onClick={() => shareToSocial("email", selectedCertificate)}
-                    className="btn btn-outline flex items-center justify-center space-x-2"
+                    className="flex items-center justify-center space-x-2 btn btn-outline"
                   >
                     <span>Email</span>
                   </button>
