@@ -76,7 +76,8 @@ router.get("/users", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch users" })
   }
 })
-// ✅ Bulk user actions — move this ABOVE individual user routes
+
+// Bulk user actions
 router.post("/users/bulk/:action", async (req, res) => {
   try {
     const { action } = req.params;
@@ -117,8 +118,6 @@ router.post("/users/bulk/:action", async (req, res) => {
   }
 });
 
-
-
 // User management actions
 router.post("/users/:userId/activate", async (req, res) => {
   try {
@@ -150,11 +149,6 @@ router.post("/users/:userId/delete", async (req, res) => {
   }
 })
 
-
-
-
-
-
 // Get all courses for admin
 router.get("/courses", async (req, res) => {
   try {
@@ -181,10 +175,60 @@ router.get("/courses", async (req, res) => {
 // Create new course
 router.post("/courses", async (req, res) => {
   try {
+    const { calculateLessonsDurations } = require("../utils/videoUtils")
+
     const course = new Course({
       ...req.body,
+      instructor: req.user.name,
+      instructorId: req.user._id,
       createdBy: req.user.id,
     })
+
+    // Calculate durations for lessons with video URLs
+    if (course.lessons && course.lessons.length > 0) {
+      try {
+        const result = await calculateLessonsDurations(course.lessons)
+        course.lessons = result.lessons
+        course.duration = result.totalDuration
+        console.log(`Calculated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
+      } catch (durationError) {
+        console.error("Error calculating lesson durations:", durationError)
+        // Continue with course creation even if duration calculation fails
+      }
+    }
+
+    await course.save()
+    res.status(201).json(course)
+  } catch (error) {
+    console.error("Error creating course:", error)
+    res.status(500).json({ message: "Failed to create course" })
+  }
+})
+
+// Create new course with automatic duration calculation
+router.post("/courses-with-durations", async (req, res) => {
+  try {
+    const { calculateLessonsDurations } = require("../utils/videoUtils")
+
+    const course = new Course({
+      ...req.body,
+      instructor: req.user.name,
+      instructorId: req.user._id,
+      createdBy: req.user.id,
+    })
+
+    // Calculate durations for lessons with video URLs
+    if (course.lessons && course.lessons.length > 0) {
+      try {
+        const result = await calculateLessonsDurations(course.lessons)
+        course.lessons = result.lessons
+        course.duration = result.totalDuration
+        console.log(`Calculated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
+      } catch (durationError) {
+        console.error("Error calculating lesson durations:", durationError)
+        // Continue with course creation even if duration calculation fails
+      }
+    }
 
     await course.save()
     res.status(201).json(course)
@@ -197,12 +241,112 @@ router.post("/courses", async (req, res) => {
 // Update course
 router.put("/courses/:courseId", async (req, res) => {
   try {
-    const course = await Course.findByIdAndUpdate(req.params.courseId, req.body, { new: true })
+    const { calculateLessonsDurations } = require("../utils/videoUtils")
+
+    const course = await Course.findById(req.params.courseId)
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" })
     }
 
+    // Check if course was created by an instructor
+    const creator = await User.findById(course.createdBy);
+    if (creator && creator.role === 'instructor') {
+      return res.status(403).json({ message: "Admins cannot update courses created by instructors" });
+    }
+
+    // Prepare update fields, excluding immutable ones
+    const updateFields = { ...req.body };
+    delete updateFields.instructorId;
+    delete updateFields.instructor;
+    delete updateFields.createdBy;
+
+    // Apply updates
+    Object.assign(course, updateFields);
+
+    // Ensure immutable fields are set
+    if (!course.instructorId) {
+      course.instructorId = req.user._id;
+    }
+    if (!course.instructor) {
+      course.instructor = req.user.name;
+    }
+    if (!course.createdBy) {
+      course.createdBy = req.user._id;
+    }
+
+    // Calculate durations for lessons with video URLs
+    if (course.lessons && course.lessons.length > 0) {
+      try {
+        const result = await calculateLessonsDurations(course.lessons)
+        course.lessons = result.lessons
+        course.duration = result.totalDuration
+        console.log(`Updated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
+      } catch (durationError) {
+        console.error("Error calculating lesson durations:", durationError)
+        // Continue with course update even if duration calculation fails
+      }
+    }
+
+    await course.save()
+    res.json(course)
+  } catch (error) {
+    console.error("Error updating course:", error)
+    res.status(500).json({ message: "Failed to update course" })
+  }
+})
+
+// Update course with automatic duration calculation
+router.put("/courses/:courseId/with-durations", async (req, res) => {
+  try {
+    const { calculateLessonsDurations } = require("../utils/videoUtils")
+
+    const course = await Course.findById(req.params.courseId)
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" })
+    }
+
+    // Check if course was created by an instructor
+    const creator = await User.findById(course.createdBy);
+    if (creator && creator.role === 'instructor') {
+      return res.status(403).json({ message: "Admins cannot update courses created by instructors" });
+    }
+
+    // Prepare update fields, excluding immutable ones
+    const updateFields = { ...req.body };
+    delete updateFields.instructorId;
+    delete updateFields.instructor;
+    delete updateFields.createdBy;
+
+    // Apply updates
+    Object.assign(course, updateFields);
+
+    // Ensure immutable fields are set
+    if (!course.instructorId) {
+      course.instructorId = req.user._id;
+    }
+    if (!course.instructor) {
+      course.instructor = req.user.name;
+    }
+    if (!course.createdBy) {
+      course.createdBy = req.user._id;
+    }
+
+    // Calculate durations for lessons with video URLs
+    if (course.lessons && course.lessons.length > 0) {
+      try {
+        const result = await calculateLessonsDurations(course.lessons)
+        course.lessons = result.lessons
+        course.duration = result.totalDuration
+        console.log(`Updated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
+      } catch (durationError) {
+        console.error("Error calculating lesson durations:", durationError)
+        // Continue with course update even if duration calculation fails
+      }
+    }
+
+    await course.save()
     res.json(course)
   } catch (error) {
     console.error("Error updating course:", error)
@@ -226,6 +370,55 @@ router.delete("/courses/:courseId", async (req, res) => {
   } catch (error) {
     console.error("Error deleting course:", error)
     res.status(500).json({ message: "Failed to delete course" })
+  }
+})
+
+// Recalculate durations for all courses
+router.post("/courses/recalculate-durations", async (req, res) => {
+  try {
+    const results = await Course.recalculateAllDurations()
+
+    res.json({
+      message: "Duration recalculation completed",
+      ...results
+    })
+  } catch (error) {
+    console.error("Error recalculating durations:", error)
+    res.status(500).json({ message: "Failed to recalculate durations", error: error.message })
+  }
+})
+
+// Recalculate duration for a specific course
+router.post("/courses/:courseId/recalculate-duration", async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.courseId)
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" })
+    }
+
+    const updated = await course.recalculateDurations()
+
+    if (updated) {
+      res.json({
+        message: "Course duration recalculated successfully",
+        course: {
+          id: course._id,
+          title: course.title,
+          duration: course.duration,
+          lessons: course.lessons.map(lesson => ({
+            id: lesson._id,
+            title: lesson.title,
+            duration: lesson.duration
+          }))
+        }
+      })
+    } else {
+      res.status(400).json({ message: "No lessons found to recalculate" })
+    }
+  } catch (error) {
+    console.error("Error recalculating course duration:", error)
+    res.status(500).json({ message: "Failed to recalculate course duration", error: error.message })
   }
 })
 
@@ -257,7 +450,7 @@ router.get("/reports/:type", async (req, res) => {
 
       case "enrollments":
         // Get course category enrollment distribution
-        data = await Course.aggregate([
+        const enrollmentData = await Course.aggregate([
           {
             $lookup: {
               from: "enrollments",
@@ -273,6 +466,25 @@ router.get("/reports/:type", async (req, res) => {
             },
           },
         ])
+
+        // Add color mapping for chart visualization
+        const colorMap = {
+          "Programming": "#8884d8",
+          "Design": "#82ca9d",
+          "Marketing": "#ffc658",
+          "Business": "#ff7300",
+          "Creative": "#00ff00",
+          "Technology": "#ff0000",
+          "Health": "#0000ff",
+          "Language": "#ff00ff",
+          "Other": "#ffa500"
+        }
+
+        data = enrollmentData.map(item => ({
+          name: item._id || "Other",
+          value: item.value,
+          color: colorMap[item._id] || "#8884d8" // Default color if category not in map
+        }))
         break
 
       case "detailed":

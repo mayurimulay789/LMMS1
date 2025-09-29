@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
 const enrollmentSchema = new mongoose.Schema({
   user: {
@@ -11,19 +11,21 @@ const enrollmentSchema = new mongoose.Schema({
     ref: "Course",
     required: true,
   },
+  // 👇 make payment optional
   payment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Payment",
-    required: true,
+    required: false,
   },
   enrolledAt: {
     type: Date,
     default: Date.now,
   },
+  // 👇 allow in-progress as valid status
   status: {
     type: String,
-    enum: ["active", "completed", "suspended"],
-    default: "active",
+    enum: ["active", "completed", "suspended", "in-progress"], // add in-progress
+    default: "in-progress",
   },
   progress: {
     completedLessons: [
@@ -57,9 +59,9 @@ const enrollmentSchema = new mongoose.Schema({
     issuedAt: Date,
     certificateId: String,
   },
-})
+});
 
 // Ensure unique enrollment per user per course
-enrollmentSchema.index({ user: 1, course: 1 }, { unique: true })
+enrollmentSchema.index({ user: 1, course: 1 }, { unique: true });
 
-module.exports = mongoose.model("Enrollment", enrollmentSchema)
+module.exports = mongoose.model("Enrollment", enrollmentSchema);

@@ -91,6 +91,13 @@ const courseSchema = new mongoose.Schema(
     instructorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    instructorImage: {
+      type: String, // URL to instructor image for this course
+    },
+    instructorImagePublicId: {
+      type: String, // Cloudinary public ID for instructor image
     },
     category: {
       type: String,
@@ -118,7 +125,7 @@ const courseSchema = new mongoose.Schema(
     },
     thumbnail: {
       type: String,
-      required: true,
+      default: "https://via.placeholder.com/400x225?text=Course+Thumbnail",
     },
     thumbnailPublicId: String, // Cloudinary public ID for thumbnail
     previewVideo: String,
@@ -162,6 +169,10 @@ const courseSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    avgRating: {        // 🔹 add this
+  type: Number,
+  default: 0,
+},
     isPublished: {
       type: Boolean,
       default:true,
@@ -208,7 +219,7 @@ const courseSchema = new mongoose.Schema(
       metaTitle: String,
       metaDescription: String,
       keywords: [String],
-      
+
     },
     slug: {
   type: String,
@@ -259,29 +270,77 @@ courseSchema.virtual("averageRating").get(function () {
   return Math.round((sum / this.reviews.length) * 10) / 10
 })
 
-// Update rating and review count before saving
-courseSchema.pre("save", function (next) {
-  if (this.reviews && this.reviews.length > 0) {
-    const sum = this.reviews.reduce((acc, review) => acc + review.rating, 0)
-    this.rating = Math.round((sum / this.reviews.length) * 10) / 10
-    this.reviewCount = this.reviews.length
-  }
+// Pre-save hook to calculate lesson durations and total course duration
+courseSchema.pre("save", async function (next) {
+  try {
+    // Calculate rating and review count
+    if (this.reviews && this.reviews.length > 0) {
+      const sum = this.reviews.reduce((acc, review) => acc + review.rating, 0)
+      this.rating = Math.round((sum / this.reviews.length) * 10) / 10
+      this.reviewCount = this.reviews.length
+    }
 
-  // Update total lessons count
-  if (this.lessons) {
-    this.totalLessons = this.lessons.length
-    this.duration = this.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
-  }
+    // Update total lessons count
+    if (this.lessons) {
+      this.totalLessons = this.lessons.length
 
-  // Generate slug if not provided
-  if (!this.seo.slug && this.title) {
-    this.seo.slug = this.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-  }
+      // Calculate total duration from lessons
+      this.duration = this.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
+    }
 
-  next()
+    // Generate slug if not provided
+    if (!this.seo.slug && this.title) {
+      this.seo.slug = this.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+    }
+
+    next()
+  } catch (error) {
+    console.error("Error in course pre-save hook:", error)
+    next(error)
+  }
+})
+
+// Pre-save hook specifically for calculating lesson durations from video URLs
+courseSchema.pre("save", async function (next) {
+  try {
+    const { calculateLessonsDurations } = require("../utils/videoUtils")
+
+    // Calculate durations for lessons with video URLs
+    if (this.lessons && this.lessons.length > 0) {
+      try {
+        console.log(`Calculating durations for ${this.lessons.length} lessons in course: ${this.title}`)
+
+        // Check if any lesson has a video URL but duration is 0 or missing
+        const needsDurationCalculation = this.lessons.some(lesson =>
+          lesson.videoUrl && (lesson.duration === 0 || lesson.duration === undefined || lesson.duration === null)
+        )
+
+        if (needsDurationCalculation) {
+          const result = await calculateLessonsDurations(this.lessons)
+          this.lessons = result.lessons
+          this.duration = result.totalDuration
+          console.log(`Successfully calculated durations. Total course duration: ${this.duration} minutes`)
+        } else {
+          // Recalculate total duration from existing lesson durations
+          this.duration = this.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
+          console.log(`Recalculated total course duration: ${this.duration} minutes`)
+        }
+      } catch (durationError) {
+        console.error("Error calculating lesson durations in pre-save:", durationError)
+        // Continue with save even if duration calculation fails
+        // Recalculate total duration from existing lesson durations as fallback
+        this.duration = this.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
+      }
+    }
+
+    next()
+  } catch (error) {
+    console.error("Error in lesson duration pre-save hook:", error)
+    next()
+  }
 })
 
 // Static method to get popular courses
@@ -326,6 +385,65 @@ courseSchema.methods.addReview = function (userId, rating, comment, isVerifiedPu
 courseSchema.methods.removeReview = function (userId) {
   this.reviews = this.reviews.filter((review) => review.user.toString() !== userId.toString())
   return this.save()
+}
+
+// Instance method to recalculate durations
+courseSchema.methods.recalculateDurations = async function () {
+  try {
+    const { calculateLessonsDurations } = require("../utils/videoUtils")
+
+    if (this.lessons && this.lessons.length > 0) {
+      const result = await calculateLessonsDurations(this.lessons)
+      this.lessons = result.lessons
+      this.duration = result.totalDuration
+      await this.save()
+      console.log(`Recalculated durations for course: ${this.title}`)
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error("Error recalculating durations:", error)
+    return false
+  }
+}
+
+// Static method to recalculate durations for all courses
+courseSchema.statics.recalculateAllDurations = async function () {
+  try {
+    const courses = await this.find({ "lessons.videoUrl": { $exists: true, $ne: "" } })
+    console.log(`Found ${courses.length} courses with video URLs to recalculate`)
+
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: []
+    }
+
+    for (const course of courses) {
+      try {
+        const updated = await course.recalculateDurations()
+        if (updated) {
+          results.success++
+        } else {
+          results.failed++
+        }
+      } catch (error) {
+        console.error(`Error recalculating durations for course ${course.title}:`, error)
+        results.failed++
+        results.errors.push({
+          courseId: course._id,
+          courseTitle: course.title,
+          error: error.message
+        })
+      }
+    }
+
+    console.log(`Duration recalculation completed: ${results.success} success, ${results.failed} failed`)
+    return results
+  } catch (error) {
+    console.error("Error in recalculateAllDurations:", error)
+    throw error
+  }
 }
 
 module.exports = mongoose.model("Course", courseSchema)

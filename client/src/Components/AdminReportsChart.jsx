@@ -37,7 +37,9 @@ const AdminReportsChart = ({ type }) => {
 
       if (response.ok) {
         const data = await response.json()
-        setChartData(data)
+        // Add fallback colors for enrollment data if missing
+        const processedData = type === "enrollments" ? addFallbackColors(data) : data
+        setChartData(processedData)
       }
     } catch (error) {
       console.error("Error fetching chart data:", error)
@@ -60,10 +62,10 @@ const AdminReportsChart = ({ type }) => {
       ])
     } else if (type === "enrollments") {
       setChartData([
-        { name: "JavaScript", value: 400, color: "#8884d8" },
-        { name: "React", value: 300, color: "#82ca9d" },
-        { name: "Node.js", value: 200, color: "#ffc658" },
-        { name: "Python", value: 150, color: "#ff7300" },
+        { name: "Programming", value: 400, color: "#8884d8" },
+        { name: "Design", value: 300, color: "#82ca9d" },
+        { name: "Marketing", value: 200, color: "#ffc658" },
+        { name: "Business", value: 150, color: "#ff7300" },
         { name: "Other", value: 100, color: "#00ff00" },
       ])
     } else if (type === "detailed") {
@@ -77,6 +79,30 @@ const AdminReportsChart = ({ type }) => {
         { date: "2024-01-07", users: 189, courses: 23, revenue: 3600 },
       ])
     }
+  }
+
+  // Add fallback colors for data without color property
+  // Color Reference Guide:
+  // Programming: #8884d8 (Blue), Design: #82ca9d (Green), Marketing: #ffc658 (Yellow)
+  // Business: #ff7300 (Orange), Creative: #00ff00 (Light Green), Technology: #ff0000 (Red)
+  // Health: #0000ff (Dark Blue), Language: #ff00ff (Magenta), Other: #ffa500 (Orange)
+  const addFallbackColors = (data) => {
+    const colorMap = {
+      "Programming": "#8884d8",
+      "Design": "#82ca9d",
+      "Marketing": "#ffc658",
+      "Business": "#ff7300",
+      "Creative": "#00ff00",
+      "Technology": "#ff0000",
+      "Health": "#0000ff",
+      "Language": "#ff00ff",
+      "Other": "#ffa500"
+    }
+
+    return data.map((item, index) => ({
+      ...item,
+      color: item.color || colorMap[item.name] || colorMap[item._id] || `hsl(${index * 45}, 70%, 50%)`
+    }))
   }
 
   if (isLoading) {
@@ -93,40 +119,286 @@ const AdminReportsChart = ({ type }) => {
   const renderChart = () => {
     switch (type) {
       case "revenue":
+        const totalRevenue = chartData.reduce((sum, item) => sum + item.revenue, 0)
+        const avgRevenue = totalRevenue / chartData.length
+        const maxRevenue = Math.max(...chartData.map(item => item.revenue))
+        const minRevenue = Math.min(...chartData.map(item => item.revenue))
+        const maxMonth = chartData.find(item => item.revenue === maxRevenue)?.month
+        const minMonth = chartData.find(item => item.revenue === minRevenue)?.month
+
         return (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="space-y-6">
+            {/* Modern Card Design */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Total Revenue Card */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-100 text-sm font-medium">Total Revenue</p>
+                    <p className="text-2xl font-bold">${totalRevenue.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-blue-400 bg-opacity-30 rounded-lg p-3">
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Average Revenue Card */}
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-100 text-sm font-medium">Average Revenue</p>
+                    <p className="text-2xl font-bold">${avgRevenue.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-green-400 bg-opacity-30 rounded-lg p-3">
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Growth Rate Card */}
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-purple-100 text-sm font-medium">Growth Rate</p>
+                    <p className="text-2xl font-bold">
+                      {chartData.length > 1 ?
+                        ((chartData[chartData.length - 1].revenue - chartData[0].revenue) / chartData[0].revenue * 100).toFixed(1) + '%'
+                        : '0%'
+                      }
+                    </p>
+                  </div>
+                  <div className="bg-purple-400 bg-opacity-30 rounded-lg p-3">
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Monthly Performance Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {chartData.map((item, index) => {
+                const prevItem = chartData[index - 1]
+                const change = prevItem ? item.revenue - prevItem.revenue : 0
+                const changePercent = prevItem ? ((change / prevItem.revenue) * 100).toFixed(1) : '0.0'
+                const isIncrease = change > 0
+                const isHighest = item.revenue === maxRevenue
+                const isLowest = item.revenue === minRevenue
+
+                return (
+                  <div key={index} className={`relative rounded-xl p-6 shadow-lg border-2 transition-all duration-200 hover:shadow-xl ${
+                    isHighest
+                      ? 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200'
+                      : isLowest
+                      ? 'bg-gradient-to-br from-red-50 to-pink-50 border-red-200'
+                      : 'bg-white border-gray-200'
+                  }`}>
+                    {/* Performance Indicator */}
+                    {isHighest && (
+                      <div className="absolute -top-2 -right-2 bg-yellow-500 text-white rounded-full p-2">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                      </div>
+                    )}
+                    {isLowest && (
+                      <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+                        </svg>
+                      </div>
+                    )}
+
+                    <div className="space-y-4">
+                      {/* Month Header */}
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-gray-900">{item.month}</h3>
+                        <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                          isIncrease
+                            ? 'bg-green-100 text-green-800'
+                            : change < 0
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {prevItem ? `${isIncrease ? '+' : ''}${changePercent}%` : 'N/A'}
+                        </div>
+                      </div>
+
+                      {/* Revenue Amount */}
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-600">Revenue</p>
+                        <p className="text-2xl font-bold text-gray-900">${item.revenue.toLocaleString()}</p>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Performance</span>
+                          <span className="font-medium">{Math.round((item.revenue / maxRevenue) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full transition-all duration-500 ${
+                              isHighest ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
+                              isLowest ? 'bg-gradient-to-r from-red-400 to-pink-500' :
+                              'bg-gradient-to-r from-blue-400 to-blue-600'
+                            }`}
+                            style={{ width: `${(item.revenue / maxRevenue) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Trend Indicator */}
+                      {prevItem && (
+                        <div className="flex items-center space-x-2 pt-2 border-t border-gray-100">
+                          <div className={`flex items-center space-x-1 ${
+                            isIncrease ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {isIncrease ? (
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L9 3.414 2.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd"/>
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 16.586l6.293-6.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                              </svg>
+                            )}
+                            <span className="text-sm font-medium">
+                              {isIncrease ? 'Growing' : 'Declining'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Summary Statistics */}
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6">
+              <h4 className="text-lg font-bold text-gray-900 mb-4">Performance Summary</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="bg-green-100 rounded-lg p-4 inline-block">
+                    <svg className="w-8 h-8 text-green-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd"/>
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-600">Best Month</p>
+                  <p className="text-lg font-bold text-gray-900">{maxMonth}: ${maxRevenue.toLocaleString()}</p>
+                </div>
+                <div className="text-center">
+                  <div className="bg-blue-100 rounded-lg p-4 inline-block">
+                    <svg className="w-8 h-8 text-blue-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clipRule="evenodd"/>
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-600">Total Revenue</p>
+                  <p className="text-lg font-bold text-gray-900">${totalRevenue.toLocaleString()}</p>
+                </div>
+                <div className="text-center">
+                  <div className="bg-orange-100 rounded-lg p-4 inline-block">
+                    <svg className="w-8 h-8 text-orange-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clipRule="evenodd"/>
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-600">Average/Month</p>
+                  <p className="text-lg font-bold text-gray-900">${avgRevenue.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         )
 
       case "enrollments":
         return (
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="space-y-4">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent, value }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value, name) => [`${value} enrollments`, name]} />
+              </PieChart>
+            </ResponsiveContainer>
+
+            {/* Color Reference Guide */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">Category Color Reference</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#8884d8" }}></div>
+                  <span className="text-gray-700">Programming</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#82ca9d" }}></div>
+                  <span className="text-gray-700">Design</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ffc658" }}></div>
+                  <span className="text-gray-700">Marketing</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ff7300" }}></div>
+                  <span className="text-gray-700">Business</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#00ff00" }}></div>
+                  <span className="text-gray-700">Creative</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ff0000" }}></div>
+                  <span className="text-gray-700">Technology</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#0000ff" }}></div>
+                  <span className="text-gray-700">Health</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ff00ff" }}></div>
+                  <span className="text-gray-700">Language</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ffa500" }}></div>
+                  <span className="text-gray-700">Other</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Legend with detailed information */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <h4 className="text-sm font-semibold text-gray-900 mb-2 col-span-full">Enrollment Summary</h4>
+              {chartData.map((entry, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <div
+                    className="w-4 h-4 rounded"
+                    style={{ backgroundColor: entry.color }}
+                  ></div>
+                  <span className="text-gray-700">{entry.name}</span>
+                  <span className="text-gray-900 font-semibold">{entry.value} enrollments</span>
+                  <span className="text-gray-500">({((entry.value / chartData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(0)}%)</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )
 
       case "detailed":

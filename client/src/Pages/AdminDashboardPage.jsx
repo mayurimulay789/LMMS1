@@ -165,34 +165,6 @@ const AdminDashboardPage = () => {
               <AdminReportsChart type="revenue" />
               <AdminReportsChart type="enrollments" />
             </div>
-
-            {/* Recent Activity */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">New user registered</p>
-                    <p className="text-xs text-gray-600">john.doe@example.com - 2 minutes ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Course published</p>
-                    <p className="text-xs text-gray-600">Advanced React Development - 5 minutes ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Payment received</p>
-                    <p className="text-xs text-gray-600">₹299 - JavaScript Masterclass - 10 minutes ago</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 

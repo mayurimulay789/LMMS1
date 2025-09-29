@@ -1,10 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, Share2, Heart } from "lucide-react"
 import { motion } from "framer-motion"
+import ReviewForm from "../Components/ReviewForm"
+
+
 
 const CourseDetailPage = () => {
   const { id } = useParams()
@@ -15,7 +18,79 @@ const CourseDetailPage = () => {
   const [activeTab, setActiveTab] = useState("overview")
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [userProgress, setUserProgress] = useState(null)
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+  const [showVideoControls, setShowVideoControls] = useState(false)
+  const [relatedCourses, setRelatedCourses] = useState([])
+  const [relatedCoursesLoading, setRelatedCoursesLoading] = useState(false)
+  const [reviews, setReviews] = useState([])
+  const [comment, setComment] = useState("");
+const [rating, setRating] = useState(0);
+const [loading, setLoading] = useState(false);
+const [successMessage, setSuccessMessage] = useState("");
 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (rating === 0 || !comment.trim()) {
+    return alert("Please provide rating and comment");
+}
+
+
+  if (!course?._id) {
+    return alert("Course details not loaded yet.");
+  }
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please login again.");
+    navigate("/login");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    console.log("Submitting review:", { rating, comment });
+
+    const response = await fetch(
+      `http://localhost:2000/api/courses/${course._id}/reviews`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          rating: Number(rating),     // ensure number
+          comment: comment.trim(),    // ensure no spaces
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to submit review");
+    }
+
+    // Reset form
+    setRating(1);
+    setComment("");
+    alert("Your review has been submitted successfully!");
+    //setSuccessMessage("Your review has been submitted successfully!");
+    setReviews((prev) => [data, ...prev]);
+    // Refresh course details to show new review
+  
+  } catch (err) {
+    console.error("Review submission error:", err);
+    alert(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const videoRef = useRef(null)
   useEffect(() => {
     fetchCourseDetails()
   }, [id])
@@ -37,98 +112,21 @@ const CourseDetailPage = () => {
 
       if (response.ok) {
         const data = await response.json()
+  console.log("Fetched course:", data);
+  setCourse(data);
         setCourse(data)
         setIsEnrolled(data.isEnrolled)
         setUserProgress(data.userProgress)
+        setReviews(data.reviews || [])
+        // Fetch related courses
+        if (data.category) {
+          fetchRelatedCourses(data.category)
+        }
       }
     } catch (error) {
       console.error("Error fetching course details:", error)
-      // Mock data for demonstration
-      setCourse({
-        _id: id,
-        title: "Complete JavaScript Course",
-        description:
-          "Master JavaScript from basics to advanced concepts with hands-on projects and real-world applications. This comprehensive course covers everything you need to know to become a proficient JavaScript developer.",
-        instructor: "John Doe",
-        price: 99,
-        thumbnail: "/placeholder.svg?height=400&width=600",
-        category: "Programming",
-        avgRating: 4.8,
-        reviewCount: 1250,
-        enrollmentCount: 15000,
-        level: "Beginner",
-        duration: 2400, // minutes
-        language: "English",
-        lastUpdated: "2024-01-15",
-        whatYouWillLearn: [
-          "Master JavaScript fundamentals and advanced concepts",
-          "Build interactive web applications",
-          "Understand ES6+ features and modern JavaScript",
-          "Work with APIs and asynchronous programming",
-          "Debug and optimize JavaScript code",
-          "Apply best practices and design patterns",
-        ],
-        requirements: [
-          "Basic understanding of HTML and CSS",
-          "A computer with internet connection",
-          "No prior JavaScript experience required",
-        ],
-        lessons: [
-          {
-            _id: "1",
-            title: "Introduction to JavaScript",
-            duration: 45,
-            preview: true,
-          },
-          {
-            _id: "2",
-            title: "Variables and Data Types",
-            duration: 60,
-            preview: false,
-          },
-          {
-            _id: "3",
-            title: "Functions and Scope",
-            duration: 75,
-            preview: false,
-          },
-          {
-            _id: "4",
-            title: "Objects and Arrays",
-            duration: 90,
-            preview: false,
-          },
-          {
-            _id: "5",
-            title: "DOM Manipulation",
-            duration: 120,
-            preview: true,
-          },
-        ],
-        reviews: [
-          {
-            _id: "1",
-            user: { name: "Alice Johnson", avatar: "/placeholder.svg?height=40&width=40" },
-            rating: 5,
-            comment:
-              "Excellent course! The instructor explains everything clearly and the projects are very practical.",
-            createdAt: "2024-01-10",
-          },
-          {
-            _id: "2",
-            user: { name: "Bob Smith", avatar: "/placeholder.svg?height=40&width=40" },
-            rating: 4,
-            comment: "Great content and well-structured. Helped me land my first developer job!",
-            createdAt: "2024-01-08",
-          },
-        ],
-        createdBy: {
-          name: "John Doe",
-          email: "john@example.com",
-          avatar: "/placeholder.svg?height=80&width=80",
-          bio: "Senior JavaScript Developer with 10+ years of experience. Passionate about teaching and helping others learn to code.",
-        },
-      })
+      // Set error state instead of using mock data
+      setCourse(null)
     } finally {
       setIsLoading(false)
     }
@@ -152,22 +150,23 @@ const CourseDetailPage = () => {
   const enrollInCourse = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/enrollments`, {
+      const res = await fetch(`http://localhost:2000/api/enrollments`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ courseId: course._id }),
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId: id }),
       })
-
-      if (response.ok) {
-        setIsEnrolled(true)
-        // Refresh course data
+      if (res.ok) {
+        const data = await res.json()
+        alert("Enrolled successfully!")
+        // Refresh course data to update isEnrolled
         fetchCourseDetails()
+      } else {
+        const err = await res.json()
+        alert(err.message || "Failed to enroll")
       }
-    } catch (error) {
-      console.error("Error enrolling in course:", error)
+    } catch (err) {
+      console.error(err)
+      alert("Something went wrong")
     }
   }
 
@@ -178,7 +177,36 @@ const CourseDetailPage = () => {
   }
 
   const formatPrice = (price) => {
-    return price === 0 ? "Free" : `$${price}`
+    return price === 0 ? "Free" : `₹${price}`
+  }
+
+  const handlePlayVideo = () => {
+    if (videoRef.current) {
+      setIsVideoPlaying(true)
+      setShowVideoControls(true)
+      videoRef.current.play().catch((error) => {
+        console.error('Error playing video:', error)
+        // Fallback: try to show controls if play fails
+        videoRef.current.controls = true
+      })
+    }
+  }
+
+  const fetchRelatedCourses = async (category) => {
+    setRelatedCoursesLoading(true)
+    try {
+      const response = await fetch(`http://localhost:2000/api/courses?category=${category}&limit=4`)
+      if (response.ok) {
+        const data = await response.json()
+        // Filter out the current course
+        const filteredCourses = data.courses.filter(course => course._id !== id)
+        setRelatedCourses(filteredCourses)
+      }
+    } catch (error) {
+      console.error("Error fetching related courses:", error)
+    } finally {
+      setRelatedCoursesLoading(false)
+    }
   }
 
   const tabs = [
@@ -187,6 +215,12 @@ const CourseDetailPage = () => {
     { id: "instructor", label: "Instructor" },
     { id: "reviews", label: "Reviews" },
   ]
+// import { useState } from "react"
+
+
+
+
+  
 
   if (isLoading) {
     return (
@@ -259,12 +293,12 @@ const CourseDetailPage = () => {
 
                 <div className="flex items-center space-x-4">
                   <img
-                    src={course.createdBy.avatar || "/placeholder.svg"}
-                    alt={course.createdBy.name}
+                    src={course.createdBy?.profile?.avatar || course.instructorImage || "/placeholder.svg"}
+                    alt={course.createdBy?.name || course.instructor}
                     className="w-12 h-12 rounded-full"
                   />
                   <div>
-                    <p className="font-medium">Created by {course.createdBy.name}</p>
+                    <p className="font-medium">Created by {course.createdBy?.name || course.instructor}</p>
                     <p className="text-sm text-gray-300">
                       Last updated {new Date(course.lastUpdated).toLocaleDateString()}
                     </p>
@@ -281,14 +315,60 @@ const CourseDetailPage = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="bg-white rounded-lg shadow-lg overflow-hidden"
               >
-                <div className="relative">
-                  <img
-                    src={course.thumbnail || "/placeholder.svg"}
-                    alt={course.title}
-                    className="w-full h-48 object-cover"
-                  />
+                <div className="relative bg-gray-100">
+                  {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
+                    <video
+                      ref={videoRef}
+                      src={course.thumbnail}
+                      className="w-full h-48 object-cover"
+                      muted
+                      controls={false}
+                      preload="metadata"
+                      onError={(e) => {
+                        console.log('CourseDetail video load error:', e)
+                        console.log('CourseDetail video src:', course.thumbnail)
+                        e.target.style.display = 'none'
+                        const fallback = e.target.parentElement.querySelector('.coursedetail-video-fallback') || document.createElement('div')
+                        fallback.className = 'coursedetail-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
+                        fallback.textContent = 'VIDEO'
+                        if (!e.target.parentElement.querySelector('.coursedetail-video-fallback')) {
+                          e.target.parentElement.appendChild(fallback)
+                        }
+                      }}
+                      onLoadedData={(e) => {
+                        console.log('CourseDetail video loaded successfully')
+                        const fallback = e.target.parentElement.querySelector('.coursedetail-video-fallback')
+                        if (fallback) fallback.remove()
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={course.thumbnail || "/placeholder.svg"}
+                      alt={course.title}
+                      className="w-full h-48 object-cover"
+                      onError={(e) => {
+                        console.log('CourseDetail image load error:', e)
+                        console.log('CourseDetail image src:', course.thumbnail)
+                        e.target.style.display = 'none'
+                        const fallback = e.target.parentElement.querySelector('.coursedetail-image-fallback') || document.createElement('div')
+                        fallback.className = 'coursedetail-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
+                        fallback.textContent = 'IMG'
+                        if (!e.target.parentElement.querySelector('.coursedetail-image-fallback')) {
+                          e.target.parentElement.appendChild(fallback)
+                        }
+                      }}
+                      onLoad={(e) => {
+                        console.log('CourseDetail image loaded successfully')
+                        const fallback = e.target.parentElement.querySelector('.coursedetail-image-fallback')
+                        if (fallback) fallback.remove()
+                      }}
+                    />
+                  )}
                   <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <button className="bg-white bg-opacity-90 rounded-full p-4 hover:bg-opacity-100 transition-all">
+                    <button
+                      onClick={handlePlayVideo}
+                      className="bg-white bg-opacity-90 rounded-full p-4 hover:bg-opacity-100 transition-all"
+                    >
                       <Play className="h-8 w-8 text-gray-900 ml-1" />
                     </button>
                   </div>
@@ -445,10 +525,22 @@ const CourseDetailPage = () => {
 
               {activeTab === "curriculum" && (
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Course Curriculum</h3>
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900">Course Curriculum</h3>
+                  </div>
                   <div className="space-y-4">
                     {course.lessons.map((lesson, index) => (
-                      <div key={lesson._id} className="border border-gray-200 rounded-lg p-4">
+                      <div
+                        key={lesson._id}
+                        className={`border border-gray-200 rounded-lg p-4 ${
+                          isEnrolled ? "cursor-pointer hover:shadow-md hover:border-blue-300 transition-all" : ""
+                        }`}
+                        onClick={() => {
+                          if (isEnrolled) {
+                            navigate(`/courses/${course._id}/learn?lesson=${lesson._id}`)
+                          }
+                        }}
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
                             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -467,12 +559,24 @@ const CourseDetailPage = () => {
                               </div>
                             </div>
                           </div>
-                          {lesson.preview && (
-                            <button className="text-blue-600 hover:text-blue-800 flex items-center space-x-1">
+                          {lesson.preview ? (
+                            <button
+                              className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                // Handle preview - could navigate to learn page with preview mode
+                                navigate(`/courses/${course._id}/learn?lesson=${lesson._id}`)
+                              }}
+                            >
                               <Play className="h-4 w-4" />
                               <span>Preview</span>
                             </button>
-                          )}
+                          ) : isEnrolled ? (
+                            <div className="text-blue-600 flex items-center space-x-1">
+                              <Play className="h-4 w-4" />
+                              <span className="text-sm">Watch</span>
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     ))}
@@ -483,62 +587,169 @@ const CourseDetailPage = () => {
               {activeTab === "instructor" && (
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-6">About the Instructor</h3>
-                  <div className="flex items-start space-x-6">
-                    <img
-                      src={course.createdBy.avatar || "/placeholder.svg"}
-                      alt={course.createdBy.name}
-                      className="w-24 h-24 rounded-full"
-                    />
-                    <div>
-                      <h4 className="text-xl font-semibold text-gray-900 mb-2">{course.createdBy.name}</h4>
-                      <p className="text-gray-600 mb-4">{course.createdBy.bio}</p>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600">
-                        <span className="flex items-center space-x-1">
-                          <Users className="h-4 w-4" />
-                          <span>{course.enrollmentCount.toLocaleString()} students</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <Star className="h-4 w-4" />
-                          <span>{course.avgRating} rating</span>
-                        </span>
+                  {course.createdBy ? (
+                    <div className="flex items-start space-x-6">
+                      <img
+                        src={course.instructorImage || course.createdBy?.profile?.avatar || "/placeholder.svg"}
+                        alt={course.createdBy?.name || "Instructor"}
+                        className="w-24 h-24 rounded-full"
+                      />
+                      <div>
+                      <h4 className="text-xl font-semibold text-gray-900 mb-2">
+                          {course.instructor || course.createdBy.name || "Instructor"}
+                        </h4>
+                        <p className="text-gray-600 mb-4">
+                          {course.createdBy.profile?.bio || "No bio available"}
+                        </p>
+                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <span className="flex items-center space-x-1">
+                            <Users className="h-4 w-4" />
+                            <span>{course.enrollmentCount.toLocaleString()} students</span>
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <Star className="h-4 w-4" />
+                            <span>{course.avgRating} rating</span>
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600 mb-4">Instructor information is currently unavailable.</p>
+                      <p className="text-sm text-gray-500">Please try refreshing the page or contact support if the issue persists.</p>
+                    </div>
+                  )}
                 </div>
               )}
 
               {activeTab === "reviews" && (
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h3>
-                  <div className="space-y-6">
-                    {course.reviews.map((review) => (
-                      <div key={review._id} className="border-b border-gray-200 pb-6">
-                        <div className="flex items-start space-x-4">
-                          <img
-                            src={review.user.avatar || "/placeholder.svg"}
-                            alt={review.user.name}
-                            className="w-12 h-12 rounded-full"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h4 className="font-medium text-gray-900">{review.user.name}</h4>
-                              <div className="flex items-center">
-                                {[...Array(review.rating)].map((_, i) => (
-                                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                                ))}
-                              </div>
-                              <span className="text-sm text-gray-600">
-                                {new Date(review.createdAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <p className="text-gray-700">{review.comment}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+  <div>
+  <h3 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h3>
+
+  {!isAuthenticated ? (
+    <p className="text-gray-600">Please log in to submit a review.</p>
+  ) : (
+    <form onSubmit={handleSubmit} className="space-y-3 mb-6">
+      <div>
+        <label className="block mb-1 font-medium">Rating</label>
+        <fieldset className="starability-slot">
+          <input
+            type="radio"
+            id="no-rate"
+            className="input-no-rate"
+            name="review[rating]"
+            value="0"
+            defaultChecked
+            aria-label="No rating."
+          />
+         <input
+  type="radio"
+  id="first-rate1"
+  name="review[rating]"
+  value="1"
+  checked={rating === 1}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate1" title="Terrible">1 star</label>
+
+<input
+  type="radio"
+  id="first-rate2"
+  name="review[rating]"
+  value="2"
+  checked={rating === 2}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate2" title="Not good">2 stars</label>
+
+<input
+  type="radio"
+  id="first-rate3"
+  name="review[rating]"
+  value="3"
+  checked={rating === 3}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate3" title="Average">3 stars</label>
+
+<input
+  type="radio"
+  id="first-rate4"
+  name="review[rating]"
+  value="4"
+  checked={rating === 4}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate4" title="Very good">4 stars</label>
+
+<input
+  type="radio"
+  id="first-rate5"
+  name="review[rating]"
+  value="5"
+  checked={rating === 5}
+  onChange={(e) => setRating(Number(e.target.value))}
+/>
+<label htmlFor="first-rate5" title="Amazing">5 stars</label>
+
+        </fieldset>
+      </div>
+
+      <div>
+        <label className="block mb-1 font-medium">Comment</label>
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="w-full p-2 border rounded"
+          rows={3}
+          placeholder="Write your review..."
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        {loading ? "Submitting..." : "Submit Review"}
+      </button>
+    </form>
+  )}
+
+  {/* List of existing reviews */}
+  {reviews.length > 0  ? (
+     reviews.map((review) => (
+      <div key={review._id} className="border-b border-gray-200 pb-6">
+        <div className="flex items-start space-x-4">
+          <img
+            src={review.user?.avatar || "/placeholder.svg"}
+            alt={review.user?.name || "Student"}
+            className="w-12 h-12 rounded-full"
+          />
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-2">
+              <h4 className="font-medium text-gray-900">{review.name || "Anonymous"}</h4>
+
+              <div className="flex items-center">
+                {[...Array(review.rating)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                ))}
+              </div>
+              <span className="text-sm text-gray-600">
+                {new Date(review.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+            <p className="text-gray-700">{review.comment}</p>
+          </div>
+        </div>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-600">No reviews yet.</p>
+  )}
+</div>
               )}
+              
             </motion.div>
           </div>
 
@@ -548,22 +759,68 @@ const CourseDetailPage = () => {
               {/* Related Courses */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Related Courses</h4>
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex space-x-3">
-                      <img
-                        src={`/placeholder.svg?height=60&width=80`}
-                        alt="Course thumbnail"
-                        className="w-20 h-15 object-cover rounded"
-                      />
-                      <div>
-                        <h5 className="font-medium text-gray-900 text-sm">Advanced JavaScript</h5>
-                        <p className="text-xs text-gray-600">By Jane Smith</p>
-                        <p className="text-sm font-semibold text-gray-900">$149</p>
+                {relatedCoursesLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="animate-pulse flex space-x-3">
+                        <div className="w-16 h-12 bg-gray-300 rounded"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                          <div className="h-3 bg-gray-300 rounded w-3/4"></div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : relatedCourses.length > 0 ? (
+                  <div className="space-y-4">
+                    {relatedCourses.map((course) => (
+                      <div key={course._id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/courses/${course._id}`)}>
+                        {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
+                          <video
+                            src={course.thumbnail}
+                            className="w-16 h-12 object-cover rounded"
+                            muted
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              const fallback = e.target.parentElement.querySelector('.related-video-fallback') || document.createElement('div')
+                              fallback.className = 'related-video-fallback w-16 h-12 flex items-center justify-center bg-gray-200 text-gray-600 font-medium text-xs rounded'
+                              fallback.textContent = 'VIDEO'
+                              if (!e.target.parentElement.querySelector('.related-video-fallback')) {
+                                e.target.parentElement.appendChild(fallback)
+                              }
+                            }}
+                            onLoadedData={(e) => {
+                              const fallback = e.target.parentElement.querySelector('.related-video-fallback')
+                              if (fallback) fallback.remove()
+                            }}
+                          />
+                        ) : (
+                          <img
+                            src={course.thumbnail || "/placeholder.svg"}
+                            alt={course.title}
+                            className="w-16 h-12 object-cover rounded"
+                            onError={(e) => {
+                              e.target.src = "/placeholder.svg"
+                            }}
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h5 className="font-medium text-gray-900 text-sm truncate">{course.title}</h5>
+                          <p className="text-xs text-gray-600 truncate">By {course.createdBy?.name || course.instructor}</p>
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-sm font-semibold text-gray-900">{formatPrice(course.price)}</span>
+                            <div className="flex items-center space-x-1">
+                              <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                              <span className="text-xs text-gray-600">{course.avgRating}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-600">No related courses found.</p>
+                )}
               </div>
             </div>
           </div>

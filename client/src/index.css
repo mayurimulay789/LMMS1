@@ -7,6 +7,54 @@
   @tailwind base;
   @tailwind components;
   @tailwind utilities;
+
+  body {
+    background-color: #FFFFFF;
+    color: #000000;
+  }
   
+  /* Custom scrollbar styles for webkit browsers */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
   
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
   
+  /* Custom red scrollbar styles */
+  .scrollbar-red {
+    scrollbar-color: #DC2626 #FEE2E2;  /* Firefox: thumb primary-600, track primary-100 */
+  }
+  
+  .scrollbar-red::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .scrollbar-red::-webkit-scrollbar-track {
+    background: #FEE2E2;  /* primary-100 track */
+  }
+  
+  .scrollbar-red::-webkit-scrollbar-thumb {
+    background: #DC2626;  /* primary-600 thumb */
+    border-radius: 4px;
+  }
+  
+  .scrollbar-red::-webkit-scrollbar-thumb:hover {
+    background: #EF4444;  /* primary-500 on hover */
+  }
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 20s linear infinite;
+}

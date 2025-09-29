@@ -1,3 +1,0 @@
-- [x] Add type check in fetchUsers to ensure data is an array before setting users
-- [x] Add safeguard in filterUsers to ensure filtered is an array
-- [x] Add safeguard in render to check if filteredUsers is an array before mapping

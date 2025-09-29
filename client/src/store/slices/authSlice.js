@@ -26,14 +26,14 @@ export const loginUser = createAsyncThunk("auth/login", async ({ email, password
 
 export const registerUser = createAsyncThunk(
   "auth/register",
-  async ({ name, email, password }, { rejectWithValue }) => {
+  async ({ name, email, password, role }, { rejectWithValue }) => {
     try {
       const response = await fetch("http://localhost:2000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, role }),
       })
 
       if (!response.ok) {
@@ -66,6 +66,37 @@ export const loadUser = createAsyncThunk("auth/loadUser", async (_, { rejectWith
     if (!response.ok) {
       const error = await response.json()
       return rejectWithValue(error.message)
+    }
+
+    const data = await response.json()
+    return data
+  } catch (error) {
+    return rejectWithValue(error.message)
+  }
+})
+
+// Async thunk for uploading avatar
+export const uploadAvatar = createAsyncThunk("auth/uploadAvatar", async (file, { rejectWithValue }) => {
+  try {
+    const token = localStorage.getItem("token")
+    if (!token) {
+      return rejectWithValue("No token found")
+    }
+
+    const formData = new FormData()
+    formData.append("avatar", file)
+
+    const response = await fetch("http://localhost:2000/api/upload/avatar", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      return rejectWithValue(error.error || "Upload failed")
     }
 
     const data = await response.json()
