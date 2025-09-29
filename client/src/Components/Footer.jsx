@@ -27,6 +27,11 @@ const Footer = () => {
       { name: "Marketing", path: "/courses?category=Marketing" },
       { name: "Business", path: "/courses?category=Business" },
     ],
+    support: [
+      { name: "Help Center", path: "/help" },
+      { name: "Privacy Policy", path: "/privacy" },
+      { name: "Terms of Service", path: "/terms" },
+    ],
   }
 
   const socialLinks = [
@@ -39,7 +44,7 @@ const Footer = () => {
   return (
     <footer className="bg-primary-800 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
@@ -103,13 +108,13 @@ const Footer = () => {
 
           {/* Support Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Support</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">Support</h3>
             <ul className="space-y-2">
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-gray-300 hover:text-white text-sm transition-colors duration-200"
+                    className="text-white/80 hover:text-white text-sm transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
