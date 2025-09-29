@@ -19,8 +19,7 @@ const Footer = () => {
     company: [
       { name: "About Us", path: "/about" },
       { name: "Contact", path: "/contact" },
-      { name: "FAQ", path: "/about#faq" }, // replaced Careers with FAQ
-      // removed Blog
+      { name: "FAQ", path: "/about#faq" },
     ],
     courses: [
       { name: "Programming", path: "/courses?category=Programming" },
@@ -32,7 +31,6 @@ const Footer = () => {
       { name: "Help Center", path: "/help" },
       { name: "Privacy Policy", path: "/privacy" },
       { name: "Terms of Service", path: "/terms" },
-      { name: "Cookie Policy", path: "/cookies" },
     ],
   }
 
@@ -126,17 +124,15 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Removed Stay Updated section */}
-
         {/* Bottom Section */}
-        <div className="border-t border-primary-800 mt-8 pt-8">
+        <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <p className="text-white/80 text-sm">
+            <p className="text-gray-300 text-sm">
               © {currentYear} LearnHub. All rights reserved.
             </p>
 
             {/* Social Links */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-6">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
@@ -146,7 +142,7 @@ const Footer = () => {
                   className="text-white/70 hover:text-white transition-colors duration-200"
                   aria-label={social.name}
                 >
-                  <social.icon className="h-5 w-5" />
+                  <social.icon className="h-6 w-6" /> {/* Larger icons */}
                 </a>
               ))}
             </div>

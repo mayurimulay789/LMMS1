@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { Lock, CreditCard, Shield, ArrowLeft, Tag, Check, X, User, Mail, MapPin, Phone, AlertCircle, Percent } from 'lucide-react'
+import { Lock,  Shield, ArrowLeft, Tag, Check, X, User, Mail, MapPin, Phone, AlertCircle, Percent } from 'lucide-react'
 import { createPaymentOrder, validatePromoCode, clearPaymentState } from "../store/slices/paymentSlice"
+import { CreditCard } from "lucide-react";
 
 // Declare Razorpay for global usage
 const loadRazorpayScript = () => {
@@ -337,23 +338,75 @@ const CheckoutPage = () => {
             </div> */}
 
             {/* Payment Method */}
-            <div className="p-6 bg-white rounded-lg shadow-sm">
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">Payment Method</h2>
-              <div className="p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
-                <div className="flex items-center space-x-3">
-                  <CreditCard className="w-5 h-5 text-blue-600" />
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">Razorpay Secure Payment</p>
-                    <p className="text-sm text-gray-600">Credit/Debit Card, UPI, Net Banking, Wallets</p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <img src="/placeholder.svg?height=24&width=38" alt="Visa" className="h-6" />
-                    <img src="/placeholder.svg?height=24&width=38" alt="Mastercard" className="h-6" />
-                    <img src="/placeholder.svg?height=24&width=38" alt="UPI" className="h-6" />
-                  </div>
-                </div>
-              </div>
-            </div>
+           <div className="p-6 bg-white rounded-lg shadow-sm">
+  <h2 className="mb-4 text-xl font-semibold text-gray-900">Payment Method</h2>
+  <div className="p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
+    <div className="flex items-center space-x-3">
+      <CreditCard className="w-5 h-5 text-blue-600" />
+      <div className="flex-1">
+        <p className="font-medium text-gray-900">Razorpay Secure Payment</p>
+        <p className="text-sm text-gray-600">
+          Credit/Debit Card, UPI, Net Banking, Wallets
+        </p>
+      </div>
+
+      {/* Real-looking symbols without installation */}
+      <div className="flex space-x-3">
+        {/* Visa */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 48 48"
+          className="h-7 w-9"
+        >
+          <rect width="48" height="48" fill="#1a1f71" rx="4" />
+          <text
+            x="24"
+            y="32"
+            textAnchor="middle"
+            fill="white"
+            fontFamily="Arial, sans-serif"
+            fontWeight="bold"
+            fontSize="16"
+          >
+            VISA
+          </text>
+        </svg>
+
+        {/* MasterCard */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 48 48"
+          className="h-7 w-8"
+        >
+          <rect width="48" height="48" fill="white" rx="4" />
+          <circle cx="20" cy="24" r="11" fill="#eb001b" />
+          <circle cx="28" cy="24" r="11" fill="#f79e1b" />
+        </svg>
+
+        {/* UPI */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 48 48"
+          className="h-7 w-8"
+        >
+          <rect width="54" height="48" fill="#4caf50" rx="4" />
+          <text
+            x="24"
+            y="32"
+            textAnchor="middle"
+            fill="white"
+            fontFamily="Arial, sans-serif"
+            fontWeight="bold"
+            fontSize="16"
+          >
+            UPI
+          </text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
 
             {/* Billing Information */}
             <div className="p-6 bg-white rounded-lg shadow-sm">

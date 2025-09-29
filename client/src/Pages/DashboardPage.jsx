@@ -52,16 +52,7 @@ const DashboardPage = () => {
     },
   ]
 
-  const getProgressPercentage = (courseId) => {
-    return progress[courseId]?.completionPercentage || 0
-  }
-
-  const getNextLesson = (courseId) => {
-    return progress[courseId]?.nextLesson || "Introduction"
-  }
-
   const handleProfileUpdate = (updatedUser) => {
-    // Update the user in the auth state
     dispatch({ type: 'auth/userUpdated', payload: updatedUser })
     setShowProfileForm(false)
   }
@@ -99,7 +90,7 @@ const DashboardPage = () => {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-sm p-6">
+            <div key={index} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
               <div className={`w-12 h-12 rounded-lg ${stat.color} flex items-center justify-center mb-4`}>
                 <stat.icon className="h-6 w-6" />
               </div>
@@ -109,251 +100,153 @@ const DashboardPage = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* My Courses */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">My Courses</h2>
-                <Link to="/courses" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                  Browse More →
-                </Link>
+        {/* Sidebar Sections Adjusted */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Personal Information & Profile Form */}
+          {showProfileForm ? (
+            <ProfileForm
+              user={user}
+              onSave={handleProfileUpdate}
+              onCancel={() => setShowProfileForm(false)}
+            />
+          ) : (
+            <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <User className="h-5 w-5 mr-2" />
+                  Personal Information
+                </h3>
+                <button
+                  onClick={() => setShowProfileForm(true)}
+                  className="text-blue-600 hover:text-blue-800 flex items-center space-x-1 text-sm"
+                >
+                  <Edit2 className="h-4 w-4" />
+                  <span>Edit</span>
+                </button>
               </div>
 
-              {enrollments.length === 0 ? (
-                <div className="text-center py-8">
-                  <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No courses yet</h3>
-                  <p className="text-gray-600 mb-4">Start your learning journey by enrolling in a course</p>
-                  <Link
-                    to="/courses"
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Browse Courses
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {enrollments.map((enrollment) => (
-                    <div
-                      key={enrollment._id}
-                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              <div className="mb-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Bio</h4>
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-md min-h-[80px]">
+                  {user?.profile?.bio || "No bio added yet. Click edit to add your bio."}
+                </p>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                {user?.profile?.website && (
+                  <div>
+                    <span className="font-medium text-gray-700">Website: </span>
+                    <a
+                      href={user.profile.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800"
                     >
-                      <div className="flex items-start space-x-4">
-                        <img
-                          src={enrollment.course.thumbnail || "/placeholder.svg"}
-                          alt={enrollment.course.title}
-                          className="w-16 h-16 rounded-lg object-cover"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{enrollment.course.title}</h3>
-                          <p className="text-sm text-gray-600 mb-2">By {enrollment.course.instructor}</p>
-
-                          {/* Progress Bar */}
-                          <div className="mb-3">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-sm text-gray-600">Progress</span>
-                              <span className="text-sm font-medium text-gray-900">
-                                {getProgressPercentage(enrollment.course._id)}%
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div
-                                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${getProgressPercentage(enrollment.course._id)}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between">
-                            <div className="text-sm text-gray-600">Next: {getNextLesson(enrollment.course._id)}</div>
-                            <Link
-                              to={`/courses/${enrollment.course._id}/learn`}
-                              className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
-                            >
-                              <Play className="h-4 w-4" />
-                              <span>Continue</span>
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      {user.profile.website}
+                    </a>
+                  </div>
+                )}
+                <div>
+                  <span className="font-medium text-gray-700">Role: </span>
+                  <span className="text-gray-600 capitalize">{user?.role}</span>
                 </div>
-              )}
+                <div>
+                  <span className="font-medium text-gray-700">Email: </span>
+                  <span className="text-gray-600">{user?.email}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Recent Activity */}
+          <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="text-sm">
+                  <p className="text-gray-900">Completed "React Hooks"</p>
+                  <p className="text-gray-500">2 hours ago</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <div className="text-sm">
+                  <p className="text-gray-900">Started "Advanced JavaScript"</p>
+                  <p className="text-gray-500">1 day ago</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <div className="text-sm">
+                  <p className="text-gray-900">Earned certificate</p>
+                  <p className="text-gray-500">3 days ago</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Personal Information & Bio */}
-            {showProfileForm ? (
-              <ProfileForm
-                user={user}
-                onSave={handleProfileUpdate}
-                onCancel={() => setShowProfileForm(false)}
-              />
+          {/* Recent Certificates */}
+          <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Recent Certificates</h3>
+              <Link to="/certificates" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                View All →
+              </Link>
+            </div>
+
+            {certificates.length === 0 ? (
+              <div className="text-center py-4">
+                <Award className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-600 text-sm">No certificates earned yet</p>
+                <p className="text-gray-500 text-xs">Complete courses to earn certificates</p>
+              </div>
             ) : (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <User className="h-5 w-5 mr-2" />
-                    Personal Information
-                  </h3>
-                  <button
-                    onClick={() => setShowProfileForm(true)}
-                    className="text-blue-600 hover:text-blue-800 flex items-center space-x-1 text-sm"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                    <span>Edit</span>
-                  </button>
-                </div>
-
-                {/* Bio Display */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Bio</h4>
-                  <p className="text-gray-600 bg-gray-50 p-3 rounded-md min-h-[80px]">
-                    {user?.profile?.bio || "No bio added yet. Click edit to add your bio."}
-                  </p>
-                </div>
-
-                {/* Quick Info */}
-                <div className="space-y-2 text-sm">
-                  {user?.profile?.website && (
-                    <div>
-                      <span className="font-medium text-gray-700">Website: </span>
-                      <a
-                        href={user.profile.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
+              <div className="space-y-3">
+                {certificates.slice(0, 3).map((certificate) => (
+                  <div key={certificate._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">{certificate.courseName}</p>
+                      <p className="text-xs text-gray-600">
+                        Earned on {new Date(certificate.issueDate).toLocaleDateString()}
+                      </p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          {certificate.grade}
+                        </span>
+                        {certificate.finalScore && (
+                          <span className="text-xs text-gray-600">{certificate.finalScore}%</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `http://localhost:2000/api/certificates/pdf/${certificate.certificateId}`,
+                            "_blank",
+                          )
+                        }
                         className="text-blue-600 hover:text-blue-800"
                       >
-                        {user.profile.website}
-                      </a>
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          const link = document.createElement("a")
+                          link.href = `http://localhost:2000/api/certificates/download/${certificate.certificateId}`
+                          link.download = `${certificate.certificateNumber}.pdf`
+                          link.click()
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <Download className="h-4 w-4" />
+                      </button>
                     </div>
-                  )}
-                  <div>
-                    <span className="font-medium text-gray-700">Role: </span>
-                    <span className="text-gray-600 capitalize">{user?.role}</span>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Email: </span>
-                    <span className="text-gray-600">{user?.email}</span>
-                  </div>
-                </div>
+                ))}
               </div>
             )}
-
-            {/* Recent Activity */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div className="text-sm">
-                    <p className="text-gray-900">Completed "React Hooks"</p>
-                    <p className="text-gray-500">2 hours ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="text-sm">
-                    <p className="text-gray-900">Started "Advanced JavaScript"</p>
-                    <p className="text-gray-500">1 day ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <div className="text-sm">
-                    <p className="text-gray-900">Earned certificate</p>
-                    <p className="text-gray-500">3 days ago</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Certificates */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Certificates</h3>
-                <Link to="/certificates" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                  View All →
-                </Link>
-              </div>
-
-              {certificates.length === 0 ? (
-                <div className="text-center py-4">
-                  <Award className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-                  <p className="text-gray-600 text-sm">No certificates earned yet</p>
-                  <p className="text-gray-500 text-xs">Complete courses to earn certificates</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {certificates.slice(0, 2).map((certificate) => (
-                    <div key={certificate._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{certificate.courseName}</p>
-                        <p className="text-xs text-gray-600">
-                          Earned on {new Date(certificate.issueDate).toLocaleDateString()}
-                        </p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                            {certificate.grade}
-                          </span>
-                          {certificate.finalScore && (
-                            <span className="text-xs text-gray-600">{certificate.finalScore}%</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() =>
-                            window.open(
-                              `http://localhost:2000/api/certificates/pdf/${certificate.certificateId}`,
-                              "_blank",
-                            )
-                          }
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            // Download logic here
-                            const link = document.createElement("a")
-                            link.href = `http://localhost:2000/api/certificates/download/${certificate.certificateId}`
-                            link.download = `${certificate.certificateNumber}.pdf`
-                            link.click()
-                          }}
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          <Download className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Learning Goals */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">This Week's Goals</h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <input type="checkbox" className="rounded text-blue-600" defaultChecked />
-                  <span className="text-sm text-gray-700 line-through">Complete 2 lessons</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <input type="checkbox" className="rounded text-blue-600" />
-                  <span className="text-sm text-gray-700">Take 1 assessment</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <input type="checkbox" className="rounded text-blue-600" />
-                  <span className="text-sm text-gray-700">Study for 5 hours</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

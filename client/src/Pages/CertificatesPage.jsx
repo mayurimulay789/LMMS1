@@ -3,7 +3,16 @@
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
-import { Award, Download, Search, Filter, Calendar, BookOpen, Trophy, X } from "lucide-react"
+import {
+  Award,
+  Download,
+  Search,
+  Filter,
+  Calendar,
+  BookOpen,
+  Trophy,
+  X
+} from "lucide-react"
 import toast from "react-hot-toast"
 import CertificateCard from "../Components/CertificateCard"
 
@@ -35,11 +44,7 @@ const CertificatesPage = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch certificates")
-      }
-
+      if (!response.ok) throw new Error("Failed to fetch certificates")
       const data = await response.json()
       setCertificates(data)
     } catch (error) {
@@ -53,11 +58,10 @@ const CertificatesPage = () => {
   const filterAndSortCertificates = () => {
     const filtered = certificates.filter(
       (cert) =>
-        cert.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cert.instructor.toLowerCase().includes(searchTerm.toLowerCase()),
+        cert.courseName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cert.instructor?.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
-    // Sort certificates
     switch (sortBy) {
       case "newest":
         filtered.sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate))
@@ -72,15 +76,12 @@ const CertificatesPage = () => {
         filtered.sort((a, b) => a.instructor.localeCompare(b.instructor))
         break
       case "grade":
-        filtered.sort((a, b) => {
-          const gradeOrder = { "A+": 10, A: 9, "A-": 8, "B+": 7, B: 6, "B-": 5, "C+": 4, C: 3, "C-": 2, D: 1, F: 0 }
-          return (gradeOrder[b.grade] || 0) - (gradeOrder[a.grade] || 0)
-        })
+        const gradeOrder = { "A+": 10, A: 9, "A-": 8, "B+": 7, B: 6, "B-": 5, "C+": 4, C: 3, "C-": 2, D: 1, F: 0 }
+        filtered.sort((a, b) => (gradeOrder[b.grade] || 0) - (gradeOrder[a.grade] || 0))
         break
       default:
         break
     }
-
     setFilteredCertificates(filtered)
   }
 
@@ -91,10 +92,7 @@ const CertificatesPage = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
-
-      if (!response.ok) {
-        throw new Error("Failed to download certificate")
-      }
+      if (!response.ok) throw new Error("Failed to download certificate")
 
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
@@ -105,7 +103,6 @@ const CertificatesPage = () => {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-
       toast.success("Certificate downloaded successfully!")
     } catch (error) {
       console.error("Download error:", error)
@@ -116,7 +113,8 @@ const CertificatesPage = () => {
   const handleShare = (certificate) => {
     setSelectedCertificate(certificate)
     setShareUrl(
-      certificate.verificationUrl || `${window.location.origin}/verify-certificate/${certificate.certificateId}`,
+      certificate.verificationUrl ||
+        `${window.location.origin}/verify-certificate/${certificate.certificateId}`
     )
     setShowShareModal(true)
   }
@@ -138,7 +136,6 @@ const CertificatesPage = () => {
   const shareToSocial = (platform, certificate) => {
     const text = `I just earned a certificate in ${certificate.courseName}! 🎓`
     const url = shareUrl
-
     let shareLink = ""
     switch (platform) {
       case "linkedin":
@@ -156,20 +153,16 @@ const CertificatesPage = () => {
       default:
         return
     }
-
     window.open(shareLink, "_blank", "width=600,height=400")
   }
 
   const downloadAllCertificates = async () => {
     try {
       toast.loading("Preparing download...")
-
       for (const certificate of certificates) {
         await handleDownload(certificate.certificateId)
-        // Add small delay between downloads
         await new Promise((resolve) => setTimeout(resolve, 500))
       }
-
       toast.dismiss()
       toast.success("All certificates downloaded!")
     } catch (error) {
@@ -185,7 +178,6 @@ const CertificatesPage = () => {
     ).length
     const averageScore = certificates.reduce((sum, cert) => sum + (cert.finalScore || 0), 0) / totalCertificates || 0
     const topGrades = certificates.filter((cert) => ["A+", "A", "A-"].includes(cert.grade)).length
-
     return { totalCertificates, thisYear, averageScore: Math.round(averageScore), topGrades }
   }
 
