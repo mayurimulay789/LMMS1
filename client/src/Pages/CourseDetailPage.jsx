@@ -214,6 +214,7 @@ const handleSubmit = async (e) => {
     { id: "curriculum", label: "Curriculum" },
     { id: "instructor", label: "Instructor" },
     { id: "reviews", label: "Reviews" },
+    { id: "certificate", label: "Certificate", locked: isEnrolled && userProgress?.completionPercentage < 100 },
   ]
 // import { useState } from "react"
 
@@ -386,7 +387,8 @@ const handleSubmit = async (e) => {
                         <Play className="h-5 w-5" />
                         <span>Continue Learning</span>
                       </button>
-                      {userProgress && (
+                      {/* Removed progress bar as per user request */}
+                      {/* {userProgress && (
                         <div className="text-center">
                           <p className="text-sm text-gray-600 mb-2">Progress: {userProgress.completionPercentage}%</p>
                           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -396,7 +398,7 @@ const handleSubmit = async (e) => {
                             ></div>
                           </div>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   ) : (
                     <button

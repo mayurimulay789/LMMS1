@@ -220,10 +220,20 @@ router.post("/progress", auth, async (req, res) => {
 });
 
 // ✅ GET /api/enrollments/progress/:courseId - Get progress of specific course
+const mongoose = require("mongoose")
+
 router.get("/progress/:courseId", auth, async (req, res) => {
   try {
     const { courseId } = req.params;
     const userId = req.user.id;
+
+    // Removed non-error log to reduce noise
+    // console.log(`Fetching progress for user: ${userId}, course: ${courseId}`);
+
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      console.warn(`Invalid course ID received: ${courseId}`);
+      return res.status(400).json({ message: "Invalid course ID" });
+    }
 
     const enrollment = await Enrollment.findOne({
       user: userId,
@@ -302,6 +312,19 @@ router.get("/progress/:courseId", auth, async (req, res) => {
           lastAccessedAt: new Date(),
         };
       }
+      await enrollment.save();
+    }
+
+    // Fix progress inconsistency: if certificate is issued but progress < 100%, set to 100%
+    if (enrollment.certificate.issued && enrollment.progress.completionPercentage < 100) {
+      const course = await Course.findById(courseId);
+      enrollment.progress.completedLessons = course.lessons.map(lesson => ({
+        lessonId: lesson._id.toString(),
+        completedAt: enrollment.certificate.issuedAt || new Date(),
+      }));
+      enrollment.progress.totalLessons = course.lessons.length;
+      enrollment.progress.completionPercentage = 100;
+      enrollment.status = "completed";
       await enrollment.save();
     }
 

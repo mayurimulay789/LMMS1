@@ -26,10 +26,10 @@ export const fetchUserEnrollments = createAsyncThunk(
 
 export const fetchUserProgress = createAsyncThunk(
   "enrollment/fetchUserProgress",
-  async (userId, { getState, rejectWithValue }) => {
+  async (courseId, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch(`http://localhost:2000/api/progress/user/${userId}`, {
+      const response = await fetch(`http://localhost:2000/api/enrollments/progress/${courseId}`, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
@@ -41,7 +41,7 @@ export const fetchUserProgress = createAsyncThunk(
       }
 
       const data = await response.json()
-      return data
+      return { courseId, progress: data.progress }
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -130,7 +130,8 @@ const enrollmentSlice = createSlice({
       })
       // Fetch Progress
       .addCase(fetchUserProgress.fulfilled, (state, action) => {
-        state.progress = action.payload
+        const { courseId, progress } = action.payload
+        state.progress[courseId] = progress
       })
       // Fetch Certificates
       .addCase(fetchUserCertificates.fulfilled, (state, action) => {

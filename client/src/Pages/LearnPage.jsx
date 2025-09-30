@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { Play, Clock, CheckCircle, ArrowLeft, Lock } from "lucide-react"
+import { Play, Clock, CheckCircle, ArrowLeft, Lock, Award } from "lucide-react"
 import { motion } from "framer-motion"
 
 const LearnPage = () => {
@@ -337,16 +337,31 @@ const LearnPage = () => {
             <p className="text-sm text-gray-600">Continue your learning journey</p>
           </div>
           {progress && (
-            <div className="text-right">
-              <div className="text-sm text-gray-600 mb-1">
-                Progress: {progress.completionPercentage}%
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <div className="text-sm text-gray-600 mb-1">
+                  Progress: {progress.completionPercentage}%
+                </div>
+                <div className="w-24 bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${progress.completionPercentage}%` }}
+                  ></div>
+                </div>
               </div>
-              <div className="w-24 bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${progress.completionPercentage}%` }}
-                ></div>
-              </div>
+              <button
+                onClick={() => progress.completionPercentage === 100 && navigate(`/certificates`)}
+                disabled={progress.completionPercentage < 100}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  progress.completionPercentage === 100
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                <Award className="h-4 w-4" />
+                <span>Certificate</span>
+                {progress.completionPercentage < 100 && <Lock className="h-4 w-4" />}
+              </button>
             </div>
           )}
         </div>

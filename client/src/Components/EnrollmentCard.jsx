@@ -4,7 +4,8 @@ import { Link } from "react-router-dom"
 import { Star, Users, Clock, Play, BookOpen } from "lucide-react"
 import { motion } from "framer-motion"
 
-const CourseCard = ({ course, index = 0 }) => {
+const EnrollmentCard = ({ enrollment, progress, index = 0 }) => {
+  const course = enrollment.course
   const {
     _id,
     title,
@@ -20,6 +21,9 @@ const CourseCard = ({ course, index = 0 }) => {
     reviewCount = 0,
     level = "Beginner",
   } = course
+
+  const progressPercentage = progress?.completionPercentage || 0
+  const nextLesson = progress?.nextLesson || "Introduction"
 
   const formatPrice = (price) => {
     return price === 0 ? "Free" : `₹${price}`
@@ -51,18 +55,18 @@ const CourseCard = ({ course, index = 0 }) => {
               controls={false}
               preload="metadata"
               onError={(e) => {
-                console.log('CourseCard video load error:', e)
-                console.log('CourseCard video src:', thumbnail)
+                console.log('EnrollmentCard video load error:', e)
+                console.log('EnrollmentCard video src:', thumbnail)
                 e.target.style.display = 'none'
-                const fallback = e.target.parentElement.querySelector('.coursecard-video-fallback') || document.createElement('div')
-                fallback.className = 'coursecard-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
+                const fallback = e.target.parentElement.querySelector('.enrollmentcard-video-fallback') || document.createElement('div')
+                fallback.className = 'enrollmentcard-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
                 fallback.textContent = 'VIDEO'
-                if (!e.target.parentElement.querySelector('.coursecard-video-fallback')) {
+                if (!e.target.parentElement.querySelector('.enrollmentcard-video-fallback')) {
                   e.target.parentElement.appendChild(fallback)
                 }
               }}
               onLoadedData={(e) => {
-                const fallback = e.target.parentElement.querySelector('.coursecard-video-fallback')
+                const fallback = e.target.parentElement.querySelector('.enrollmentcard-video-fallback')
                 if (fallback) fallback.remove()
               }}
             />
@@ -72,18 +76,18 @@ const CourseCard = ({ course, index = 0 }) => {
               alt={title}
               className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
               onError={(e) => {
-                console.log('CourseCard image load error:', e)
-                console.log('CourseCard image src:', thumbnail)
+                console.log('EnrollmentCard image load error:', e)
+                console.log('EnrollmentCard image src:', thumbnail)
                 e.target.style.display = 'none'
-                const fallback = e.target.parentElement.querySelector('.coursecard-image-fallback') || document.createElement('div')
-                fallback.className = 'coursecard-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
+                const fallback = e.target.parentElement.querySelector('.enrollmentcard-image-fallback') || document.createElement('div')
+                fallback.className = 'enrollmentcard-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
                 fallback.textContent = 'IMG'
-                if (!e.target.parentElement.querySelector('.coursecard-image-fallback')) {
+                if (!e.target.parentElement.querySelector('.enrollmentcard-image-fallback')) {
                   e.target.parentElement.appendChild(fallback)
                 }
               }}
               onLoad={(e) => {
-                const fallback = e.target.parentElement.querySelector('.coursecard-image-fallback')
+                const fallback = e.target.parentElement.querySelector('.enrollmentcard-image-fallback')
                 if (fallback) fallback.remove()
               }}
             />
@@ -105,9 +109,9 @@ const CourseCard = ({ course, index = 0 }) => {
         <div className="p-6">
           {/* Title and Description */}
           <div className="mb-4">
-          <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-primary-600 transition-colors">
-            {title}
-          </h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-primary-600 transition-colors">
+              {title}
+            </h3>
             <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">{description}</p>
           </div>
 
@@ -122,6 +126,29 @@ const CourseCard = ({ course, index = 0 }) => {
             )}
             <p className="text-sm text-gray-700">
               By <span className="font-medium text-primary-600">{course.createdBy?.name || instructor}</span>
+            </p>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-600">Progress</span>
+              <span className="text-sm font-medium text-gray-900">
+                {progressPercentage}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div
+                className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${progressPercentage}%` }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Next Lesson */}
+          <div className="mb-4">
+            <p className="text-sm text-gray-600">
+              Next: <span className="font-medium text-gray-900">{nextLesson}</span>
             </p>
           </div>
 
@@ -157,15 +184,19 @@ const CourseCard = ({ course, index = 0 }) => {
             <span>{lessons?.length || 0} lessons</span>
           </div>
 
-          {/* Price and CTA */}
+          {/* CTA */}
           <div className="flex items-center justify-between">
             <div className="text-2xl font-bold text-gray-900">
               {formatPrice(price)}
               {price > 0 && <span className="text-sm font-normal text-gray-500 ml-1">₹</span>}
             </div>
-            <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">
-              View Course
-            </button>
+            <Link
+              to={`/courses/${_id}/learn`}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center space-x-2"
+            >
+              <Play className="h-4 w-4" />
+              <span>Continue</span>
+            </Link>
           </div>
         </div>
       </Link>
@@ -173,4 +204,4 @@ const CourseCard = ({ course, index = 0 }) => {
   )
 }
 
-export default CourseCard
+export default EnrollmentCard

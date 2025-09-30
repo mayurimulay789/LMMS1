@@ -58,3 +58,74 @@
 .animate-scroll {
   animation: scroll 20s linear infinite;
 }
+
+/* Custom styles for select dropdown options to match primary theme */
+select, select option {
+  background-color: white;
+  color: #000000;
+}
+
+select option:checked,
+select option:focus,
+select option:hover,
+select option[selected] {
+  background-color: #f43f5e !important; /* primary-500 */
+  color: white !important;
+}
+
+select:hover {
+  border-color: #f43f5e; /* primary-500 on hover */
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1); /* subtle primary glow */
+  transition: all 0.2s ease;
+}
+
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #f43f5e; /* primary-500 ring */
+  border-color: #f43f5e;
+}
+
+select option {
+  padding: 8px 12px; /* improve option spacing if supported */
+}
+
+/* Webkit-specific for Chrome/Safari dropdown styling */
+select::-webkit-scrollbar {
+  width: 6px;
+}
+
+select::-webkit-scrollbar-track {
+  background: #f3f4f6; /* gray-100 */
+}
+
+select::-webkit-scrollbar-thumb {
+  background: #f43f5e; /* primary-500 */
+  border-radius: 3px;
+}
+
+select::-webkit-scrollbar-thumb:hover {
+  background: #ef4444; /* primary-600 */
+}
+
+/* Custom arrow for select (replaces native) */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem; /* space for arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Attempt to override option hover in webkit (limited support, but try) */
+select optgroup,
+select option {
+  background: white !important;
+}
+
+select option:hover {
+  background: #f43f5e !important;
+  color: white !important;
+}

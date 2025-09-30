@@ -1,18 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { Eye, EyeOff, Mail, Lock, User, BookOpen } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, BookOpen, UserCheck } from "lucide-react"
 import { registerUser, clearError } from "../store/slices/authSlice"
 
-const RegisterPage = () => {
+const InstructorRegisterPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: "student",
+    role: "instructor", // Always instructor
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -25,9 +25,7 @@ const RegisterPage = () => {
   useEffect(() => {
     if (isAuthenticated) {
       const user = JSON.parse(localStorage.getItem("user"))
-      if (user?.role === "admin") {
-        navigate("/admin")
-      } else if (user?.role === "instructor") {
+      if (user?.role === "instructor") {
         navigate("/instructor")
       } else {
         navigate("/dashboard")
@@ -40,6 +38,18 @@ const RegisterPage = () => {
       dispatch(clearError())
     }
   }, [dispatch])
+
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    const urlEmail = searchParams.get('email')
+    if (urlEmail) {
+      setFormData(prev => ({
+        ...prev,
+        email: urlEmail
+      }))
+    }
+  }, [searchParams])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -99,16 +109,16 @@ const RegisterPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-6">
-            <BookOpen className="h-10 w-10 text-blue-600" />
+            <BookOpen className="h-10 w-10 text-green-600" />
             <span className="text-2xl font-bold text-gray-900">LearnHub</span>
           </Link>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
-          <p className="text-gray-600">Join thousands of learners and start your journey today</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Complete Your Instructor Setup</h2>
+          <p className="text-gray-600">Welcome! Your instructor application has been approved. Please set up your account.</p>
         </div>
 
         {/* Form */}
@@ -133,7 +143,7 @@ const RegisterPage = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
                     errors.name ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter your full name"
@@ -155,16 +165,24 @@ const RegisterPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                    errors.email ? "border-red-500" : "border-gray-300"
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.email ? "border-red-500" : "border-gray-200 bg-gray-50"
                   }`}
-                  placeholder="Enter your email"
+                  placeholder="Enter your email address"
+                  disabled={!!searchParams.get('email')}
                 />
               </div>
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
-            {/* No role selection - defaults to student */}
+            {/* Instructor Badge */}
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <UserCheck className="h-5 w-5 mr-2 text-green-600" />
+                <span className="text-sm text-gray-900 font-medium">Instructor Account</span>
+              </div>
+              <p className="text-sm text-green-600 mt-1">Your instructor application has been approved!</p>
+            </div>
 
             {/* Password */}
             <div>
@@ -179,7 +197,7 @@ const RegisterPage = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
                     errors.password ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Create a password"
@@ -208,7 +226,7 @@ const RegisterPage = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
                     errors.confirmPassword ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Confirm your password"
@@ -231,15 +249,15 @@ const RegisterPage = () => {
                 name="terms"
                 type="checkbox"
                 required
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                 I agree to the{" "}
-                <Link to="/terms" className="text-blue-600 hover:text-blue-800">
+                <Link to="/terms" className="text-green-600 hover:text-green-800">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link to="/privacy" className="text-blue-600 hover:text-blue-800">
+                <Link to="/privacy" className="text-green-600 hover:text-green-800">
                   Privacy Policy
                 </Link>
               </label>
@@ -249,7 +267,7 @@ const RegisterPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+              className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
             >
               {isLoading ? (
                 <>
@@ -257,7 +275,7 @@ const RegisterPage = () => {
                   Creating account...
                 </>
               ) : (
-                "Create Account"
+                "Complete Setup"
               )}
             </button>
           </form>
@@ -266,7 +284,7 @@ const RegisterPage = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{" "}
-              <Link to="/login" className="text-blue-600 hover:text-blue-800 font-medium">
+              <Link to="/login" className="text-green-600 hover:text-green-800 font-medium">
                 Sign in here
               </Link>
             </p>
@@ -277,4 +295,4 @@ const RegisterPage = () => {
   )
 }
 
-export default RegisterPage
+export default InstructorRegisterPage

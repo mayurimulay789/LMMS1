@@ -9,11 +9,15 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
     phone: '',
     experience: '',
     qualifications: '',
-    motivation: ''
+    motivation: '',
+    password: '',
+    confirmPassword: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validateField = (name, value) => {
     let error = '';
@@ -66,6 +70,22 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
           error = 'Motivation statement is required';
         } else if (value.trim().length < 20) {
           error = 'Please provide at least 20 characters explaining your motivation';
+        }
+        break;
+
+      case 'password':
+        if (!value) {
+          error = 'Password is required';
+        } else if (value.length < 6) {
+          error = 'Password must be at least 6 characters';
+        }
+        break;
+
+      case 'confirmPassword':
+        if (!value) {
+          error = 'Please confirm your password';
+        } else if (value !== formData.password) {
+          error = 'Passwords do not match';
         }
         break;
 
@@ -132,7 +152,9 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
         phone: '',
         experience: '',
         qualifications: '',
-        motivation: ''
+        motivation: '',
+        password: '',
+        confirmPassword: ''
       });
       setMessage('Application submitted successfully!');
       if (onSubmitSuccess) onSubmitSuccess();
@@ -254,6 +276,58 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
         />
         {errors.motivation && (
           <p className="text-red-500 text-sm mt-1">{errors.motivation}</p>
+        )}
+      </div>
+
+      <div>
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Create a Password"
+            required
+            className={`w-full border rounded p-2 pr-10 focus:outline-none focus:ring-2 ${
+              errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
+            }`}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? '🙈' : '👁️'}
+          </button>
+        </div>
+        {errors.password && (
+          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+        )}
+      </div>
+
+      <div>
+        <div className="relative">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirm Password"
+            required
+            className={`w-full border rounded p-2 pr-10 focus:outline-none focus:ring-2 ${
+              errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
+            }`}
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            {showConfirmPassword ? '🙈' : '👁️'}
+          </button>
+        </div>
+        {errors.confirmPassword && (
+          <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
         )}
       </div>
 

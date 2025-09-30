@@ -4,9 +4,11 @@ const User = require("../models/User")
 const Course = require("../models/Course")
 const Payment = require("../models/Payment")
 const Enrollment = require("../models/Enrollment")
+const InstructorApplication = require("../models/InstructorApplication")
 const auth = require("../middleware/auth")
 const adminMiddleware = require("../middleware/AdminMiddleware")
 const mongoose = require("mongoose");
+const { sendInstructorApprovalEmail, sendInstructorRejectionEmail } = require("../services/emailService")
 
 // Apply auth and admin middleware to all routes
 router.use(auth)
@@ -539,6 +541,100 @@ router.get("/reports/:type", async (req, res) => {
   } catch (error) {
     console.error("Error fetching report data:", error)
     res.status(500).json({ message: "Failed to fetch report data" })
+  }
+})
+
+// Get all instructor applications
+router.get("/instructor-applications", async (req, res) => {
+  try {
+    const applications = await InstructorApplication.find().sort({ createdAt: -1 })
+    res.json(applications)
+  } catch (error) {
+    console.error("Error fetching instructor applications:", error)
+    res.status(500).json({ message: "Failed to fetch applications" })
+  }
+})
+
+// Approve instructor application
+router.post("/instructor-applications/:applicationId/approve", async (req, res) => {
+  try {
+    const application = await InstructorApplication.findById(req.params.applicationId)
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" })
+    }
+
+    // Create or update user account
+    let user = await User.findOne({ email: application.email });
+    if (user) {
+      // Update existing user
+      user.role = 'instructor';
+      user.password = application.password; // Update password to the one from application
+      user.isEmailVerified = true;
+      await user.save();
+    } else {
+      // Create new user
+      user = new User({
+        name: application.applicantName,
+        email: application.email,
+        password: application.password,
+        role: 'instructor',
+        isEmailVerified: true,
+      });
+      await user.save();
+    }
+
+    // Delete the application
+    await InstructorApplication.findByIdAndDelete(req.params.applicationId)
+
+    // Send approval email
+    try {
+      await sendInstructorApprovalEmail({
+        applicantName: application.applicantName,
+        email: application.email,
+        loginLink: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`,
+      })
+      console.log('Approval email sent to:', application.email)
+    } catch (emailError) {
+      console.error('Approval email failed:', emailError)
+      // Don't fail the approval if email fails
+    }
+
+    res.json({ message: "Application approved successfully" })
+  } catch (error) {
+    console.error("Error approving application:", error)
+    res.status(500).json({ message: "Failed to approve application" })
+  }
+})
+
+// Reject instructor application
+router.post("/instructor-applications/:applicationId/reject", async (req, res) => {
+  try {
+    const application = await InstructorApplication.findById(req.params.applicationId)
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" })
+    }
+
+    // Send rejection email
+    try {
+      await sendInstructorRejectionEmail({
+        applicantName: application.applicantName,
+        email: application.email,
+      })
+      console.log('Rejection email sent to:', application.email)
+    } catch (emailError) {
+      console.error('Rejection email failed:', emailError)
+      // Don't fail the rejection if email fails
+    }
+
+    // Delete the application
+    await InstructorApplication.findByIdAndDelete(req.params.applicationId)
+
+    res.json({ message: "Application rejected successfully" })
+  } catch (error) {
+    console.error("Error rejecting application:", error)
+    res.status(500).json({ message: "Failed to reject application" })
   }
 })
 
