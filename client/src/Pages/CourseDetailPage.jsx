@@ -3,11 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, Share2, Heart } from "lucide-react"
-import { motion } from "framer-motion"
-import ReviewForm from "../Components/ReviewForm"
-
-
+import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, Share2, Heart, X, Send } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 const CourseDetailPage = () => {
   const { id } = useParams()
@@ -23,72 +20,37 @@ const CourseDetailPage = () => {
   const [relatedCourses, setRelatedCourses] = useState([])
   const [relatedCoursesLoading, setRelatedCoursesLoading] = useState(false)
   const [reviews, setReviews] = useState([])
-  const [comment, setComment] = useState("");
-const [rating, setRating] = useState(0);
-const [loading, setLoading] = useState(false);
-const [successMessage, setSuccessMessage] = useState("");
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (rating === 0 || !comment.trim()) {
-    return alert("Please provide rating and comment");
-}
-
-
-  if (!course?._id) {
-    return alert("Course details not loaded yet.");
-  }
-
-  const token = localStorage.getItem("token");
-  if (!token) {
-    alert("Please login again.");
-    navigate("/login");
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    console.log("Submitting review:", { rating, comment });
-
-    await fetch(`http://localhost:2000/api/courseReviews/${courseId}/reviews`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify({ rating: 5, comment: "Great course!" }),
-})
-
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to submit review");
-    }
-
-    // Reset form
-    setRating(1);
-    setComment("");
-    alert("Your review has been submitted successfully!");
-    //setSuccessMessage("Your review has been submitted successfully!");
-    setReviews((prev) => [data, ...prev]);
-    // Refresh course details to show new review
-  
-  } catch (err) {
-    console.error("Review submission error:", err);
-    alert(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  const [comment, setComment] = useState("")
+  const [rating, setRating] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [completedVideos, setCompletedVideos] = useState(new Set())
+  const [showReviewPrompt, setShowReviewPrompt] = useState(false)
 
   const videoRef = useRef(null)
+  
   useEffect(() => {
     fetchCourseDetails()
+    fetchReviews()
+    // Load completed videos from localStorage
+    const savedCompletedVideos = localStorage.getItem(`completedVideos_${id}`)
+    if (savedCompletedVideos) {
+      setCompletedVideos(new Set(JSON.parse(savedCompletedVideos)))
+    }
   }, [id])
+
+  // Check if user has completed enough videos to show review prompt
+  useEffect(() => {
+    if (course?.lessons && completedVideos.size > 0) {
+      const completionPercentage = (completedVideos.size / course.lessons.length) * 100
+      // Show review prompt after completing at least 25% of the course
+      if (completionPercentage >= 25 && !localStorage.getItem(`reviewPromptShown_${id}`)) {
+        setShowReviewPrompt(true)
+        localStorage.setItem(`reviewPromptShown_${id}`, 'true')
+      }
+    }
+  }, [completedVideos, course, id])
 
   const fetchCourseDetails = async () => {
     try {
@@ -107,23 +69,175 @@ const handleSubmit = async (e) => {
 
       if (response.ok) {
         const data = await response.json()
-  console.log("Fetched course:", data);
-  setCourse(data);
+        console.log("Fetched course:", data)
         setCourse(data)
         setIsEnrolled(data.isEnrolled)
         setUserProgress(data.userProgress)
-        setReviews(data.reviews || [])
-        // Fetch related courses
         if (data.category) {
           fetchRelatedCourses(data.category)
         }
       }
     } catch (error) {
       console.error("Error fetching course details:", error)
-      // Set error state instead of using mock data
       setCourse(null)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchReviews = async () => {
+    try {
+      // Remove token requirement to fetch reviews - make it public
+      const headers = {
+        "Content-Type": "application/json",
+      }
+
+      const response = await fetch(`http://localhost:2000/api/courseReviews/${id}/reviews`, {
+        headers,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log("Fetched reviews:", data)
+        
+        let reviewsData = []
+        if (Array.isArray(data)) {
+          reviewsData = data
+        } else if (data.reviews && Array.isArray(data.reviews)) {
+          reviewsData = data.reviews
+        } else if (data.data && Array.isArray(data.data)) {
+          reviewsData = data.data
+        }
+        
+        setReviews(reviewsData)
+      } else {
+        console.error("Failed to fetch reviews")
+        setReviews([])
+      }
+    } catch (error) {
+      console.error("Error fetching reviews:", error)
+      setReviews([])
+    }
+  }
+
+  const markVideoAsCompleted = (videoId) => {
+    const newCompletedVideos = new Set(completedVideos)
+    newCompletedVideos.add(videoId)
+    setCompletedVideos(newCompletedVideos)
+    localStorage.setItem(`completedVideos_${id}`, JSON.stringify([...newCompletedVideos]))
+    
+    // Show review modal after completing a video
+    if (!localStorage.getItem(`reviewSubmitted_${id}`)) {
+      setTimeout(() => {
+        setShowReviewModal(true)
+      }, 2000)
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    if (rating === 0 || !comment.trim()) {
+      return alert("Please provide rating and comment")
+    }
+
+    if (!course?._id) {
+      return alert("Course details not loaded yet.")
+    }
+
+    const token = localStorage.getItem("token")
+    if (!token) {
+      alert("Please login to submit a review.")
+      navigate("/login")
+      return
+    }
+
+    try {
+      setLoading(true)
+
+      console.log("Submitting review:", { rating, comment })
+
+      const response = await fetch(`http://localhost:2000/api/courseReviews/${id}/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rating, comment }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to submit review")
+      }
+
+      // Reset form
+      setRating(0)
+      setComment("")
+      setShowReviewModal(false)
+      localStorage.setItem(`reviewSubmitted_${id}`, 'true')
+      alert("Your review has been submitted successfully!")
+      
+      // Refresh reviews after submission
+      fetchReviews()
+
+    } catch (err) {
+      console.error("Review submission error:", err)
+      alert(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getUserInfoFromReview = (review) => {
+    console.log("Review data:", review)
+    
+    if (review.user && review.user.name) {
+      return {
+        name: review.user.name,
+        avatar: review.user.avatar || review.user.profilePicture || "/placeholder.svg"
+      }
+    }
+    
+    if (review.userId && review.userId.name) {
+      return {
+        name: review.userId.name,
+        avatar: review.userId.avatar || review.userId.profilePicture || "/placeholder.svg"
+      }
+    }
+    
+    if (review.createdBy && review.createdBy.name) {
+      return {
+        name: review.createdBy.name,
+        avatar: review.createdBy.avatar || review.createdBy.profilePicture || "/placeholder.svg"
+      }
+    }
+    
+    if (review.author && review.author.name) {
+      return {
+        name: review.author.name,
+        avatar: review.author.avatar || review.author.profilePicture || "/placeholder.svg"
+      }
+    }
+    
+    if (review.userName) {
+      return {
+        name: review.userName,
+        avatar: review.userAvatar || "/placeholder.svg"
+      }
+    }
+    
+    if (review.name) {
+      return {
+        name: review.name,
+        avatar: review.avatar || "/placeholder.svg"
+      }
+    }
+    
+    return {
+      name: "Anonymous",
+      avatar: "/placeholder.svg"
     }
   }
 
@@ -134,10 +248,8 @@ const handleSubmit = async (e) => {
     }
 
     if (course.price === 0) {
-      // Free course - direct enrollment
       enrollInCourse()
     } else {
-      // Paid course - redirect to checkout
       navigate(`/checkout/${course._id}`)
     }
   }
@@ -153,7 +265,6 @@ const handleSubmit = async (e) => {
       if (res.ok) {
         const data = await res.json()
         alert("Enrolled successfully!")
-        // Refresh course data to update isEnrolled
         fetchCourseDetails()
       } else {
         const err = await res.json()
@@ -181,7 +292,6 @@ const handleSubmit = async (e) => {
       setShowVideoControls(true)
       videoRef.current.play().catch((error) => {
         console.error('Error playing video:', error)
-        // Fallback: try to show controls if play fails
         videoRef.current.controls = true
       })
     }
@@ -193,7 +303,6 @@ const handleSubmit = async (e) => {
       const response = await fetch(`http://localhost:2000/api/courses?category=${category}&limit=4`)
       if (response.ok) {
         const data = await response.json()
-        // Filter out the current course
         const filteredCourses = data.courses.filter(course => course._id !== id)
         setRelatedCourses(filteredCourses)
       }
@@ -210,12 +319,133 @@ const handleSubmit = async (e) => {
     { id: "instructor", label: "Instructor" },
     { id: "reviews", label: "Reviews" },
   ]
-// import { useState } from "react"
 
+  // Review Modal Component
+  const ReviewModal = () => (
+    <AnimatePresence>
+      {showReviewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white relative">
+              <button
+                onClick={() => setShowReviewModal(false)}
+                className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Star className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">How was your learning experience?</h3>
+                <p className="text-blue-100">Share your thoughts with other students</p>
+              </div>
+            </div>
 
+            {/* Review Form */}
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Star Rating */}
+                <div className="text-center">
+                  <div className="flex justify-center space-x-1 mb-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setRating(star)}
+                        className="text-3xl transition-transform hover:scale-110 focus:scale-110"
+                      >
+                        {star <= rating ? (
+                          <Star className="h-8 w-8 text-yellow-400 fill-current" />
+                        ) : (
+                          <Star className="h-8 w-8 text-gray-300 hover:text-yellow-400" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {rating === 0 ? "Tap to rate" : `You rated ${rating} star${rating > 1 ? 's' : ''}`}
+                  </p>
+                </div>
 
+                {/* Comment */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Your Review
+                  </label>
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="What did you like about this course? What could be improved?"
+                    className="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    rows={4}
+                  />
+                </div>
 
-  
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={loading || rating === 0 || !comment.trim()}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-700 hover:to-purple-700 transition-all flex items-center justify-center space-x-2"
+                >
+                  {loading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" />
+                      <span>Submit Review</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Skip Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowReviewModal(false)}
+                  className="w-full text-gray-600 py-2 rounded-lg font-medium hover:text-gray-800 transition-colors"
+                >
+                  Maybe later
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  )
+
+  // Review Prompt Component (floating button)
+  const ReviewPrompt = () => (
+    <AnimatePresence>
+      {showReviewPrompt && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0, x: 100 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          exit={{ opacity: 0, scale: 0, x: 100 }}
+          onClick={() => setShowReviewModal(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-2xl z-40 hover:shadow-3xl transition-all hover:scale-110 group"
+        >
+          <div className="flex items-center space-x-2">
+            <Star className="h-5 w-5" />
+            <span className="font-semibold text-sm">Review Course</span>
+          </div>
+          <div className="absolute -top-2 -right-2">
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="w-3 h-3 bg-green-400 rounded-full"
+            />
+          </div>
+        </motion.button>
+      )}
+    </AnimatePresence>
+  )
 
   if (isLoading) {
     return (
@@ -256,6 +486,12 @@ const handleSubmit = async (e) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Review Modal */}
+      <ReviewModal />
+      
+      {/* Floating Review Prompt */}
+      <ReviewPrompt />
+
       {/* Hero Section */}
       <div className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -319,6 +555,7 @@ const handleSubmit = async (e) => {
                       muted
                       controls={false}
                       preload="metadata"
+                      onEnded={() => markVideoAsCompleted('preview')}
                       onError={(e) => {
                         console.log('CourseDetail video load error:', e)
                         console.log('CourseDetail video src:', course.thumbnail)
@@ -559,7 +796,6 @@ const handleSubmit = async (e) => {
                               className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                // Handle preview - could navigate to learn page with preview mode
                                 navigate(`/courses/${course._id}/learn?lesson=${lesson._id}`)
                               }}
                             >
@@ -618,133 +854,161 @@ const handleSubmit = async (e) => {
               )}
 
               {activeTab === "reviews" && (
-  <div>
-  <h3 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h3>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h3>
 
-  {!isAuthenticated ? (
-    <p className="text-gray-600">Please log in to submit a review.</p>
-  ) : (
-    <form onSubmit={handleSubmit} className="space-y-3 mb-6">
-      <div>
-        <label className="block mb-1 font-medium">Rating</label>
-        <fieldset className="starability-slot">
-          <input
-            type="radio"
-            id="no-rate"
-            className="input-no-rate"
-            name="review[rating]"
-            value="0"
-            defaultChecked
-            aria-label="No rating."
-          />
-         <input
-  type="radio"
-  id="first-rate1"
-  name="review[rating]"
-  value="1"
-  checked={rating === 1}
-  onChange={(e) => setRating(Number(e.target.value))}
-/>
-<label htmlFor="first-rate1" title="Terrible">1 star</label>
+                  {/* Review Form - Only show if user is authenticated */}
+                  {isAuthenticated ? (
+                    <form onSubmit={handleSubmit} className="space-y-3 mb-6">
+                      <div>
+                        <label className="block mb-1 font-medium">Rating</label>
+                        <fieldset className="starability-slot">
+                          <input
+                            type="radio"
+                            id="no-rate"
+                            className="input-no-rate"
+                            name="review[rating]"
+                            value="0"
+                            defaultChecked
+                            aria-label="No rating."
+                          />
+                          <input
+                            type="radio"
+                            id="first-rate1"
+                            name="review[rating]"
+                            value="1"
+                            checked={rating === 1}
+                            onChange={(e) => setRating(Number(e.target.value))}
+                          />
+                          <label htmlFor="first-rate1" title="Terrible">1 star</label>
 
-<input
-  type="radio"
-  id="first-rate2"
-  name="review[rating]"
-  value="2"
-  checked={rating === 2}
-  onChange={(e) => setRating(Number(e.target.value))}
-/>
-<label htmlFor="first-rate2" title="Not good">2 stars</label>
+                          <input
+                            type="radio"
+                            id="first-rate2"
+                            name="review[rating]"
+                            value="2"
+                            checked={rating === 2}
+                            onChange={(e) => setRating(Number(e.target.value))}
+                          />
+                          <label htmlFor="first-rate2" title="Not good">2 stars</label>
 
-<input
-  type="radio"
-  id="first-rate3"
-  name="review[rating]"
-  value="3"
-  checked={rating === 3}
-  onChange={(e) => setRating(Number(e.target.value))}
-/>
-<label htmlFor="first-rate3" title="Average">3 stars</label>
+                          <input
+                            type="radio"
+                            id="first-rate3"
+                            name="review[rating]"
+                            value="3"
+                            checked={rating === 3}
+                            onChange={(e) => setRating(Number(e.target.value))}
+                          />
+                          <label htmlFor="first-rate3" title="Average">3 stars</label>
 
-<input
-  type="radio"
-  id="first-rate4"
-  name="review[rating]"
-  value="4"
-  checked={rating === 4}
-  onChange={(e) => setRating(Number(e.target.value))}
-/>
-<label htmlFor="first-rate4" title="Very good">4 stars</label>
+                          <input
+                            type="radio"
+                            id="first-rate4"
+                            name="review[rating]"
+                            value="4"
+                            checked={rating === 4}
+                            onChange={(e) => setRating(Number(e.target.value))}
+                          />
+                          <label htmlFor="first-rate4" title="Very good">4 stars</label>
 
-<input
-  type="radio"
-  id="first-rate5"
-  name="review[rating]"
-  value="5"
-  checked={rating === 5}
-  onChange={(e) => setRating(Number(e.target.value))}
-/>
-<label htmlFor="first-rate5" title="Amazing">5 stars</label>
+                          <input
+                            type="radio"
+                            id="first-rate5"
+                            name="review[rating]"
+                            value="5"
+                            checked={rating === 5}
+                            onChange={(e) => setRating(Number(e.target.value))}
+                          />
+                          <label htmlFor="first-rate5" title="Amazing">5 stars</label>
+                        </fieldset>
+                      </div>
 
-        </fieldset>
-      </div>
+                      <div>
+                        <label className="block mb-1 font-medium">Comment</label>
+                        <textarea
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          className="w-full p-2 border rounded"
+                          rows={3}
+                          placeholder="Write your review..."
+                        />
+                      </div>
 
-      <div>
-        <label className="block mb-1 font-medium">Comment</label>
-        <textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          className="w-full p-2 border rounded"
-          rows={3}
-          placeholder="Write your review..."
-        />
-      </div>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        {loading ? "Submitting..." : "Submit Review"}
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                      <p className="text-blue-800">
+                        <strong>Want to share your experience?</strong>{' '}
+                        <button 
+                          onClick={() => navigate('/login')} 
+                          className="text-blue-600 underline hover:text-blue-800"
+                        >
+                          Login to submit a review
+                        </button>
+                      </p>
+                    </div>
+                  )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        {loading ? "Submitting..." : "Submit Review"}
-      </button>
-    </form>
-  )}
-
-  {/* List of existing reviews */}
-  {reviews.length > 0  ? (
-     reviews.map((review) => (
-      <div key={review._id} className="border-b border-gray-200 pb-6">
-        <div className="flex items-start space-x-4">
-          <img
-            src={review.user?.avatar || "/placeholder.svg"}
-            alt={review.user?.name || "Student"}
-            className="w-12 h-12 rounded-full"
-          />
-          <div className="flex-1">
-            <div className="flex items-center space-x-2 mb-2">
-              <h4 className="font-medium text-gray-900">{review.name || "Anonymous"}</h4>
-
-              <div className="flex items-center">
-                {[...Array(review.rating)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <span className="text-sm text-gray-600">
-                {new Date(review.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-            <p className="text-gray-700">{review.comment}</p>
-          </div>
-        </div>
-      </div>
-    ))
-  ) : (
-    <p className="text-gray-600">No reviews yet.</p>
-  )}
-</div>
+                  {/* List of existing reviews - ALWAYS SHOW TO PUBLIC */}
+                  {reviews.length > 0 ? (
+                    <div className="space-y-6">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                        What students are saying ({reviews.length} reviews)
+                      </h4>
+                      {reviews.map((review) => {
+                        const userInfo = getUserInfoFromReview(review);
+                        
+                        return (
+                          <div key={review._id} className="border-b border-gray-200 pb-6 last:border-b-0">
+                            <div className="flex items-start space-x-4">
+                              <img
+                                src={userInfo.avatar}
+                                alt={userInfo.name}
+                                className="w-12 h-12 rounded-full"
+                              />
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <h4 className="font-medium text-gray-900">{userInfo.name}</h4>
+                                  <div className="flex items-center">
+                                    {[...Array(review.rating)].map((_, i) => (
+                                      <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                                    ))}
+                                  </div>
+                                  <span className="text-sm text-gray-600">
+                                    {new Date(review.createdAt).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <p className="text-gray-700">{review.comment}</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-600">No reviews yet. Be the first to review this course!</p>
+                      {!isAuthenticated && (
+                        <button 
+                          onClick={() => navigate('/login')}
+                          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                          Login to Review
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
-              
             </motion.div>
           </div>
 

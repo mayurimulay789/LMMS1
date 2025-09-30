@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
-import { Award, Download, Search, Calendar, BookOpen, Trophy, X } from "lucide-react"
+import { Award, Download, Search, Filter, Calendar, BookOpen, Trophy, X } from "lucide-react"
 import toast from "react-hot-toast"
 import CertificateCard from "../Components/CertificateCard"
 
@@ -19,8 +19,6 @@ const CertificatesPage = () => {
   const [showShareModal, setShowShareModal] = useState(false)
   const [shareUrl, setShareUrl] = useState("")
 
-  const token = localStorage.getItem("token")
-
   useEffect(() => {
     fetchCertificates()
   }, [])
@@ -34,7 +32,7 @@ const CertificatesPage = () => {
       setIsLoading(true)
       const response = await fetch("/api/certificates/me", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
 
@@ -56,9 +54,10 @@ const CertificatesPage = () => {
     const filtered = certificates.filter(
       (cert) =>
         cert.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cert.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+        cert.instructor.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
+    // Sort certificates
     switch (sortBy) {
       case "newest":
         filtered.sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate))
@@ -73,8 +72,10 @@ const CertificatesPage = () => {
         filtered.sort((a, b) => a.instructor.localeCompare(b.instructor))
         break
       case "grade":
-        const gradeOrder = { "A+": 10, A: 9, "A-": 8, "B+": 7, B: 6, "B-": 5, "C+": 4, C: 3, "C-": 2, D: 1, F: 0 }
-        filtered.sort((a, b) => (gradeOrder[b.grade] || 0) - (gradeOrder[a.grade] || 0))
+        filtered.sort((a, b) => {
+          const gradeOrder = { "A+": 10, A: 9, "A-": 8, "B+": 7, B: 6, "B-": 5, "C+": 4, C: 3, "C-": 2, D: 1, F: 0 }
+          return (gradeOrder[b.grade] || 0) - (gradeOrder[a.grade] || 0)
+        })
         break
       default:
         break
@@ -87,10 +88,13 @@ const CertificatesPage = () => {
     try {
       const response = await fetch(`/api/certificates/download/${certificateId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
-      if (!response.ok) throw new Error("Failed to download certificate")
+
+      if (!response.ok) {
+        throw new Error("Failed to download certificate")
+      }
 
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
@@ -112,7 +116,7 @@ const CertificatesPage = () => {
   const handleShare = (certificate) => {
     setSelectedCertificate(certificate)
     setShareUrl(
-      certificate.verificationUrl || `${window.location.origin}/verify-certificate/${certificate.certificateId}`
+      certificate.verificationUrl || `${window.location.origin}/verify-certificate/${certificate.certificateId}`,
     )
     setShowShareModal(true)
   }
@@ -159,12 +163,15 @@ const CertificatesPage = () => {
   const downloadAllCertificates = async () => {
     try {
       toast.loading("Preparing download...")
+
       for (const certificate of certificates) {
         await handleDownload(certificate.certificateId)
+        // Add small delay between downloads
         await new Promise((resolve) => setTimeout(resolve, 500))
       }
+
       toast.dismiss()
-      toast.success("All unlocked certificates downloaded!")
+      toast.success("All certificates downloaded!")
     } catch (error) {
       toast.dismiss()
       toast.error("Failed to download all certificates")
@@ -174,10 +181,11 @@ const CertificatesPage = () => {
   const getCertificateStats = () => {
     const totalCertificates = certificates.length
     const thisYear = certificates.filter(
-      (cert) => new Date(cert.issueDate).getFullYear() === new Date().getFullYear()
+      (cert) => new Date(cert.issueDate).getFullYear() === new Date().getFullYear(),
     ).length
     const averageScore = certificates.reduce((sum, cert) => sum + (cert.finalScore || 0), 0) / totalCertificates || 0
     const topGrades = certificates.filter((cert) => ["A+", "A", "A-"].includes(cert.grade)).length
+
     return { totalCertificates, thisYear, averageScore: Math.round(averageScore), topGrades }
   }
 
@@ -205,17 +213,17 @@ const CertificatesPage = () => {
   }
 
   return (
-    <div className="min-h-screen py-8 bg-gray-50">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="flex items-center space-x-3 text-3xl font-bold text-gray-900">
-                <Award className="w-8 h-8 text-primary-600" />
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
+                <Award className="h-8 w-8 text-primary-600" />
                 <span>My Certificates</span>
               </h1>
-              <p className="mt-2 text-gray-600">View and manage your earned certificates</p>
+              <p className="text-gray-600 mt-2">View and manage your earned certificates</p>
             </div>
             {certificates.length > 0 && (
               <button onClick={downloadAllCertificates} className="btn btn-primary flex items-center space-x-2">
@@ -242,7 +250,6 @@ const CertificatesPage = () => {
                 </div>
                 <Trophy className="h-8 w-8 text-primary-600" />
               </div>
-              <Trophy className="h-8 w-8 text-primary-600" />
             </div>
             <div className="stat-card">
               <div className="flex items-center justify-between">
@@ -252,7 +259,6 @@ const CertificatesPage = () => {
                 </div>
                 <Calendar className="h-8 w-8 text-success-600" />
               </div>
-              <Calendar className="h-8 w-8 text-success-600" />
             </div>
             <div className="stat-card">
               <div className="flex items-center justify-between">
@@ -262,7 +268,6 @@ const CertificatesPage = () => {
                 </div>
                 <BookOpen className="h-8 w-8 text-warning-600" />
               </div>
-              <BookOpen className="h-8 w-8 text-warning-600" />
             </div>
             <div className="stat-card">
               <div className="flex items-center justify-between">

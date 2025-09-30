@@ -152,7 +152,7 @@ const CheckoutPage = () => {
           key: key,
           amount: amount * 100, // Razorpay expects amount in paise
           currency: currency,
-          name: "EduPlatform",
+          name: "LearnHub",
           description: course.title,
           image: "/logo.png",
           order_id: orderId,
