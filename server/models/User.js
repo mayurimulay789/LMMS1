@@ -16,7 +16,9 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: function() {
+      return this.isEmailVerified; // Password required only when email is verified
+    },
     minlength: 6,
   },
   role: {

@@ -13,10 +13,10 @@ const mongoose = require("mongoose");
 // Instructor application submission (no auth required)
 router.post("/apply", async (req, res) => {
   try {
-    const { applicantName, email, phone, experience, qualifications, motivation } = req.body;
+    const { applicantName, email, phone, experience, qualifications, motivation, password } = req.body;
 
     // Basic validation
-    if (!applicantName || !email || !phone || !experience || !qualifications || !motivation) {
+    if (!applicantName || !email || !phone || !experience || !qualifications || !motivation || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -28,6 +28,7 @@ router.post("/apply", async (req, res) => {
       experience,
       qualifications,
       motivation,
+      password,
     });
 
     await application.save();
