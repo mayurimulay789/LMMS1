@@ -21,9 +21,11 @@ import ContactUsPage from "./Pages/ContactUsPage"
 import AboutUsPage from "./Pages/AboutUsPage"
 import LoginPage from "./Pages/LoginPage"
 import RegisterPage from "./Pages/RegisterPage"
+import InstructorRegisterPage from "./Pages/InstructorRegisterPage"
 
 // Protected Pages
 import DashboardPage from "./Pages/DashboardPage"
+import MyEnrollmentsPage from "./Pages/MyEnrollmentsPage"
 import LearnPage from "./Pages/LearnPage"
 import AssessmentsPage from "./Pages/AssesmentsPage"
 import CheckoutPage from "./Pages/CheckoutPage"
@@ -60,6 +62,7 @@ function AppContent() {
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/instructor-register" element={<InstructorRegisterPage />} />
 
           {/* Protected Routes */}
           <Route
@@ -67,6 +70,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-enrollments"
+            element={
+              <ProtectedRoute>
+                <MyEnrollmentsPage />
               </ProtectedRoute>
             }
           />

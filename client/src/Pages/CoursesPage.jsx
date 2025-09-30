@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom"
 import { Search, Grid, List, SlidersHorizontal } from "lucide-react"
 import CourseCard from "../Components/CourseCard"
 import { motion } from "framer-motion"
+import { ChevronDown } from "lucide-react"
 
 const CoursesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -29,6 +30,14 @@ const CoursesPage = () => {
     totalPages: 1,
     total: 0,
   })
+
+  // Dropdown states
+  const [sortOpen, setSortOpen] = useState(false)
+  const [categoryOpen, setCategoryOpen] = useState(false)
+  const [priceOpen, setPriceOpen] = useState(false)
+  const [levelOpen, setLevelOpen] = useState(false)
+  const [ratingOpen, setRatingOpen] = useState(false)
+
   const categoriesFetchedRef = useRef(false)
 
   useEffect(() => {
@@ -257,7 +266,7 @@ const CoursesPage = () => {
                 placeholder="Search courses..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange("search", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none appearance-none"
               />
             </div>
           </form>
@@ -277,30 +286,49 @@ const CoursesPage = () => {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded ${viewMode === "grid" ? "bg-blue-100 text-blue-600" : "text-gray-400"}`}
+                  className={`p-2 rounded ${viewMode === "grid" ? "bg-primary-100 text-primary-600" : "text-gray-400"}`}
                 >
                   <Grid className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded ${viewMode === "list" ? "bg-blue-100 text-blue-600" : "text-gray-400"}`}
+                  className={`p-2 rounded ${viewMode === "list" ? "bg-primary-100 text-primary-600" : "text-gray-400"}`}
                 >
                   <List className="h-5 w-5" />
                 </button>
               </div>
 
               {/* Sort */}
-              <select
-                value={filters.sort}
-                onChange={(e) => handleFilterChange("sort", e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setSortOpen(!sortOpen)}
+                  className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors hover:border-primary-500"
+                >
+                  <span className="truncate">{sortOptions.find(opt => opt.value === filters.sort)?.label || 'Sort by'}</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {sortOpen && (
+                  <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                    {sortOptions.map((option) => (
+                      <li key={option.value}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleFilterChange("sort", option.value)
+                            setSortOpen(false)
+                          }}
+                          className={`w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
+                            filters.sort === option.value ? 'bg-primary-100 text-primary-600' : ''
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </div>
 
@@ -315,66 +343,155 @@ const CoursesPage = () => {
               {/* Category Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                <select
-                  value={filters.category}
-                  onChange={(e) => handleFilterChange("category", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="all">All Categories</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setCategoryOpen(!categoryOpen)}
+                    className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors hover:border-primary-500"
+                  >
+                    <span className="truncate">{filters.category === 'all' ? 'All Categories' : filters.category}</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${categoryOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {categoryOpen && (
+                    <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                      <li>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleFilterChange("category", "all")
+                            setCategoryOpen(false)
+                          }}
+                          className={`w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
+                            filters.category === 'all' ? 'bg-primary-100 text-primary-600' : ''
+                          }`}
+                        >
+                          All Categories
+                        </button>
+                      </li>
+                      {categories.map((category) => (
+                        <li key={category}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleFilterChange("category", category)
+                              setCategoryOpen(false)
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
+                              filters.category === category ? 'bg-primary-100 text-primary-600' : ''
+                            }`}
+                          >
+                            {category}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
 
               {/* Price Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
-                <select
-                  value={filters.priceRange}
-                  onChange={(e) => handleFilterChange("priceRange", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {priceRanges.map((range) => (
-                    <option key={range.value} value={range.value}>
-                      {range.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setPriceOpen(!priceOpen)}
+                    className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors hover:border-primary-500"
+                  >
+                    <span className="truncate">{priceRanges.find(opt => opt.value === filters.priceRange)?.label || 'All Prices'}</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${priceOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {priceOpen && (
+                    <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                      {priceRanges.map((range) => (
+                        <li key={range.value}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleFilterChange("priceRange", range.value)
+                              setPriceOpen(false)
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
+                              filters.priceRange === range.value ? 'bg-primary-100 text-primary-600' : ''
+                            }`}
+                          >
+                            {range.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
 
               {/* Level Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
-                <select
-                  value={filters.level}
-                  onChange={(e) => handleFilterChange("level", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {levels.map((level) => (
-                    <option key={level.value} value={level.value}>
-                      {level.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setLevelOpen(!levelOpen)}
+                    className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors hover:border-primary-500"
+                  >
+                    <span className="truncate">{levels.find(opt => opt.value === filters.level)?.label || 'All Levels'}</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${levelOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {levelOpen && (
+                    <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                      {levels.map((level) => (
+                        <li key={level.value}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleFilterChange("level", level.value)
+                              setLevelOpen(false)
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
+                              filters.level === level.value ? 'bg-primary-100 text-primary-600' : ''
+                            }`}
+                          >
+                            {level.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
 
               {/* Rating Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                <select
-                  value={filters.rating}
-                  onChange={(e) => handleFilterChange("rating", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {ratings.map((rating) => (
-                    <option key={rating.value} value={rating.value}>
-                      {rating.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setRatingOpen(!ratingOpen)}
+                    className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors hover:border-primary-500"
+                  >
+                    <span className="truncate">{ratings.find(opt => opt.value === filters.rating)?.label || 'All Ratings'}</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${ratingOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {ratingOpen && (
+                    <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                      {ratings.map((rating) => (
+                        <li key={rating.value}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleFilterChange("rating", rating.value)
+                              setRatingOpen(false)
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
+                              filters.rating === rating.value ? 'bg-primary-100 text-primary-600' : ''
+                            }`}
+                          >
+                            {rating.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
@@ -387,14 +504,14 @@ const CoursesPage = () => {
                   return (
                     <span
                       key={key}
-                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center space-x-1"
+                      className="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm flex items-center space-x-1"
                     >
                       <span>
                         {key}: {value}
                       </span>
                       <button
                         onClick={() => handleFilterChange(key, key === "search" ? "" : "all")}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-primary-600 hover:text-primary-800"
                       >
                         ×
                       </button>
@@ -405,9 +522,9 @@ const CoursesPage = () => {
               })}
             </div>
             {Object.values(filters).some((value) => value && value !== "all" && value !== "") && (
-              <button onClick={clearFilters} className="text-gray-600 hover:text-gray-900 text-sm">
-                Clear All
-              </button>
+            <button onClick={clearFilters} className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm">
+              Clear All
+            </button>
             )}
           </div>
         </div>
@@ -433,12 +550,12 @@ const CoursesPage = () => {
             </div>
             <h3 className="text-xl font-medium text-gray-900 mb-2">No courses found</h3>
             <p className="text-gray-600 mb-4">Try adjusting your search criteria or filters</p>
-            <button
-              onClick={clearFilters}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Clear Filters
-            </button>
+          <button
+            onClick={clearFilters}
+            className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            Clear Filters
+          </button>
           </div>
         ) : (
           <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" : "space-y-6"}>
@@ -467,7 +584,7 @@ const CoursesPage = () => {
                   onClick={() => setPagination((prev) => ({ ...prev, currentPage: page }))}
                   className={`px-4 py-2 rounded-lg ${
                     pagination.currentPage === page
-                      ? "bg-blue-600 text-white"
+                      ? "bg-primary-600 text-white"
                       : "border border-gray-300 text-gray-600 hover:bg-gray-50"
                   }`}
                 >

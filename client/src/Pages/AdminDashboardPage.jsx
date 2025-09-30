@@ -6,6 +6,7 @@ import { Users, BookOpen, TrendingUp, Download, } from "lucide-react"
 import AdminReportsChart from "../Components/AdminReportsChart"
 import AdminUserTable from "../Components/AdminUserTable"
 import AdminCourseForm from "../Components/AdminCourseForm"
+import AdminInstructorApplications from "../Components/AdminInstructorApplications"
 
 import { IndianRupee } from "lucide-react"
 
@@ -87,6 +88,7 @@ const AdminDashboardPage = () => {
     { id: "users", label: "Users" },
     { id: "courses", label: "Courses" },
     { id: "reports", label: "Reports" },
+    { id: "instructor", label: "Instructor" },
   ]
 
   if (isLoading) {
@@ -175,6 +177,7 @@ const AdminDashboardPage = () => {
             <AdminReportsChart type="detailed" />
           </div>
         )}
+        {activeTab === "instructor" && <AdminInstructorApplications />}
       </div>
     </div>
   )

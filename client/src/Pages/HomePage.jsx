@@ -289,15 +289,16 @@ const HomePage = () => {
                 key={index}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.05, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+                className="bg-rose-800 p-8 rounded-xl shadow-lg"
               >
-                <div className="w-16 h-16 bg-rose-100 rounded-lg flex items-center justify-center mb-6">
-                  <feature.icon className="h-8 w-8 text-rose-900" />
+                <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center mb-6">
+                  <feature.icon className="h-8 w-8 text-yellow-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-black mb-4">{feature.title}</h3>
-                <p className="text-gray-700">{feature.description}</p>
+                <h3 className="text-xl font-semibold text-white mb-4">{feature.title}</h3>
+                <p className="text-white">{feature.description}</p>
               </motion.div>
             ))}
           </div>

@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react"
 import { Search, Edit, Trash2, Eye, UserCheck, UserX, Mail } from "lucide-react"
 
-const AdminUserTable = () => {
+const AdminUserTable = ({ defaultFilter = "all", title = "User Management" }) => {
   const [users, setUsers] = useState([])
   const [filteredUsers, setFilteredUsers] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterRole, setFilterRole] = useState("all")
+  const [filterRole, setFilterRole] = useState(defaultFilter)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedUsers, setSelectedUsers] = useState([])
 
@@ -184,7 +184,7 @@ const AdminUserTable = () => {
           {/* Header and rest of the component unchanged */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
 
               {/* Search and Filter */}
               <div className="flex space-x-4">

@@ -12,18 +12,36 @@ router.post("/register", async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ email })
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" })
+      // If user exists but hasn't verified email (created via instructor approval), allow setting password
+      if (!existingUser.isEmailVerified && !existingUser.password) {
+        existingUser.name = name
+        existingUser.password = password
+        existingUser.role = role || existingUser.role
+        existingUser.isEmailVerified = true
+        await existingUser.save()
+      } else {
+        return res.status(400).json({ message: "User already exists" })
+      }
+    } else {
+      // Create new user (password will be hashed by pre-save hook)
+      const user = new User({
+        name,
+        email,
+        password,
+        role: role || "student", // Use provided role or default to student
+        isEmailVerified: true, // New registrations are verified
+      })
+      await user.save()
+      return res.status(201).json({
+        token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" }),
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      })
     }
-
-    // Create new user (password will be hashed by pre-save hook)
-    const user = new User({
-      name,
-      email,
-      password,
-      role: role || "student", // Use provided role or default to student
-    })
-
-    await user.save()
 
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" })
