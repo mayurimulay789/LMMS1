@@ -17,10 +17,32 @@ const DashboardPage = () => {
   useEffect(() => {
     if (user) {
       dispatch(fetchUserEnrollments())
-      dispatch(fetchUserProgress(user.id))
-      dispatch(fetchUserCertificates(user.id))
+      dispatch(fetchUserCertificates())
     }
   }, [dispatch, user])
+
+  useEffect(() => {
+    if (enrollments.length > 0) {
+      enrollments.forEach((enrollment, index) => {
+        if (
+          enrollment &&
+          enrollment.course &&
+          enrollment.course._id &&
+          typeof enrollment.course._id === "string" &&
+          enrollment.course._id.trim() !== "" &&
+          enrollment.course._id !== "undefined" &&
+          enrollment.course._id !== "null"
+        ) {
+          // Add delay between requests to avoid rate limiting (200ms * index)
+          setTimeout(() => {
+            dispatch(fetchUserProgress(enrollment.course._id));
+          }, index * 200);
+        } else {
+          console.warn("Skipping fetchUserProgress due to invalid enrollment data:", enrollment);
+        }
+      });
+    }
+  }, [dispatch, enrollments])
 
   const stats = [
     {
@@ -30,9 +52,9 @@ const DashboardPage = () => {
       color: "bg-blue-100 text-blue-600",
     },
     {
-      icon: Clock,
-      label: "Hours Learned",
-      value: Object.values(progress).reduce((total, p) => total + (p.hoursSpent || 0), 0),
+      icon: BookOpen,
+      label: "My Enrollments",
+      value: enrollments.length,
       color: "bg-green-100 text-green-600",
     },
     {

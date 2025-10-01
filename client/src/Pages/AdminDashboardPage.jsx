@@ -7,6 +7,8 @@ import AdminReportsChart from "../Components/AdminReportsChart"
 import AdminUserTable from "../Components/AdminUserTable"
 import AdminCourseForm from "../Components/AdminCourseForm"
 import AdminInstructorApplications from "../Components/AdminInstructorApplications"
+import AdminContactMessages from "../Components/AdminContactMessages"
+
 
 import { IndianRupee } from "lucide-react"
 
@@ -89,6 +91,7 @@ const AdminDashboardPage = () => {
     { id: "courses", label: "Courses" },
     { id: "reports", label: "Reports" },
     { id: "instructor", label: "Instructor" },
+    { id: "contact", label: "Contact" },
   ]
 
   if (isLoading) {
@@ -178,6 +181,7 @@ const AdminDashboardPage = () => {
           </div>
         )}
         {activeTab === "instructor" && <AdminInstructorApplications />}
+        {activeTab === "contact" && <AdminContactMessages />}
       </div>
     </div>
   )

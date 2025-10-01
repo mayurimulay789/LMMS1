@@ -19,11 +19,23 @@ app.use(
   }),
 )
 
-// Rate limiting
+// Rate limiting - Exclude safe GET requests and OPTIONS requests
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   message: "Too many requests from this IP, please try again later.",
+  skip: (req) => {
+    // Skip rate limiting for safe GET requests and OPTIONS requests
+    return (req.method === 'GET' && (
+      req.path.startsWith('/api/enrollments/progress/') ||
+      req.path === '/api/enrollments/me' ||
+      req.path === '/api/certificates/me'
+    )) || req.method === 'OPTIONS';
+  },
+  handler: (req, res) => {
+    console.log(`Rate limit reached for IP: ${req.ip}, path: ${req.path}, method: ${req.method}`);
+    res.status(429).json({ message: "Too many requests from this IP, please try again later." });
+  }
 })
 app.use(limiter)
 
@@ -33,11 +45,21 @@ app.use(compression())
 // Logging middleware
 // app.use(morgan("combined"))
 
+const allowedOrigins = ['http://localhost:5173']
+
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: false,
+    origin: function(origin, callback){
+      // allow requests with no origin (like mobile apps or curl requests)
+      if(!origin) return callback(null, true);
+      if(allowedOrigins.indexOf(origin) === -1){
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   }),

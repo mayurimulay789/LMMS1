@@ -205,8 +205,9 @@ router.get("/:id", auth, async (req, res) => {
       const enrollment = await Enrollment.findOne({
         user: req.user.id,
         course: course._id,
-        status: { $ne: "suspended" }
+        status: { $in: ["active", "completed", "in-progress"] }
       })
+      console.log(`Enrollment found for user ${req.user.id} and course ${course._id}:`, enrollment)  // Debug log
       isEnrolled = !!enrollment
 
       if (isEnrolled) {
@@ -252,7 +253,7 @@ router.get("/:id/lessons", auth, async (req, res) => {
     const enrollment = await Enrollment.findOne({
       user: req.user.id,
       course: req.params.id,
-      status: { $ne: "suspended" }
+      status: { $in: ["active", "completed", "in-progress"] }
     })
 
     if (!enrollment) {
