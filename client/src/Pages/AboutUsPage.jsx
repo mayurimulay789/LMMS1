@@ -1,4 +1,4 @@
-import { Users, Target, Heart, BookOpen, Globe } from "lucide-react"
+import { Users, Target, Heart, BookOpen, Globe, Award, TrendingUp } from "lucide-react"
 
 const AboutUsPage = () => {
   const stats = [
@@ -59,14 +59,37 @@ const AboutUsPage = () => {
     },
   ]
 
+  const achievements = [
+    {
+      icon: Award,
+      title: "Best EdTech Platform 2024",
+      description: "Recognized as the leading educational technology platform"
+    },
+    {
+      icon: Users,
+      title: "50K+ Students Empowered",
+      description: "Helped thousands of students achieve their career goals"
+    },
+    {
+      icon: TrendingUp,
+      title: "95% Success Rate",
+      description: "Consistent high success rate in student outcomes"
+    },
+    {
+      icon: Globe,
+      title: "Global Reach",
+      description: "Serving students across 50+ countries worldwide"
+    }
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-20">
+      <section className="bg-gradient-to-r from-rose-800 to-rose-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">About LearnHub</h1>
-            <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">About Ryma Academy</h1>
+            <p className="text-xl md:text-2xl text-rose-100 max-w-3xl mx-auto">
               We're on a mission to make quality education accessible to everyone, everywhere.
             </p>
           </div>
@@ -79,7 +102,7 @@ const AboutUsPage = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">{stat.number}</div>
+                <div className="text-3xl md:text-4xl font-bold text-rose-600 mb-2">{stat.number}</div>
                 <div className="text-gray-600 font-medium">{stat.label}</div>
               </div>
             ))}
@@ -88,14 +111,14 @@ const AboutUsPage = () => {
       </section>
 
       {/* Our Story Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gradient-to-r from-rose-50 to-pink-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  Founded in 2020, LearnHub started with a simple belief: everyone deserves access to quality education,
+                  Founded in 2020, Ryma Academy started with a simple belief: everyone deserves access to quality education,
                   regardless of their location, background, or circumstances.
                 </p>
                 <p>
@@ -114,9 +137,9 @@ const AboutUsPage = () => {
               <img
                 src="/placeholder.svg?height=400&width=600"
                 alt="Our team working together"
-                className="rounded-lg shadow-lg"
+                className="rounded-lg shadow-lg border-2 border-rose-200"
               />
-              <div className="absolute -bottom-6 -right-6 bg-blue-600 text-white p-6 rounded-lg">
+              <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-rose-700 to-rose-800 text-white p-6 rounded-lg shadow-xl">
                 <Globe className="h-8 w-8 mb-2" />
                 <div className="text-sm font-medium">Serving learners in</div>
                 <div className="text-2xl font-bold">50+ Countries</div>
@@ -126,8 +149,35 @@ const AboutUsPage = () => {
         </div>
       </section>
 
-      {/* Values Section */}
+      {/* Achievements Section */}
       <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Achievements</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Celebrating milestones and successes that define our journey
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {achievements.map((achievement, index) => (
+              <div 
+                key={index} 
+                className="bg-gradient-to-br from-rose-50 to-white rounded-2xl p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center"
+              >
+                <div className="bg-gradient-to-r from-rose-600 to-rose-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <achievement.icon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{achievement.title}</h3>
+                <p className="text-gray-600">{achievement.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Values Section */}
+      <section className="py-20 bg-gradient-to-r from-rose-50 to-pink-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Values</h2>
@@ -138,9 +188,12 @@ const AboutUsPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
-              <div key={index} className="text-center p-6">
-                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <value.icon className="h-8 w-8 text-blue-600" />
+              <div 
+                key={index} 
+                className="bg-white rounded-2xl p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center"
+              >
+                <div className="bg-gradient-to-r from-rose-600 to-rose-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <value.icon className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">{value.title}</h3>
                 <p className="text-gray-600">{value.description}</p>
@@ -151,12 +204,12 @@ const AboutUsPage = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              The passionate individuals behind LearnHub who are dedicated to your learning success.
+              The passionate individuals behind Ryma Academy who are dedicated to your learning success.
             </p>
           </div>
 
@@ -164,12 +217,16 @@ const AboutUsPage = () => {
             {team.map((member, index) => (
               <div
                 key={index}
-                className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                className="bg-gradient-to-br from-rose-50 to-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-rose-200"
               >
-                <img src={member.image || "/placeholder.svg"} alt={member.name} className="w-full h-64 object-cover" />
+                <img 
+                  src={member.image || "/placeholder.svg"} 
+                  alt={member.name} 
+                  className="w-full h-64 object-cover" 
+                />
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-blue-600 font-medium mb-3">{member.role}</p>
+                  <p className="text-rose-600 font-medium mb-3">{member.role}</p>
                   <p className="text-gray-600 text-sm">{member.bio}</p>
                 </div>
               </div>
@@ -178,91 +235,22 @@ const AboutUsPage = () => {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Get answers to the most common questions about LearnHub and our learning platform.
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <div className="space-y-6">
-              {[
-                {
-                  question: "How do I get started with LearnHub?",
-                  answer:
-                    "Getting started is easy! Simply create a free account, browse our course catalog, and enroll in courses that interest you. You can start learning immediately after enrollment.",
-                },
-                {
-                  question: "Are the courses self-paced or do they have fixed schedules?",
-                  answer:
-                    "Most of our courses are self-paced, allowing you to learn at your own speed. However, some specialized courses may have live sessions or deadlines. Check the course details for specific information.",
-                },
-                {
-                  question: "Do I receive a certificate upon course completion?",
-                  answer:
-                    "Yes! You'll receive a verified certificate of completion for each course you finish. These certificates can be shared on LinkedIn, added to your resume, or used for professional development.",
-                },
-                {
-                  question: "What payment methods do you accept?",
-                  answer:
-                    "We accept all major credit cards, PayPal, and bank transfers. We also offer installment plans for premium courses and have corporate billing options for businesses.",
-                },
-                {
-                  question: "Can I access courses on mobile devices?",
-                  answer:
-                    "Absolutely! Our platform is fully responsive and works seamlessly on smartphones, tablets, and desktop computers. You can learn anywhere, anytime.",
-                },
-                {
-                  question: "Is there a refund policy?",
-                  answer:
-                    "Yes, we offer a 30-day money-back guarantee for all paid courses. If you're not satisfied with a course, you can request a full refund within 30 days of purchase.",
-                },
-                {
-                  question: "How do I contact support if I need help?",
-                  answer:
-                    "Our support team is available 24/7 through live chat, email, or phone. You can also browse our comprehensive help center for instant answers to common questions.",
-                },
-                {
-                  question: "Are there any prerequisites for courses?",
-                  answer:
-                    "Prerequisites vary by course. Some beginner courses have no requirements, while advanced courses may require prior knowledge or experience. Check each course description for specific prerequisites.",
-                },
-              ].map((faq, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-6 hover:bg-gray-100 transition-colors">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">{faq.question}</h3>
-                  <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">Still have questions?</p>
-            <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-              Contact Our Support Team
-            </button>
-          </div>
-        </div>
-      </section>
-
       {/* Mission Section */}
-      <section className="py-20 bg-blue-600 text-white">
+      
+
+      {/* CTA Section */}
+      <section className="py-16 bg-gradient-to-r from-rose-50 to-pink-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Mission</h2>
-          <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto mb-8">
-            To democratize education by providing accessible, high-quality learning experiences that empower individuals
-            to unlock their potential and achieve their goals.
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Ready to Start Your Journey?</h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+            Join thousands of students who have transformed their careers with Ryma Academy
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-              Join Our Community
+            <button className="bg-gradient-to-r from-rose-700 to-rose-800 text-white px-8 py-4 rounded-lg font-semibold hover:from-rose-800 hover:to-rose-900 transition-all duration-300 transform hover:scale-105 shadow-lg">
+              Explore Courses
             </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
-              Start Learning Today
+            <button className="border-2 border-rose-700 text-rose-700 px-8 py-4 rounded-lg font-semibold hover:bg-rose-700 hover:text-white transition-all duration-300 transform hover:scale-105">
+              Contact Us
             </button>
           </div>
         </div>
