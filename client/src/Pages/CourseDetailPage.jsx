@@ -647,7 +647,7 @@ const CourseDetailPage = () => {
                       <CheckCircle className="h-4 w-4 text-green-500" />
                     </div>
                     <div className="flex items-center justify-between">
-                      <span>Access on mobile and TV</span>
+                      <span>Access on mobile</span>
                       <CheckCircle className="h-4 w-4 text-green-500" />
                     </div>
                     <div className="flex items-center justify-between">
@@ -656,7 +656,7 @@ const CourseDetailPage = () => {
                     </div>
                   </div>
 
-                  <div className="mt-6 flex items-center justify-between">
+                  {/* <div className="mt-6 flex items-center justify-between">
                     <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-900">
                       <Heart className="h-4 w-4" />
                       <span>Wishlist</span>
@@ -665,7 +665,7 @@ const CourseDetailPage = () => {
                       <Share2 className="h-4 w-4" />
                       <span>Share</span>
                     </button>
-                  </div>
+                  </div> */}
                 </div>
               </motion.div>
             </div>
