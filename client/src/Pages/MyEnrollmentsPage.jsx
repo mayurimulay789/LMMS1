@@ -20,7 +20,7 @@ const MyEnrollmentsPage = () => {
 
   useEffect(() => {
     if (enrollments.length > 0) {
-      enrollments.forEach((enrollment) => {
+      enrollments.forEach((enrollment, index) => {
         if (
           enrollment &&
           enrollment.course &&
@@ -30,7 +30,10 @@ const MyEnrollmentsPage = () => {
           enrollment.course._id !== "undefined" &&
           enrollment.course._id !== "null"
         ) {
-          dispatch(fetchUserProgress(enrollment.course._id));
+          // Add delay between requests to avoid rate limiting (200ms * index)
+          setTimeout(() => {
+            dispatch(fetchUserProgress(enrollment.course._id));
+          }, index * 200);
         } else {
           console.warn("Skipping fetchUserProgress due to invalid enrollment data:", enrollment);
         }

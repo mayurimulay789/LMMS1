@@ -58,8 +58,10 @@ const LearnPage = () => {
 
       if (response.ok) {
         const data = await response.json()
+        console.log("LearnPage fetchCourseDetails response data:", data)  // Debug log
         setCourse(data)
         setIsEnrolled(data.isEnrolled)
+        console.log("LearnPage isEnrolled flag:", data.isEnrolled)  // Debug log
 
         if (!data.isEnrolled) {
           setError("You are not enrolled in this course")
@@ -80,6 +82,10 @@ const LearnPage = () => {
 
   const fetchProgress = async () => {
     try {
+      if (!courseId) {
+        console.warn("fetchProgress called with undefined courseId, skipping API call")
+        return
+      }
       const token = localStorage.getItem("token")
       const response = await fetch(`http://localhost:2000/api/enrollments/progress/${courseId}`, {
         headers: {
@@ -442,6 +448,19 @@ const LearnPage = () => {
                 <div className="mb-6">
                   {renderVideoPlayer(selectedLesson)}
                 </div>
+
+                {!isLessonCompleted(selectedLesson._id) && (
+                  <div className="mb-6">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-blue-800 text-sm">
+                        {isYouTubeUrl(selectedLesson.videoUrl)
+                          ? "Watch the video to completion to automatically mark this lesson as complete."
+                          : "Watch the video to completion to mark this lesson as complete."
+                        }
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {isLessonCompleted(selectedLesson._id) && (
                   <div className="mb-6">

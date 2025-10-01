@@ -50,10 +50,10 @@ export const fetchUserProgress = createAsyncThunk(
 
 export const fetchUserCertificates = createAsyncThunk(
   "enrollment/fetchUserCertificates",
-  async (userId, { getState, rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch(`http://localhost:2000/api/certificates/user/${userId}`, {
+      const response = await fetch(`http://localhost:2000/api/certificates/me`, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
@@ -74,16 +74,16 @@ export const fetchUserCertificates = createAsyncThunk(
 
 export const updateProgress = createAsyncThunk(
   "enrollment/updateProgress",
-  async ({ courseId, lessonId, progress }, { getState, rejectWithValue }) => {
+  async ({ courseId, lessonId }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:2000/api/progress/update", {
+      const response = await fetch("http://localhost:2000/api/enrollments/progress", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${auth.token}`,
         },
-        body: JSON.stringify({ courseId, lessonId, progress }),
+        body: JSON.stringify({ courseId, lessonId }),
       })
 
       if (!response.ok) {

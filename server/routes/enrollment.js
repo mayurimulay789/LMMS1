@@ -37,7 +37,6 @@ router.post("/", auth, async (req, res) => {
         completedLessons: [],
         totalLessons: course.lessons ? course.lessons.length : 0, // safe check
         completionPercentage: 0,
-        timeSpent: 0,
         lastAccessedAt: null,
       },
       certificate: {
@@ -126,10 +125,13 @@ router.post("/progress", auth, async (req, res) => {
         completedLessons: [],
         totalLessons: course ? course.lessons.length : 0,
         completionPercentage: 0,
-        timeSpent: 0,
         lastAccessedAt: new Date(),
       };
     }
+
+    // Always update totalLessons to current course lessons count
+    const course = await Course.findById(courseId);
+    enrollment.progress.totalLessons = course ? course.lessons.length : 0;
 
     // Check if lesson is already completed
     const existingLesson = enrollment.progress.completedLessons.find(
@@ -149,8 +151,7 @@ router.post("/progress", auth, async (req, res) => {
       );
     }
 
-    // Update time spent and last accessed
-    enrollment.progress.timeSpent += timeSpent || 0;
+    // Update last accessed only, remove timeSpent tracking
     enrollment.progress.lastAccessedAt = new Date();
 
     // Check if course is completed and trigger certificate generation
@@ -162,9 +163,8 @@ router.post("/progress", auth, async (req, res) => {
         const user = await User.findById(userId);
         const course = await Course.findById(courseId);
 
-        const hoursCompleted = Math.round(
-          ((enrollment.progress.timeSpent || 0) / 60) * 10
-        ) / 10;
+        // Remove hoursCompleted calculation based on timeSpent
+        const hoursCompleted = 0;
 
         const skillsMap = {
           Programming: ["Problem Solving", "Code Development", "Debugging", "Software Architecture"],
