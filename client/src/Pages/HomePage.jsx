@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { BookOpen, Users, Award, TrendingUp, Play, Star, ArrowRight, Quote } from "lucide-react"
 import CourseCard from "../Components/CourseCard"
@@ -18,13 +18,31 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [showApplicationForm, setShowApplicationForm] = useState(false)
   const fetchedRef = useRef(false)
+  const [searchParams] = useSearchParams()
 
   useEffect(() => {
     if (!fetchedRef.current) {
       fetchFeaturedCourses()
       fetchedRef.current = true
     }
-  }, [])
+
+    // Check URL parameter for showing application form
+    const showForm = searchParams.get('showApplicationForm')
+    if (showForm === 'true') {
+      setShowApplicationForm(true)
+    }
+
+    // Listen for custom event from navbar
+    const handleShowApplicationForm = () => {
+      setShowApplicationForm(true)
+    }
+
+    window.addEventListener('showApplicationForm', handleShowApplicationForm)
+
+    return () => {
+      window.removeEventListener('showApplicationForm', handleShowApplicationForm)
+    }
+  }, [searchParams])
 
   const fetchFeaturedCourses = async () => {
     try {

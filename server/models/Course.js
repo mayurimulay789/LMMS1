@@ -99,6 +99,7 @@ const courseSchema = new mongoose.Schema(
     instructorImagePublicId: {
       type: String, // Cloudinary public ID for instructor image
     },
+    
     category: {
       type: String,
       required: true,

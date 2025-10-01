@@ -17,6 +17,7 @@ import ProtectedInstructorRoute from "./Components/ProtectedInstructorRoute"
 import HomePage from "./Pages/HomePage"
 import CoursesPage from "./Pages/CoursesPage"
 import MyCoursesPage from "./Pages/MyCoursesPage";
+import ReferEarn from './Pages/ReferEarn';
 import CourseDetailPage from "./Pages/CourseDetailPage"
 import ContactUsPage from "./Pages/ContactUsPage"
 import AboutUsPage from "./Pages/AboutUsPage"
@@ -60,6 +61,7 @@ function AppContent() {
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/courses/:id" element={<CourseDetailPage />} />
           <Route path="/contact" element={<ContactUsPage />} />
+          <Route path="/refer-earn" element={<ReferEarn />} />
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
