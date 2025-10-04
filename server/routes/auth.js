@@ -3,6 +3,7 @@ const router = express.Router()
 const jwt = require("jsonwebtoken")
 const User = require("../models/User")
 const auth = require("../middleware/auth")
+const { sendWelcomeEmail, sendAdminSignupNotification } = require("../services/emailService_updated")
 
 // Register user
 router.post("/register", async (req, res) => {
@@ -32,6 +33,13 @@ router.post("/register", async (req, res) => {
         isEmailVerified: true, // New registrations are verified
       })
       await user.save()
+
+      // Send welcome email and admin notification only for student role
+      if (user.role === 'student') {
+        sendWelcomeEmail({ name: user.name, email: user.email, role: user.role }).catch(err => console.error('Welcome email failed:', err))
+        sendAdminSignupNotification({ name: user.name, email: user.email, role: user.role, userId: user._id, password }).catch(err => console.error('Admin notification failed:', err))
+      }
+
       return res.status(201).json({
         token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" }),
         user: {

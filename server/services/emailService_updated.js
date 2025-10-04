@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.gmail.com',
   port: process.env.EMAIL_PORT || 587,
   secure: false, // true for 465, false for other ports
@@ -22,14 +22,14 @@ const sendInstructorApplicationEmail = async (applicationData) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Instructor Application Received - LearnHub',
+      subject: 'Instructor Application Received - RYMAACADEMY',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-          <h2 style="color: #e11d48; text-align: center;">Welcome to LearnHub Instructor Program!</h2>
+          <h2 style="color: #e11d48; text-align: center;">Welcome to RYMAACADEMY Instructor Program!</h2>
 
           <p>Dear <strong>${applicantName}</strong>,</p>
 
-          <p>Thank you for your interest in becoming an instructor at LearnHub! We have received your application and our team will review it shortly.</p>
+          <p>Thank you for your interest in becoming an instructor at RYMAACADEMY! We have received your application and our team will review it shortly.</p>
 
           <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="color: #333; margin-top: 0;">Application Summary:</h3>
@@ -47,10 +47,10 @@ const sendInstructorApplicationEmail = async (applicationData) => {
             <li>Successful candidates will receive instructor onboarding materials</li>
           </ol>
 
-          <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:support@learnhub.com">support@learnhub.com</a>.</p>
+          <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Team</strong></p>
+          <strong>RYMAACADEMY Team</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -111,7 +111,7 @@ const sendAdminApplicationNotification = async (applicationData) => {
           <p>If you need more information, contact the applicant at ${email} or ${phone}.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Automated System</strong></p>
+          <strong>RYMAACADEMY Automated System</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -139,14 +139,14 @@ const sendInstructorApprovalEmail = async ({ applicantName, email, loginLink }) 
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Congratulations! Your Instructor Application is Approved - LearnHub',
+      subject: 'Congratulations! Your Instructor Application is Approved - RYMAACADEMY',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
           <h2 style="color: #10b981; text-align: center;">Congratulations! 🎉</h2>
 
           <p>Dear <strong>${applicantName}</strong>,</p>
 
-          <p>Great news! Your application to become an instructor at LearnHub has been <strong>approved</strong>! Your instructor account has been created successfully.</p>
+          <p>Great news! Your application to become an instructor at RYMAACADEMY has been <strong>approved</strong>! Your instructor account has been created successfully.</p>
 
           <div style="background-color: #f0fdf4; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #10b981;">
             <p><strong>What happens next?</strong></p>
@@ -166,12 +166,12 @@ const sendInstructorApprovalEmail = async ({ applicantName, email, loginLink }) 
           <p>If the button doesn't work, copy and paste this link into your browser:</p>
           <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 3px;">${linkToUse}</p>
 
-          <p>Welcome to the LearnHub instructor community! We're excited to have you on board.</p>
+          <p>Welcome to the RYMAACADEMY instructor community! We're excited to have you on board.</p>
 
-          <p>If you have any questions, please contact us at <a href="mailto:support@learnhub.com">support@learnhub.com</a>.</p>
+          <p>If you have any questions, please contact us at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Team</strong></p>
+          <strong>RYMAACADEMY Team</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -197,14 +197,14 @@ const sendInstructorRejectionEmail = async ({ applicantName, email }) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Update on Your Instructor Application - LearnHub',
+      subject: 'Update on Your Instructor Application - RYMAACADEMY',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
           <h2 style="color: #6b7280; text-align: center;">Application Update</h2>
 
           <p>Dear <strong>${applicantName}</strong>,</p>
 
-          <p>Thank you for your interest in becoming an instructor at LearnHub and for taking the time to submit your application.</p>
+          <p>Thank you for your interest in becoming an instructor at RYMAACADEMY and for taking the time to submit your application.</p>
 
           <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #f59e0b;">
             <p>After careful review, we regret to inform you that we are unable to approve your application at this time.</p>
@@ -219,12 +219,12 @@ const sendInstructorRejectionEmail = async ({ applicantName, email }) => {
             <li>Reapply in the future when you feel ready</li>
           </ul>
 
-          <p>We appreciate your interest in LearnHub and wish you the best in your teaching journey.</p>
+          <p>We appreciate your interest in RYMAACADEMY and wish you the best in your teaching journey.</p>
 
-          <p>If you have any questions or would like feedback on your application, please contact us at <a href="mailto:support@learnhub.com">support@learnhub.com</a>.</p>
+          <p>If you have any questions or would like feedback on your application, please contact us at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Team</strong></p>
+          <strong>RYMAACADEMY Team</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -252,14 +252,14 @@ const sendContactFormEmail = async (contactData) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Thank you for contacting LearnHub',
+      subject: 'Thank you for contacting RYMAACADEMY',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
           <h2 style="color: #3b82f6; text-align: center;">Thank You for Contacting Us!</h2>
 
           <p>Dear <strong>${name}</strong>,</p>
 
-          <p>Thank you for reaching out to LearnHub! We have received your message and our team will review it shortly.</p>
+          <p>Thank you for reaching out to RYMAACADEMY! We have received your message and our team will review it shortly.</p>
 
           <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="color: #333; margin-top: 0;">Message Summary:</h3>
@@ -284,7 +284,7 @@ const sendContactFormEmail = async (contactData) => {
           <p>If you have any additional information or need to update your message, please reply to this email.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Support Team</strong></p>
+          <strong>RYMAACADEMY Support Team</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -320,7 +320,7 @@ const sendAdminContactNotification = async (contactData) => {
 
           <p>Dear Admin,</p>
 
-          <p>A new contact form has been submitted on the LearnHub website. Please review the details below and respond promptly.</p>
+          <p>A new contact form has been submitted on the RYMAACADEMY website. Please review the details below and respond promptly.</p>
 
           <div style="background-color: #fef2f2; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ef4444;">
             <h3 style="color: #333; margin-top: 0;">Contact Details:</h3>
@@ -356,7 +356,7 @@ const sendAdminContactNotification = async (contactData) => {
           <p>For quick response, you can reply directly to this email or contact the user at ${email}${phone ? ` or ${phone}` : ''}.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Automated System</strong></p>
+          <strong>RYMAACADEMY Automated System</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -375,6 +375,137 @@ const sendAdminContactNotification = async (contactData) => {
   }
 };
 
+const sendWelcomeEmail = async (userData) => {
+  try {
+    const { name, email, role } = userData;
+
+    console.log('Sending welcome email to:', email);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Welcome to RYMAACADEMY! Your Account Has Been Created',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #10b981; text-align: center;">Welcome to RYMAACADEMY! 🎉</h2>
+
+          <p>Dear <strong>${name}</strong>,</p>
+
+          <p>Thank you for joining RYMAACADEMY! Your account has been successfully created and you are now ready to explore our learning platform.</p>
+
+          <div style="background-color: #f0fdf4; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #10b981;">
+            <h3 style="color: #333; margin-top: 0;">Account Details:</h3>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Role:</strong> ${role}</p>
+            <p><strong>Registration Date:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+
+          <p><strong>What can you do now?</strong></p>
+          <ul>
+            <li>Browse and enroll in courses</li>
+            <li>Access your personalized dashboard</li>
+            <li>Track your learning progress</li>
+            <li>Connect with instructors and fellow learners</li>
+          </ul>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login"
+               style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Start Learning Now
+            </a>
+          </div>
+
+          <p>If you have any questions or need assistance, please don't hesitate to contact our support team at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
+
+          <p>Happy learning!</p>
+
+          <p>Best regards,<br>
+          <strong>RYMAACADEMY Team</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated message. Please do not reply to this email.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Welcome email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+    throw error;
+  }
+};
+
+const sendAdminSignupNotification = async (userData) => {
+  try {
+    const { name, email, role, userId, password } = userData;
+
+    console.log('Sending admin signup notification from:', process.env.EMAIL_USER ? process.env.EMAIL_USER.substring(0, 5) + '...' : 'MISSING');
+    console.log('To admin:', process.env.ADMIN_EMAIL || 'MISSING');
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.ADMIN_EMAIL,
+      subject: `New User Registration - ${name} (${role})`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #3b82f6; text-align: center;">New User Registration Alert!</h2>
+
+          <p>Dear Admin,</p>
+
+          <p>A new user has successfully registered on RYMAACADEMY. Here are the details:</p>
+
+          <div style="background-color: #eff6ff; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+            <h3 style="color: #333; margin-top: 0;">User Details:</h3>
+            <p><strong>User ID:</strong> ${userId}</p>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Password:</strong> ${password}</p>
+            <p><strong>Role:</strong> ${role}</p>
+            <p><strong>Registration Date:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Email Verified:</strong> Yes</p>
+          </div>
+
+          <p><strong>Next Steps:</strong></p>
+          <ul>
+            <li>Monitor user activity and engagement</li>
+            <li>Check for any suspicious registrations</li>
+            <li>Review user statistics in the admin dashboard</li>
+          </ul>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/dashboard?tab=users"
+               style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              View User in Admin Dashboard
+            </a>
+          </div>
+
+          <p>If you notice any unusual activity or need to take action, you can manage users through the admin panel.</p>
+
+          <p>Best regards,<br>
+          <strong>RYMAACADEMY Automated System</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated notification for new user registrations.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Admin signup notification email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending admin signup notification email:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   sendInstructorApplicationEmail,
   sendAdminApplicationNotification,
@@ -382,4 +513,6 @@ module.exports = {
   sendInstructorRejectionEmail,
   sendContactFormEmail,
   sendAdminContactNotification,
+  sendWelcomeEmail,
+  sendAdminSignupNotification,
 };
