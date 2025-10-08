@@ -1,3 +1,5 @@
+// C:\Users\mrunal\OneDrive\Desktop\new lms\LMMS1\client\src\Pages\HomePage.jsx
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -5,7 +7,6 @@ import { Link, useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { BookOpen, Users, Award, TrendingUp, Play, Star, ArrowRight, Quote } from "lucide-react"
 import CourseCard from "../Components/CourseCard"
-// Assuming this path is correct for your components
 import InstructorApplicationForm from "../Components/InstructorApplicationForm" 
 
 const HomePage = () => {
@@ -27,18 +28,15 @@ const HomePage = () => {
       fetchedRef.current = true
     }
 
-    // Check URL parameter for showing application form
     const showForm = searchParams.get('showApplicationForm')
     if (showForm === 'true') {
       setShowApplicationForm(true)
     }
 
-    // Listen for custom event from navbar
     const handleShowApplicationForm = () => {
       setShowApplicationForm(true)
     }
 
-    // NOTE: This assumes you have implemented a custom event dispatcher in your Navbar.jsx
     window.addEventListener('showApplicationForm', handleShowApplicationForm)
 
     return () => {
@@ -48,71 +46,21 @@ const HomePage = () => {
 
   const fetchFeaturedCourses = async () => {
     try {
-      // API call placeholder - modify as needed
       const response = await fetch("http://localhost:2000/api/courses/meta/featured-five")
       if (response.ok) {
         const data = await response.json()
         setFeaturedCourses(data)
       } else {
-         // Fallback to mock data if API fails
          throw new Error("API fetch failed")
       }
     } catch (error) {
       console.error("Error fetching featured courses:", error)
-      // Mock data for demonstration if API fails or for initial development
       setFeaturedCourses([
-        {
-          _id: "1",
-          title: "Complete JavaScript Course",
-          description: "Master JavaScript from basics to advanced concepts",
-          instructor: "John Doe",
-          price: 99,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Programming",
-          avgRating: 4.8,
-          reviewCount: 1250,
-          enrollmentCount: 15000,
-          lessons: Array(24).fill({}),
-        },
-        {
-          _id: "2",
-          title: "React Development Bootcamp",
-          description: "Build modern web applications with React",
-          instructor: "Jane Smith",
-          price: 149,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Programming",
-          avgRating: 4.9,
-          reviewCount: 890,
-          enrollmentCount: 8500,
-          lessons: Array(32).fill({}),
-        },
-        {
-          _id: "3",
-          title: "UI/UX Design Masterclass",
-          description: "Learn design principles and create stunning interfaces",
-          instructor: "Mike Johnson",
-          price: 79,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Design",
-          avgRating: 4.7,
-          reviewCount: 650,
-          enrollmentCount: 5200,
-          lessons: Array(18).fill({}),
-        },
-        {
-          _id: "4",
-          title: "Advanced Python for Data Science",
-          description: "Deep dive into NumPy, Pandas, and machine learning models.",
-          instructor: "Alice Brown",
-          price: 129,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Data Science",
-          avgRating: 4.6,
-          reviewCount: 450,
-          enrollmentCount: 4100,
-          lessons: Array(28).fill({}),
-        },
+        { _id: "1", title: "Complete JavaScript Course", description: "Master JavaScript from basics to advanced concepts", instructor: "John Doe", price: 99, thumbnail: "/placeholder.svg?height=200&width=400", category: "Programming", level: "Beginner", avgRating: 4.8, reviewCount: 1250, enrollmentCount: 15000, lessons: Array(24).fill({}), durationMinutes: 1440, },
+        { _id: "2", title: "React Development Bootcamp", description: "Build modern web applications with React", instructor: "Jane Smith", price: 149, thumbnail: "/placeholder.svg?height=200&width=400", category: "Programming", level: "Intermediate", avgRating: 4.9, reviewCount: 890, enrollmentCount: 8500, lessons: Array(32).fill({}), durationMinutes: 1920, },
+        { _id: "3", title: "UI/UX Design Masterclass: Create stunning interfaces", description: "Learn design principles, prototyping, and create stunning user interfaces using Figma.", instructor: "Mike Johnson", price: 79, thumbnail: "/placeholder.svg?height=200&width=400", category: "Design", level: "Beginner", avgRating: 4.7, reviewCount: 650, enrollmentCount: 5200, lessons: Array(18).fill({}), durationMinutes: 900, },
+        { _id: "4", title: "Advanced Python for Data Science and Machine Learning", description: "Deep dive into NumPy, Pandas, and implement various machine learning models.", instructor: "Alice Brown", price: 129, thumbnail: "/placeholder.svg?height=200&width=400", category: "Data Science", level: "Advanced", avgRating: 4.6, reviewCount: 450, enrollmentCount: 4100, lessons: Array(28).fill({}), durationMinutes: 1680, },
+        { _id: "5", title: "The Ultimate Guide to SEO & Digital Marketing", description: "A comprehensive course covering all aspects of Search Engine Optimization and online marketing.", instructor: "Eve Williams", price: 109, thumbnail: "/placeholder.svg?height=200&width=400", category: "Marketing", level: "Intermediate", avgRating: 4.5, reviewCount: 300, enrollmentCount: 3500, lessons: Array(20).fill({}), durationMinutes: 1200, },
       ])
     } finally {
       setIsLoading(false)
@@ -120,55 +68,21 @@ const HomePage = () => {
   }
 
   const features = [
-    {
-      icon: BookOpen,
-      title: "Expert-Led Courses",
-      description: "Learn from industry professionals with years of experience",
-    },
-    {
-      icon: Users,
-      title: "Community Learning",
-      description: "Join a vibrant community of learners and share knowledge",
-    },
-    {
-      icon: Award,
-      title: "Certificates",
-      description: "Earn recognized certificates upon course completion",
-    },
-    {
-      icon: TrendingUp,
-      title: "Track Progress",
-      description: "Monitor your learning journey with detailed analytics",
-    },
+    { icon: BookOpen, title: "Expert-Led Courses", description: "Learn from industry professionals with years of experience", },
+    { icon: Users, title: "Community Learning", description: "Join a vibrant community of learners and share knowledge", },
+    { icon: Award, title: "Certificates", description: "Earn recognized certificates upon course completion", },
+    { icon: TrendingUp, title: "Track Progress", description: "Monitor your learning journey with detailed analytics", },
   ]
 
   const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "Software Developer",
-      content: "LearnHub transformed my career. The courses are comprehensive and the instructors are amazing!",
-      avatar: "/placeholder.svg?height=60&width=60",
-      rating: 5,
-    },
-    {
-      name: "Michael Chen",
-      role: "UX Designer",
-      content: "The design courses here are top-notch. I landed my dream job after completing the UI/UX track.",
-      avatar: "/placeholder.svg?height=60&width=60",
-      rating: 5,
-    },
-    {
-      name: "Emily Davis",
-      role: "Marketing Manager",
-      content: "Flexible learning schedule and practical projects made all the difference in my learning journey.",
-      avatar: "/placeholder.svg?height=60&width=60",
-      rating: 5,
-    },
+    { name: "Sarah Johnson", role: "Software Developer", content: "LearnHub transformed my career. The courses are comprehensive and the instructors are amazing!", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
+    { name: "Michael Chen", role: "UX Designer", content: "The design courses here are top-notch. I landed my dream job after completing the UI/UX track.", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
+    { name: "Emily Davis", role: "Marketing Manager", content: "Flexible learning schedule and practical projects made all the difference in my learning journey.", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
   ]
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section (omitted for brevity) */}
       <section className="bg-gradient-to-br from-rose-600 via-rose-900 to-rose-900 text-white py-12 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center"> 
@@ -227,7 +141,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* RYMA Academy Promotional Section */}
+      {/* RYMA Academy Promotional Section (omitted for brevity) */}
       <section className="py-8 md:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -237,7 +151,6 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center" 
           >
-            {/* Left section with main heading */}
             <div className="md:pr-8">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 md:mb-4"> 
                 Join <span className="text-red-600">RYMA ACADEMY</span>
@@ -247,7 +160,6 @@ const HomePage = () => {
               </h2>
             </div>
 
-            {/* Right section with detailed description */}
             <div className="pt-4 md:pt-0">
               <p className="text-base md:text-lg text-gray-700 leading-relaxed"> 
                 Learn Most Demanded Skills choose by our <span className="font-semibold">367+ Placement Partner</span>{" "}
@@ -260,11 +172,10 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Trusted Partners Logos Section */}
+      {/* Trusted Partners Logos Section (omitted for brevity) */}
       <section className="py-8 md:py-12 bg-white"> 
         <div className="overflow-hidden">
           <style jsx="true">{`
-            /* Define a keyframes animation for the infinite scroll */
             @keyframes scroll {
               0% { transform: translateX(0); }
               100% { transform: translateX(-50%); }
@@ -273,7 +184,6 @@ const HomePage = () => {
               animation: scroll 30s linear infinite;
             }
           `}</style>
-          {/* Ensure the container is large enough to show two sets of logos */}
           <div className="flex animate-scroll whitespace-nowrap min-w-[200vw]"> 
             {[
               { name: "Accenture", src: "/File_Accenture.svg -.png" },
@@ -293,7 +203,6 @@ const HomePage = () => {
                 />
               </div>
             ))}
-            {/* Duplicate set for infinite loop effect */}
             {[
               { name: "Accenture", src: "/File_Accenture.svg -.png" },
               { name: "Google", src: "/Google logo - Wikipe.png" },
@@ -316,7 +225,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Features Section (Why Choose RYMA?) */}
+      {/* Features Section (Why Choose RYMA?) (omitted for brevity) */}
       <section className="py-8 md:py-12 bg-white"> 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -332,7 +241,6 @@ const HomePage = () => {
             </p>
           </motion.div>
 
-          {/* Grid is set to 2 columns on mobile (default) and 4 on large screens */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"> 
             {features.map((feature, index) => (
               <motion.div
@@ -355,7 +263,10 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Featured Courses Section - MODIFIED FOR 2-COLUMN LAYOUT ON MOBILE */}
+      {/* ================================================================================
+        FEATURED COURSES SECTION - MODIFIED FOR 1.5 - 2 CARDS IN VIEW 
+        ================================================================================
+      */}
       <section className="py-8 md:py-12 bg-white"> 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> 
           <motion.div
@@ -372,12 +283,11 @@ const HomePage = () => {
           </motion.div>
 
           {isLoading ? (
-            // Loading skeleton updated for 2 columns on small screens
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {[...Array(4)].map((_, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
-                  <div className="h-32 sm:h-48 bg-gray-300"></div>
-                  <div className="p-4 sm:p-6">
+            <div className="flex overflow-hidden space-x-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6">
+              {[...Array(3)].map((_, index) => (
+                <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse flex-shrink-0 w-80 md:w-full h-[380px]">
+                  <div className="h-1/2 bg-gray-300"></div>
+                  <div className="p-4">
                     <div className="h-4 bg-gray-300 rounded mb-2"></div>
                     <div className="h-4 bg-gray-300 rounded w-3/4 mb-4"></div>
                     <div className="h-3 bg-gray-300 rounded w-1/2"></div>
@@ -386,10 +296,18 @@ const HomePage = () => {
               ))}
             </div>
           ) : (
-            // 🌟 CHANGE: Now uses grid-cols-2 on the smallest screen, and up to grid-cols-3 on large screens.
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 pb-4"> 
+            // 🌟 Slider Implementation: 
+            // 1. Container: Removed `snap-mandatory` and adjusted `space-x-4` to control spacing.
+            <div className="flex overflow-x-auto space-x-4 pb-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-x-0 snap-x scroll-p-4"> 
               {featuredCourses.map((course, index) => (
-                <div key={course._id}> 
+                <div 
+                  key={course._id} 
+                  // 🌟 Card Sizing for 1.5 - 2 Cards: 
+                  // - `w-[60vw]` (60% viewport width) ensures about 1.5 cards are visible on a standard mobile screen (due to 4 units of space-x-4/1rem = 16px).
+                  // - `sm:w-[45vw]` (45% viewport width) ensures more than 2 cards are visible on small tablets.
+                  // - `md:w-full` reverts to the grid layout at medium screens and up.
+                  className="flex-shrink-0 w-[60vw] sm:w-[45vw] md:w-full lg:w-full snap-start"
+                > 
                   <CourseCard course={course} index={index} />
                 </div>
               ))}
@@ -407,8 +325,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-      {/* 3 Steps to Success Section */}
+      
+      {/* 3 Steps to Success Section (omitted for brevity) */}
       <section className="py-8 md:py-12 bg-rose-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -425,7 +343,6 @@ const HomePage = () => {
           </motion.div>
 
           <div className="flex flex-col md:flex-row items-center justify-between space-y-8 md:space-y-0 md:space-x-8"> 
-            {/* Step 1 */}
             <div className="flex-1 text-center">
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
                 <span className="text-xl sm:text-2xl font-bold text-white">1</span>
@@ -434,10 +351,8 @@ const HomePage = () => {
               <p className="text-sm sm:text-base text-rose-100 px-4">Fill out the application form to publish your courses.</p>
             </div>
 
-            {/* Line - Hidden on small screens */}
             <div className="w-0 h-0 md:block md:w-16 lg:w-24 md:h-1 bg-white bg-opacity-30"></div> 
 
-            {/* Step 2 */}
             <div className="flex-1 text-center">
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
                 <span className="text-xl sm:text-2xl font-bold text-white">2</span>
@@ -446,10 +361,8 @@ const HomePage = () => {
               <p className="text-sm sm:text-base text-rose-100 px-4">You get shortlisted on your education profile</p>
             </div>
 
-            {/* Line - Hidden on small screens */}
             <div className="w-0 h-0 md:block md:w-16 lg:w-24 md:h-1 bg-white bg-opacity-30"></div>
 
-            {/* Step 3 */}
             <div className="flex-1 text-center">
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
                 <span className="text-xl sm:text-2xl font-bold text-white">3</span>
@@ -471,7 +384,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section (omitted for brevity) */}
       <section className="py-12 md:py-20 bg-white"> 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -521,7 +434,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section (omitted for brevity) */}
       <section className="py-12 md:py-20 bg-rose-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
@@ -552,7 +465,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Application Form Modal */}
+      {/* Application Form Modal (omitted for brevity) */}
       {showApplicationForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-lg sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 sm:scale-100">
