@@ -5,25 +5,29 @@ const auth = async (req, res, next) => {
   try {
     const authHeader = req.header("Authorization")
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      req.user = null
-      return next()
+      return res.status(401).json({ message: "Authentication required" })
     }
 
     const token = authHeader.replace("Bearer ", "")
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    let decoded
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET)
+    } catch (err) {
+      console.error("Auth middleware error (token verify):", err)
+      return res.status(401).json({ message: "Invalid or expired token" })
+    }
+
     const user = await User.findById(decoded.id).select("-password")
 
     if (!user) {
-      req.user = null
-      return next()
+      return res.status(401).json({ message: "User not found" })
     }
 
     req.user = user
-    next()
+    return next()
   } catch (error) {
-    console.error("Auth middleware error:", error)
-    req.user = null
-    next()
+    console.error("Auth middleware unexpected error:", error)
+    return res.status(500).json({ message: "Server error" })
   }
 }
 

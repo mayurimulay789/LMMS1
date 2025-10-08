@@ -12,6 +12,7 @@ router.post("/register", async (req, res) => {
 
     // Check if user already exists
     const existingUser = await User.findOne({ email })
+    let user = existingUser
     if (existingUser) {
       // If user exists but hasn't verified email (created via instructor approval), allow setting password
       if (!existingUser.isEmailVerified && !existingUser.password) {
@@ -20,12 +21,13 @@ router.post("/register", async (req, res) => {
         existingUser.role = role || existingUser.role
         existingUser.isEmailVerified = true
         await existingUser.save()
+        user = existingUser
       } else {
         return res.status(400).json({ message: "User already exists" })
       }
     } else {
       // Create new user (password will be hashed by pre-save hook)
-      const user = new User({
+      user = new User({
         name,
         email,
         password,
@@ -39,16 +41,6 @@ router.post("/register", async (req, res) => {
         sendWelcomeEmail({ name: user.name, email: user.email, role: user.role }).catch(err => console.error('Welcome email failed:', err))
         sendAdminSignupNotification({ name: user.name, email: user.email, role: user.role, userId: user._id, password }).catch(err => console.error('Admin notification failed:', err))
       }
-
-      return res.status(201).json({
-        token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" }),
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-      })
     }
 
     // Generate JWT token
@@ -111,6 +103,7 @@ router.post("/login", async (req, res) => {
 // Get current logged-in user
 router.get("/me", auth, async (req, res) => {
   try {
+    if (!req.user) return res.status(401).json({ message: "Authentication required" })
     const user = await User.findById(req.user.id).select("-password")
     res.json({ user })
   } catch (error) {
@@ -123,7 +116,8 @@ router.get("/me", auth, async (req, res) => {
 router.put("/profile", auth, async (req, res) => {
   try {
     const { bio, website, social, avatar } = req.body
-    const userId = req.user.id
+  if (!req.user) return res.status(401).json({ message: "Authentication required" })
+  const userId = req.user.id
 
     // Build profile object with only provided fields
     const profileUpdate = {}
