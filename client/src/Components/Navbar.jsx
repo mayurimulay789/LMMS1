@@ -1,4 +1,4 @@
-import { ChevronDown, LogIn, Menu, X } from "lucide-react"; // Added Menu and X icons
+import { ChevronDown, Menu, X } from "lucide-react"; // Added Menu and X icons
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
@@ -155,22 +155,10 @@ export default function Navbar() {
               <Link to="/about" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">About</Link>
               <Link to="/contact" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">Contact Us</Link>
             </nav>
-
-            {/* Login Button */}
-            <Link to="/login" className="flex items-center gap-2 bg-rose-700 text-white px-4 py-2 rounded-full hover:bg-rose-800 transition-colors">
-              <LogIn className="w-4 h-4" />
-              <span className="font-medium">Login</span>
-            </Link>
           </div>
 
           {/* Mobile Menu Button (Hamburger) - Visible only on smaller screens */}
           <div className="lg:hidden flex items-center gap-3">
-            {!isAuthenticated && (
-                <Link to="/login" className="flex items-center gap-1 bg-white text-rose-800 px-3 py-1.5 rounded-full hover:bg-rose-50 transition-colors text-sm font-medium">
-                    <LogIn className="w-4 h-4" />
-                    Login
-                </Link>
-            )}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 text-white hover:text-gray-200 focus:outline-none"

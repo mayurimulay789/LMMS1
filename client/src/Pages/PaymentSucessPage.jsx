@@ -17,19 +17,27 @@ const PaymentSuccessPage = () => {
   const [course, setCourse] = useState(null)
 
   const { user } = useSelector((state) => state.auth)
-  const sessionId = searchParams.get("session_id")
+  const razorpay_order_id = searchParams.get("razorpay_order_id")
+  const razorpay_payment_id = searchParams.get("razorpay_payment_id")
+  const razorpay_signature = searchParams.get("razorpay_signature")
 
   useEffect(() => {
-    if (sessionId) {
+    if (razorpay_order_id && razorpay_payment_id && razorpay_signature) {
       verifyPaymentAndEnroll()
     } else {
       setVerificationStatus("error")
     }
-  }, [sessionId])
+  }, [razorpay_order_id, razorpay_payment_id, razorpay_signature])
 
   const verifyPaymentAndEnroll = async () => {
     try {
-      const result = await dispatch(verifyPayment(sessionId))
+      const result = await dispatch(
+        verifyPayment({
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature,
+        }),
+      )
 
       if (result.type === "payment/verifyPayment/fulfilled") {
         setPaymentDetails(result.payload.payment)

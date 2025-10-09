@@ -626,17 +626,11 @@ const AdminCourseForm = () => {
                           console.log('Course image load error:', e)
                           console.log('Course image src:', course.thumbnail)
                           e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.course-image-fallback') || document.createElement('div')
-                          fallback.className = 'course-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'IMG'
-                          if (!e.target.parentElement.querySelector('.course-image-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
+                          // Removed fallback block to prevent big block display
                         }}
                         onLoad={(e) => {
                           console.log('Course image loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.course-image-fallback')
-                          if (fallback) fallback.remove()
+                          // Removed fallback block removal
                         }}
                       />
                     )}

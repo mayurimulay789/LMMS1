@@ -76,7 +76,12 @@ const CheckoutPage = () => {
 
   const fetchCourse = async () => {
     try {
-      const response = await fetch(`http://localhost:2000/api/courses/${courseId}`)
+      const token = localStorage.getItem("token")
+      const response = await fetch(`http://localhost:2000/api/courses/${courseId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       if (response.ok) {
         const data = await response.json()
         setCourse(data)
@@ -172,7 +177,7 @@ const CheckoutPage = () => {
               })
 
               if (verifyResponse.ok) {
-                navigate(`/payment/success?course_id=${courseId}`)
+                navigate(`/payment/success?course_id=${courseId}&razorpay_order_id=${response.razorpay_order_id}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}`)
               } else {
                 navigate(`/payment/failed?course_id=${courseId}`)
               }

@@ -154,51 +154,77 @@ app.get("/api", (req, res) => {
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err)
 
-  if (err.name === "ValidationError") {
-    const errors = Object.values(err.errors).map((e) => e.message)
-    return res.status(400).json({
-      error: "Validation Error",
-      message: "Invalid input data",
-      details: errors,
-    })
+  // Handle ECONNRESET (client closed connection) - don't try to send response
+  if (err.code === 'ECONNRESET') {
+    console.log('Connection reset by client - skipping response');
+    return;
   }
 
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0]
-    return res.status(400).json({
-      error: "Duplicate Error",
-      message: `${field} already exists`,
-      field: field,
-    })
-  }
+  // Check if response can be sent
+  if (!res.headersSent && res.writable) {
+    try {
+      if (err.name === "ValidationError") {
+        const errors = Object.values(err.errors).map((e) => e.message)
+        return res.status(400).json({
+          error: "Validation Error",
+          message: "Invalid input data",
+          details: errors,
+        })
+      }
 
-  if (err.name === "JsonWebTokenError") {
-    return res.status(401).json({
-      error: "Authentication Error",
-      message: "Invalid token",
-    })
-  }
+      if (err.code === 11000) {
+        const field = Object.keys(err.keyValue)[0]
+        return res.status(400).json({
+          error: "Duplicate Error",
+          message: `${field} already exists`,
+          field: field,
+        })
+      }
 
-  if (err.name === "TokenExpiredError") {
-    return res.status(401).json({
-      error: "Authentication Error",
-      message: "Token expired",
-    })
-  }
+      if (err.name === "JsonWebTokenError") {
+        return res.status(401).json({
+          error: "Authentication Error",
+          message: "Invalid token",
+        })
+      }
 
-  if (err.code === "ENOENT") {
-    return res.status(404).json({
-      error: "File Not Found",
-      message: "Requested file does not exist",
-    })
-  }
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({
+          error: "Authentication Error",
+          message: "Token expired",
+        })
+      }
 
-  res.status(err.status || 500).json({
-    error: "Internal Server Error",
-    message: process.env.NODE_ENV === "production" ? "Something went wrong" : err.message,
-    ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
-  })
+      if (err.code === "ENOENT") {
+        return res.status(404).json({
+          error: "File Not Found",
+          message: "Requested file does not exist",
+        })
+      }
+
+      res.status(err.status || 500).json({
+        error: "Internal Server Error",
+        message: process.env.NODE_ENV === "production" ? "Something went wrong" : err.message,
+        ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
+      })
+    } catch (sendErr) {
+      console.error('Failed to send error response:', sendErr);
+    }
+  } else {
+    console.log('Response already sent or connection closed - skipping error response');
+  }
 })
+
+// Process error handlers to prevent server crashes
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  // In production, you might want to exit, but for now, log and continue
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Log and continue
+});
 
 // Graceful shutdown
 

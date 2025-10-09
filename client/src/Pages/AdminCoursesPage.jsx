@@ -163,11 +163,13 @@ const AdminCoursesPage = () => {
               transition={{ duration: 0.3, delay: index * 0.05 }}
               whileHover={{ scale: 1.02 }}
             >
-              <img
-                src={course.image || "/placeholder.svg?height=200&width=300"}
-                alt={course.title}
-                className="object-cover w-full h-48"
-              />
+              {course.image && (
+                <img
+                  src={course.image}
+                  alt={course.title}
+                  className="object-cover w-full h-48"
+                />
+              )}
               <div className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="px-2 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded">
