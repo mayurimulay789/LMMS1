@@ -27,13 +27,7 @@ const MyCoursesPage = () => {
             );
 
             const completedLessons = progressRes.data.progress?.completedLessons || [];
-            const totalLessons = enrollment.course.lessons?.length || 1;
-            
-            // Ensure percentage doesn't exceed 100%
-            const completionPercentage = Math.min(
-              Math.round((completedLessons.length / totalLessons) * 100),
-              100
-            );
+            const completionPercentage = progressRes.data.progress?.completionPercentage || 0;
 
             return {
               ...enrollment,
@@ -278,7 +272,7 @@ const MyCoursesPage = () => {
                           </div>
                           
                           <Link
-                            to={isCompleted ? `/courses/${enrollment.course._id}?tab=reviews` : `/courses/${enrollment.course._id}/LearnPage`}
+                            to={`/courses/${enrollment.course._id}/learn`}
                             className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2 min-w-[120px] ${
                               isCompleted
                                 ? "bg-green-600 text-white hover:bg-green-700"
@@ -287,13 +281,13 @@ const MyCoursesPage = () => {
                           >
                             {isCompleted ? (
                               <>
-                                <CheckCircle className="h-4 w-4" />
-                                Review
+                                <Play className="h-4 w-4" />
+                                Continue Learning
                               </>
                             ) : (
                               <>
                                 <Play className="h-4 w-4" />
-                                Continue
+                                Continue Learning
                               </>
                             )}
                           </Link>

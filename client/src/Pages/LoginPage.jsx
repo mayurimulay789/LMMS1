@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { Eye, EyeOff, Mail, Lock, BookOpen } from "lucide-react"
 import { loginUser, clearError } from "../store/slices/authSlice"
@@ -16,20 +16,26 @@ const LoginPage = () => {
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth)
 
   useEffect(() => {
     if (isAuthenticated) {
-      const user = JSON.parse(localStorage.getItem("user"))
-      if (user?.role === "admin") {
-        navigate("/admin")
-      } else if (user?.role === "instructor") {
-        navigate("/instructor")
+      const from = location.state?.from
+      if (from && from !== '/login') {
+        navigate(from, { replace: true })
       } else {
-        navigate("/dashboard")
+        const user = JSON.parse(localStorage.getItem("user"))
+        if (user?.role === "admin") {
+          navigate("/admin")
+        } else if (user?.role === "instructor") {
+          navigate("/instructor")
+        } else {
+          navigate("/dashboard")
+        }
       }
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, navigate, location])
 
   useEffect(() => {
     return () => {

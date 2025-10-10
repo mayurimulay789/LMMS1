@@ -141,7 +141,7 @@ router.get("/top", async (req, res) => {
 })
 
 // GET /courses/:id - Get single course
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id",auth, async (req, res) => {
   try {
     const course = await Course.findById(req.params.id)
       .populate("createdBy", "name email avatar profile")
@@ -205,7 +205,6 @@ router.get("/:id", auth, async (req, res) => {
       const enrollment = await Enrollment.findOne({
         user: req.user.id,
         course: course._id,
-        status: { $in: ["active", "completed", "in-progress"] }
       })
       console.log(`Enrollment found for user ${req.user.id} and course ${course._id}:`, enrollment)  // Debug log
       isEnrolled = !!enrollment

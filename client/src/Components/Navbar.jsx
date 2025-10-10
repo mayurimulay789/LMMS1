@@ -88,7 +88,7 @@ export default function Navbar() {
                     </Link>
                   )}
                   <Link
-                    to="/dashboard"
+                    to="/mycourses"
                     onClick={closeMenus}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800"
                   >
@@ -196,6 +196,7 @@ export default function Navbar() {
                     <Link to="/instructor" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 hover:bg-rose-50 rounded-md">Instructor Panel</Link>
                 )}
                 <Link to="/certificates" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 hover:bg-rose-50 rounded-md">Certificates</Link>
+                <Link to="/mycourses" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 hover:bg-rose-50 rounded-md">My Courses</Link>
                 <button
                     onClick={() => { dispatch(logout()); closeMenus(); }}
                     className="w-full text-left px-3 py-2 text-sm text-white bg-rose-700 rounded-md hover:bg-rose-800 transition-colors"

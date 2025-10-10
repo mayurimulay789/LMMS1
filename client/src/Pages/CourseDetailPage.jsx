@@ -243,7 +243,11 @@ const CourseDetailPage = () => {
 
   const handleEnroll = () => {
     if (!isAuthenticated) {
-      navigate("/login")
+      if (course.price === 0) {
+        navigate("/login", { state: { from: `/courses/${course._id}` } })
+      } else {
+        navigate("/login", { state: { from: `/checkout/${course._id}` } })
+      }
       return
     }
 
