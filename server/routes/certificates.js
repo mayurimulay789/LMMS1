@@ -119,13 +119,18 @@ router.get("/:certificateId", async (req, res) => {
 
     const certificate = await Certificate.findOne({
       certificateId,
-      isValid: true,
     })
       .populate("user", "name email")
       .populate("course", "title instructor description")
 
     if (!certificate) {
-      return res.status(404).json({ message: "Certificate not found or invalid" })
+      console.log("Certificate fetch failed for ID:", certificateId)
+      return res.status(404).json({ message: "Certificate not found" })
+    }
+
+    if (!certificate.isValid) {
+      console.log("Certificate fetch failed for ID (invalid):", certificateId)
+      return res.status(404).json({ message: "Certificate is invalid or revoked" })
     }
 
     res.json(certificate)
@@ -173,14 +178,30 @@ router.get("/verify/:certificateId", async (req, res) => {
   try {
     const { certificateId } = req.params
 
-    const certificate = await certificateService.verifyCertificate(certificateId)
+    const certificate = await Certificate.findOne({
+      certificateId,
+    }).populate("user", "name email")
 
     if (!certificate) {
+      console.log("Certificate verification failed for ID:", certificateId)
       return res.status(404).json({
         valid: false,
-        message: "Certificate not found or invalid",
+        message: "Certificate not found",
       })
     }
+
+    if (!certificate.isValid) {
+      console.log("Certificate verification failed for ID (invalid):", certificateId)
+      return res.status(404).json({
+        valid: false,
+        message: "Certificate is invalid or revoked",
+      })
+    }
+
+    // Update verification count and last verified date
+    certificate.metadata.verificationCount = (certificate.metadata.verificationCount || 0) + 1
+    certificate.metadata.lastVerifiedAt = new Date()
+    await certificate.save()
 
     res.json({
       valid: true,

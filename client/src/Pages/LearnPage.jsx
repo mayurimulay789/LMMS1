@@ -19,6 +19,7 @@ const LearnPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [progress, setProgress] = useState(null)
+  const [certificateId, setCertificateId] = useState(null)
 
   const youtubePlayerRef = useRef(null)
   const [youtubePlayer, setYoutubePlayer] = useState(null)
@@ -82,10 +83,47 @@ const LearnPage = () => {
       })
       if (response.ok) {
         const data = await response.json()
+        console.log('Progress response data:', data);
         setProgress(data.progress)
+        // Set certificate from enrollment if available
+        if (data.certificate && data.certificate.issued) {
+          console.log('Setting certificateId from enrollment:', data.certificate.certificateId);
+          setCertificateId(data.certificate.certificateId)
+        } else {
+          console.log('No issued certificate in enrollment response');
+        }
+        // Fetch certificate if course is completed (for additional Certificate model records if any)
+        if (isCourseCompleted()) {
+          await fetchCertificate()
+        }
       }
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  // Fetch certificate for completed course
+  const fetchCertificate = async () => {
+    try {
+      console.log('Fetching certificate for courseId:', courseId);
+      const response = await fetch(`http://localhost:2000/api/certificates/me`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      if (response.ok) {
+        const certs = await response.json()
+        console.log('Fetched certificates:', certs);
+        const cert = certs.find(c => c.course === courseId)
+        if (cert) {
+          console.log('Found certificate:', cert);
+          setCertificateId(cert.certificateId)
+        } else {
+          console.log('No certificate found for this course');
+        }
+      } else {
+        console.log('Certificate fetch failed with status:', response.status);
+      }
+    } catch (error) {
+      console.error("Failed to fetch certificate", error)
     }
   }
 
@@ -118,6 +156,26 @@ const LearnPage = () => {
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
+  }
+
+  const handleCertificateClick = () => {
+    console.log('Certificate button clicked', { 
+      isCourseCompleted: isCourseCompleted(), 
+      certificateId, 
+      courseId 
+    });
+    if (isCourseCompleted()) {
+      if (certificateId) {
+        console.log('Opening PDF for certificateId:', certificateId);
+        window.open(`/api/certificates/pdf/${certificateId}`, "_blank")
+      } else {
+        console.log('No certificateId found, showing toast');
+        toast("Certificate not yet generated. Please contact support.")
+      }
+    } else {
+      console.log('Course not completed, showing toast');
+      toast("Complete all lessons to unlock your certificate!")
+    }
   }
 
   // YouTube player
@@ -244,19 +302,16 @@ const LearnPage = () => {
         {/* Sidebar */}
         <div className="lg:col-span-1 space-y-4">
           {/* Certificate */}
-          <div
+          <button
+            type="button"
             className={`flex items-center p-4 rounded-lg shadow-sm ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer`}
-            onClick={() =>
-              isCourseCompleted()
-                ? window.open(`/api/certificates/pdf/${courseId}`, "_blank")
-                : toast.info("Complete all lessons to unlock your certificate!")
-            }
+            onClick={handleCertificateClick}
           >
             {isCourseCompleted() ? <Award className="h-6 w-6 text-green-600 mr-3" /> : <Lock className="h-6 w-6 text-gray-400 mr-3" />}
             <span className={`${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium`}>
               {isCourseCompleted() ? "Certificate Unlocked" : "Certificate Locked"}
             </span>
-          </div>
+          </button>
 
           {/* Lessons */}
           <div className="bg-white rounded-lg shadow-sm p-4">

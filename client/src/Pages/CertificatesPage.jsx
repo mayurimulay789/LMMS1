@@ -328,10 +328,16 @@ const CertificatesPage = () => {
           >
             <Award className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <h3 className="mb-2 text-xl font-semibold text-gray-900">No Certificates Yet</h3>
-            <p className="mb-6 text-gray-600">Complete courses to earn your first certificate!</p>
-            <a href="/courses" className="btn btn-primary">
-              Browse Courses
-            </a>
+            <p className="mb-4 text-gray-600">You haven't earned any certificates yet. Start learning to unlock your achievements!</p>
+            <p className="mb-6 text-sm text-gray-500">Complete courses, pass assessments, and get recognized for your skills.</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <a href="/courses" className="btn btn-primary">
+                Browse Courses
+              </a>
+              <a href="/dashboard" className="btn btn-outline">
+                View Dashboard
+              </a>
+            </div>
           </motion.div>
         ) : filteredCertificates.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">

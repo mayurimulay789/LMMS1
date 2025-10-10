@@ -112,6 +112,7 @@ const certificateSchema = new mongoose.Schema(
 certificateSchema.index({ user: 1, course: 1 })
 certificateSchema.index({ isValid: 1 })
 certificateSchema.index({ createdAt: -1 })
+certificateSchema.index({ certificateId: 1, isValid: 1 }, { unique: true })
 
 // Generate certificate number before saving
 certificateSchema.pre("save", function (next) {

@@ -24,6 +24,7 @@ const CertificateVerificationPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [verificationStatus, setVerificationStatus] = useState(null) // 'valid', 'invalid', 'error'
   const [hasSearched, setHasSearched] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   useEffect(() => {
     if (certificateId) {
@@ -52,6 +53,7 @@ const CertificateVerificationPage = () => {
         toast.success("Certificate verified successfully!")
       } else {
         setVerificationStatus("invalid")
+        setErrorMessage(data.message || "Certificate not found or invalid")
         toast.error(data.message || "Certificate not found or invalid")
       }
     } catch (error) {
@@ -314,10 +316,13 @@ const CertificateVerificationPage = () => {
                   <div className="flex items-start space-x-3">
                     <XCircle className="h-5 w-5 text-error-600 mt-0.5" />
                     <div>
-                      <h4 className="text-sm font-medium text-error-800">Certificate Not Found</h4>
+                      <h4 className="text-sm font-medium text-error-800">
+                        {errorMessage === "Certificate not found" ? "Certificate Not Found" : "Certificate Invalid"}
+                      </h4>
                       <p className="text-sm text-error-700 mt-1">
-                        The certificate ID you entered could not be found in our database. Please check the ID and try
-                        again, or contact support if you believe this is an error.
+                        {errorMessage === "Certificate not found"
+                          ? "The certificate ID you entered could not be found in our database. Please double-check the ID and try again. If you believe this is an error, contact support with your certificate details."
+                          : "This certificate has been revoked or is invalid. Please contact support for more information."}
                       </p>
                     </div>
                   </div>

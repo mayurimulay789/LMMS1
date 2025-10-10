@@ -1,4 +1,5 @@
 import { Users, Target, Heart, BookOpen, Globe, Award, TrendingUp } from "lucide-react"
+import { Link } from "react-router-dom"
 
 const AboutUsPage = () => {
   const stats = [
@@ -246,12 +247,14 @@ const AboutUsPage = () => {
             Join thousands of students who have transformed their careers with Ryma Academy
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-gradient-to-r from-rose-700 to-rose-800 text-white px-8 py-4 rounded-lg font-semibold hover:from-rose-800 hover:to-rose-900 transition-all duration-300 transform hover:scale-105 shadow-lg">
+          
+            <Link to="/courses" className="bg-gradient-to-r from-rose-700 to-rose-800 text-white px-8 py-4 rounded-lg font-semibold hover:from-rose-800 hover:to-rose-900 transition-all duration-300 transform hover:scale-105 shadow-lg inline-block">
               Explore Courses
-            </button>
-            <button className="border-2 border-rose-700 text-rose-700 px-8 py-4 rounded-lg font-semibold hover:bg-rose-700 hover:text-white transition-all duration-300 transform hover:scale-105">
+            </Link>
+         
+            <Link to="/contact" className="border-2 border-rose-700 text-rose-700 px-8 py-4 rounded-lg font-semibold hover:bg-rose-700 hover:text-white transition-all duration-300 transform hover:scale-105 inline-block">
               Contact Us
-            </button>
+            </Link>
           </div>
         </div>
       </section>

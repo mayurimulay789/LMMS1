@@ -107,7 +107,17 @@ class CertificateService {
         },
       })
 
-      await certificate.save()
+      try {
+        await certificate.save()
+      } catch (saveError) {
+        console.error("Certificate DB save error:", saveError)
+        // Cleanup: Delete the generated PDF if DB save fails
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath)
+          console.log(`Cleaned up orphaned PDF: ${filePath}`)
+        }
+        throw new Error(`Failed to save certificate to database: ${saveError.message}`)
+      }
 
       return certificate
     } catch (error) {
@@ -308,6 +318,7 @@ class CertificateService {
       }).populate("user", "name email")
 
       if (!certificate) {
+        console.log("Verification failed for ID:", certificateId)
         return null
       }
 
