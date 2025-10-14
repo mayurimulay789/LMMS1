@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 // Async thunks for API calls
 export const loginUser = createAsyncThunk("auth/login", async ({ email, password }, { rejectWithValue }) => {
   try {
-    const response = await fetch("http://localhost:2000/api/auth/login", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +28,7 @@ export const registerUser = createAsyncThunk(
   "auth/register",
   async ({ name, email, password, role }, { rejectWithValue }) => {
     try {
-      const response = await fetch("http://localhost:2000/api/auth/register", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export const loadUser = createAsyncThunk("auth/loadUser", async (_, { rejectWith
       return rejectWithValue("No token found")
     }
 
-    const response = await fetch("http://localhost:2000/api/auth/me", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -86,7 +86,7 @@ export const uploadAvatar = createAsyncThunk("auth/uploadAvatar", async (file, {
     const formData = new FormData()
     formData.append("avatar", file)
 
-    const response = await fetch("http://localhost:2000/api/upload/avatar", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/upload/avatar`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
