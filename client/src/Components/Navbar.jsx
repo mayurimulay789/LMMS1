@@ -123,8 +123,8 @@ export default function Navbar() {
                shadow-[0_-4px_10px_rgba(0,0,0,0.25)] hover:shadow-[0_-8px_16px_rgba(0,0,0,0.35)] transition-shadow duration-300"
   >
     <img 
-      src="../src/assets/ryma-logo.png" 
-      alt="" 
+      src={logo} 
+      alt="RYMA Academy Logo" 
       className="w-[140%] h-full object-contain"
     />
   </div>
