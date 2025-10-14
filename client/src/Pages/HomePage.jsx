@@ -6,15 +6,16 @@ import { motion } from "framer-motion"
 import { BookOpen, Users, Award, TrendingUp, Play, Star, ArrowRight, Quote } from "lucide-react"
 import CourseCard from "../Components/CourseCard"
 import InstructorApplicationForm from "../Components/InstructorApplicationForm"
+import { apiRequest } from "../config/api"
 
 const HomePage = () => {
   const [featuredCourses, setFeaturedCourses] = useState([])
-  const [stats, setStats] = useState({
+  const stats = {
     totalStudents: 50000,
     totalCourses: 1200,
     totalInstructors: 150,
     completionRate: 94,
-  })
+  }
   const [isLoading, setIsLoading] = useState(true)
   const [showApplicationForm, setShowApplicationForm] = useState(false)
   const fetchedRef = useRef(false)
@@ -46,7 +47,7 @@ const HomePage = () => {
 
   const fetchFeaturedCourses = async () => {
     try {
-      const response = await fetch("http://localhost:2000/api/courses/meta/featured-five")
+      const response = await apiRequest("courses/meta/featured-five")
       if (response.ok) {
         const data = await response.json()
         setFeaturedCourses(data)
@@ -464,7 +465,7 @@ const HomePage = () => {
                 className="bg-white p-8 rounded-xl shadow-lg"
               >
                 <Quote className="h-8 w-8 text-rose-900 mb-4" />
-                <p className="text-gray-700 mb-6 italic">"{testimonial.content}"</p>
+                <p className="text-gray-700 mb-6 italic">&ldquo;{testimonial.content}&rdquo;</p>
                 <div className="flex items-center space-x-4">
                   <img
                     src={testimonial.avatar || "/placeholder.svg"}

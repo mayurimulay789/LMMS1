@@ -1,0 +1,32 @@
+{
+  "name": "lmms1-fullstack",
+  "version": "1.0.0",
+  "description": "Learning Management System - Full Stack Application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "start": "concurrently \"npm run server:start\" \"npm run client:start\"",
+    "client:dev": "cd client && npm run dev",
+    "client:start": "cd client && npm run preview",
+    "client:build": "cd client && npm run build",
+    "server:dev": "cd server && npm run dev",
+    "server:start": "cd server && npm run start",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build": "npm run client:build"
+  },
+  "keywords": [
+    "lms",
+    "learning",
+    "management",
+    "system",
+    "react",
+    "node",
+    "express",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

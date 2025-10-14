@@ -43,21 +43,38 @@ app.use(limiter)
 app.use(compression())
 
 // Logging middleware
-// app.use(morgan("combined"))
+if (process.env.NODE_ENV === 'production') {
+  app.use(morgan("combined"))
+} else {
+  app.use(morgan("dev"))
+}
 
-const allowedOrigins = ['http://localhost:5173']
+// CORS configuration - support multiple environments
+const allowedOrigins = [
+  'http://localhost:5173', // Development
+  'http://localhost:3000', // Alternative dev port
+  process.env.CLIENT_URL, // Production URL from environment variable
+  process.env.FRONTEND_URL, // Alternative env var name
+].filter(Boolean) // Remove undefined values
 
-// CORS configuration
 app.use(
   cors({
     origin: function(origin, callback){
-      // allow requests with no origin (like mobile apps or curl requests)
+      // Allow requests with no origin (mobile apps, curl, Postman, etc.)
       if(!origin) return callback(null, true);
-      if(allowedOrigins.indexOf(origin) === -1){
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
+      
+      // In production, be more strict about origins
+      if(process.env.NODE_ENV === 'production' && !process.env.CLIENT_URL && !process.env.FRONTEND_URL) {
+        console.warn('⚠️ WARNING: No CLIENT_URL or FRONTEND_URL set in production environment');
       }
-      return callback(null, true);
+      
+      if(allowedOrigins.indexOf(origin) !== -1){
+        return callback(null, true);
+      }
+      
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      console.error('❌ CORS Error:', msg);
+      return callback(new Error(msg), false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],

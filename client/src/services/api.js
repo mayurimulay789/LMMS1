@@ -1,4 +1,7 @@
-const API_BASE_URL = "http://localhost:2000/api"
+// API Base URL - supports different environments
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+                    import.meta.env.VITE_BACKEND_URL || 
+                    (import.meta.env.DEV ? "http://localhost:2000/api" : "/api")
 
 // Profile API functions
 export const profileAPI = {
