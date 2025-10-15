@@ -17,7 +17,8 @@ import ProtectedInstructorRoute from "./Components/ProtectedInstructorRoute"
 import HomePage from "./Pages/HomePage"
 import CoursesPage from "./Pages/CoursesPage"
 import ReferEarn from './Pages/ReferEarn';
-import CourseDetailPage from "./Pages/CourseDetailPage"
+import CourseDetailPage from "./Pages/CourseDetailPage";
+
 import ContactUsPage from "./Pages/ContactUsPage"
 import AboutUsPage from "./Pages/AboutUsPage"
 import LoginPage from "./Pages/LoginPage"
@@ -37,6 +38,7 @@ import InstructorDashboardPage from "./Pages/InstructorDashboardPage"
 // Payment Pages
 import PaymentSuccessPage from "./Pages/PaymentSucessPage"
 import PaymentFailedPage from "./Pages/PaymentFailedPage"
+import MyCoursesPage from './Pages/MyCoursesPage';
 
 function AppContent() {
   const dispatch = useDispatch()
@@ -78,6 +80,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <MyEnrollmentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-courses"
+            element={
+              <ProtectedRoute>
+                <MyCoursesPage />
               </ProtectedRoute>
             }
           />
