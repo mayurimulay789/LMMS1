@@ -143,22 +143,42 @@ router.post("/courses", async (req, res) => {
   try {
     const { calculateLessonsDurations } = require("../utils/videoUtils")
 
+    // Convert lessons to modules structure if lessons are provided
+    let courseData = { ...req.body }
+    if (courseData.lessons && courseData.lessons.length > 0) {
+      courseData.modules = [{
+        name: "Course Content",
+        order: 1,
+        subcourses: courseData.lessons
+      }]
+      delete courseData.lessons
+    }
+
     const course = new Course({
-      ...req.body,
+      ...courseData,
       instructor: req.user.name, // Set instructor name
       instructorId: req.user.id, // Set instructor ObjectId reference
       createdBy: req.user.id, // Set who created the course
     })
 
-    // Calculate durations for lessons with video URLs
-    if (course.lessons && course.lessons.length > 0) {
+    // Calculate durations for subcourses with video URLs
+    if (course.modules && course.modules.length > 0) {
       try {
-        const result = await calculateLessonsDurations(course.lessons)
-        course.lessons = result.lessons
+        let allSubcourses = []
+        course.modules.forEach(module => {
+          allSubcourses = [...allSubcourses, ...module.subcourses]
+        })
+        const result = await calculateLessonsDurations(allSubcourses)
+        // Update subcourses back into modules
+        let subcourseIndex = 0
+        course.modules.forEach(module => {
+          module.subcourses = result.lessons.slice(subcourseIndex, subcourseIndex + module.subcourses.length)
+          subcourseIndex += module.subcourses.length
+        })
         course.duration = result.totalDuration
-        console.log(`Calculated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
+        console.log(`Calculated durations for ${allSubcourses.length} subcourses. Total course duration: ${course.duration} minutes`)
       } catch (durationError) {
-        console.error("Error calculating lesson durations:", durationError)
+        console.error("Error calculating subcourse durations:", durationError)
         // Continue with course creation even if duration calculation fails
       }
     }
@@ -183,18 +203,38 @@ router.put("/courses/:courseId", async (req, res) => {
       return res.status(404).json({ message: "Course not found or not authorized" })
     }
 
-    // Update course fields
-    Object.assign(course, req.body)
+    // Convert lessons to modules structure if lessons are provided
+    let updateData = { ...req.body }
+    if (updateData.lessons && updateData.lessons.length > 0) {
+      updateData.modules = [{
+        name: "Course Content",
+        order: 1,
+        subcourses: updateData.lessons
+      }]
+      delete updateData.lessons
+    }
 
-    // Calculate durations for lessons with video URLs
-    if (course.lessons && course.lessons.length > 0) {
+    // Update course fields
+    Object.assign(course, updateData)
+
+    // Calculate durations for subcourses with video URLs
+    if (course.modules && course.modules.length > 0) {
       try {
-        const result = await calculateLessonsDurations(course.lessons)
-        course.lessons = result.lessons
+        let allSubcourses = []
+        course.modules.forEach(module => {
+          allSubcourses = [...allSubcourses, ...module.subcourses]
+        })
+        const result = await calculateLessonsDurations(allSubcourses)
+        // Update subcourses back into modules
+        let subcourseIndex = 0
+        course.modules.forEach(module => {
+          module.subcourses = result.lessons.slice(subcourseIndex, subcourseIndex + module.subcourses.length)
+          subcourseIndex += module.subcourses.length
+        })
         course.duration = result.totalDuration
-        console.log(`Updated durations for ${course.lessons.length} lessons. Total course duration: ${course.duration} minutes`)
+        console.log(`Updated durations for ${allSubcourses.length} subcourses. Total course duration: ${course.duration} minutes`)
       } catch (durationError) {
-        console.error("Error calculating lesson durations:", durationError)
+        console.error("Error calculating subcourse durations:", durationError)
         // Continue with course update even if duration calculation fails
       }
     }

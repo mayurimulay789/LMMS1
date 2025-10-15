@@ -78,7 +78,7 @@ const HomePage = () => {
   ]
 
   const testimonials = [
-    { name: "Sarah Johnson", role: "Software Developer", content: "LearnHub transformed my career. The courses are comprehensive and the instructors are amazing!", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
+    { name: "Sarah Johnson", role: "Software Developer", content: "Ryma Academy transformed my career. The courses are comprehensive and the instructors are amazing!", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
     { name: "Michael Chen", role: "UX Designer", content: "The design courses here are top-notch. I landed my dream job after completing the UI/UX track.", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
     { name: "Emily Davis", role: "Marketing Manager", content: "Flexible learning schedule and practical projects made all the difference in my learning journey.", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
   ]
@@ -339,9 +339,15 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="mb-8 text-center md:mb-16"
           >
+
             <h2 className="mb-2 text-3xl font-bold md:text-4xl lg:text-5xl md:mb-4">3 Steps to Success</h2>
             <p className="max-w-3xl mx-auto mb-8 text-base md:text-xl text-rose-100 md:mb-12">
               Get enrolled in LearnHub as a Instructor and help to grow others also.
+
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4">3 Steps to Success</h2>
+            <p className="text-base md:text-xl text-rose-100 max-w-3xl mx-auto mb-8 md:mb-12">
+              Get enrolled in Ryma Academy as a Instructor and help to grow others also.
+
             </p>
           </motion.div>
 

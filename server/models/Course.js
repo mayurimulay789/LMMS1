@@ -39,6 +39,23 @@ const lessonSchema = new mongoose.Schema(
   },
 )
 
+const moduleSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    subcourses: [lessonSchema],
+    order: {
+      type: Number,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
+)
+
 const reviewSchema = new mongoose.Schema(
   {
     user: {
@@ -141,7 +158,7 @@ const courseSchema = new mongoose.Schema(
       type: Number, // total duration in minutes
       default: 0,
     },
-    lessons: [lessonSchema],
+    modules: [moduleSchema],
     totalLessons: {
       type: Number,
       default: 0,
@@ -282,11 +299,13 @@ courseSchema.pre("save", async function (next) {
     }
 
     // Update total lessons count
-    if (this.lessons) {
-      this.totalLessons = this.lessons.length
+    if (this.modules) {
+      this.totalLessons = this.modules.reduce((acc, module) => acc + module.subcourses.length, 0)
 
-      // Calculate total duration from lessons
-      this.duration = this.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
+      // Calculate total duration from subcourses
+      this.duration = this.modules.reduce((acc, module) =>
+        acc + module.subcourses.reduce((modAcc, lesson) => modAcc + (lesson.duration || 0), 0), 0
+      )
     }
 
     // Generate slug if not provided
@@ -309,31 +328,45 @@ courseSchema.pre("save", async function (next) {
   try {
     const { calculateLessonsDurations } = require("../utils/videoUtils")
 
-    // Calculate durations for lessons with video URLs
-    if (this.lessons && this.lessons.length > 0) {
+    // Calculate durations for subcourses with video URLs
+    if (this.modules && this.modules.length > 0) {
       try {
-        console.log(`Calculating durations for ${this.lessons.length} lessons in course: ${this.title}`)
+        let allSubcourses = []
+        this.modules.forEach(module => {
+          allSubcourses = [...allSubcourses, ...module.subcourses]
+        })
+        const totalSubcourses = allSubcourses.length
+        console.log(`Calculating durations for ${totalSubcourses} subcourses in course: ${this.title}`)
 
-        // Check if any lesson has a video URL but duration is 0 or missing
-        const needsDurationCalculation = this.lessons.some(lesson =>
+        // Check if any subcourse has a video URL but duration is 0 or missing
+        const needsDurationCalculation = allSubcourses.some(lesson =>
           lesson.videoUrl && (lesson.duration === 0 || lesson.duration === undefined || lesson.duration === null)
         )
 
         if (needsDurationCalculation) {
-          const result = await calculateLessonsDurations(this.lessons)
-          this.lessons = result.lessons
+          const result = await calculateLessonsDurations(allSubcourses)
+          // Update subcourses back into modules
+          let subcourseIndex = 0
+          this.modules.forEach(module => {
+            module.subcourses = result.lessons.slice(subcourseIndex, subcourseIndex + module.subcourses.length)
+            subcourseIndex += module.subcourses.length
+          })
           this.duration = result.totalDuration
           console.log(`Successfully calculated durations. Total course duration: ${this.duration} minutes`)
         } else {
-          // Recalculate total duration from existing lesson durations
-          this.duration = this.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
+          // Recalculate total duration from existing subcourse durations
+          this.duration = allSubcourses.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
           console.log(`Recalculated total course duration: ${this.duration} minutes`)
         }
       } catch (durationError) {
-        console.error("Error calculating lesson durations in pre-save:", durationError)
+        console.error("Error calculating subcourse durations in pre-save:", durationError)
         // Continue with save even if duration calculation fails
-        // Recalculate total duration from existing lesson durations as fallback
-        this.duration = this.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
+        // Recalculate total duration from existing subcourse durations as fallback
+        let allSubcourses = []
+        this.modules.forEach(module => {
+          allSubcourses = [...allSubcourses, ...module.subcourses]
+        })
+        this.duration = allSubcourses.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
       }
     }
 
@@ -393,9 +426,18 @@ courseSchema.methods.recalculateDurations = async function () {
   try {
     const { calculateLessonsDurations } = require("../utils/videoUtils")
 
-    if (this.lessons && this.lessons.length > 0) {
-      const result = await calculateLessonsDurations(this.lessons)
-      this.lessons = result.lessons
+    if (this.modules && this.modules.length > 0) {
+      let allSubcourses = []
+      this.modules.forEach(module => {
+        allSubcourses = [...allSubcourses, ...module.subcourses]
+      })
+      const result = await calculateLessonsDurations(allSubcourses)
+      // Update subcourses back into modules
+      let subcourseIndex = 0
+      this.modules.forEach(module => {
+        module.subcourses = result.lessons.slice(subcourseIndex, subcourseIndex + module.subcourses.length)
+        subcourseIndex += module.subcourses.length
+      })
       this.duration = result.totalDuration
       await this.save()
       console.log(`Recalculated durations for course: ${this.title}`)
@@ -411,7 +453,7 @@ courseSchema.methods.recalculateDurations = async function () {
 // Static method to recalculate durations for all courses
 courseSchema.statics.recalculateAllDurations = async function () {
   try {
-    const courses = await this.find({ "lessons.videoUrl": { $exists: true, $ne: "" } })
+    const courses = await this.find({ "modules.subcourses.videoUrl": { $exists: true, $ne: "" } })
     console.log(`Found ${courses.length} courses with video URLs to recalculate`)
 
     const results = {

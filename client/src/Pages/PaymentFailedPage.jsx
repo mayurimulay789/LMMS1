@@ -212,8 +212,8 @@ const PaymentFailedPage = () => {
 
                 <div className="text-center text-sm text-gray-600">
                   <p>Or email us directly at:</p>
-                  <a href="mailto:support@learnhub.com" className="text-blue-600 hover:text-blue-800 font-medium">
-                    support@learnhub.com
+                  <a href="mailto:support@Ryma Academy.com" className="text-blue-600 hover:text-blue-800 font-medium">
+                    support@Ryma Academy.com
                   </a>
                 </div>
               </div>

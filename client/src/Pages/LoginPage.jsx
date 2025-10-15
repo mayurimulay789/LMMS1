@@ -209,7 +209,7 @@ const LoginPage = () => {
         {/* Demo Credentials */}
         <div className="bg-blue-50 rounded-lg p-4 text-center">
           <p className="text-sm text-blue-700 mb-2">Demo Credentials:</p>
-          <p className="text-xs text-blue-600">Email: demo@learnhub.com</p>
+          <p className="text-xs text-blue-600">Email: demo@aymaacademy.com</p>
           <p className="text-xs text-blue-600">Password: demo123</p>
         </div>
       </div>
