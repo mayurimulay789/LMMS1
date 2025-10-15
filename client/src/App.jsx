@@ -16,14 +16,12 @@ import ProtectedInstructorRoute from "./Components/ProtectedInstructorRoute"
 // Public Pages
 import HomePage from "./Pages/HomePage"
 import CoursesPage from "./Pages/CoursesPage"
-import MyCoursesPage from "./Pages/MyCoursesPage";
 import ReferEarn from './Pages/ReferEarn';
 import CourseDetailPage from "./Pages/CourseDetailPage"
 import ContactUsPage from "./Pages/ContactUsPage"
 import AboutUsPage from "./Pages/AboutUsPage"
 import LoginPage from "./Pages/LoginPage"
 import RegisterPage from "./Pages/RegisterPage"
-import InstructorRegisterPage from "./Pages/InstructorRegisterPage"
 
 // Protected Pages
 import DashboardPage from "./Pages/DashboardPage"
@@ -39,7 +37,7 @@ import InstructorDashboardPage from "./Pages/InstructorDashboardPage"
 // Payment Pages
 import PaymentSuccessPage from "./Pages/PaymentSucessPage"
 import PaymentFailedPage from "./Pages/PaymentFailedPage"
-
+import MyCoursesPage from "./Pages/MyCoursesPage.jsx"
 function AppContent() {
   const dispatch = useDispatch()
 

@@ -35,16 +35,16 @@ export default function Navbar() {
   return (
     <div className="w-full bg-white shadow-md">
       {/* Top banner - Hidden on smaller screens (below 'sm') */}
-      <div className="hidden sm:block bg-gray-100 py-2 px-4 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto flex items-center justify-end">
+      <div className="hidden px-4 py-2 bg-gray-100 border-b border-gray-200 sm:block">
+        <div className="flex items-center justify-end mx-auto max-w-7xl">
           {/* Become an Instructor and Fill Call button moved to the left for better spacing/flow */}
           <div className="flex items-center gap-4 mr-auto">
-            <span className="text-gray-700 text-sm">
+            <span className="text-sm text-gray-700">
               Become a instructor
             </span>
             <button
               onClick={handleBookCall}
-              className="bg-rose-800 hover:bg-rose-900 text-white rounded-full px-4 py-1 text-sm transition-colors duration-200"
+              className="px-4 py-1 text-sm text-white transition-colors duration-200 rounded-full bg-rose-800 hover:bg-rose-900"
             >
               Fill Eligibility Call
             </button>
@@ -55,13 +55,13 @@ export default function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-1 text-gray-700 hover:text-rose-800 text-sm font-medium transition-colors"
+                className="flex items-center gap-1 text-sm font-medium text-gray-700 transition-colors hover:text-rose-800"
               >
                 {user?.name}
                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 bg-white shadow-xl rounded-md py-2 w-48 z-50 border border-gray-100">
+                <div className="absolute right-0 z-50 w-48 py-2 mt-1 bg-white border border-gray-100 rounded-md shadow-xl top-full">
                   <Link
                     to="/dashboard"
                     onClick={closeMenus}
@@ -106,7 +106,7 @@ export default function Navbar() {
                       dispatch(logout());
                       closeMenus();
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800 border-t mt-1"
+                    className="block w-full px-4 py-2 mt-1 text-sm text-left text-gray-700 border-t hover:bg-rose-50 hover:text-rose-800"
                   >
                     Logout
                   </button>
@@ -115,10 +115,10 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-4">
-              <Link to="/login" className="text-gray-700 hover:text-rose-800 text-sm font-medium transition-colors">
+              <Link to="/login" className="text-sm font-medium text-gray-700 transition-colors hover:text-rose-800">
                 Sign In
               </Link>
-              <Link to="/register" className="bg-rose-800 hover:bg-rose-900 text-white rounded-full px-4 py-1 text-sm transition-colors duration-200">
+              <Link to="/register" className="px-4 py-1 text-sm text-white transition-colors duration-200 rounded-full bg-rose-800 hover:bg-rose-900">
                 Sign Up
               </Link>
             </div>
@@ -127,8 +127,24 @@ export default function Navbar() {
       </div>
 
       {/* Main navigation Bar */}
-      <div className="bg-rose-800 px-4 sm:px-6 py-2">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <div className="px-4 py-2 bg-rose-800 sm:px-6">
+        <div className="flex items-center justify-between mx-auto max-w-7xl">
+
+
+        <div className="relative">
+  <div 
+    className="w-28 h-32 bg-white flex items-center  justify-center overflow-hidden border-4 border-white 
+               [border-bottom-left-radius:90%_95%] [border-bottom-right-radius:90%_95%] -mb-11 -mt-4
+               shadow-[0_-4px_10px_rgba(0,0,0,0.25)] hover:shadow-[0_-8px_16px_rgba(0,0,0,0.35)] transition-shadow duration-300"
+  >
+    <img 
+      src={logo} 
+      alt="RYMA Academy Logo" 
+      className="w-[140%] h-full object-contain"
+    />
+  </div>
+</div>
+
 
           {/* Logo Area */}
           <Link to="/" className="relative z-10 -ml-2 sm:ml-0">
@@ -146,19 +162,19 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation and Call to Action */}
-          <div className="hidden lg:flex bg-white rounded-full px-8 py-2 items-center justify-between gap-6 shadow-lg">
+          <div className="items-center justify-between hidden gap-6 px-8 py-2 bg-white rounded-full shadow-lg lg:flex">
             {/* Navigation menu */}
             <nav className="flex items-center space-x-6">
-              <Link to="/" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">Home</Link>
-              <Link to="/courses" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">Courses</Link>
-              <Link to="/refer-earn" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">Refer & Earn</Link>
-              <Link to="/about" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">About</Link>
-              <Link to="/contact" className="text-rose-800 font-medium hover:text-rose-900 transition-colors">Contact Us</Link>
+              <Link to="/" className="font-medium transition-colors text-rose-800 hover:text-rose-900">Home</Link>
+              <Link to="/courses" className="font-medium transition-colors text-rose-800 hover:text-rose-900">Courses</Link>
+              <Link to="/refer-earn" className="font-medium transition-colors text-rose-800 hover:text-rose-900">Refer & Earn</Link>
+              <Link to="/about" className="font-medium transition-colors text-rose-800 hover:text-rose-900">About</Link>
+              <Link to="/contact" className="font-medium transition-colors text-rose-800 hover:text-rose-900">Contact Us</Link>
             </nav>
           </div>
 
           {/* Mobile Menu Button (Hamburger) - Visible only on smaller screens */}
-          <div className="lg:hidden flex items-center gap-3">
+          <div className="flex items-center gap-3 lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 text-white hover:text-gray-200 focus:outline-none"
@@ -176,44 +192,44 @@ export default function Navbar() {
           } bg-white rounded-lg shadow-xl`}
         >
           <nav className="flex flex-col p-4 space-y-2">
-            <Link to="/" onClick={closeMenus} className="block px-3 py-2 text-rose-800 font-medium hover:bg-rose-50 rounded-md">Home</Link>
-            <Link to="/courses" onClick={closeMenus} className="block px-3 py-2 text-rose-800 font-medium hover:bg-rose-50 rounded-md">Courses</Link>
-            <Link to="/refer-earn" onClick={closeMenus} className="block px-3 py-2 text-rose-800 font-medium hover:bg-rose-50 rounded-md">Refer & Earn</Link>
-            <Link to="/about" onClick={closeMenus} className="block px-3 py-2 text-rose-800 font-medium hover:bg-rose-50 rounded-md">About</Link>
-            <Link to="/contact" onClick={closeMenus} className="block px-3 py-2 text-rose-800 font-medium hover:bg-rose-50 rounded-md">Contact Us</Link>
+            <Link to="/" onClick={closeMenus} className="block px-3 py-2 font-medium rounded-md text-rose-800 hover:bg-rose-50">Home</Link>
+            <Link to="/courses" onClick={closeMenus} className="block px-3 py-2 font-medium rounded-md text-rose-800 hover:bg-rose-50">Courses</Link>
+            <Link to="/refer-earn" onClick={closeMenus} className="block px-3 py-2 font-medium rounded-md text-rose-800 hover:bg-rose-50">Refer & Earn</Link>
+            <Link to="/about" onClick={closeMenus} className="block px-3 py-2 font-medium rounded-md text-rose-800 hover:bg-rose-50">About</Link>
+            <Link to="/contact" onClick={closeMenus} className="block px-3 py-2 font-medium rounded-md text-rose-800 hover:bg-rose-50">Contact Us</Link>
           </nav>
 
           {/* Mobile Auth/User Menu */}
           <div className="p-4 border-t border-gray-200">
             {isAuthenticated ? (
               <div className="space-y-2">
-                <p className="text-gray-700 font-semibold">Hello, {user?.name}</p>
-                <Link to="/dashboard" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 hover:bg-rose-50 rounded-md">Dashboard</Link>
+                <p className="font-semibold text-gray-700">Hello, {user?.name}</p>
+                <Link to="/dashboard" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-rose-50">Dashboard</Link>
                 {user?.role === 'admin' && (
-                    <Link to="/admin" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 hover:bg-rose-50 rounded-md">Admin Panel</Link>
+                    <Link to="/admin" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-rose-50">Admin Panel</Link>
                 )}
                 {user?.role === 'instructor' && (
-                    <Link to="/instructor" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 hover:bg-rose-50 rounded-md">Instructor Panel</Link>
+                    <Link to="/instructor" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-rose-50">Instructor Panel</Link>
                 )}
-                <Link to="/certificates" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 hover:bg-rose-50 rounded-md">Certificates</Link>
-                <Link to="/mycourses" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 hover:bg-rose-50 rounded-md">My Courses</Link>
+                <Link to="/certificates" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-rose-50">Certificates</Link>
+                <Link to="/mycourses" onClick={closeMenus} className="block px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-rose-50">My Courses</Link>
                 <button
                     onClick={() => { dispatch(logout()); closeMenus(); }}
-                    className="w-full text-left px-3 py-2 text-sm text-white bg-rose-700 rounded-md hover:bg-rose-800 transition-colors"
+                    className="w-full px-3 py-2 text-sm text-left text-white transition-colors rounded-md bg-rose-700 hover:bg-rose-800"
                 >
                     Logout
                 </button>
               </div>
             ) : (
               <div className="flex flex-col space-y-2">
-                <Link to="/register" className="text-center bg-rose-800 hover:bg-rose-900 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors">
+                <Link to="/register" className="px-4 py-2 text-sm font-medium text-center text-white transition-colors rounded-md bg-rose-800 hover:bg-rose-900">
                   Sign Up
                 </Link>
               </div>
             )}
             <button
                 onClick={handleBookCall}
-                className="w-full mt-3 text-center bg-gray-200 hover:bg-gray-300 text-rose-800 rounded-md px-4 py-2 text-sm font-medium transition-colors"
+                className="w-full px-4 py-2 mt-3 text-sm font-medium text-center transition-colors bg-gray-200 rounded-md hover:bg-gray-300 text-rose-800"
             >
                 Fill Eligibility Call
             </button>
