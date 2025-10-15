@@ -15,7 +15,12 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
     price: "",
     level: "Beginner",
     thumbnail: null,
-    lessons: [],
+    modules: [{
+      id: Date.now(),
+      name: "Module 1: Introduction",
+      order: 1,
+      subcourses: []
+    }],
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -96,34 +101,97 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
     }
   }
 
-  const addLesson = () => {
+  const addModule = () => {
+    const newModuleOrder = formData.modules.length + 1
     setFormData((prev) => ({
       ...prev,
-      lessons: [
-        ...prev.lessons,
+      modules: [
+        ...prev.modules,
         {
-          id: Date.now(),
-          title: "",
-          description: "",
-          videoUrl: "",
-          order: prev.lessons.length + 1,
-          materials: [],
-        },
-      ],
+          id: Date.now() + newModuleOrder,
+          name: `Module ${newModuleOrder}: New Module`,
+          order: newModuleOrder,
+          subcourses: []
+        }
+      ]
     }))
   }
 
-  const updateLesson = (lessonId, field, value) => {
+  const updateModuleName = (moduleId, name) => {
     setFormData((prev) => ({
       ...prev,
-      lessons: prev.lessons.map((lesson) => (lesson.id === lessonId ? { ...lesson, [field]: value } : lesson)),
+      modules: prev.modules.map(module =>
+        module.id === moduleId ? { ...module, name } : module
+      )
     }))
   }
 
-  const removeLesson = (lessonId) => {
+  const removeModule = (moduleId) => {
+    if (formData.modules.length > 1) {
+      setFormData((prev) => ({
+        ...prev,
+        modules: prev.modules
+          .filter(module => module.id !== moduleId)
+          .map((module, index) => ({ ...module, order: index + 1 }))
+      }))
+    }
+  }
+
+  const addLesson = (moduleId) => {
     setFormData((prev) => ({
       ...prev,
-      lessons: prev.lessons.filter((lesson) => lesson.id !== lessonId),
+      modules: prev.modules.map(module => {
+        if (module.id === moduleId) {
+          return {
+            ...module,
+            subcourses: [
+              ...module.subcourses,
+              {
+                id: Date.now(),
+                title: "",
+                description: "",
+                videoUrl: "",
+                order: module.subcourses.length + 1,
+                materials: [],
+              },
+            ],
+          }
+        }
+        return module
+      }),
+    }))
+  }
+
+  const updateLesson = (moduleId, lessonId, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      modules: prev.modules.map((module) => {
+        if (module.id === moduleId) {
+          return {
+            ...module,
+            subcourses: module.subcourses.map((lesson) =>
+              lesson.id === lessonId ? { ...lesson, [field]: value } : lesson
+            ),
+          }
+        }
+        return module
+      }),
+    }))
+  }
+
+  const removeLesson = (moduleId, lessonId) => {
+    setFormData((prev) => ({
+      ...prev,
+      modules: prev.modules.map((module) => {
+        if (module.id === moduleId) {
+          const updatedSubcourses = module.subcourses.filter((lesson) => lesson.id !== lessonId)
+          return {
+            ...module,
+            subcourses: updatedSubcourses.map((sub, index) => ({ ...sub, order: index + 1 })),
+          }
+        }
+        return module
+      }),
     }))
   }
 
@@ -138,9 +206,12 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
 
       const submitData = {
         ...formData,
-        lessons: formData.lessons.map((lesson, index) => ({
-          ...lesson,
-          order: lesson.order || index + 1,
+        modules: formData.modules.map(module => ({
+          ...module,
+          subcourses: module.subcourses.map((subcourse, index) => ({
+            ...subcourse,
+            order: subcourse.order || index + 1,
+          }))
         }))
       }
 
@@ -176,7 +247,12 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
       price: "",
       level: "Beginner",
       thumbnail: null,
-      lessons: [],
+      modules: [{
+        id: Date.now(),
+        name: "Module 1: Introduction",
+        order: 1,
+        subcourses: []
+      }],
     })
     setIsCreating(false)
     setEditingCourse(null)
@@ -191,7 +267,19 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
       price: course.price,
       level: course.level || "Beginner",
       thumbnail: course.thumbnail,
-      lessons: course.lessons || [],
+      modules: course.modules?.map((module, index) => ({
+        ...module,
+        id: module._id || module.id || Date.now() + index,
+        subcourses: module.subcourses?.map((sub, subIndex) => ({
+          ...sub,
+          id: sub._id || sub.id || Date.now() + subIndex,
+        })) || []
+      })) || [{
+        id: Date.now(),
+        name: "Module 1: Introduction",
+        order: 1,
+        subcourses: []
+      }],
     })
     setIsCreating(true)
   }
@@ -378,68 +466,112 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
               </div>
             </div>
 
-            {/* Lessons */}
-            <div>
+            {/* Modules and Lessons */}
+            <div className="space-y-6">
               <div className="flex justify-between items-center mb-4">
-                <label className="block text-sm font-medium text-gray-700">Course Lessons</label>
+                <label className="block text-sm font-medium text-gray-700">Course Modules</label>
                 <button
                   type="button"
-                  onClick={addLesson}
+                  onClick={addModule}
                   className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center space-x-1"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>Add Lesson</span>
+                  <span>Add Module</span>
                 </button>
               </div>
 
-              <div className="space-y-4">
-                {formData.lessons.map((lesson, index) => (
-                  <div key={lesson.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <h5 className="font-medium text-gray-900">Lesson {index + 1}</h5>
+              {formData.modules.map((module) => (
+                <div key={module.id} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="font-medium text-gray-900">Module</h4>
+                    {formData.modules.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => removeLesson(lesson.id)}
+                        onClick={() => removeModule(module.id)}
                         className="text-red-600 hover:text-red-800"
                       >
                         <X className="h-4 w-4" />
                       </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Lesson Title</label>
-                        <input
-                          type="text"
-                          value={lesson.title}
-                          onChange={(e) => updateLesson(lesson.id, "title", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Video URL</label>
-                        <input
-                          type="url"
-                          value={lesson.videoUrl}
-                          onChange={(e) => updateLesson(lesson.id, "videoUrl", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Lesson Description</label>
-                      <textarea
-                        value={lesson.description}
-                        onChange={(e) => updateLesson(lesson.id, "description", e.target.value)}
-                        rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
+                    )}
                   </div>
-                ))}
-              </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Module Name</label>
+                    <input
+                      type="text"
+                      value={module.name}
+                      onChange={(e) => updateModuleName(module.id, e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter module name"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center mb-4">
+                    <label className="block text-sm font-medium text-gray-700">Lessons</label>
+                    <button
+                      type="button"
+                      onClick={() => addLesson(module.id)}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center space-x-1"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Add Lesson</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {module.subcourses.map((lesson, index) => (
+                      <div key={lesson.id} className="border border-gray-200 rounded-lg p-4 bg-white">
+                        <div className="flex justify-between items-center mb-4">
+                          <h5 className="font-medium text-gray-900">Lesson {index + 1}</h5>
+                          <button
+                            type="button"
+                            onClick={() => removeLesson(module.id, lesson.id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Lesson Title</label>
+                            <input
+                              type="text"
+                              value={lesson.title}
+                              onChange={(e) => updateLesson(module.id, lesson.id, "title", e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Video URL</label>
+                            <input
+                              type="url"
+                              value={lesson.videoUrl}
+                              onChange={(e) => updateLesson(module.id, lesson.id, "videoUrl", e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Lesson Description</label>
+                          <textarea
+                            value={lesson.description}
+                            onChange={(e) => updateLesson(module.id, lesson.id, "description", e.target.value)}
+                            rows={2}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {module.subcourses.length === 0 && (
+                    <p className="text-gray-500 text-sm italic">No lessons in this module yet. Add a lesson above.</p>
+                  )}
+                </div>
+              ))}
             </div>
 
             {/* Submit Buttons */}

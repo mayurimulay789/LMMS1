@@ -97,7 +97,7 @@ const ContactUsPage = () => {
     {
       icon: Mail,
       title: "Email",
-      content: "info@learnhub.com",
+      content: "info@rymaacademy.com",
       description: "Send us an email anytime!",
     },
     {

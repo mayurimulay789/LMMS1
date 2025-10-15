@@ -80,7 +80,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         amount: data.amount * 100, // paise
         currency: data.currency,
         order_id: data.orderId,
-        name: "LearnHub",
+        name: "Ryma Academy",
         description: `Course: ${courseTitle}`,
         image: "/logo.png",
         handler: async function (response) {

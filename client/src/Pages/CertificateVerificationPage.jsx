@@ -129,7 +129,7 @@ const CertificateVerificationPage = () => {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Certificate Verification</h1>
-          <p className="text-lg text-gray-600">Verify the authenticity of LearnHub certificates</p>
+          <p className="text-lg text-gray-600">Verify the authenticity of Ryma Academy certificates</p>
         </motion.div>
 
         {/* Verification Form */}

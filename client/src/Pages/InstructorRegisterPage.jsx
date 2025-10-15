@@ -115,7 +115,7 @@ const InstructorRegisterPage = () => {
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-6">
             <BookOpen className="h-10 w-10 text-green-600" />
-            <span className="text-2xl font-bold text-gray-900">LearnHub</span>
+            <span className="text-2xl font-bold text-gray-900">Ryma Academy</span>
           </Link>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Complete Your Instructor Setup</h2>
           <p className="text-gray-600">Welcome! Your instructor application has been approved. Please set up your account.</p>
