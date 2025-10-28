@@ -22,7 +22,7 @@ app.use(
 // Rate limiting - Exclude safe GET requests and OPTIONS requests
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1500,
   message: "Too many requests from this IP, please try again later.",
   skip: (req) => {
     // Skip rate limiting for safe GET requests and OPTIONS requests
