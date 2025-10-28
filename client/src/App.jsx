@@ -40,6 +40,7 @@ import PaymentSuccessPage from "./Pages/PaymentSucessPage"
 import PaymentFailedPage from "./Pages/PaymentFailedPage"
 import MyCoursesPage from "./Pages/MyCoursesPage.jsx"
 
+
 function AppContent() {
   const dispatch = useDispatch()
 
@@ -83,14 +84,14 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          
+          <Route
             path="/my-courses"
             element={
               <ProtectedRoute>
                 <MyCoursesPage />
               </ProtectedRoute>
             }
-          
+          />
           <Route
             path="/courses/:courseId/learn"
             element={

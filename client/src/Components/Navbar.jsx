@@ -140,26 +140,26 @@ export default function Navbar() {
     <img 
       src={logo} 
       alt="RYMA Academy Logo" 
-      className="w-[140%] h-full object-contain"
+      className="w-[100%] h-full object-contain"
     />
   </div>
 </div>
 
 
           {/* Logo Area */}
-          <Link to="/" className="relative z-10 -ml-2 sm:ml-0">
+          {/* <Link to="/" className="relative z-10 -ml-2 sm:ml-0">
             <div
               className="w-20 h-24 sm:w-28 sm:h-32 bg-white flex items-center justify-center overflow-hidden border-4 border-white
                 [border-bottom-left-radius:90%_95%] [border-bottom-right-radius:90%_95%] -mb-8 sm:-mb-11 -mt-2 sm:-mt-4
                 shadow-[0_-4px_10px_rgba(0,0,0,0.25)] hover:shadow-[0_-8px_16px_rgba(0,0,0,0.35)] transition-shadow duration-300"
             >
-              <img
+              {/* <img
                 src={logo} // Use imported logo variable directly
                 alt="ryma logo"
                 className="w-[140%] h-full object-contain"
-              />
-            </div>
-          </Link>
+              /> */}
+            {/* </div>
+          </Link>  */}
 
           {/* Desktop Navigation and Call to Action */}
           <div className="items-center justify-between hidden gap-6 px-8 py-2 bg-white rounded-full shadow-lg lg:flex">

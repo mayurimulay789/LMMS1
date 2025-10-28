@@ -344,10 +344,7 @@ const HomePage = () => {
             <p className="max-w-3xl mx-auto mb-8 text-base md:text-xl text-rose-100 md:mb-12">
               Get enrolled in LearnHub as a Instructor and help to grow others also.
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4">3 Steps to Success</h2>
-            <p className="text-base md:text-xl text-rose-100 max-w-3xl mx-auto mb-8 md:mb-12">
-              Get enrolled in Ryma Academy as a Instructor and help to grow others also.
-
+            
             </p>
           </motion.div>
 
