@@ -1,7 +1,7 @@
 // API Base URL - supports different environments
 const API_BASE_URL = import.meta.env.VITE_API_URL || 
                     import.meta.env.VITE_BACKEND_URL || 
-                    (import.meta.env.DEV ? "http://localhost:2000/api" : "/api")
+                    (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
 
 // Create API configuration
 export const apiConfig = {

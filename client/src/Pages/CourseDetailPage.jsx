@@ -54,6 +54,7 @@ const CourseDetailPage = () => {
 
   const fetchCourseDetails = async () => {
     try {
+      setIsLoading(true)
       const token = localStorage.getItem("token")
       const headers = {
         "Content-Type": "application/json",
@@ -64,7 +65,7 @@ const CourseDetailPage = () => {
       }
 
       console.log(`Fetching course details for ID: ${id}`);
-      const response = await fetch(`http://localhost:2000/api/courses/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/courses/${id}`, {
         headers,
       })
 
@@ -103,7 +104,7 @@ const CourseDetailPage = () => {
         "Content-Type": "application/json",
       }
 
-      const response = await fetch(`http://localhost:2000/api/courseReviews/${id}/reviews`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/courseReviews/${id}/reviews`, {
         headers,
       })
 
