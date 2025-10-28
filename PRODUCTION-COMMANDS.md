@@ -109,8 +109,8 @@ FRONTEND_URL=https://yourdomain.com
 ### 2. Client Environment (already configured in .env.production)
 The client already has `.env.production` configured with:
 ```bash
-VITE_API_URL=https://online.rymaacademy.com/api
-VITE_BACKEND_URL=https://online.rymaacademy.com/api
+VITE_API_URL=https://online.rymaacademy.cloud/api
+VITE_BACKEND_URL=https://online.rymaacademy.cloud/api
 ```
 
 ---
@@ -228,6 +228,6 @@ curl -i https://yourdomain.com/api/courses
 ## 📋 Production URLs
 
 Based on your current configuration:
-- **API Base URL**: `https://online.rymaacademy.com/api`
+- **API Base URL**: `https://online.rymaacademy.cloud/api`
 - **Client URL**: Your frontend domain
-- **Health Check**: `https://online.rymaacademy.com/api/health`
+- **Health Check**: `https://online.rymaacademy.cloud/api/health`
