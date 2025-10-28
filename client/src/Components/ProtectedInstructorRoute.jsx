@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux"
 import { Navigate, useLocation } from "react-router-dom"
+import PropTypes from 'prop-types'
 
 const ProtectedInstructorRoute = ({ children }) => {
   const { isAuthenticated, user, isLoading } = useSelector((state) => state.auth)
@@ -22,6 +23,9 @@ const ProtectedInstructorRoute = ({ children }) => {
   }
 
   return children
+}
+ProtectedInstructorRoute.propTypes = {
+  children: PropTypes.node.isRequired
 }
 
 export default ProtectedInstructorRoute

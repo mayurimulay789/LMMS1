@@ -178,7 +178,7 @@ const HomePage = () => {
       {/* Trusted Partners Logos Section (omitted for brevity) */}
       <section className="py-8 bg-white md:py-12"> 
         <div className="overflow-hidden">
-          <style jsx="true">{`
+          <style>{`
             @keyframes scroll {
               0% { transform: translateX(0); }
               100% { transform: translateX(-50%); }
@@ -342,12 +342,7 @@ const HomePage = () => {
 
             <h2 className="mb-2 text-3xl font-bold md:text-4xl lg:text-5xl md:mb-4">3 Steps to Success</h2>
             <p className="max-w-3xl mx-auto mb-8 text-base md:text-xl text-rose-100 md:mb-12">
-              Get enrolled in LearnHub as a Instructor and help to grow others also.
-
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4">3 Steps to Success</h2>
-            <p className="text-base md:text-xl text-rose-100 max-w-3xl mx-auto mb-8 md:mb-12">
-              Get enrolled in Ryma Academy as a Instructor and help to grow others also.
-
+              Get enrolled in Ryma Academy as an Instructor and help others grow.
             </p>
           </motion.div>
 
@@ -419,9 +414,6 @@ const HomePage = () => {
                 viewport={{ once: true }}
                 className="p-6 bg-white border border-gray-100 shadow-lg sm:p-8 rounded-xl" 
               >
-
-                <Quote className="w-6 h-6 mb-4 sm:h-8 sm:w-8 text-rose-900" />
-                <p className="mb-4 text-base italic text-gray-700 sm:mb-6">"{testimonial.content}"</p>
 
                 <Quote className="w-8 h-8 mb-4 text-rose-900" />
                 <p className="mb-6 italic text-gray-700">&ldquo;{testimonial.content}&rdquo;</p>
