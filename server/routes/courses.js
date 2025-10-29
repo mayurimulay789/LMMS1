@@ -2,7 +2,6 @@ const express = require("express")
 const router = express.Router()
 const Course = require("../models/Course")
 const Enrollment = require("../models/Enrollment")
-const mongoose = require("mongoose")
 const Progress = require("../models/Progress")
 const jwt = require("jsonwebtoken")
 const User = require("../models/User")
@@ -146,7 +145,6 @@ router.get("/top", async (req, res) => {
 // GET /courses/:id - Get single course
 router.get("/:id", async (req, res) => {
   try {
-<<<<<<< HEAD
     // Handle authentication internally
     let user = null
     const authHeader = req.header("Authorization")
@@ -162,75 +160,47 @@ router.get("/:id", async (req, res) => {
     }
 
     const course = await Course.findById(req.params.id)
-=======
-    const { id } = req.params;
-    console.log(`Looking for course with ID: ${id}`);
-    
-    // Validate if the ID is a valid MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      console.log(`Invalid ObjectId format: ${id}`);
-      return res.status(400).json({ 
-        error: "Invalid course ID format" 
-      });
-    }
-
-    // First fetch the course with all needed populated fields
-    const course = await Course.findById(id)
->>>>>>> f52e374267ba2af51a20ff4cc877da71b75921a8
       .populate("createdBy", "name email avatar profile")
-      .populate("reviews.user", "name avatar");
+      .populate("reviews.user", "name avatar")
 
     if (!course) {
-      console.log(`No course found with ID: ${id}`);
-      return res.status(404).json({ error: "Course not found" });
+      return res.status(404).json({ message: "Course not found" })
     }
 
     // Get all lessons from modules
     const allLessons = course.modules ? course.modules.flatMap(module => module.subcourses) : []
 
     // Auto-calculate durations for lessons with video URLs but 0 duration
-    let needsDurationUpdate = false;
+    let needsDurationUpdate = false
 
-<<<<<<< HEAD
     for (let i = 0; i < allLessons.length; i++) {
       const lesson = allLessons[i]
       if (lesson.videoUrl && (lesson.duration === 0 || lesson.duration === undefined || lesson.duration === null)) {
         try {
           console.log(`Auto-calculating duration for lesson: ${lesson.title}`)
           console.log(`Video URL: ${lesson.videoUrl}`)
-=======
-    // Check if course has lessons before iterating
-    // Handle modules instead of lessons
-    if (Array.isArray(course.modules)) {
-      for (const module of course.modules) {
-        if (Array.isArray(module.subcourses)) {
-          for (const subcourse of module.subcourses) {
-            if (subcourse.videoUrl && !subcourse.duration) {
-              try {
-                console.log(`Auto-calculating duration for lesson: ${subcourse.title}`);
-                const durationInSeconds = await getVideoDuration(subcourse.videoUrl);
-                const durationInMinutes = convertSecondsToMinutes(durationInSeconds);
->>>>>>> f52e374267ba2af51a20ff4cc877da71b75921a8
 
-                if (durationInMinutes > 0) {
-                  subcourse.duration = durationInMinutes;
-                  needsDurationUpdate = true;
-                  console.log(`Updated lesson "${subcourse.title}" duration: ${durationInMinutes} minutes`);
-                }
-              } catch (error) {
-                console.error(`Error calculating duration for lesson "${subcourse.title}":`, error.message);
-              }
-            }
+          const durationInSeconds = await getVideoDuration(lesson.videoUrl)
+          const durationInMinutes = convertSecondsToMinutes(durationInSeconds)
+
+          console.log(`Duration calculated: ${durationInSeconds} seconds = ${durationInMinutes} minutes`)
+
+          if (durationInMinutes > 0) {
+            lesson.duration = durationInMinutes
+            needsDurationUpdate = true
+            console.log(`Updated lesson "${lesson.title}" duration: ${durationInMinutes} minutes`)
+          } else {
+            console.log(`Duration is 0 for lesson "${lesson.title}", keeping as 0`)
           }
+        } catch (error) {
+          console.error(`Error calculating duration for lesson "${lesson.title}":`, error.message)
+          console.error(`Video URL: ${lesson.videoUrl}`)
         }
       }
-    } else {
-      console.log('Course has no modules array:', course);
     }
 
-    // Update course total duration if needed
+    // Update course total duration if any lessons were updated
     if (needsDurationUpdate) {
-<<<<<<< HEAD
       course.duration = allLessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
       await course.save()
       console.log(`Updated total course duration: ${course.duration} minutes`)
@@ -244,30 +214,12 @@ router.get("/:id", async (req, res) => {
     const avgRating =
       (course.reviews && course.reviews.length > 0)
         ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
-=======
-      course.duration = course.modules.reduce((moduleAcc, module) => {
-        return moduleAcc + module.subcourses.reduce((lessonAcc, subcourse) => {
-          return lessonAcc + (subcourse.duration || 0);
-        }, 0);
-      }, 0);
-      await course.save();
-      console.log(`Updated total course duration: ${course.duration} minutes`);
-    }
-
-    // Get enrollment count and calculate average rating
-    const [enrollmentCount, avgRating] = await Promise.all([
-      Enrollment.countDocuments({ course: course._id, status: { $ne: "suspended" } }),
-      course.reviews.length > 0 
-        ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length 
->>>>>>> f52e374267ba2af51a20ff4cc877da71b75921a8
         : 0
-    ]);
 
-    // Check user enrollment if authenticated
-    let isEnrolled = false;
-    let userProgress = null;
+    // Check if user is enrolled (if authenticated)
+    let isEnrolled = false
+    let userProgress = null
 
-<<<<<<< HEAD
     if (user) {
       const enrollment = await Enrollment.findOne({
         user: user.id,
@@ -281,64 +233,31 @@ router.get("/:id", async (req, res) => {
           user: user.id,
           course: course._id,
         })
-=======
-    // Get auth token if it exists
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (token) {
-      try {
-        const jwt = require('jsonwebtoken');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        if (decoded) {
-          console.log(`Checking enrollment for user: ${decoded.id}`);
-          const enrollment = await Enrollment.findOne({
-            user: decoded.id,
-            course: course._id,
-          });
-          
-          isEnrolled = !!enrollment;
-          
-          if (isEnrolled) {
-            userProgress = await Progress.findOne({
-              user: decoded.id,
-              course: course._id,
-            });
-          }
-        }
-      } catch (error) {
-        console.log('Invalid or expired token:', error.message);
->>>>>>> f52e374267ba2af51a20ff4cc877da71b75921a8
       }
     }
 
-    // Prepare response object
-    const response = {
+    res.json({
       ...course.toObject(),
       lessons: allLessons,
       enrollmentCount,
       avgRating: Math.round(avgRating * 10) / 10,
       reviewCount: course.reviews ? course.reviews.length : 0,
       isEnrolled,
-      userProgress: userProgress ? {
-        completionPercentage: userProgress.completionPercentage,
-        completedLessons: userProgress.completedLessons,
-        currentLesson: userProgress.currentLesson,
-      } : null
-    };
-
-    console.log('Successfully prepared course response');
-    res.json(response);
-
+      userProgress: userProgress
+        ? {
+            completionPercentage: userProgress.completionPercentage,
+            completedLessons: userProgress.completedLessons,
+            currentLesson: userProgress.currentLesson,
+          }
+        : null,
+      instructorImage: course.instructorImage,
+      instructorImagePublicId: course.instructorImagePublicId,
+    })
   } catch (error) {
-    console.error("Error fetching course:", error);
-    res.status(500).json({ 
-      error: "Error fetching course details",
-      message: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+    console.error("Error fetching course:", error)
+    res.status(500).json({ message: "Failed to fetch course" })
   }
-});
+})
 
 // GET /courses/:id/lessons - Get course lessons (protected route for enrolled users)
 router.get("/:id/lessons", auth, async (req, res) => {
