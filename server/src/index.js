@@ -53,6 +53,7 @@ if (process.env.NODE_ENV === 'production') {
 const allowedOrigins = [
   'http://localhost:5173', // Development
   'http://localhost:3000', // Alternative dev port
+  'https://online.rymaacademy.cloud', // Production domain
   process.env.CLIENT_URL, // Production URL from environment variable
   process.env.FRONTEND_URL, // Alternative env var name
 ].filter(Boolean) // Remove undefined values
