@@ -36,9 +36,11 @@ export default function Navbar() {
     <div className="w-full bg-white shadow-md">
       {/* Top banner - Hidden on smaller screens (below 'sm') */}
       <div className="hidden sm:block bg-gray-100 py-2 px-4 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto flex items-center justify-end">
-          {/* Become an Instructor and Fill Call button moved to the left for better spacing/flow */}
-          <div className="flex items-center gap-4 mr-auto">
+        <div className="max-w-7xl mx-auto flex items-center justify-center relative">
+          
+          {/* Become an Instructor and Fill Call button - Now centered */}
+          {/* We use a new div here to ensure the CTA elements are grouped and centered */}
+          <div className="flex items-center gap-4">
             <span className="text-gray-700 text-sm">
               Become a instructor
             </span>
@@ -50,79 +52,81 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Auth section */}
-          {isAuthenticated ? (
-            <div className="relative">
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-1 text-gray-700 hover:text-rose-800 text-sm font-medium transition-colors"
-              >
-                {user?.name}
-                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
-              </button>
-              {dropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 bg-white shadow-xl rounded-md py-2 w-48 z-50 border border-gray-100">
-                  <Link
-                    to="/dashboard"
-                    onClick={closeMenus}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800"
-                  >
-                    Dashboard
-                  </Link>
-                  {user?.role === 'admin' && (
+          {/* Auth section - Now absolutely positioned to the right to maintain centering of the CTA */}
+          <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-1 text-gray-700 hover:text-rose-800 text-sm font-medium transition-colors"
+                >
+                  {user?.name}
+                  <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 top-full mt-1 bg-white shadow-xl rounded-md py-2 w-48 z-50 border border-gray-100">
                     <Link
-                      to="/admin"
+                      to="/dashboard"
                       onClick={closeMenus}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800"
                     >
-                      Admin Panel
+                      Dashboard
                     </Link>
-                  )}
-                  {user?.role === 'instructor' && (
+                    {user?.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        onClick={closeMenus}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800"
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
+                    {user?.role === 'instructor' && (
+                      <Link
+                        to="/instructor"
+                        onClick={closeMenus}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800"
+                      >
+                        Instructor Panel
+                      </Link>
+                    )}
                     <Link
-                      to="/instructor"
+                      to="/mycourses"
                       onClick={closeMenus}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800"
                     >
-                      Instructor Panel
+                      My Courses
                     </Link>
-                  )}
-                  <Link
-                    to="/mycourses"
-                    onClick={closeMenus}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800"
-                  >
-                    My Courses
-                  </Link>
-                  <Link
-                    to="/certificates"
-                    onClick={closeMenus}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800"
-                  >
-                    Certificates
-                  </Link>
-                  <button
-                    onClick={() => {
-                      dispatch(logout());
-                      closeMenus();
-                    }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800 border-t mt-1"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-4">
-              <Link to="/login" className="text-gray-700 hover:text-rose-800 text-sm font-medium transition-colors">
-                Sign In
-              </Link>
-              <Link to="/register" className="bg-rose-800 hover:bg-rose-900 text-white rounded-full px-4 py-1 text-sm transition-colors duration-200">
-                Sign Up
-              </Link>
-            </div>
-          )}
+                    <Link
+                      to="/certificates"
+                      onClick={closeMenus}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800"
+                    >
+                      Certificates
+                    </Link>
+                    <button
+                      onClick={() => {
+                        dispatch(logout());
+                        closeMenus();
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-800 border-t mt-1"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-4">
+                <Link to="/login" className="text-gray-700 hover:text-rose-800 text-sm font-medium transition-colors">
+                  Sign In
+                </Link>
+                <Link to="/register" className="bg-rose-800 hover:bg-rose-900 text-white rounded-full px-4 py-1 text-sm transition-colors duration-200">
+                  Sign Up
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

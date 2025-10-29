@@ -3,6 +3,8 @@ const router = express.Router()
 const Course = require("../models/Course")
 const Enrollment = require("../models/Enrollment")
 const Progress = require("../models/Progress")
+const jwt = require("jsonwebtoken")
+const User = require("../models/User")
 const auth = require("../middleware/auth")
 const adminMiddleware = require("../middleware/AdminMiddleware")
 const instructorMiddleware = require("../middleware/instructorMiddleware")
@@ -101,7 +103,7 @@ router.get("/", async (req, res) => {
           status: { $ne: "suspended" }
         })
         const avgRating =
-          course.reviews.length > 0
+          (course.reviews && course.reviews && course.reviews.length > 0)
             ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
             : 0
 
@@ -109,7 +111,7 @@ router.get("/", async (req, res) => {
           ...course.toObject(),
           enrollmentCount,
           avgRating: Math.round(avgRating * 10) / 10,
-          reviewCount: course.reviews.length,
+          reviewCount: course.reviews ? course.reviews.length : 0,
         }
       }),
     )
@@ -141,8 +143,22 @@ router.get("/top", async (req, res) => {
 })
 
 // GET /courses/:id - Get single course
-router.get("/:id",auth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
+    // Handle authentication internally
+    let user = null
+    const authHeader = req.header("Authorization")
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "")
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        user = await User.findById(decoded.id).select("-password")
+      } catch (err) {
+        // Token is invalid, but we continue without authentication
+        console.log("Invalid token, proceeding without authentication")
+      }
+    }
+
     const course = await Course.findById(req.params.id)
       .populate("createdBy", "name email avatar profile")
       .populate("reviews.user", "name avatar")
@@ -151,11 +167,14 @@ router.get("/:id",auth, async (req, res) => {
       return res.status(404).json({ message: "Course not found" })
     }
 
+    // Get all lessons from modules
+    const allLessons = course.modules ? course.modules.flatMap(module => module.subcourses) : []
+
     // Auto-calculate durations for lessons with video URLs but 0 duration
     let needsDurationUpdate = false
 
-    for (let i = 0; i < course.lessons.length; i++) {
-      const lesson = course.lessons[i]
+    for (let i = 0; i < allLessons.length; i++) {
+      const lesson = allLessons[i]
       if (lesson.videoUrl && (lesson.duration === 0 || lesson.duration === undefined || lesson.duration === null)) {
         try {
           console.log(`Auto-calculating duration for lesson: ${lesson.title}`)
@@ -182,18 +201,18 @@ router.get("/:id",auth, async (req, res) => {
 
     // Update course total duration if any lessons were updated
     if (needsDurationUpdate) {
-      course.duration = course.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
+      course.duration = allLessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
       await course.save()
       console.log(`Updated total course duration: ${course.duration} minutes`)
     }
 
     // Get enrollment count and average rating
-    const enrollmentCount = await Enrollment.countDocuments({ 
-      course: course._id, 
+    const enrollmentCount = await Enrollment.countDocuments({
+      course: course._id,
       status: { $ne: "suspended" }
     })
     const avgRating =
-      course.reviews.length > 0
+      (course.reviews && course.reviews.length > 0)
         ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
         : 0
 
@@ -201,17 +220,17 @@ router.get("/:id",auth, async (req, res) => {
     let isEnrolled = false
     let userProgress = null
 
-    if (req.user) {
+    if (user) {
       const enrollment = await Enrollment.findOne({
-        user: req.user.id,
+        user: user.id,
         course: course._id,
       })
-      console.log(`Enrollment found for user ${req.user.id} and course ${course._id}:`, enrollment)  // Debug log
+      console.log(`Enrollment found for user ${user.id} and course ${course._id}:`, enrollment)  // Debug log
       isEnrolled = !!enrollment
 
       if (isEnrolled) {
         userProgress = await Progress.findOne({
-          user: req.user.id,
+          user: user.id,
           course: course._id,
         })
       }
@@ -219,9 +238,10 @@ router.get("/:id",auth, async (req, res) => {
 
     res.json({
       ...course.toObject(),
+      lessons: allLessons,
       enrollmentCount,
       avgRating: Math.round(avgRating * 10) / 10,
-      reviewCount: course.reviews.length,
+      reviewCount: course.reviews ? course.reviews.length : 0,
       isEnrolled,
       userProgress: userProgress
         ? {
@@ -265,8 +285,11 @@ router.get("/:id/lessons", auth, async (req, res) => {
       course: req.params.id,
     })
 
+    // Get all lessons from modules
+    const allLessons = course.modules ? course.modules.flatMap(module => module.subcourses) : []
+
     res.json({
-      lessons: course.lessons,
+      lessons: allLessons,
       progress: progress
         ? {
             completionPercentage: progress.completionPercentage,
@@ -276,7 +299,7 @@ router.get("/:id/lessons", auth, async (req, res) => {
         : {
             completionPercentage: 0,
             completedLessons: [],
-            currentLesson: course.lessons[0]?._id,
+            currentLesson: allLessons[0]?._id,
           },
     })
   } catch (error) {
@@ -450,8 +473,11 @@ router.post("/:id/update-durations", auth, instructorMiddleware, async (req, res
     let updatedLessons = 0
     let totalDuration = 0
 
+    // Get all lessons from modules
+    const allLessons = course.modules ? course.modules.flatMap(module => module.subcourses) : []
+
     // Update duration for each lesson that has a video URL
-    for (const lesson of course.lessons) {
+    for (const lesson of allLessons) {
       if (lesson.videoUrl && lesson.duration === 0) {
         try {
           const durationInSeconds = await getVideoDuration(lesson.videoUrl)
@@ -489,14 +515,17 @@ router.post("/:id/update-durations", auth, instructorMiddleware, async (req, res
 // GET /courses/:id/fix-durations - Fix durations for all courses (admin only)
 router.get("/fix-durations", auth, adminMiddleware, async (req, res) => {
   try {
-    const courses = await Course.find({ "lessons.videoUrl": { $exists: true } })
+    const courses = await Course.find({ "modules.subcourses.videoUrl": { $exists: true } })
 
     const results = []
     for (const course of courses) {
       let updatedLessons = 0
       let totalDuration = 0
 
-      for (const lesson of course.lessons) {
+      // Get all lessons from modules
+      const allLessons = course.modules ? course.modules.flatMap(module => module.subcourses) : []
+
+      for (const lesson of allLessons) {
         if (lesson.videoUrl && lesson.duration === 0) {
           try {
             const durationInSeconds = await getVideoDuration(lesson.videoUrl)

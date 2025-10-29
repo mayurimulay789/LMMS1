@@ -20,10 +20,28 @@ const LearnPage = () => {
   const [error, setError] = useState(null)
   const [progress, setProgress] = useState(null)
   const [certificateId, setCertificateId] = useState(null)
+  const [isYouTubeLoaded, setIsYouTubeLoaded] = useState(false)
+  const [completedLessons, setCompletedLessons] = useState([])
 
   const youtubePlayerRef = useRef(null)
-  const [youtubePlayer, setYoutubePlayer] = useState(null)
-  const [isYouTubeLoaded, setIsYouTubeLoaded] = useState(false)
+
+
+
+  // Load YouTube API
+  useEffect(() => {
+    if (!window.YT) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      const firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
+      window.onYouTubeIframeAPIReady = () => {
+        setIsYouTubeLoaded(true)
+      }
+    } else {
+      setIsYouTubeLoaded(true)
+    }
+  }, [])
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -46,6 +64,32 @@ const LearnPage = () => {
       }
     }
   }, [course, searchParams])
+
+  // Initialize YouTube player when lesson changes
+  useEffect(() => {
+    if (selectedLesson && isYouTubeLoaded && youtubePlayerRef.current) {
+      const videoId = getYouTubeVideoId(selectedLesson.videoUrl)
+      if (videoId) {
+        new window.YT.Player(youtubePlayerRef.current, {
+          videoId: videoId,
+          playerVars: {
+            autoplay: 0,
+            controls: 1,
+            rel: 0,
+            showinfo: 0,
+            modestbranding: 1
+          },
+          events: {
+            onStateChange: (event) => {
+              if (event.data === window.YT.PlayerState.ENDED) {
+                markLessonComplete(selectedLesson._id)
+              }
+            }
+          }
+        })
+      }
+    }
+  }, [selectedLesson, isYouTubeLoaded])
 
   // Fetch course details
   const fetchCourseDetails = async () => {
@@ -85,6 +129,7 @@ const LearnPage = () => {
         const data = await response.json()
         console.log('Progress response data:', data);
         setProgress(data.progress)
+        setCompletedLessons(data.progress?.completedLessons || [])
         // Set certificate from enrollment if available
         if (data.certificate && data.certificate.issued) {
           console.log('Setting certificateId from enrollment:', data.certificate.certificateId);
@@ -140,14 +185,19 @@ const LearnPage = () => {
       if (response.ok) {
         const data = await response.json()
         setProgress(data.progress)
+        setCompletedLessons(data.progress?.completedLessons || [])
+        toast.success("Lesson completed!")
+        // Refresh progress to update UI immediately
+        await fetchProgress()
       }
     } catch (err) {
       console.error(err)
+      toast.error("Failed to mark lesson as complete")
     }
   }
 
   const isLessonCompleted = (lessonId) =>
-    progress?.completedLessons?.some(l => l.lessonId === lessonId)
+    completedLessons?.some(l => l.lessonId === lessonId)
 
   const isCourseCompleted = () =>
     course?.lessons?.every(lesson => isLessonCompleted(lesson._id))
@@ -158,19 +208,54 @@ const LearnPage = () => {
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
   }
 
-  const handleCertificateClick = () => {
-    console.log('Certificate button clicked', { 
-      isCourseCompleted: isCourseCompleted(), 
-      certificateId, 
-      courseId 
+  const handleCertificateClick = async () => {
+    console.log('Certificate button clicked', {
+      isCourseCompleted: isCourseCompleted(),
+      certificateId,
+      courseId
     });
+
     if (isCourseCompleted()) {
       if (certificateId) {
         console.log('Opening PDF for certificateId:', certificateId);
         window.open(`/api/certificates/pdf/${certificateId}`, "_blank")
       } else {
-        console.log('No certificateId found, showing toast');
-        toast("Certificate not yet generated. Please contact support.")
+        console.log('No certificateId found, attempting to generate certificate');
+        toast("Generating certificate...");
+
+        try {
+          // Attempt to generate certificate manually
+          const token = localStorage.getItem("token");
+          const response = await fetch(`http://localhost:2000/api/certificates/generate`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ courseId })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Certificate generated:', data);
+            toast.success("Certificate generated successfully!");
+
+            // Refresh progress to get updated certificate info
+            await fetchProgress();
+
+            // Open the certificate
+            if (data.certificate?.certificateId) {
+              window.open(`/api/certificates/pdf/${data.certificate.certificateId}`, "_blank");
+            }
+          } else {
+            const errorData = await response.json();
+            console.error('Certificate generation failed:', errorData);
+            toast.error(errorData.message || "Failed to generate certificate. Please contact support.");
+          }
+        } catch (error) {
+          console.error('Certificate generation error:', error);
+          toast.error("Failed to generate certificate. Please contact support.");
+        }
       }
     } else {
       console.log('Course not completed, showing toast');
@@ -178,60 +263,10 @@ const LearnPage = () => {
     }
   }
 
-  // YouTube player
-  useEffect(() => {
-    if (!selectedLesson || !isYouTubeUrl(selectedLesson.videoUrl)) {
-      if (youtubePlayer) {
-        youtubePlayer.destroy()
-        setYoutubePlayer(null)
-        setIsYouTubeLoaded(false)
-      }
-      return
-    }
-
-    const loadYouTubeAPI = () => {
-      if (!window.YT) {
-        const tag = document.createElement("script")
-        tag.src = "https://www.youtube.com/iframe_api"
-        const firstScriptTag = document.getElementsByTagName("script")[0]
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
-        window.onYouTubeIframeAPIReady = initPlayer
-      } else initPlayer()
-    }
-
-    const initPlayer = () => {
-      if (youtubePlayerRef.current && !youtubePlayer) {
-        const player = new window.YT.Player(youtubePlayerRef.current, {
-          videoId: getYouTubeVideoId(selectedLesson.videoUrl),
-          width: "100%",
-          height: "100%",
-          playerVars: { playsinline: 1, controls: 1, rel: 0, modestbranding: 1, iv_load_policy: 3 },
-          events: {
-            onReady: (event) => { setYoutubePlayer(event.target); setIsYouTubeLoaded(true) },
-            onStateChange: (event) => { if (event.data === window.YT.PlayerState.ENDED) markLessonComplete(selectedLesson._id) },
-          },
-        })
-        setYoutubePlayer(player)
-      }
-    }
-
-    loadYouTubeAPI()
-
-    return () => {
-      if (youtubePlayer) {
-        youtubePlayer.destroy()
-        setYoutubePlayer(null)
-        setIsYouTubeLoaded(false)
-      }
-      delete window.onYouTubeIframeAPIReady
-    }
-  }, [selectedLesson])
-
-  const isYouTubeUrl = (url) => url && (url.includes("youtube.com") || url.includes("youtu.be"))
-
   const getYouTubeVideoId = (url) => {
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
-    return match ? match[1] : null
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+    const match = url.match(regExp)
+    return (match && match[2].length === 11) ? match[2] : null
   }
 
   const renderVideoPlayer = (lesson) => {
@@ -241,19 +276,26 @@ const LearnPage = () => {
         <p className="text-gray-600">Video not available</p>
       </div>
     )
-    if (isYouTubeUrl(lesson.videoUrl)) {
+
+    const videoId = getYouTubeVideoId(lesson.videoUrl)
+    if (videoId && isYouTubeLoaded) {
       return (
-        <div className="aspect-video relative">
-          <div ref={youtubePlayerRef} className="w-full h-full rounded-lg">
-            {!isYouTubeLoaded && (
-              <div className="flex items-center justify-center h-full bg-gray-100">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            )}
-          </div>
+        <div className="aspect-video">
+          <div
+            ref={youtubePlayerRef}
+            className="w-full h-full rounded-lg"
+          />
+        </div>
+      )
+    } else if (videoId && !isYouTubeLoaded) {
+      return (
+        <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="text-gray-600 ml-2">Loading YouTube player...</p>
         </div>
       )
     }
+
     return (
       <div className="aspect-video">
         <video
@@ -309,7 +351,7 @@ const LearnPage = () => {
           >
             {isCourseCompleted() ? <Award className="h-6 w-6 text-green-600 mr-3" /> : <Lock className="h-6 w-6 text-gray-400 mr-3" />}
             <span className={`${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium`}>
-              {isCourseCompleted() ? "Certificate Unlocked" : "Certificate Locked"}
+              {isCourseCompleted() ? "View Certificate" : "Certificate Locked"}
             </span>
           </button>
 

@@ -88,12 +88,12 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-6">
-            <BookOpen className="h-10 w-10 text-blue-600" />
+            <BookOpen className="h-10 w-10 text-red-600" />
             <span className="text-2xl font-bold text-gray-900">Ryma Academy</span>
           </Link>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h2>
@@ -122,7 +122,7 @@ const LoginPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${
                     errors.email ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter your email"
@@ -167,13 +167,13 @@ const LoginPage = () => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-red-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                   Remember me
                 </label>
               </div>
-              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
+              <Link to="/forgot-password" className="text-sm text-red-600 hover:text-red-800">
                 Forgot password?
               </Link>
             </div>
@@ -182,7 +182,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+              className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
             >
               {isLoading ? (
                 <>
@@ -199,7 +199,7 @@ const LoginPage = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Don't have an account?{" "}
-              <Link to="/register" className="text-blue-600 hover:text-blue-800 font-medium">
+              <Link to="/register" className="text-red-600 hover:text-red-800 font-medium">
                 Sign up here
               </Link>
             </p>
@@ -207,9 +207,9 @@ const LoginPage = () => {
         </div>
 
         {/* Demo Credentials */}
-        <div className="bg-blue-50 rounded-lg p-4 text-center">
-          <p className="text-sm text-blue-700 mb-2">Demo Credentials:</p>
-          <p className="text-xs text-blue-600">Email: demo@aymaacademy.com</p>
+        <div className="bg-red-50 rounded-lg p-4 text-center">
+          <p className="text-sm text-red-700 mb-2">Demo Credentials:</p>
+          <p className="text-xs text-red-600">Email: demo@aymaacademy.com</p>
           <p className="text-xs text-blue-600">Password: demo123</p>
         </div>
       </div>

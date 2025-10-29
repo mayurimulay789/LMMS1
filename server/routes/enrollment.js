@@ -29,13 +29,16 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ message: "You are already enrolled in this course" });
     }
 
+    // Get correct lesson count from modules.subcourses
+    const allLessons = course.modules ? course.modules.flatMap(module => module.subcourses || []) : [];
+
     // Create new enrollment
     const enrollment = new Enrollment({
       user: userId,
       course: courseId,
       progress: {
         completedLessons: [],
-        totalLessons: course.lessons ? course.lessons.length : 0, // safe check
+        totalLessons: allLessons.length,
         completionPercentage: 0,
         lastAccessedAt: null,
       },
@@ -121,9 +124,10 @@ router.post("/progress", auth, async (req, res) => {
     // Initialize progress if not exists (for legacy enrollments)
     if (!enrollment.progress) {
       const course = await Course.findById(courseId);
+      const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses || []) : []) : [];
       enrollment.progress = {
         completedLessons: [],
-        totalLessons: course ? course.lessons.length : 0,
+        totalLessons: allLessons.length,
         completionPercentage: 0,
         lastAccessedAt: new Date(),
       };
@@ -131,7 +135,8 @@ router.post("/progress", auth, async (req, res) => {
 
     // Always update totalLessons to current course lessons count
     const course = await Course.findById(courseId);
-    enrollment.progress.totalLessons = course ? course.lessons.length : 0;
+    const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses || []) : []) : [];
+    enrollment.progress.totalLessons = allLessons.length;
 
     // Check if lesson is already completed
     const existingLesson = enrollment.progress.completedLessons.find(
@@ -156,12 +161,24 @@ router.post("/progress", auth, async (req, res) => {
 
     // Check if course is completed and trigger certificate generation
     if (enrollment.progress.completionPercentage >= 100 && !enrollment.certificate.issued) {
+      console.log(`Attempting auto certificate generation for user ${userId}, course ${courseId}`);
       try {
         const certificateService = require("../services/certificateService");
         const User = require("../models/User");
 
         const user = await User.findById(userId);
+        if (!user) {
+          console.error(`User not found for certificate generation: ${userId}`);
+          // Don't fail the progress update, just log the error
+          return;
+        }
+
         const course = await Course.findById(courseId);
+        if (!course) {
+          console.error(`Course not found for certificate generation: ${courseId}`);
+          // Don't fail the progress update, just log the error
+          return;
+        }
 
         // Remove hoursCompleted calculation based on timeSpent
         const hoursCompleted = 0;
@@ -177,6 +194,8 @@ router.post("/progress", auth, async (req, res) => {
           "Professional Development",
           "Continuous Learning",
         ];
+
+        console.log(`Generating certificate for user: ${user.name}, course: ${course.title}`);
 
         // Generate certificate automatically
         const certificate = await certificateService.generateCertificate({
@@ -196,13 +215,25 @@ router.post("/progress", auth, async (req, res) => {
           },
         });
 
+        console.log(`Certificate generated successfully: ${certificate.certificateId}`);
+
         // Update enrollment with certificate info
         enrollment.certificate.issued = true;
         enrollment.certificate.issuedAt = certificate.issueDate;
         enrollment.certificate.certificateId = certificate.certificateId;
         enrollment.status = "completed";
+
+        console.log(`Enrollment updated with certificate: ${certificate.certificateId}`);
       } catch (error) {
         console.error("Auto certificate generation error:", error);
+        console.error("Error details:", {
+          message: error.message,
+          stack: error.stack,
+          userId,
+          courseId
+        });
+        // Don't fail the progress update if certificate generation fails
+        // The certificate can be generated manually later
       }
     }
 
@@ -249,13 +280,14 @@ router.get("/progress/:courseId", auth, async (req, res) => {
       const course = await Course.findById(courseId);
       if (enrollment.status === "completed") {
         // For legacy completed enrollments, mark all lessons as complete
-        const allCompletedLessons = course.lessons.map(lesson => ({
+        const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses) : []) : [];
+        const allCompletedLessons = allLessons.map(lesson => ({
           lessonId: lesson._id,
           completedAt: enrollment.enrolledAt || new Date(),
         }));
         enrollment.progress = {
           completedLessons: allCompletedLessons,
-          totalLessons: course.lessons.length,
+          totalLessons: allLessons.length,
           completionPercentage: 100,
           timeSpent: 0, // Could estimate or leave as 0
           lastAccessedAt: new Date(),
@@ -304,9 +336,10 @@ router.get("/progress/:courseId", auth, async (req, res) => {
           }
         }
       } else {
+        const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses) : []) : [];
         enrollment.progress = {
           completedLessons: [],
-          totalLessons: course ? course.lessons.length : 0,
+          totalLessons: allLessons.length,
           completionPercentage: 0,
           timeSpent: 0,
           lastAccessedAt: new Date(),
@@ -318,11 +351,12 @@ router.get("/progress/:courseId", auth, async (req, res) => {
     // Fix progress inconsistency: if certificate is issued but progress < 100%, set to 100%
     if (enrollment.certificate.issued && enrollment.progress.completionPercentage < 100) {
       const course = await Course.findById(courseId);
-      enrollment.progress.completedLessons = course.lessons.map(lesson => ({
+      const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses) : []) : [];
+      enrollment.progress.completedLessons = allLessons.map(lesson => ({
         lessonId: lesson._id.toString(),
         completedAt: enrollment.certificate.issuedAt || new Date(),
       }));
-      enrollment.progress.totalLessons = course.lessons.length;
+      enrollment.progress.totalLessons = allLessons.length;
       enrollment.progress.completionPercentage = 100;
       enrollment.status = "completed";
       await enrollment.save();
