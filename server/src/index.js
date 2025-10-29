@@ -118,47 +118,10 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 app.use("/certificates", express.static(path.join(__dirname, "public/certificates")))
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")))
 
-// MongoDB connection - validate and support multiple env var names
-const mongoUri =
-  process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL || process.env.DB_URI;
-
-if (!mongoUri || typeof mongoUri !== 'string') {
-  if (process.env.NODE_ENV === 'production') {
-    console.error(
-      '❌ MongoDB connection error: MONGODB_URI (or MONGO_URI / DATABASE_URL / DB_URI) is not set or is invalid.'
-    );
-    console.error('Please set the MongoDB connection string in your environment or .env file.');
-    // Exit early in production to avoid accidentally connecting to a local DB
-    process.exit(1);
-  } else {
-    // Development fallback: use a local MongoDB if available
-    const fallback = 'mongodb://127.0.0.1:27017/lmms_dev';
-    console.warn(
-      `⚠️ MONGODB_URI not set; using development fallback: ${fallback}. ` +
-        'If you intended to use a remote DB, set MONGODB_URI in your .env or environment.'
-    );
-    // assign fallback to mongoUri variable for connecting
-    // eslint-disable-next-line no-var
-    var mongoUriFallback = fallback;
-    mongoose
-      .connect(mongoUriFallback, {
-        maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE, 10) || undefined,
-        minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE, 10) || undefined,
-      })
-      .then(() => console.log('✅ Connected to MongoDB (development fallback)'))
-      .catch((err) => console.error('❌ MongoDB connection error (fallback):', err));
-
-    // stop further execution of the normal connect block
-  }
-} else {
-  mongoose
-    .connect(mongoUri, {
-      maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE, 10) || undefined,
-      minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE, 10) || undefined,
-    })
-    .then(() => console.log('✅ Connected to MongoDB'))
-    .catch((err) => console.error('❌ MongoDB connection error:', err));
-}
+// MongoDB connection (original code)
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch(err => console.error("❌ MongoDB connection error:", err));
   
 app.get("/api/health", (req, res) => {
   res.json({
