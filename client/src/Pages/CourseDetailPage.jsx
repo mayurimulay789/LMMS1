@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, Share2, Heart, X, Send } from "lucide-react"
+import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, X, Send } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 const CourseDetailPage = () => {
@@ -63,19 +63,30 @@ const CourseDetailPage = () => {
         headers.Authorization = `Bearer ${token}`
       }
 
+      console.log(`Fetching course details for ID: ${id}`);
       const response = await fetch(`http://localhost:2000/api/courses/${id}`, {
         headers,
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        console.log("Fetched course:", data)
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Server error:", errorData);
+        setCourse(null);
+        return;
+      }
+
+      const data = await response.json()
+      console.log("Fetched course:", data)
+      if (data && data._id) {
         setCourse(data)
         setIsEnrolled(data.isEnrolled)
         setUserProgress(data.userProgress)
         if (data.category) {
           fetchRelatedCourses(data.category)
         }
+      } else {
+        console.error("Invalid course data received:", data)
+        setCourse(null)
       }
     } catch (error) {
       console.error("Error fetching course details:", error)
@@ -738,7 +749,12 @@ const CourseDetailPage = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <BookOpen className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                        <div className="font-semibold">{course.lessons.length}</div>
+                        <div className="font-semibold">
+                          {Array.isArray(course.modules) ? 
+                            course.modules.reduce((total, module) => 
+                              total + (Array.isArray(module.subcourses) ? module.subcourses.length : 0), 0
+                            ) : 0}
+                        </div>
                         <div className="text-sm text-gray-600">Lessons</div>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
@@ -766,54 +782,67 @@ const CourseDetailPage = () => {
                   <div className="mb-6">
                     <h3 className="text-2xl font-bold text-gray-900">Course Curriculum</h3>
                   </div>
-                  <div className="space-y-4">
-                    {course.lessons.map((lesson, index) => (
-                      <div
-                        key={lesson._id}
-                        className={`border border-gray-200 rounded-lg p-4 ${
-                          isEnrolled ? "cursor-pointer hover:shadow-md hover:border-blue-300 transition-all" : ""
-                        }`}
-                        onClick={() => {
-                          if (isEnrolled) {
-                            navigate(`/courses/${course._id}/learn?lesson=${lesson._id}`)
-                          }
-                        }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                              <span className="text-sm font-medium text-blue-600">{index + 1}</span>
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-gray-900">{lesson.title}</h4>
-                              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                                <span className="flex items-center space-x-1">
-                                  <Clock className="h-4 w-4" />
-                                  <span>{formatDuration(lesson.duration)}</span>
-                                </span>
-                                {lesson.preview && (
-                                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Preview</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          {lesson.preview ? (
-                            <button
-                              className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                navigate(`/courses/${course._id}/learn?lesson=${lesson._id}`)
+                  <div className="space-y-6">
+                    {Array.isArray(course.modules) && course.modules.map((module, moduleIndex) => (
+                      <div key={module._id} className="border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="bg-gray-50 px-4 py-3 border-b">
+                          <h4 className="text-lg font-semibold text-gray-900">{module.name}</h4>
+                        </div>
+                        <div className="divide-y">
+                          {Array.isArray(module.subcourses) && module.subcourses.map((subcourse, lessonIndex) => (
+                            <div
+                              key={subcourse._id}
+                              className={`p-4 ${
+                                isEnrolled ? "cursor-pointer hover:bg-gray-50 transition-colors" : ""
+                              }`}
+                              onClick={() => {
+                                if (isEnrolled) {
+                                  navigate(`/courses/${course._id}/learn?module=${module._id}&lesson=${subcourse._id}`)
+                                }
                               }}
                             >
-                              <Play className="h-4 w-4" />
-                              <span>Preview</span>
-                            </button>
-                          ) : isEnrolled ? (
-                            <div className="text-blue-600 flex items-center space-x-1">
-                              <Play className="h-4 w-4" />
-                              <span className="text-sm">Watch</span>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <span className="text-sm font-medium text-blue-600">
+                                      {moduleIndex + 1}.{lessonIndex + 1}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <h5 className="font-medium text-gray-900">{subcourse.title || 'Untitled Lesson'}</h5>
+                                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                                      <span className="flex items-center space-x-1">
+                                        <Clock className="h-4 w-4" />
+                                        <span>{formatDuration(subcourse.duration || 0)}</span>
+                                      </span>
+                                      {subcourse.preview && (
+                                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                                          Preview
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                {subcourse.preview ? (
+                                  <button
+                                    className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      navigate(`/courses/${course._id}/learn?module=${module._id}&lesson=${subcourse._id}`)
+                                    }}
+                                  >
+                                    <Play className="h-4 w-4" />
+                                    <span>Preview</span>
+                                  </button>
+                                ) : isEnrolled ? (
+                                  <div className="text-blue-600 flex items-center space-x-1">
+                                    <Play className="h-4 w-4" />
+                                    <span className="text-sm">Watch</span>
+                                  </div>
+                                ) : null}
+                              </div>
                             </div>
-                          ) : null}
+                          ))}
                         </div>
                       </div>
                     ))}

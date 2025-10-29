@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux"
-import { Navigate, useLocation } from "react-router-dom"
+import { Navigate, useLocation, Outlet } from "react-router-dom"
+import PropTypes from 'prop-types'
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth)
@@ -17,7 +18,10 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />
   }
 
-  return children
+  return children || <Outlet />
+}
+ProtectedRoute.propTypes = {
+  children: PropTypes.node
 }
 
 export default ProtectedRoute

@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Search, Grid, List, SlidersHorizontal } from "lucide-react"
 import CourseCard from "../Components/CourseCard"
 import { motion } from "framer-motion"
 import { ChevronDown } from "lucide-react"
+import { apiRequest } from "../config/api"
 
 const CoursesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -64,7 +65,7 @@ const CoursesPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("http://localhost:2000/api/courses/meta/categories")
+      const response = await apiRequest("courses/meta/categories")
       if (response.ok) {
         const data = await response.json()
         setCategories(data)
@@ -75,7 +76,7 @@ const CoursesPage = () => {
     }
   }
 
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     try {
       setIsLoading(true)
       const queryParams = new URLSearchParams({
@@ -90,7 +91,7 @@ const CoursesPage = () => {
         }
       })
 
-      const response = await fetch(`http://localhost:2000/api/courses?${queryParams}`)
+      const response = await apiRequest(`courses?${queryParams}`)
       if (response.ok) {
         const data = await response.json()
         setCourses(data.courses)
@@ -192,7 +193,7 @@ const CoursesPage = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [filters, pagination.currentPage])
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
