@@ -103,13 +103,13 @@ const ContactUsPage = () => {
     {
       icon: Phone,
       title: "Phone",
-      content: "+1 (555) 123-4567",
+      content: "+0000000000",
       description: "Mon-Fri from 8am to 5pm",
     },
     {
       icon: MapPin,
       title: "Office",
-      content: "123 Learning Street, Education City, EC 12345",
+      content: "Pune, Maharashtra, India",
       description: "Come say hello at our office",
     },
   ]

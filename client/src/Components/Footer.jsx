@@ -150,7 +150,7 @@ const Footer = () => {
                 <div className="p-2 transition-colors bg-green-100 rounded-lg shadow-sm group-hover:bg-green-200">
                   <Phone className="w-5 h-5 text-green-600" />
                 </div>
-                <span>+1 (555) 123-4567</span>
+                <span>+1000000</span>
               </div>
               <div className="flex items-center space-x-3 text-base text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group">
                 <div className="p-2 transition-colors bg-purple-100 rounded-lg shadow-sm group-hover:bg-purple-200">

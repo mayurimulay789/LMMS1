@@ -288,7 +288,7 @@ const sendContactFormEmail = async (contactData) => {
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
-            This is an automated confirmation. For urgent matters, call us at +1 (555) 123-4567.
+            This is an automated confirmation. For urgent matters, call us at 000000.
           </p>
         </div>
       `,
