@@ -30,7 +30,8 @@ const AdminCourseForm = () => {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/admin/courses", {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/courses`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -92,7 +93,8 @@ const AdminCourseForm = () => {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/upload/${endpoint}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/upload/${endpoint}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -248,9 +250,10 @@ const AdminCourseForm = () => {
 
     try {
       const token = localStorage.getItem("token")
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
       const url = editingCourse
-        ? `http://localhost:2000/api/admin/courses/${editingCourse._id}`
-        : "http://localhost:2000/api/admin/courses"
+        ? `${API_BASE_URL}/admin/courses/${editingCourse._id}`
+        : `${API_BASE_URL}/admin/courses`
 
       const submitData = {
         title: formData.title,
@@ -328,7 +331,8 @@ const AdminCourseForm = () => {
     if (window.confirm("Are you sure you want to delete this course?")) {
       try {
         const token = localStorage.getItem("token")
-        const response = await fetch(`http://localhost:2000/api/admin/courses/${courseId}`, {
+        const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+        const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -347,7 +351,8 @@ const AdminCourseForm = () => {
   const recalculateCourseDurations = async (courseId) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/courses/${courseId}/recalculate-duration`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}/recalculate-duration`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

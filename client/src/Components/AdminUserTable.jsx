@@ -22,7 +22,8 @@ const AdminUserTable = ({ defaultFilter = "all", title = "User Management" }) =>
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/admin/users", {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -103,7 +104,8 @@ const AdminUserTable = ({ defaultFilter = "all", title = "User Management" }) =>
   const handleUserAction = async (userId, action) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/users/${userId}/${action}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/${action}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -124,7 +126,8 @@ const AdminUserTable = ({ defaultFilter = "all", title = "User Management" }) =>
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/users/bulk/${action}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/users/bulk/${action}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

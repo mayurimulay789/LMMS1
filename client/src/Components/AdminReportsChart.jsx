@@ -28,7 +28,8 @@ const AdminReportsChart = ({ type }) => {
   const fetchChartData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/reports/${type}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/reports/${type}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
