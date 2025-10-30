@@ -54,13 +54,30 @@ sudo chmod -R 755 /var/www/rymaacademy
 # Setup PM2 process
 echo "🔄 Configuring PM2..."
 pm2 delete ryma-academy 2>/dev/null || true
+
+# Ensure environment is set before starting
+export NODE_ENV=production
+export $(cat server/.env.production | xargs)
+
 pm2 start server/src/index.js --name ryma-academy --env production
+pm2 set ryma-academy env production
+pm2 restart ryma-academy --update-env
 
 # Save PM2 process list
 pm2 save
 
 # Setup PM2 startup script
 pm2 startup
+
+# Verify deployment
+echo "🔍 Verifying deployment..."
+sleep 5 # Wait for server to start
+if curl -f https://online.rymaacademy.cloud/api/health; then
+    echo "✅ Server health check passed"
+else
+    echo "❌ Server health check failed"
+    exit 1
+fi
 
 # Configure and restart Nginx
 echo "🌐 Configuring Nginx..."
