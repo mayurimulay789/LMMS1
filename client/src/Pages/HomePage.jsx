@@ -58,13 +58,7 @@ const HomePage = () => {
       }
     } catch (error) {
       console.error("Error fetching featured courses:", error)
-      setFeaturedCourses([
-        { _id: "1", title: "Complete JavaScript Course", description: "Master JavaScript from basics to advanced concepts", instructor: "John Doe", price: 99, thumbnail: "/placeholder.svg?height=200&width=400", category: "Programming", level: "Beginner", avgRating: 4.8, reviewCount: 1250, enrollmentCount: 15000, lessons: Array(24).fill({}), durationMinutes: 1440, },
-        { _id: "2", title: "React Development Bootcamp", description: "Build modern web applications with React", instructor: "Jane Smith", price: 149, thumbnail: "/placeholder.svg?height=200&width=400", category: "Programming", level: "Intermediate", avgRating: 4.9, reviewCount: 890, enrollmentCount: 8500, lessons: Array(32).fill({}), durationMinutes: 1920, },
-        { _id: "3", title: "UI/UX Design Masterclass: Create stunning interfaces", description: "Learn design principles, prototyping, and create stunning user interfaces using Figma.", instructor: "Mike Johnson", price: 79, thumbnail: "/placeholder.svg?height=200&width=400", category: "Design", level: "Beginner", avgRating: 4.7, reviewCount: 650, enrollmentCount: 5200, lessons: Array(18).fill({}), durationMinutes: 900, },
-        { _id: "4", title: "Advanced Python for Data Science and Machine Learning", description: "Deep dive into NumPy, Pandas, and implement various machine learning models.", instructor: "Alice Brown", price: 129, thumbnail: "/placeholder.svg?height=200&width=400", category: "Data Science", level: "Advanced", avgRating: 4.6, reviewCount: 450, enrollmentCount: 4100, lessons: Array(28).fill({}), durationMinutes: 1680, },
-        { _id: "5", title: "The Ultimate Guide to SEO & Digital Marketing", description: "A comprehensive course covering all aspects of Search Engine Optimization and online marketing.", instructor: "Eve Williams", price: 109, thumbnail: "/placeholder.svg?height=200&width=400", category: "Marketing", level: "Intermediate", avgRating: 4.5, reviewCount: 300, enrollmentCount: 3500, lessons: Array(20).fill({}), durationMinutes: 1200, },
-      ])
+      setFeaturedCourses([])
     } finally {
       setIsLoading(false)
     }

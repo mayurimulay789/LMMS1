@@ -264,14 +264,16 @@ const courseSchema = new mongoose.Schema(
 )
 
 // Indexes for better performance
-courseSchema.index({ category: 1, level: 1 })
-courseSchema.index({ price: 1 })
-courseSchema.index({ rating: -1 })
-courseSchema.index({ enrollmentCount: -1 })
+courseSchema.index({ category: 1, level: 1, status: 1 })
+courseSchema.index({ price: 1, status: 1 })
+courseSchema.index({ rating: -1, status: 1 })
+courseSchema.index({ enrollmentCount: -1, status: 1 })
 courseSchema.index({ isPublished: 1, status: 1 })
 courseSchema.index({ "seo.slug": 1 }, { unique: true, sparse: true })
-courseSchema.index({ tags: 1 })
-courseSchema.index({ createdAt: -1 })
+courseSchema.index({ tags: 1, status: 1 })
+courseSchema.index({ createdAt: -1, status: 1 })
+courseSchema.index({ title: 1, description: 1 })  // For text search performance
+courseSchema.index({ status: 1, isPublished: 1, category: 1 }) // Compound index for main filters
 
 // Text search index
 courseSchema.index({
