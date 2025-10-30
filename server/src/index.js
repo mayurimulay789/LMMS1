@@ -76,39 +76,116 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan("dev"))
 }
 
-// CORS configuration - support multiple environments
-const allowedOrigins = [
-  'http://localhost:5173', // Development
-  'http://localhost:3000', // Alternative dev port
-  'https://online.rymaacademy.cloud', // Production domain
-  process.env.CLIENT_URL, // Production URL from environment variable
-  process.env.FRONTEND_URL, // Alternative env var name
-].filter(Boolean) // Remove undefined values
+// Enhanced CORS configuration for both development and production
+const developmentOrigins = [
+  'http://localhost:5173',  // Vite default
+  'http://localhost:3000',  // Alternative dev port
+  'http://127.0.0.1:5173', // Local IP variant
+  'http://127.0.0.1:3000'  // Local IP variant
+];
 
+const productionOrigins = [
+  'https://online.rymaacademy.cloud',    // Main production domain
+  process.env.CLIENT_URL,                // Production URL from env
+  process.env.FRONTEND_URL               // Alternative production URL
+].filter(Boolean); // Remove undefined/null values
+
+// Determine allowed origins based on environment
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? productionOrigins
+  : [...developmentOrigins, ...productionOrigins];
+
+// CORS middleware configuration
 app.use(
   cors({
-    origin: function(origin, callback){
-      // Allow requests with no origin (mobile apps, curl, Postman, etc.)
-      if(!origin) return callback(null, true);
-      
-      // In production, be more strict about origins
-      if(process.env.NODE_ENV === 'production' && !process.env.CLIENT_URL && !process.env.FRONTEND_URL) {
-        console.warn('⚠️ WARNING: No CLIENT_URL or FRONTEND_URL set in production environment');
-      }
-      
-      if(allowedOrigins.indexOf(origin) !== -1){
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) {
+        console.log('⚠️ Request with no origin');
         return callback(null, true);
       }
-      
-      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-      console.error('❌ CORS Error:', msg);
+
+      // Check if the origin is allowed
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        console.log(`✅ Allowed origin: ${origin}`);
+        return callback(null, true);
+      }
+
+      // Special handling for development localhost with different ports
+      if (process.env.NODE_ENV !== 'production' && 
+          (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
+        console.log(`✅ Allowed development origin: ${origin}`);
+        return callback(null, true);
+      }
+
+      // Production environment checks
+      if (process.env.NODE_ENV === 'production') {
+        if (!productionOrigins.length) {
+          console.error('❌ No production origins configured! Check CLIENT_URL and FRONTEND_URL environment variables.');
+        }
+        console.error(`❌ Blocked origin in production: ${origin}`);
+        console.error('Allowed production origins:', productionOrigins);
+      }
+
+      // Log detailed debugging information
+      console.error('🔍 CORS Debug Info:');
+      console.error('- Environment:', process.env.NODE_ENV);
+      console.error('- Request Origin:', origin);
+      console.error('- Allowed Origins:', allowedOrigins);
+      console.error('- CLIENT_URL:', process.env.CLIENT_URL);
+      console.error('- FRONTEND_URL:', process.env.FRONTEND_URL);
+
+      const msg = `CORS policy blocks origin: ${origin}`;
       return callback(new Error(msg), false);
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  }),
-)
+    methods: [
+      "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+    ],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+      "Access-Control-Request-Method",
+      "Access-Control-Request-Headers",
+      "Cache-Control",
+      "Pragma"
+    ],
+    exposedHeaders: [
+      'Content-Disposition',
+      'Content-Length',
+      'X-Total-Count',
+      'X-Rate-Limit-Remaining'
+    ],
+    maxAge: process.env.NODE_ENV === 'production' ? 86400 : 1, // 24 hours in production, 1 second in development
+  })
+);
+
+// Enhanced headers middleware for file uploads and preflight
+app.use((req, res, next) => {
+  // Set vary header to help with caching
+  res.vary('Origin');
+  
+  // Additional security headers for production
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+  }
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 
+      'Content-Type, Authorization, Content-Length, X-Requested-With, Accept, Origin, Cache-Control, Pragma');
+    res.header('Access-Control-Max-Age', process.env.NODE_ENV === 'production' ? '86400' : '1');
+    return res.status(200).json({});
+  }
+
+  next();
+});
 
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }))

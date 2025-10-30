@@ -19,6 +19,12 @@ const FileUpload = ({
   const { token } = useSelector((state) => state.auth)
 
   const getUploadEndpoint = (type) => {
+    // Use Vite's import.meta.env for environment variables
+    const baseUrl = import.meta.env.VITE_SERVER_URL || 
+                   (window.location.hostname === 'localhost' 
+                     ? 'http://localhost:2000' 
+                     : 'https://online.rymaacademy.cloud');
+    
     const endpoints = {
       thumbnail: "/api/upload/course-thumbnail",
       video: "/api/upload/lesson-video",
@@ -27,7 +33,9 @@ const FileUpload = ({
       chat: "/api/upload/chat-file",
       gallery: "/api/upload/course-gallery",
     }
-    return endpoints[type] || "/api/upload/course-material"
+    
+    const path = endpoints[type] || "/api/upload/course-material";
+    return `${baseUrl}${path}`;
   }
 
   const getFileIcon = (fileType) => {
@@ -100,9 +108,22 @@ const FileUpload = ({
 
         xhr.open(
           "POST",
-          `${process.env.REACT_APP_SERVER_URL || "http://localhost:2000"}${getUploadEndpoint(uploadType)}`,
+          getUploadEndpoint(uploadType)
         )
         xhr.setRequestHeader("Authorization", `Bearer ${token}`)
+        xhr.setRequestHeader("Accept", "application/json")
+        // Don't set Content-Type header - it will be set automatically with the correct boundary for FormData
+        xhr.withCredentials = true // Enable credentials (cookies, authorization headers)
+        
+        // Add retry logic for development environment
+        if (window.location.hostname === 'localhost') {
+          xhr.timeout = 30000; // 30 seconds timeout for local development
+          xhr.ontimeout = () => {
+            console.warn('Upload timed out, retrying...');
+            setTimeout(() => uploadFile(file), 1000);
+          };
+        }
+        
         xhr.send(formData)
       })
     } catch (error) {
