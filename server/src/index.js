@@ -46,18 +46,28 @@ app.use(
   }),
 )
 
-// Rate limiting - Exclude safe GET requests and OPTIONS requests
+// Rate limiting - Exclude safe GET requests, OPTIONS requests, and payment endpoints
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1500,
   message: "Too many requests from this IP, please try again later.",
   skip: (req) => {
     // Skip rate limiting for safe GET requests and OPTIONS requests
-    return (req.method === 'GET' && (
+    const isGetRequest = req.method === 'GET' && (
       req.path.startsWith('/api/enrollments/progress/') ||
       req.path === '/api/enrollments/me' ||
-      req.path === '/api/certificates/me'
-    )) || req.method === 'OPTIONS';
+      req.path === '/api/certificates/me' ||
+      req.path === '/api/courses' ||
+      req.path.startsWith('/api/courses/')
+    );
+    
+    // Skip rate limiting for payment endpoints (critical for multi-IP access)
+    const isPaymentRequest = req.path.startsWith('/api/payments/');
+    
+    // Skip for OPTIONS preflight requests
+    const isOptionsRequest = req.method === 'OPTIONS';
+    
+    return isGetRequest || isPaymentRequest || isOptionsRequest;
   },
   handler: (req, res) => {
     console.log(`Rate limit reached for IP: ${req.ip}, path: ${req.path}, method: ${req.method}`);
