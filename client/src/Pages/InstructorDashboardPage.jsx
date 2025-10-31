@@ -6,6 +6,7 @@ import { Users, BookOpen, TrendingUp, Download } from "lucide-react"
 import { IndianRupee } from "lucide-react"
 import InstructorCourseForm from "../Components/InstructorCourseForm"
 import InstructorReportsChart from "../Components/InstructorReportsChart"
+import { apiRequest } from "../config/api"
 
 // Custom Indian Rupee Icon component
 const IndianRupeeIcon = (props) => (
@@ -49,10 +50,9 @@ const InstructorDashboardPage = () => {
     setCoursesLoading(true)
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/instructor/courses", {
+      const response = await apiRequest("instructor/courses", {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 
@@ -71,10 +71,9 @@ const InstructorDashboardPage = () => {
     setStudentsLoading(true)
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/instructor/students", {
+      const response = await apiRequest("instructor/students", {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 
@@ -93,10 +92,9 @@ const InstructorDashboardPage = () => {
     setReportsLoading(true)
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/instructor/reports/revenue", {
+      const response = await apiRequest("instructor/reports/revenue", {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 
@@ -118,11 +116,10 @@ const InstructorDashboardPage = () => {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/instructor/courses/${courseId}`, {
+      const response = await apiRequest(`instructor/courses/${courseId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 
@@ -150,10 +147,9 @@ const InstructorDashboardPage = () => {
   const fetchInstructorStats = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/instructor/stats", {
+      const response = await apiRequest("instructor/stats", {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 

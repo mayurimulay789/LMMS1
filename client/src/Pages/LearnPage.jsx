@@ -6,6 +6,7 @@ import { useSelector } from "react-redux"
 import { Play, Clock, CheckCircle, ArrowLeft, Lock, Award } from "lucide-react"
 import { motion } from "framer-motion"
 import toast from "react-hot-toast"
+import { apiRequest } from "../config/api"
 
 const LearnPage = () => {
   const { courseId } = useParams()
@@ -95,8 +96,8 @@ const LearnPage = () => {
   const fetchCourseDetails = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/courses/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      const response = await apiRequest(`courses/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
         const data = await response.json()
@@ -122,8 +123,8 @@ const LearnPage = () => {
         return
       }
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/enrollments/progress/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      const response = await apiRequest(`enrollments/progress/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
         const data = await response.json()
@@ -151,7 +152,7 @@ const LearnPage = () => {
   const fetchCertificate = async () => {
     try {
       console.log('Fetching certificate for courseId:', courseId);
-      const response = await fetch(`http://localhost:2000/api/certificates/me`, {
+      const response = await apiRequest("certificates/me", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       if (response.ok) {
@@ -177,9 +178,9 @@ const LearnPage = () => {
     if (isLessonCompleted(lessonId)) return
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/enrollments/progress`, {
+      const response = await apiRequest("enrollments/progress", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${token}` },
         body: JSON.stringify({ courseId, lessonId, timeSpent: 0 }),
       })
       if (response.ok) {
@@ -226,11 +227,10 @@ const LearnPage = () => {
         try {
           // Attempt to generate certificate manually
           const token = localStorage.getItem("token");
-          const response = await fetch(`http://localhost:2000/api/certificates/generate`, {
+          const response = await apiRequest("certificates/generate", {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
+              Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ courseId })
           });

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSearchParams, useNavigate, Link } from "react-router-dom"
 import { XCircle, AlertTriangle, CreditCard, HelpCircle, ArrowLeft, RefreshCw } from "lucide-react"
+import { apiRequest } from "../config/api"
 
 const PaymentFailedPage = () => {
   const [searchParams] = useSearchParams()
@@ -24,7 +25,7 @@ const PaymentFailedPage = () => {
 
   const fetchErrorDetails = async () => {
     try {
-      const response = await fetch(`http://localhost:2000/api/payments/error-details/${sessionId}`)
+      const response = await apiRequest(`payments/error-details/${sessionId}`)
       if (response.ok) {
         const data = await response.json()
         setErrorDetails(data)

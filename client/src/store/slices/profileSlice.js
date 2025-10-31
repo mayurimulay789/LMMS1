@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { apiRequest } from "../../config/api"
 
 // Async thunk for updating profile
 export const updateProfile = createAsyncThunk(
@@ -10,19 +11,13 @@ export const updateProfile = createAsyncThunk(
         return rejectWithValue("No token found")
       }
 
-      const response = await fetch("http://localhost:2000/api/auth/profile", {
+      const response = await apiRequest("auth/profile", {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(profileData),
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return data

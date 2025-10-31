@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CreditCard, X, Mail, CheckCircle } from "lucide-react";
+import { apiRequest } from "../config/api";
 
 export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selectedCourseId, courseTitle, userEmail }) => {
   const [tab, setTab] = useState("online");
@@ -11,10 +12,9 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
   // Function to send enrollment email
   const sendEnrollmentEmail = async (paymentMethod) => {
     try {
-      const emailResponse = await fetch("http://localhost:2000/api/email/send-enrollment", {
+      const emailResponse = await apiRequest("email/send-enrollment", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
@@ -49,10 +49,9 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
       setPaymentStatus(null);
 
       // 1️⃣ Create Razorpay order on backend
-      const response = await fetch("http://localhost:2000/api/payments/create-order", {
+      const response = await apiRequest("payments/create-order", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
@@ -86,10 +85,9 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         handler: async function (response) {
           try {
             // Verify payment on backend
-            const verifyRes = await fetch("http://localhost:2000/api/payments/verify", {
+            const verifyRes = await apiRequest("payments/verify", {
               method: "POST",
               headers: {
-                "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
               body: JSON.stringify({

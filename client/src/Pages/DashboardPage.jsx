@@ -7,6 +7,7 @@ import { BookOpen, Clock, Award, TrendingUp, Play, Download, Eye, User, Edit2 } 
 import { fetchUserEnrollments, fetchUserProgress, fetchUserCertificates } from "../store/slices/enrollmentSlice"
 import { loadUser } from "../store/slices/authSlice"
 import ProfileForm from "../Components/ProfileForm"
+import { createApiUrl } from "../config/api"
 
 const DashboardPage = () => {
   const dispatch = useDispatch()
@@ -245,7 +246,7 @@ const DashboardPage = () => {
                       <button
                         onClick={() =>
                           window.open(
-                            `http://localhost:2000/api/certificates/pdf/${certificate.certificateId}`,
+                            createApiUrl(`certificates/pdf/${certificate.certificateId}`),
                             "_blank",
                           )
                         }
@@ -256,7 +257,7 @@ const DashboardPage = () => {
                       <button
                         onClick={() => {
                           const link = document.createElement("a")
-                          link.href = `http://localhost:2000/api/certificates/download/${certificate.certificateId}`
+                          link.href = createApiUrl(`certificates/download/${certificate.certificateId}`)
                           link.download = `${certificate.certificateNumber}.pdf`
                           link.click()
                         }}

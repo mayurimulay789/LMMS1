@@ -1,20 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { apiRequest } from "../../config/api"
 
 export const fetchUserEnrollments = createAsyncThunk(
   "enrollment/fetchUserEnrollments",
   async (_, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:2000/api/enrollments/me", {
+      const response = await apiRequest("enrollments/me", {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return data
@@ -29,16 +25,11 @@ export const fetchUserProgress = createAsyncThunk(
   async (courseId, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch(`http://localhost:2000/api/enrollments/progress/${courseId}`, {
+      const response = await apiRequest(`enrollments/progress/${courseId}`, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return { courseId, progress: data.progress }
@@ -53,16 +44,11 @@ export const fetchUserCertificates = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch(`http://localhost:2000/api/certificates/me`, {
+      const response = await apiRequest("certificates/me", {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return data
@@ -77,19 +63,13 @@ export const updateProgress = createAsyncThunk(
   async ({ courseId, lessonId }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:2000/api/enrollments/progress", {
+      const response = await apiRequest("enrollments/progress", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${auth.token}`,
         },
         body: JSON.stringify({ courseId, lessonId }),
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return data

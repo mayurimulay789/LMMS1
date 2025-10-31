@@ -1,23 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { apiRequest } from "../../config/api"
 
 export const createPaymentOrder = createAsyncThunk(
   "payment/createOrder",
   async ({ courseId, amount, promoCode, billingInfo }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:2000/api/payments/create-order", {
+      const response = await apiRequest("payments/create-order", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${auth.token}`,
         },
         body: JSON.stringify({ courseId, amount, promoCode, billingInfo }),
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return data
@@ -32,19 +27,13 @@ export const verifyPayment = createAsyncThunk(
   async (paymentData, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:2000/api/payments/verify", {
+      const response = await apiRequest("payments/verify", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${auth.token}`,
         },
         body: JSON.stringify(paymentData),
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return data
@@ -59,16 +48,11 @@ export const fetchUserPayments = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:2000/api/payments/history", {
+      const response = await apiRequest("payments/history", {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return data
@@ -83,19 +67,13 @@ export const validatePromoCode = createAsyncThunk(
   async ({ code, courseId }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:2000/api/payments/validate-promo", {
+      const response = await apiRequest("payments/validate-promo", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${auth.token}`,
         },
         body: JSON.stringify({ code, courseId }),
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return data
@@ -110,19 +88,13 @@ export const requestRefund = createAsyncThunk(
   async ({ paymentId, reason }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("http://localhost:2000/api/payments/refund", {
+      const response = await apiRequest("payments/refund", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${auth.token}`,
         },
         body: JSON.stringify({ paymentId, reason }),
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        return rejectWithValue(error.message)
-      }
 
       const data = await response.json()
       return data
