@@ -95,73 +95,39 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   ? productionOrigins
   : [...developmentOrigins, ...productionOrigins];
 
-// CORS middleware configuration
-app.use(
-  cors({
-    origin: function(origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) {
-        console.log('⚠️ Request with no origin');
-        return callback(null, true);
-      }
-
-      // Check if the origin is allowed
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        console.log(`✅ Allowed origin: ${origin}`);
-        return callback(null, true);
-      }
-
-      // Special handling for development localhost with different ports
-      if (process.env.NODE_ENV !== 'production' && 
-          (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
-        console.log(`✅ Allowed development origin: ${origin}`);
-        return callback(null, true);
-      }
-
-      // Production environment checks
-      if (process.env.NODE_ENV === 'production') {
-        if (!productionOrigins.length) {
-          console.error('❌ No production origins configured! Check CLIENT_URL and FRONTEND_URL environment variables.');
-        }
-        console.error(`❌ Blocked origin in production: ${origin}`);
-        console.error('Allowed production origins:', productionOrigins);
-      }
-
-      // Log detailed debugging information
-      console.error('🔍 CORS Debug Info:');
-      console.error('- Environment:', process.env.NODE_ENV);
-      console.error('- Request Origin:', origin);
-      console.error('- Allowed Origins:', allowedOrigins);
-      console.error('- CLIENT_URL:', process.env.CLIENT_URL);
-      console.error('- FRONTEND_URL:', process.env.FRONTEND_URL);
-
-      const msg = `CORS policy blocks origin: ${origin}`;
-      return callback(new Error(msg), false);
-    },
-    credentials: true,
-    methods: [
-      "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
-    ],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-      "Origin",
-      "Access-Control-Request-Method",
-      "Access-Control-Request-Headers",
-      "Cache-Control",
-      "Pragma"
-    ],
-    exposedHeaders: [
-      'Content-Disposition',
-      'Content-Length',
-      'X-Total-Count',
-      'X-Rate-Limit-Remaining'
-    ],
-    maxAge: process.env.NODE_ENV === 'production' ? 86400 : 1, // 24 hours in production, 1 second in development
-  })
-);
+// CORS middleware configuration for development - in production, Nginx handles CORS
+if (process.env.NODE_ENV !== 'production') {
+  app.use(
+    cors({
+      origin: function(origin, callback) {
+        // Allow all origins in development
+        callback(null, true);
+      },
+      credentials: true,
+      methods: [
+        "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+      ],
+      allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "Accept",
+        "Origin",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers",
+        "Cache-Control",
+        "Pragma"
+      ],
+      exposedHeaders: [
+        'Content-Disposition',
+        'Content-Length',
+        'X-Total-Count',
+        'X-Rate-Limit-Remaining'
+      ],
+      maxAge: 1 // 1 second in development
+    })
+  );
+}
 
 // Enhanced headers middleware for file uploads and preflight
 app.use((req, res, next) => {
