@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Mail, Eye, MessageSquare, Clock, AlertCircle, CheckCircle, XCircle, Filter } from "lucide-react"
+import { apiRequest } from "../config/api"
 
 const AdminContactMessages = () => {
   const [contacts, setContacts] = useState([])
@@ -20,10 +21,9 @@ const AdminContactMessages = () => {
       const params = new URLSearchParams()
       if (filter !== "all") params.append("status", filter)
 
-      const response = await fetch(`http://localhost:2000/api/contact?${params}`, {
+      const response = await apiRequest(`contact?${params}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 
@@ -44,11 +44,10 @@ const AdminContactMessages = () => {
   const updateContactStatus = async (contactId, status) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/contact/${contactId}/status`, {
+      const response = await apiRequest(`contact/${contactId}/status`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
         body: JSON.stringify({ status }),
       })

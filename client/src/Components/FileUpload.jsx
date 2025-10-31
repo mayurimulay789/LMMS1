@@ -19,16 +19,15 @@ const FileUpload = ({
   const { token } = useSelector((state) => state.auth)
 
   const getUploadEndpoint = (type) => {
-    // Use Vite's import.meta.env for environment variables
-    const baseUrl = import.meta.env.VITE_SERVER_URL || 
-                   (window.location.hostname === 'localhost' 
-                     ? 'http://localhost:2000' 
-                     : 'https://online.rymaacademy.cloud');
+    // Use production API URL
+    const baseUrl = import.meta.env.VITE_API_URL || 
+                   import.meta.env.VITE_BACKEND_URL || 
+                   'https://online.rymaacademy.cloud/api';
     
     const endpoints = {
-      thumbnail: "/api/upload/course-thumbnail",
-      video: "/api/upload/lesson-video",
-      document: "/api/upload/course-material",
+      thumbnail: "/upload/course-thumbnail",
+      video: "/upload/lesson-video",
+      document: "/upload/course-material",
       avatar: "/api/upload/avatar",
       chat: "/api/upload/chat-file",
       gallery: "/api/upload/course-gallery",

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Plus, Upload, X, Save, Eye, Edit, Trash2, ImageIcon, Clock } from "lucide-react"
+import { apiRequest } from "../config/api"
 
 const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
   const [courses, setCourses] = useState([])
@@ -31,10 +32,9 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/instructor/courses", {
+      const response = await apiRequest("instructor/courses", {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 
@@ -67,7 +67,7 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/upload/${endpoint}`, {
+      const response = await apiRequest(`upload/${endpoint}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -200,9 +200,9 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
 
     try {
       const token = localStorage.getItem("token")
-      const url = editingCourse
-        ? `http://localhost:2000/api/instructor/courses/${editingCourse._id}`
-        : "http://localhost:2000/api/instructor/courses"
+      const endpoint = editingCourse
+        ? `instructor/courses/${editingCourse._id}`
+        : "instructor/courses"
 
       const submitData = {
         ...formData,
@@ -215,11 +215,10 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
         }))
       }
 
-      const response = await fetch(url, {
+      const response = await apiRequest(endpoint, {
         method: editingCourse ? "PUT" : "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
         body: JSON.stringify(submitData),
       })
@@ -288,7 +287,7 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
     if (window.confirm("Are you sure you want to delete this course?")) {
       try {
         const token = localStorage.getItem("token")
-        const response = await fetch(`http://localhost:2000/api/instructor/courses/${courseId}`, {
+        const response = await apiRequest(`instructor/courses/${courseId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,

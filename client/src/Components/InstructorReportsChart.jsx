@@ -16,6 +16,7 @@ import {
   Pie,
   Cell,
 } from "recharts"
+import { apiRequest } from "../config/api"
 
 const InstructorReportsChart = ({ type }) => {
   const [chartData, setChartData] = useState([])
@@ -28,10 +29,9 @@ const InstructorReportsChart = ({ type }) => {
   const fetchChartData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/instructor/reports/${type}`, {
+      const response = await apiRequest(`instructor/reports/${type}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 
