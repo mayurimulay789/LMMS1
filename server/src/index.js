@@ -220,6 +220,7 @@ const adminRoutes = require("../routes/admin")
 const instructorRoutes = require("../routes/instructor")
 const uploadRoutes = require("../routes/upload")
 const courseReviewsRoutes = require("../routes/courseReviews")
+const referralRoutes = require("../routes/referral")
 
 // Use routes
 app.use("/api/auth", authRoutes)
@@ -232,6 +233,7 @@ app.use("/api/admin", adminRoutes)
 app.use("/api/instructor", instructorRoutes)
 app.use("/api/upload", uploadRoutes)
 app.use("/api/courseReviews", courseReviewsRoutes)
+app.use("/api/referral", referralRoutes)
 
 app.use("/api/*splat", (req, res) => {
   res.status(404).json({

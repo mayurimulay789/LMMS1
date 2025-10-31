@@ -8,11 +8,26 @@ const { sendWelcomeEmail, sendAdminSignupNotification } = require("../services/e
 // Register user
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, role } = req.body
+    const { name, email, password, role, referralCode } = req.body
+    let referrer = null;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email })
     let user = existingUser
+
+    // Validate referral code if provided
+    if (referralCode) {
+      const validReferral = await Referral.findOne({ 
+        referralCode,
+        isActive: true
+      });
+      
+      if (!validReferral) {
+        return res.status(400).json({ message: "Invalid referral code" });
+      }
+      referrer = validReferral.referrer;
+    }
+
     if (existingUser) {
       // If user exists but hasn't verified email (created via instructor approval), allow setting password
       if (!existingUser.isEmailVerified && !existingUser.password) {
@@ -33,13 +48,36 @@ router.post("/register", async (req, res) => {
         password,
         role: role || "student", // Use provided role or default to student
         isEmailVerified: true, // New registrations are verified
-      })
-      await user.save()
+        referredBy: referrer, // Add referrer if referral code was used
+      });
+      await user.save();
+
+      // Create referral code for the new user
+      const newUserReferral = new Referral({
+        referralCode: await Referral.generateReferralCode(name),
+        referrer: user._id,
+      });
+      await newUserReferral.save();
+
+      // Update referrer's referral record if referral code was used
+      if (referrer) {
+        await Referral.findOneAndUpdate(
+          { referrer },
+          { 
+            $push: { 
+              referred: {
+                user: user._id,
+                status: "pending"
+              }
+            }
+          }
+        );
+      }
 
       // Send welcome email and admin notification only for student role
       if (user.role === 'student') {
-        sendWelcomeEmail({ name: user.name, email: user.email, role: user.role }).catch(err => console.error('Welcome email failed:', err))
-        sendAdminSignupNotification({ name: user.name, email: user.email, role: user.role, userId: user._id, password }).catch(err => console.error('Admin notification failed:', err))
+        sendWelcomeEmail({ name: user.name, email: user.email, role: user.role }).catch(() => {})
+        sendAdminSignupNotification({ name: user.name, email: user.email, role: user.role, userId: user._id, password }).catch(() => {})
       }
     }
 
@@ -56,7 +94,6 @@ router.post("/register", async (req, res) => {
       },
     })
   } catch (error) {
-    console.error("Registration error:", error)
     res.status(500).json({ message: "Server error" })
   }
 })
@@ -95,10 +132,34 @@ router.post("/login", async (req, res) => {
       },
     })
   } catch (error) {
-    console.error("Login error:", error)
     res.status(500).json({ message: "Server error" })
   }
 })
+
+// Validate referral code (email)
+router.get("/validate-referral", async (req, res) => {
+  try {
+    const { email } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Find user by email
+    const referrer = await User.findOne({ email }).select("name email");
+    
+    if (!referrer) {
+      return res.status(404).json({ message: "Invalid referral code" });
+    }
+
+    res.json({
+      name: referrer.name,
+      email: referrer.email
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 // Get current logged-in user
 router.get("/me", auth, async (req, res) => {
@@ -107,7 +168,6 @@ router.get("/me", auth, async (req, res) => {
     const user = await User.findById(req.user.id).select("-password")
     res.json({ user })
   } catch (error) {
-    console.error("Get user error:", error)
     res.status(500).json({ message: "Server error" })
   }
 })
@@ -142,7 +202,6 @@ router.put("/profile", auth, async (req, res) => {
       user
     })
   } catch (error) {
-    console.error("Profile update error:", error)
     res.status(500).json({ message: "Server error" })
   }
 })

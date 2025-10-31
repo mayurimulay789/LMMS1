@@ -1,11 +1,39 @@
 // pages/ReferEarn.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Copy, Share2, Users, Award, UserPlus, CreditCard, Gift, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import axios from 'axios';
 
 const ReferEarn = () => {
-  const [referralCode] = useState('RYMA2024');
+  const [referralCode, setReferralCode] = useState('');
   const [copied, setCopied] = useState(false);
-  const [referralLink] = useState('https://rymaacademy.com/ref/RYMA2024');
+  const [referralLink, setReferralLink] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [userEmail, setUserEmail] = useState('');
+
+  useEffect(() => {
+    const fetchReferralDetails = async () => {
+      try {
+        const [codeResponse, statsResponse, userResponse] = await Promise.all([
+          axios.get('/api/referral/code'),
+          axios.get('/api/referral/stats'),
+          axios.get('/api/auth/me')
+        ]);
+        
+        setReferralCode(codeResponse.data.referralCode);
+        setReferralLink(codeResponse.data.referralLink);
+        setStats(statsResponse.data);
+        setUserEmail(userResponse.data.user.email);
+        setLoading(false);
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to fetch referral details');
+        setLoading(false);
+      }
+    };
+
+    fetchReferralDetails();
+  }, []);
   const [openFAQ, setOpenFAQ] = useState(null);
 
   const copyToClipboard = (text) => {
@@ -48,32 +76,32 @@ const ReferEarn = () => {
   const programBenefits = [
     {
       program: "Full Stack Development",
-      reward: "¥5,000 per referral",
+      reward: "₹5,000 per referral",
       color: "bg-rose-500"
     },
     {
       program: "Data Science",
-      reward: "¥6,000 per referral",
+      reward: "₹6,000 per referral",
       color: "bg-rose-600"
     },
     {
       program: "AI & Machine Learning",
-      reward: "¥7,000 per referral",
+      reward: "₹7,000 per referral",
       color: "bg-rose-700"
     },
     {
       program: "Cyber Security",
-      reward: "¥6,500 per referral",
+      reward: "₹6,500 per referral",
       color: "bg-rose-800"
     },
     {
       program: "Cloud Computing",
-      reward: "¥5,500 per referral",
+      reward: "₹5,500 per referral",
       color: "bg-pink-500"
     },
     {
       program: "Digital Marketing",
-      reward: "¥4,500 per referral",
+      reward: "₹4,500 per referral",
       color: "bg-pink-600"
     }
   ];
@@ -85,11 +113,11 @@ const ReferEarn = () => {
     },
     {
       question: "What are some rewards I can receive from this program?",
-      answer: "You can earn cash bonuses up to ¥80,000, course discounts, exclusive access to premium content, and special recognition in our community."
+      answer: "You can earn cash bonuses up to ₹80,000, course discounts, exclusive access to premium content, and special recognition in our community."
     },
     {
       question: "Is there any limit on referring friends?",
-      answer: "No! There's no limit to how many friends you can refer. The more you refer, the more you earn, with potential earnings up to ¥80,000."
+      answer: "No! There's no limit to how many friends you can refer. The more you refer, the more you earn, with potential earnings up to ₹80,000."
     },
     {
       question: "How do I get my rewards?",
@@ -117,7 +145,7 @@ const ReferEarn = () => {
             </div>
             <p className="text-xl max-w-3xl mx-auto mb-8 leading-relaxed">
               Get your friends on board to join Ryma Academy and enjoy lucrative rewards. The more you refer, the more rewards!  
-              Earn ¥80,000 at max by referring friends to our top-notch professional courses.
+              Earn ₹80,000 at max by referring friends to our top-notch professional courses.
             </p>
             <button className="bg-white text-rose-800 px-10 py-4 rounded-lg font-bold text-lg hover:bg-rose-50 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300">
               Refer & Start Earning!
@@ -180,13 +208,13 @@ const ReferEarn = () => {
             
             {/* Referral Code Display */}
             <div className="bg-gradient-to-r from-rose-700 to-rose-800 rounded-xl p-8 mb-8 text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <span className="text-white text-lg block mb-4">Your Unique Referral Code</span>
+              <span className="text-white text-lg block mb-4">Your Email (Use as Referral ID)</span>
               <div className="flex items-center justify-center gap-6">
-                <code className="text-5xl font-bold text-white bg-rose-900 bg-opacity-30 px-8 py-4 rounded-lg tracking-wider border-2 border-rose-400 shadow-inner">
-                  {referralCode}
+                <code className="text-3xl font-bold text-white bg-rose-900 bg-opacity-30 px-8 py-4 rounded-lg tracking-wider border-2 border-rose-400 shadow-inner">
+                  {userEmail}
                 </code>
                 <button
-                  onClick={() => copyToClipboard(referralCode)}
+                  onClick={() => copyToClipboard(userEmail)}
                   className="bg-white text-rose-700 p-4 rounded-xl hover:bg-rose-50 transition-all duration-300 shadow-lg border-2 border-rose-200 hover:border-rose-300 hover:shadow-xl transform hover:scale-105"
                 >
                   <Copy className="w-8 h-8" />

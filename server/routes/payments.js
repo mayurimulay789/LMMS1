@@ -106,7 +106,6 @@ router.post("/create-order", auth, async (req, res) => {
       paymentId: payment._id,
     })
   } catch (error) {
-    console.error("Payment order creation error:", error)
     res.status(500).json({ message: "Failed to create payment order" })
   }
 })
@@ -117,12 +116,6 @@ router.post("/verify", auth, async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
     const userId = req.user.id;
 
-    console.log("=== Razorpay Verification Debug ===");
-    console.log("Server secret:", process.env.RAZORPAY_KEY_SECRET);
-    console.log("Incoming order id:", razorpay_order_id);
-    console.log("Incoming payment id:", razorpay_payment_id);
-    console.log("Incoming signature:", razorpay_signature);
-
     // Compute expected signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
@@ -130,19 +123,12 @@ router.post("/verify", auth, async (req, res) => {
       .update(body.toString())
       .digest("hex");
 
-    console.log("Expected signature:", expectedSignature);
-
     // Compare signatures
     if (expectedSignature !== razorpay_signature) {
-      console.error("⚠️ Payment verification failed: signatures do not match!");
       return res.status(400).json({
-        message: "Payment verification failed",
-        expectedSignature,
-        receivedSignature: razorpay_signature
+        message: "Payment verification failed"
       });
     }
-
-    console.log("✅ Signature verified successfully");
 
     // Find the payment record
     const payment = await Payment.findOne({
@@ -202,8 +188,7 @@ router.post("/verify", auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Payment verification error:", error);
-    res.status(500).json({ message: "Failed to verify payment", error: error.message });
+    res.status(500).json({ message: "Failed to verify payment" });
   }
 })
 
@@ -236,7 +221,6 @@ router.post("/validate-promo", auth, async (req, res) => {
       description: promoCode.description,
     })
   } catch (error) {
-    console.error("Promo code validation error:", error)
     res.status(500).json({ message: "Failed to validate promo code" })
   }
 })
@@ -252,7 +236,6 @@ router.get("/history", auth, async (req, res) => {
 
     res.json(payments)
   } catch (error) {
-    console.error("Payment history error:", error)
     res.status(500).json({ message: "Failed to fetch payment history" })
   }
 })
@@ -313,7 +296,6 @@ router.post("/refund", auth, async (req, res) => {
       refundId: refund.id,
     })
   } catch (error) {
-    console.error("Refund error:", error)
     res.status(500).json({ message: "Failed to process refund" })
   }
 })
@@ -327,7 +309,6 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
     const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(JSON.stringify(req.body)).digest("hex")
 
     if (expectedSignature !== webhookSignature) {
-      console.error("Webhook signature verification failed")
       return res.status(400).send("Webhook signature verification failed")
     }
   }
@@ -344,12 +325,10 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         await handleFailedPayment(paymentEntity)
         break
       default:
-        console.log(`Unhandled event type ${event}`)
     }
 
     res.json({ received: true })
   } catch (error) {
-    console.error("Webhook processing error:", error)
     res.status(500).json({ error: "Webhook processing failed" })
   }
 })
@@ -366,10 +345,35 @@ async function handleSuccessfulPayment(paymentEntity) {
     }
 
     // Update payment status
-    payment.status = "completed"
-    payment.razorpay_payment_id = paymentEntity.id
-    payment.completedAt = new Date()
-    await payment.save()
+    payment.status = "completed";
+    payment.razorpay_payment_id = paymentEntity.id;
+    payment.completedAt = new Date();
+    await payment.save();
+
+    // Process referral reward if user was referred
+    const user = await User.findById(payment.user);
+    if (user.referredBy) {
+      const referral = await Referral.findOne({ referrer: user.referredBy });
+      if (referral) {
+        const referredRecord = referral.referred.find(r => r.user.toString() === user._id.toString());
+        if (referredRecord && referredRecord.status === "pending") {
+          // Calculate reward amount (10% of course price)
+          const rewardAmount = Math.round(payment.amount * 0.10);
+          
+          // Update referral record
+          referredRecord.status = "completed";
+          referredRecord.reward = rewardAmount;
+          await referral.save();
+
+          // Update referrer's rewards
+          await User.findByIdAndUpdate(user.referredBy, {
+            $inc: {
+              "referralRewards.earned": rewardAmount
+            }
+          });
+        }
+      }
+    }
 
     // Create enrollment if not exists
     const existingEnrollment = await Enrollment.findOne({
@@ -403,7 +407,7 @@ async function handleSuccessfulPayment(paymentEntity) {
       }
     }
   } catch (error) {
-    console.error("Error handling successful payment:", error)
+    // Silently fail as this is a background process
   }
 }
 
@@ -419,7 +423,7 @@ async function handleFailedPayment(paymentEntity) {
       await payment.save()
     }
   } catch (error) {
-    console.error("Error handling failed payment:", error)
+    // Silently fail as this is a background process
   }
 }
 

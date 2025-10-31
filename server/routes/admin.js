@@ -17,16 +17,122 @@ router.use(adminMiddleware)
 // Get admin dashboard stats
 router.get("/stats", async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments()
-    const totalCourses = await Course.countDocuments()
-    const totalPayments = await Payment.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }])
-    const activeEnrollments = await Enrollment.countDocuments({ status: "active" })
+    // Get current date
+    const today = new Date()
+    const currentMonth = today.getMonth()
+    const currentYear = today.getFullYear()
+    
+    // Calculate last month's date range
+    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1
+    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear
+
+    // Get date ranges for current and previous months
+    const currentMonthStart = new Date(currentYear, currentMonth, 1)
+    const lastMonthStart = new Date(lastMonthYear, lastMonth, 1)
+
+    // Calculate statistics
+    const [
+      totalUsers,
+      totalCourses,
+      currentMonthPayments,
+      lastMonthPayments,
+      activeEnrollments,
+      lastMonthUsers,
+      lastMonthCourses,
+      lastMonthEnrollments
+    ] = await Promise.all([
+      // Total users count
+      User.countDocuments(),
+      
+      // Total courses count  
+      Course.countDocuments(),
+
+      // Current month revenue
+      Payment.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: currentMonthStart }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$amount" }
+          }
+        }
+      ]),
+
+      // Last month revenue
+      Payment.aggregate([
+        {
+          $match: {
+            createdAt: { 
+              $gte: lastMonthStart,
+              $lt: currentMonthStart
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$amount" }
+          }
+        }
+      ]),
+
+      // Active enrollments
+      Enrollment.countDocuments({ status: "active" }),
+
+      // Last month users count
+      User.countDocuments({ createdAt: { $lt: currentMonthStart } }),
+      
+      // Last month courses count
+      Course.countDocuments({ createdAt: { $lt: currentMonthStart } }),
+
+      // Last month enrollments count
+      Enrollment.countDocuments({ 
+        status: "active",
+        createdAt: { $lt: currentMonthStart } 
+      })
+    ])
+
+    // Calculate month-over-month changes
+    const currentMonthRevenue = currentMonthPayments[0]?.total || 0
+    const lastMonthRevenue = lastMonthPayments[0]?.total || 0
+
+    const revenueChange = lastMonthRevenue === 0 ? 0 : 
+      ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1)
+
+    const usersChange = lastMonthUsers === 0 ? 0 :
+      ((totalUsers - lastMonthUsers) / lastMonthUsers * 100).toFixed(1)
+    
+    const coursesChange = lastMonthCourses === 0 ? 0 :
+      ((totalCourses - lastMonthCourses) / lastMonthCourses * 100).toFixed(1)
+    
+    const enrollmentsChange = lastMonthEnrollments === 0 ? 0 :
+      ((activeEnrollments - lastMonthEnrollments) / lastMonthEnrollments * 100).toFixed(1)
+
+    // Get all time total revenue
+    const allTimeRevenue = await Payment.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" }
+        }
+      }
+    ])
 
     res.json({
       totalUsers,
-      totalCourses,
-      totalRevenue: totalPayments[0]?.total || 0,
+      totalCourses, 
+      totalRevenue: allTimeRevenue[0]?.total || 0,
       activeEnrollments,
+      changes: {
+        users: `${usersChange > 0 ? '+' : ''}${usersChange}%`,
+        courses: `${coursesChange > 0 ? '+' : ''}${coursesChange}%`, 
+        revenue: `${revenueChange > 0 ? '+' : ''}${revenueChange}%`,
+        enrollments: `${enrollmentsChange > 0 ? '+' : ''}${enrollmentsChange}%`
+      }
     })
   } catch (error) {
     console.error("Error fetching admin stats:", error)
@@ -148,6 +254,124 @@ router.post("/users/:userId/delete", async (req, res) => {
   } catch (error) {
     console.error("Error deleting user:", error)
     res.status(500).json({ message: "Failed to delete user" })
+  }
+})
+
+// Create new user
+router.post("/users", async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email })
+    if (existingUser) {
+      return res.status(400).json({ message: "User with this email already exists" })
+    }
+
+    // Create new user
+    const user = new User({
+      name,
+      email,
+      password,
+      role: role || "student",
+      isEmailVerified: true, // Admin created users are verified by default
+    })
+
+    await user.save()
+
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = user.toObject()
+    res.status(201).json({ message: "User created successfully", user: userWithoutPassword })
+  } catch (error) {
+    console.error("Error creating user:", error)
+    res.status(500).json({ message: "Failed to create user" })
+  }
+})
+
+// Update user
+router.put("/users/:userId", async (req, res) => {
+  try {
+    const { name, email, role, isEmailVerified, profile } = req.body
+    const userId = req.params.userId
+
+    // Check if email is being changed and if it already exists
+    if (email) {
+      const existingUser = await User.findOne({ email, _id: { $ne: userId } })
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already exists" })
+      }
+    }
+
+    const updateData = {}
+    if (name) updateData.name = name
+    if (email) updateData.email = email
+    if (role) updateData.role = role
+    if (typeof isEmailVerified === 'boolean') updateData.isEmailVerified = isEmailVerified
+    if (profile) updateData.profile = { ...updateData.profile, ...profile }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true, runValidators: true }
+    ).select('-password')
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    res.json({ message: "User updated successfully", user })
+  } catch (error) {
+    console.error("Error updating user:", error)
+    res.status(500).json({ message: "Failed to update user" })
+  }
+})
+
+// Get single user details
+router.get("/users/:userId", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select('-password')
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    // Get enrollment count for this user
+    const enrollmentCount = await Enrollment.countDocuments({ user: user._id })
+    
+    res.json({
+      ...user.toObject(),
+      enrollments: enrollmentCount,
+    })
+  } catch (error) {
+    console.error("Error fetching user:", error)
+    res.status(500).json({ message: "Failed to fetch user" })
+  }
+})
+
+// Update user role
+router.post("/users/:userId/role", async (req, res) => {
+  try {
+    const { role } = req.body
+    const userId = req.params.userId
+
+    if (!["student", "instructor", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" })
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true, runValidators: true }
+    ).select('-password')
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    res.json({ message: "User role updated successfully", user })
+  } catch (error) {
+    console.error("Error updating user role:", error)
+    res.status(500).json({ message: "Failed to update user role" })
   }
 })
 

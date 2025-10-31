@@ -1,10 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
 import { Users, BookOpen, TrendingUp, Download, } from "lucide-react"
 import AdminReportsChart from "../Components/AdminReportsChart"
-import AdminUserTable from "../Components/AdminUserTable"
+import AdminUserManagement from "../Components/AdminUserManagement"
 import AdminCourseForm from "../Components/AdminCourseForm"
 import AdminInstructorApplications from "../Components/AdminInstructorApplications"
 import AdminContactMessages from "../Components/AdminContactMessages"
@@ -18,8 +17,6 @@ const IndianRupeeIcon = (props) => (
 )
 
 const AdminDashboardPage = () => {
-  const dispatch = useDispatch()
-  const { user } = useSelector((state) => state.auth)
   const [activeTab, setActiveTab] = useState("overview")
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -61,28 +58,28 @@ const AdminDashboardPage = () => {
       value: stats.totalUsers,
       icon: Users,
       color: "bg-blue-500",
-      change: "+12%",
+      change: stats.changes?.users || "0%",
     },
     {
       title: "Total Courses",
       value: stats.totalCourses,
       icon: BookOpen,
-      color: "bg-green-500",
-      change: "+8%",
+      color: "bg-green-500", 
+      change: stats.changes?.courses || "0%",
     },
     {
       title: "Total Revenue",
       value: `₹${stats.totalRevenue.toLocaleString()}`,
       icon: IndianRupeeIcon,
       color: "bg-purple-500",
-      change: "+23%",
+      change: stats.changes?.revenue || "0%", 
     },
     {
       title: "Active Enrollments",
       value: stats.activeEnrollments,
       icon: TrendingUp,
       color: "bg-orange-500",
-      change: "+15%",
+      change: stats.changes?.enrollments || "0%",
     },
   ]
 
@@ -174,7 +171,7 @@ const AdminDashboardPage = () => {
           </div>
         )}
 
-        {activeTab === "users" && <AdminUserTable />}
+        {activeTab === "users" && <AdminUserManagement />}
         {activeTab === "courses" && <AdminCourseForm />}
         {activeTab === "reports" && (
           <div className="space-y-8">

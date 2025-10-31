@@ -59,7 +59,6 @@ router.post("/", contactValidation, async (req, res) => {
       status: "received",
     })
   } catch (error) {
-    console.error("Contact form submission error:", error)
     res.status(500).json({
       error: "Submission failed",
       message: "Failed to submit contact form. Please try again later.",
@@ -122,7 +121,6 @@ router.get("/", auth, adminMiddleware, async (req, res) => {
       },
     })
   } catch (error) {
-    console.error("Get contacts error:", error)
     res.status(500).json({
       error: "Failed to fetch contacts",
       message: error.message,
@@ -152,7 +150,6 @@ router.get("/:id", auth, adminMiddleware, async (req, res) => {
 
     res.json(contact)
   } catch (error) {
-    console.error("Get contact error:", error)
     res.status(500).json({
       error: "Failed to fetch contact",
       message: error.message,
@@ -189,7 +186,6 @@ router.put("/:id/status", auth, adminMiddleware, async (req, res) => {
       contact: updatedContact,
     })
   } catch (error) {
-    console.error("Update contact error:", error)
     res.status(500).json({
       error: "Failed to update contact",
       message: error.message,
@@ -230,7 +226,6 @@ router.post("/:id/response", auth, adminMiddleware, async (req, res) => {
       contact: updatedContact,
     })
   } catch (error) {
-    console.error("Add response error:", error)
     res.status(500).json({
       error: "Failed to add response",
       message: error.message,
@@ -256,7 +251,6 @@ router.delete("/:id", auth, adminMiddleware, async (req, res) => {
       contactId: req.params.id,
     })
   } catch (error) {
-    console.error("Delete contact error:", error)
     res.status(500).json({
       error: "Failed to delete contact",
       message: error.message,
@@ -298,7 +292,6 @@ router.get("/stats/dashboard", auth, adminMiddleware, async (req, res) => {
 
     res.json(stats)
   } catch (error) {
-    console.error("Get contact stats error:", error)
     res.status(500).json({
       error: "Failed to fetch contact statistics",
       message: error.message,
@@ -368,7 +361,6 @@ router.post("/bulk-action", auth, adminMiddleware, async (req, res) => {
       contactIds,
     })
   } catch (error) {
-    console.error("Bulk action error:", error)
     res.status(500).json({
       error: "Bulk action failed",
       message: error.message,

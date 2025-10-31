@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Upload, X, Save, Eye, Edit, Trash2, ImageIcon, Clock } from "lucide-react"
+import { Plus, Upload, X, Save, Eye, Edit, Trash2, Clock } from "lucide-react"
+import { getImageWithFallback } from "../utils/imageUtils"
 
 const AdminCourseForm = () => {
   const [courses, setCourses] = useState([])
@@ -14,6 +15,7 @@ const AdminCourseForm = () => {
     price: "",
     level: "Beginner",
     thumbnail: null,
+    thumbnailSource: null, // 'upload' or 'link'
     modules: [{
       id: Date.now(),
       name: "Module 1: Introduction",
@@ -22,6 +24,69 @@ const AdminCourseForm = () => {
     }],
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [thumbnailMode, setThumbnailMode] = useState('upload') // 'upload' or 'link'
+  const [thumbnailLink, setThumbnailLink] = useState('')
+
+  // Helper functions for YouTube URLs
+  const isYouTubeURL = (url) => {
+    if (!url) return false
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/
+    return youtubeRegex.test(url)
+  }
+
+  const getYouTubeThumbnail = (url) => {
+    if (!isYouTubeURL(url)) return url
+    
+    // Extract video ID from various YouTube URL formats
+    let videoId = null
+    
+    if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('v=')[1]?.split('&')[0]
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0]
+    } else if (url.includes('youtube.com/embed/')) {
+      videoId = url.split('embed/')[1]?.split('?')[0]
+    }
+    
+    return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : url
+  }
+
+  const handleThumbnailLinkAdd = async () => {
+    if (thumbnailLink.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        thumbnail: thumbnailLink.trim(),
+        thumbnailSource: 'link'
+      }))
+      
+      // Optional: Validate URL in background (no blocking)
+      try {
+        const token = localStorage.getItem("token")
+        const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+        
+        fetch(`${API_BASE_URL}/upload/validate-url`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: thumbnailLink.trim() }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('URL validation result:', data)
+          if (!data.success) {
+            console.warn('URL may not be accessible:', data.data?.error)
+          }
+        })
+        .catch(error => {
+          console.log('URL validation failed (non-blocking):', error)
+        })
+      } catch (error) {
+        console.log('URL validation error (non-blocking):', error)
+      }
+    }
+  }
 
   useEffect(() => {
     fetchCourses()
@@ -44,33 +109,8 @@ const AdminCourseForm = () => {
       }
     } catch (error) {
       console.error("Error fetching courses:", error)
-      // Mock data for demonstration
-      setCourses([
-        {
-          _id: "1",
-          title: "JavaScript Fundamentals",
-          description: "Learn the basics of JavaScript programming",
-          category: "Programming",
-          price: 99,
-          instructor: "John Doe",
-          thumbnail: "/placeholder.svg",
-          lessons: 12,
-          enrollments: 150,
-          status: "published",
-        },
-        {
-          _id: "2",
-          title: "React Development",
-          description: "Build modern web applications with React",
-          category: "Programming",
-          price: 149,
-          instructor: "Jane Smith",
-          thumbnail: "/placeholder.svg",
-          lessons: 18,
-          enrollments: 89,
-          status: "draft",
-        },
-      ])
+      // Show empty state instead of mock data
+      setCourses([])
     } finally {
       setIsLoading(false)
     }
@@ -132,6 +172,7 @@ const AdminCourseForm = () => {
         setFormData((prev) => ({
           ...prev,
           thumbnail: url,
+          thumbnailSource: 'upload'
         }))
 
         // Test if video URL is accessible
@@ -262,6 +303,7 @@ const AdminCourseForm = () => {
         price: formData.price,
         level: formData.level,
         thumbnail: formData.thumbnail,
+        thumbnailSource: formData.thumbnailSource,
         modules: formData.modules.map(module => ({
           ...module,
           subcourses: module.subcourses.map((subcourse, index) => ({
@@ -297,6 +339,7 @@ const AdminCourseForm = () => {
       price: "",
       level: "Beginner",
       thumbnail: null,
+      thumbnailSource: null,
       modules: [{
         id: Date.now(),
         name: "Module 1: Introduction",
@@ -306,6 +349,8 @@ const AdminCourseForm = () => {
     })
     setIsCreating(false)
     setEditingCourse(null)
+    setThumbnailMode('upload')
+    setThumbnailLink('')
   }
 
   const startEditing = (course) => {
@@ -317,6 +362,7 @@ const AdminCourseForm = () => {
       price: course.price,
       level: course.level || "Beginner",
       thumbnail: course.thumbnail,
+      thumbnailSource: course.thumbnailSource || (course.thumbnail ? 'upload' : null),
       modules: course.modules || [{
         id: Date.now(),
         name: "Module 1: Introduction",
@@ -325,6 +371,15 @@ const AdminCourseForm = () => {
       }],
     })
     setIsCreating(true)
+    
+    // Set thumbnail mode and link based on existing data
+    if (course.thumbnailSource === 'link') {
+      setThumbnailMode('link')
+      setThumbnailLink(course.thumbnail || '')
+    } else {
+      setThumbnailMode('upload')
+      setThumbnailLink('')
+    }
   }
 
   const deleteCourse = async (courseId) => {
@@ -503,82 +558,222 @@ const AdminCourseForm = () => {
             {/* Thumbnail Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Course Thumbnail</label>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  onChange={handleThumbnailUpload}
-                  className="hidden"
-                  id="thumbnail-upload"
-                />
-                <label
-                  htmlFor="thumbnail-upload"
-                  className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 flex items-center space-x-2"
+              
+              {/* Thumbnail Options Tabs */}
+              <div className="flex space-x-1 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setThumbnailMode('upload')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                    thumbnailMode === 'upload'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
-                  <Upload className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm text-gray-600">Upload Thumbnail (Image or Video)</span>
-                </label>
-                {formData.thumbnail && (
-                  <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                    {formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
-                      <video
-                        src={formData.thumbnail}
-                        className="h-full w-full object-cover"
-                        muted
-                        controls={false}
-                        preload="metadata"
-                        onMouseEnter={(e) => {
-                          e.target.play().catch(err => console.log('Video play failed:', err))
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.pause()
-                          e.target.currentTime = 0
-                        }}
-                        onError={(e) => {
-                          console.log('Video load error:', e)
-                          console.log('Video src:', formData.thumbnail)
-                          // Fallback to showing file type indicator
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.video-fallback') || document.createElement('div')
-                          fallback.className = 'video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'VIDEO'
-                          if (!e.target.parentElement.querySelector('.video-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoadedData={(e) => {
-                          console.log('Video loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.video-fallback')
-                          if (fallback) fallback.remove()
-                        }}
-                      />
-                    ) : (
-                      <img
-                        src={formData.thumbnail || "/placeholder.svg"}
-                        alt="Thumbnail preview"
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          console.log('Image load error:', e)
-                          console.log('Image src:', formData.thumbnail)
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.image-fallback') || document.createElement('div')
-                          fallback.className = 'image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'IMG'
-                          if (!e.target.parentElement.querySelector('.image-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoad={(e) => {
-                          console.log('Image loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.image-fallback')
-                          if (fallback) fallback.remove()
-                        }}
-                      />
+                  Upload Image/Video
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setThumbnailMode('link')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                    thumbnailMode === 'link'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  External Link
+                </button>
+              </div>
+
+              {/* Upload Mode */}
+              {thumbnailMode === 'upload' && (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={handleThumbnailUpload}
+                      className="hidden"
+                      id="thumbnail-upload"
+                    />
+                    <label
+                      htmlFor="thumbnail-upload"
+                      className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 flex items-center space-x-2 min-w-[200px]"
+                    >
+                      <Upload className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm text-gray-600">Upload Thumbnail</span>
+                    </label>
+                    {formData.thumbnail && formData.thumbnailSource === 'upload' && (
+                      <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center relative">
+                        {formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
+                          <video
+                            src={formData.thumbnail}
+                            className="h-full w-full object-cover"
+                            muted
+                            controls={false}
+                            preload="metadata"
+                            onMouseEnter={(e) => {
+                              e.target.play().catch(err => console.log('Video play failed:', err))
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.pause()
+                              e.target.currentTime = 0
+                            }}
+                            onError={(e) => {
+                              console.log('Video load error:', e)
+                              e.target.style.display = 'none'
+                              const fallback = e.target.parentElement.querySelector('.video-fallback') || document.createElement('div')
+                              fallback.className = 'video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
+                              fallback.textContent = 'VIDEO'
+                              if (!e.target.parentElement.querySelector('.video-fallback')) {
+                                e.target.parentElement.appendChild(fallback)
+                              }
+                            }}
+                            onLoadedData={(e) => {
+                              console.log('Video loaded successfully')
+                              const fallback = e.target.parentElement.querySelector('.video-fallback')
+                              if (fallback) fallback.remove()
+                            }}
+                          />
+                        ) : (
+                          <img
+                            src={formData.thumbnail}
+                            alt="Thumbnail preview"
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              console.log('Image load error:', e)
+                              e.target.style.display = 'none'
+                              const fallback = e.target.parentElement.querySelector('.image-fallback') || document.createElement('div')
+                              fallback.className = 'image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
+                              fallback.textContent = 'IMG'
+                              if (!e.target.parentElement.querySelector('.image-fallback')) {
+                                e.target.parentElement.appendChild(fallback)
+                              }
+                            }}
+                            onLoad={(e) => {
+                              console.log('Image loaded successfully')
+                              const fallback = e.target.parentElement.querySelector('.image-fallback')
+                              if (fallback) fallback.remove()
+                            }}
+                          />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, thumbnail: null, thumbnailSource: null }))}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Supports: Images (JPG, PNG, GIF) and Videos (MP4, WebM, MOV)</p>
+                  {formData.thumbnailSource === 'upload' && formData.thumbnail && (
+                    <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
+                      ✓ Uploaded to Cloudinary: {formData.thumbnail}
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">Supports: Images (JPG, PNG, GIF) and Videos (MP4, WebM, MOV)</p>
+                </div>
+              )}
+
+              {/* Link Mode */}
+              {thumbnailMode === 'link' && (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="url"
+                      value={thumbnailLink}
+                      onChange={(e) => setThumbnailLink(e.target.value)}
+                      placeholder="Enter image/video URL (YouTube, external images, etc.)"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleThumbnailLinkAdd}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Apply Link
+                    </button>
+                  </div>
+                  {formData.thumbnail && formData.thumbnailSource === 'link' && (
+                    <div className="flex items-center space-x-4">
+                      <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center relative">
+                        {isYouTubeURL(formData.thumbnail) ? (
+                          <img
+                            src={getYouTubeThumbnail(formData.thumbnail)}
+                            alt="YouTube thumbnail"
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              const fallback = e.target.parentElement.querySelector('.yt-fallback') || document.createElement('div')
+                              fallback.className = 'yt-fallback absolute inset-0 flex items-center justify-center bg-red-100 text-xs text-red-600 font-medium'
+                              fallback.textContent = 'YT'
+                              if (!e.target.parentElement.querySelector('.yt-fallback')) {
+                                e.target.parentElement.appendChild(fallback)
+                              }
+                            }}
+                          />
+                        ) : formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
+                          <video
+                            src={formData.thumbnail}
+                            className="h-full w-full object-cover"
+                            muted
+                            controls={false}
+                            preload="metadata"
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              const fallback = e.target.parentElement.querySelector('.video-fallback') || document.createElement('div')
+                              fallback.className = 'video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
+                              fallback.textContent = 'VIDEO'
+                              if (!e.target.parentElement.querySelector('.video-fallback')) {
+                                e.target.parentElement.appendChild(fallback)
+                              }
+                            }}
+                          />
+                        ) : (
+                          <img
+                            src={formData.thumbnail}
+                            alt="External thumbnail"
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              const fallback = e.target.parentElement.querySelector('.ext-fallback') || document.createElement('div')
+                              fallback.className = 'ext-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
+                              fallback.textContent = 'EXT'
+                              if (!e.target.parentElement.querySelector('.ext-fallback')) {
+                                e.target.parentElement.appendChild(fallback)
+                              }
+                            }}
+                          />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, thumbnail: null, thumbnailSource: null }))
+                            setThumbnailLink('')
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                          ✓ External Link Applied: {formData.thumbnail}
+                        </div>
+                        {isYouTubeURL(formData.thumbnail) && (
+                          <div className="text-xs text-purple-600 bg-purple-50 p-1 rounded mt-1">
+                            YouTube video detected
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    Supports: YouTube URLs, direct image links, video links (no validation - ensure links are accessible)
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Modules and Lessons */}
@@ -596,7 +791,7 @@ const AdminCourseForm = () => {
               </div>
 
               <div className="space-y-6">
-                {formData.modules.map((module, moduleIndex) => (
+                {formData.modules.map((module) => (
                   <div key={module.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex justify-between items-center mb-4">
                       <input
@@ -738,7 +933,7 @@ const AdminCourseForm = () => {
                       />
                     ) : (
                       <img
-                        src={course.thumbnail || "/placeholder.svg"}
+                        src={getImageWithFallback(course.thumbnail, 'thumbnail', { title: course.title, category: course.category })}
                         alt={course.title}
                         className="h-full w-full object-cover"
                         onError={(e) => {
@@ -747,7 +942,7 @@ const AdminCourseForm = () => {
                           e.target.style.display = 'none'
                           // Removed fallback block to prevent big block display
                         }}
-                        onLoad={(e) => {
+                        onLoad={() => {
                           console.log('Course image loaded successfully')
                           // Removed fallback block removal
                         }}

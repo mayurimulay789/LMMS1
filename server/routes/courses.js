@@ -125,7 +125,6 @@ router.get("/", async (req, res) => {
       total,
     })
   } catch (error) {
-    console.error("Error fetching courses:", error)
     res.status(500).json({ message: "Failed to fetch courses" })
   }
 })
@@ -155,7 +154,6 @@ router.get("/:id", async (req, res) => {
         user = await User.findById(decoded.id).select("-password")
       } catch (err) {
         // Token is invalid, but we continue without authentication
-        console.log("Invalid token, proceeding without authentication")
       }
     }
 
@@ -177,24 +175,15 @@ router.get("/:id", async (req, res) => {
       const lesson = allLessons[i]
       if (lesson.videoUrl && (lesson.duration === 0 || lesson.duration === undefined || lesson.duration === null)) {
         try {
-          console.log(`Auto-calculating duration for lesson: ${lesson.title}`)
-          console.log(`Video URL: ${lesson.videoUrl}`)
-
           const durationInSeconds = await getVideoDuration(lesson.videoUrl)
           const durationInMinutes = convertSecondsToMinutes(durationInSeconds)
-
-          console.log(`Duration calculated: ${durationInSeconds} seconds = ${durationInMinutes} minutes`)
 
           if (durationInMinutes > 0) {
             lesson.duration = durationInMinutes
             needsDurationUpdate = true
-            console.log(`Updated lesson "${lesson.title}" duration: ${durationInMinutes} minutes`)
-          } else {
-            console.log(`Duration is 0 for lesson "${lesson.title}", keeping as 0`)
           }
         } catch (error) {
-          console.error(`Error calculating duration for lesson "${lesson.title}":`, error.message)
-          console.error(`Video URL: ${lesson.videoUrl}`)
+          // Skip lessons with duration calculation errors
         }
       }
     }
@@ -203,7 +192,6 @@ router.get("/:id", async (req, res) => {
     if (needsDurationUpdate) {
       course.duration = allLessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
       await course.save()
-      console.log(`Updated total course duration: ${course.duration} minutes`)
     }
 
     // Get enrollment count and average rating
@@ -225,7 +213,7 @@ router.get("/:id", async (req, res) => {
         user: user.id,
         course: course._id,
       })
-      console.log(`Enrollment found for user ${user.id} and course ${course._id}:`, enrollment)  // Debug log
+
       isEnrolled = !!enrollment
 
       if (isEnrolled) {
@@ -254,7 +242,6 @@ router.get("/:id", async (req, res) => {
       instructorImagePublicId: course.instructorImagePublicId,
     })
   } catch (error) {
-    console.error("Error fetching course:", error)
     res.status(500).json({ message: "Failed to fetch course" })
   }
 })
@@ -303,7 +290,6 @@ router.get("/:id/lessons", auth, async (req, res) => {
           },
     })
   } catch (error) {
-    console.error("Error fetching course lessons:", error)
     res.status(500).json({ message: "Failed to fetch course lessons" })
   }
 })
@@ -317,7 +303,6 @@ router.get("/meta/categories", async (req, res) => {
     const supportedCategories = ["Programming", "Design", "Marketing", "Business", "Creative", "Technology", "Health", "Language"]
     res.json(supportedCategories)
   } catch (error) {
-    console.error("Error fetching categories:", error)
     res.status(500).json({ message: "Failed to fetch categories" })
   }
 })
@@ -384,7 +369,6 @@ router.get("/meta/featured", async (req, res) => {
 
     res.json(populatedCourses)
   } catch (error) {
-    console.error("Error fetching featured courses:", error)
     res.status(500).json({ message: "Failed to fetch featured courses" })
   }
 })
@@ -451,7 +435,6 @@ router.get("/meta/featured-five", async (req, res) => {
 
     res.json(populatedCourses)
   } catch (error) {
-    console.error("Error fetching featured five courses:", error)
     res.status(500).json({ message: "Failed to fetch featured courses" })
   }
 })
@@ -489,7 +472,7 @@ router.post("/:id/update-durations", auth, instructorMiddleware, async (req, res
             totalDuration += durationInMinutes
           }
         } catch (error) {
-          console.error(`Error updating duration for lesson ${lesson._id}:`, error)
+          // Skip lessons with duration calculation errors
         }
       } else {
         totalDuration += lesson.duration || 0
@@ -507,7 +490,6 @@ router.post("/:id/update-durations", auth, instructorMiddleware, async (req, res
       courseId: course._id
     })
   } catch (error) {
-    console.error("Error updating lesson durations:", error)
     res.status(500).json({ message: "Failed to update lesson durations" })
   }
 })
@@ -537,7 +519,7 @@ router.get("/fix-durations", auth, adminMiddleware, async (req, res) => {
               totalDuration += durationInMinutes
             }
           } catch (error) {
-            console.error(`Error updating duration for lesson ${lesson._id}:`, error)
+            // Skip lessons with duration calculation errors
           }
         } else {
           totalDuration += lesson.duration || 0
@@ -562,7 +544,6 @@ router.get("/fix-durations", auth, adminMiddleware, async (req, res) => {
       results
     })
   } catch (error) {
-    console.error("Error fixing durations:", error)
     res.status(500).json({ message: "Failed to fix durations" })
   }
 })

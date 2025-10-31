@@ -1,5 +1,6 @@
 import { Users, Target, Heart, BookOpen, Globe, Award, TrendingUp } from "lucide-react"
 import { Link } from "react-router-dom"
+import { generateDefaultAvatar } from "../utils/imageUtils"
 
 const AboutUsPage = () => {
   const stats = [
@@ -37,25 +38,25 @@ const AboutUsPage = () => {
     {
       name: "Sarah Johnson",
       role: "CEO & Founder",
-      image: "/placeholder.svg?height=300&width=300",
+      image: generateDefaultAvatar("Sarah Johnson", 300),
       bio: "Former tech executive with 15+ years in education technology.",
     },
     {
       name: "Michael Chen",
       role: "Head of Curriculum",
-      image: "/placeholder.svg?height=300&width=300",
+      image: generateDefaultAvatar("Michael Chen", 300),
       bio: "Educational expert with PhD in Learning Sciences from Stanford.",
     },
     {
       name: "Emily Rodriguez",
       role: "Head of Technology",
-      image: "/placeholder.svg?height=300&width=300",
+      image: generateDefaultAvatar("Emily Rodriguez", 300),
       bio: "Full-stack developer and former Google engineer.",
     },
     {
       name: "David Kim",
       role: "Head of Marketing",
-      image: "/placeholder.svg?height=300&width=300",
+      image: generateDefaultAvatar("David Kim", 300),
       bio: "Growth marketing specialist with experience at top EdTech companies.",
     },
   ]
@@ -135,11 +136,9 @@ const AboutUsPage = () => {
               </div>
             </div>
             <div className="relative">
-              <img
-                src="/placeholder.svg?height=400&width=600"
-                alt="Our team working together"
-                className="rounded-lg shadow-lg border-2 border-rose-200"
-              />
+              <div className="w-full h-64 bg-gradient-to-r from-rose-100 to-rose-200 rounded-lg shadow-lg border-2 border-rose-200 flex items-center justify-center">
+                <Users className="w-16 h-16 text-rose-600" />
+              </div>
               <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-rose-700 to-rose-800 text-white p-6 rounded-lg shadow-xl">
                 <Globe className="h-8 w-8 mb-2" />
                 <div className="text-sm font-medium">Serving learners in</div>
@@ -221,9 +220,12 @@ const AboutUsPage = () => {
                 className="bg-gradient-to-br from-rose-50 to-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-rose-200"
               >
                 <img 
-                  src={member.image || "/placeholder.svg"} 
+                  src={member.image} 
                   alt={member.name} 
                   className="w-full h-64 object-cover" 
+                  onError={(e) => {
+                    e.target.src = generateDefaultAvatar(member.name, 300);
+                  }} 
                 />
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-1">{member.name}</h3>

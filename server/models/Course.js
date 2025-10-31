@@ -146,6 +146,11 @@ const courseSchema = new mongoose.Schema(
       default: "https://via.placeholder.com/400x225?text=Course+Thumbnail",
     },
     thumbnailPublicId: String, // Cloudinary public ID for thumbnail
+    thumbnailSource: {
+      type: String,
+      enum: ["upload", "link"],
+      default: "upload"
+    },
     previewVideo: String,
     previewVideoPublicId: String, // Cloudinary public ID for preview video
     images: [

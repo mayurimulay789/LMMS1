@@ -7,6 +7,7 @@ import { Link, useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { BookOpen, Users, Award, TrendingUp, Play, Star, ArrowRight, Quote } from "lucide-react"
 import CourseCard from "../Components/CourseCard"
+import { generateDefaultAvatar } from "../utils/imageUtils"
 
 
 import InstructorApplicationForm from "../Components/InstructorApplicationForm"
@@ -72,9 +73,9 @@ const HomePage = () => {
   ]
 
   const testimonials = [
-    { name: "Sarah Johnson", role: "Software Developer", content: "Ryma Academy transformed my career. The courses are comprehensive and the instructors are amazing!", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
-    { name: "Michael Chen", role: "UX Designer", content: "The design courses here are top-notch. I landed my dream job after completing the UI/UX track.", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
-    { name: "Emily Davis", role: "Marketing Manager", content: "Flexible learning schedule and practical projects made all the difference in my learning journey.", avatar: "/placeholder.svg?height=60&width=60", rating: 5, },
+    { name: "Sarah Johnson", role: "Software Developer", content: "Ryma Academy transformed my career. The courses are comprehensive and the instructors are amazing!", avatar: generateDefaultAvatar("Sarah Johnson", 60), rating: 5, },
+    { name: "Michael Chen", role: "UX Designer", content: "The design courses here are top-notch. I landed my dream job after completing the UI/UX track.", avatar: generateDefaultAvatar("Michael Chen", 60), rating: 5, },
+    { name: "Emily Davis", role: "Marketing Manager", content: "Flexible learning schedule and practical projects made all the difference in my learning journey.", avatar: generateDefaultAvatar("Emily Davis", 60), rating: 5, },
   ]
 
   return (

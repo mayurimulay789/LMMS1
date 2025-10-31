@@ -26,14 +26,14 @@ export const loginUser = createAsyncThunk("auth/login", async ({ email, password
 
 export const registerUser = createAsyncThunk(
   "auth/register",
-  async ({ name, email, password, role }, { rejectWithValue }) => {
+  async ({ name, email, password, role, referralCode }, { rejectWithValue }) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ name, email, password, role, referralCode }),
       })
 
       if (!response.ok) {

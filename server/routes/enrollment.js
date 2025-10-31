@@ -59,8 +59,7 @@ router.post("/", auth, async (req, res) => {
       courseId: course._id,
     });
   } catch (error) {
-    console.error("Enrollment error:", error);
-    res.status(500).json({ message: "Failed to enroll in course", error: error.message });
+    res.status(500).json({ message: "Failed to enroll in course" });
   }
 });
 
@@ -76,7 +75,6 @@ router.get("/me", auth, async (req, res) => {
 
     res.json(enrollments);
   } catch (error) {
-    console.error("Error fetching enrollments:", error);
     res.status(500).json({ message: "Failed to fetch enrollments" });
   }
 });
@@ -101,7 +99,6 @@ router.get("/:courseId", auth, async (req, res) => {
 
     res.json(enrollment);
   } catch (error) {
-    console.error("Error fetching enrollment:", error);
     res.status(500).json({ message: "Failed to fetch enrollment" });
   }
 })
@@ -161,22 +158,20 @@ router.post("/progress", auth, async (req, res) => {
 
     // Check if course is completed and trigger certificate generation
     if (enrollment.progress.completionPercentage >= 100 && !enrollment.certificate.issued) {
-      console.log(`Attempting auto certificate generation for user ${userId}, course ${courseId}`);
+
       try {
         const certificateService = require("../services/certificateService");
         const User = require("../models/User");
 
         const user = await User.findById(userId);
         if (!user) {
-          console.error(`User not found for certificate generation: ${userId}`);
-          // Don't fail the progress update, just log the error
+          // Skip certificate generation if user not found
           return;
         }
 
         const course = await Course.findById(courseId);
         if (!course) {
-          console.error(`Course not found for certificate generation: ${courseId}`);
-          // Don't fail the progress update, just log the error
+          // Skip certificate generation if course not found
           return;
         }
 
@@ -194,8 +189,6 @@ router.post("/progress", auth, async (req, res) => {
           "Professional Development",
           "Continuous Learning",
         ];
-
-        console.log(`Generating certificate for user: ${user.name}, course: ${course.title}`);
 
         // Generate certificate automatically
         const certificate = await certificateService.generateCertificate({
@@ -215,23 +208,13 @@ router.post("/progress", auth, async (req, res) => {
           },
         });
 
-        console.log(`Certificate generated successfully: ${certificate.certificateId}`);
-
         // Update enrollment with certificate info
         enrollment.certificate.issued = true;
         enrollment.certificate.issuedAt = certificate.issueDate;
         enrollment.certificate.certificateId = certificate.certificateId;
         enrollment.status = "completed";
 
-        console.log(`Enrollment updated with certificate: ${certificate.certificateId}`);
       } catch (error) {
-        console.error("Auto certificate generation error:", error);
-        console.error("Error details:", {
-          message: error.message,
-          stack: error.stack,
-          userId,
-          courseId
-        });
         // Don't fail the progress update if certificate generation fails
         // The certificate can be generated manually later
       }
@@ -262,7 +245,7 @@ router.get("/progress/:courseId", auth, async (req, res) => {
     // console.log(`Fetching progress for user: ${userId}, course: ${courseId}`);
 
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
-      console.warn(`Invalid course ID received: ${courseId}`);
+
       return res.status(400).json({ message: "Invalid course ID" });
     }
 
@@ -332,7 +315,7 @@ router.get("/progress/:courseId", auth, async (req, res) => {
             enrollment.certificate.issuedAt = certificate.issueDate;
             enrollment.certificate.certificateId = certificate.certificateId;
           } catch (error) {
-            console.error("Auto certificate generation for legacy error:", error);
+            // Skip certificate generation on error
           }
         }
       } else {
@@ -369,7 +352,6 @@ router.get("/progress/:courseId", auth, async (req, res) => {
       status: enrollment.status,
     });
   } catch (error) {
-    console.error("Error fetching progress:", error);
     res.status(500).json({ message: "Failed to fetch progress" });
   }
 });
@@ -400,7 +382,7 @@ router.post("/:courseId/force-certificate", auth, async (req, res) => {
       certificate: enrollment.certificate
     });
   } catch (err) {
-    console.error("Force certificate error:", err);
+
     res.status(500).json({ message: "Failed to issue certificate" });
   }
 });
@@ -429,7 +411,6 @@ router.get("/certificates/me", auth, async (req, res) => {
 
     res.json(certificates);
   } catch (error) {
-    console.error("Error fetching certificates:", error);
     res.status(500).json({ message: "Failed to fetch certificates" });
   }
 });

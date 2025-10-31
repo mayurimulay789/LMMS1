@@ -13,10 +13,16 @@ const RegisterPage = () => {
     password: "",
     confirmPassword: "",
     role: "student",
+    referralCode: "",
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [errors, setErrors] = useState({})
+  const [referralStatus, setReferralStatus] = useState({
+    isValid: false,
+    referrerName: "",
+    message: ""
+  })
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -47,6 +53,33 @@ const RegisterPage = () => {
     }
   }, [dispatch])
 
+  const validateReferralCode = async (email) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/validate-referral?email=${email}`)
+      const data = await response.json()
+      
+      if (response.ok) {
+        setReferralStatus({
+          isValid: true,
+          referrerName: data.name,
+          message: `Referred by ${data.name}`
+        })
+      } else {
+        setReferralStatus({
+          isValid: false,
+          referrerName: "",
+          message: "Invalid referral code"
+        })
+      }
+    } catch (error) {
+      setReferralStatus({
+        isValid: false,
+        referrerName: "",
+        message: "Error validating referral"
+      })
+    }
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -59,6 +92,27 @@ const RegisterPage = () => {
         ...prev,
         [name]: "",
       }))
+    }
+
+    // Validate referral code when it's entered
+    if (name === 'referralCode' && value) {
+      // Check if it's a valid email format first
+      if (/\S+@\S+\.\S+/.test(value)) {
+        validateReferralCode(value)
+      } else {
+        setReferralStatus({
+          isValid: false,
+          referrerName: "",
+          message: "Please enter a valid email address"
+        })
+      }
+    } else if (name === 'referralCode' && !value) {
+      // Clear referral status if field is empty
+      setReferralStatus({
+        isValid: false,
+        referrerName: "",
+        message: ""
+      })
     }
   }
 
@@ -201,6 +255,8 @@ const RegisterPage = () => {
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
 
+
+          
             {/* Confirm Password */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
@@ -228,6 +284,39 @@ const RegisterPage = () => {
                 </button>
               </div>
               {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+            </div>
+
+
+  {/* Referral Code */}
+            <div>
+              <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 mb-2">
+                Referral Code (Optional)
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  type="text"
+                  id="referralCode"
+                  name="referralCode"
+                  value={formData.referralCode}
+                  onChange={handleChange}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg ${
+                    referralStatus.isValid 
+                      ? "border-green-500 focus:ring-green-500" 
+                      : referralStatus.message && !referralStatus.isValid
+                      ? "border-red-500 focus:ring-red-500"
+                      : "border-gray-300 focus:ring-blue-500"
+                  } focus:border-transparent transition-colors`}
+                  placeholder="Enter referrer's email (optional)"
+                />
+              </div>
+              {referralStatus.message && (
+                <p className={`mt-1 text-sm ${
+                  referralStatus.isValid ? "text-green-600" : "text-red-600"
+                }`}>
+                  {referralStatus.message}
+                </p>
+              )}
             </div>
 
             {/* Terms and Conditions */}

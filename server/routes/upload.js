@@ -3,6 +3,7 @@ const { uploadImage, uploadVideo, uploadDocument, uploadThumbnail } = require(".
 const auth = require("../middleware/auth")
 const adminMiddleware = require("../middleware/AdminMiddleware")
 const instructorMiddleware = require("../middleware/instructorMiddleware")
+const { validateUrl, getYouTubeInfo } = require("../utils/urlValidator")
 
 const router = express.Router()
 
@@ -239,6 +240,48 @@ router.post("/course-gallery", auth, instructorMiddleware, uploadImage.array("im
   } catch (error) {
     console.error("Upload error:", error)
     res.status(500).json({ error: "Failed to upload files" })
+  }
+})
+
+// Validate external URL for thumbnails
+router.post("/validate-url", auth, async (req, res) => {
+  try {
+    const { url } = req.body
+
+    if (!url) {
+      return res.status(400).json({ error: "URL is required" })
+    }
+
+    // Check if it's a YouTube URL
+    const youtubeInfo = getYouTubeInfo(url)
+    
+    if (youtubeInfo.isYouTube) {
+      return res.json({
+        success: true,
+        message: "YouTube URL validated successfully",
+        data: {
+          url: url,
+          isValid: true,
+          type: "youtube",
+          ...youtubeInfo
+        }
+      })
+    }
+
+    // Validate other URLs
+    const validation = await validateUrl(url)
+    
+    res.json({
+      success: validation.isValid,
+      message: validation.isValid ? "URL validated successfully" : "URL validation failed",
+      data: {
+        ...validation,
+        type: validation.isImage ? "image" : validation.isVideo ? "video" : "unknown"
+      }
+    })
+  } catch (error) {
+    console.error("URL validation error:", error)
+    res.status(500).json({ error: "Failed to validate URL" })
   }
 })
 

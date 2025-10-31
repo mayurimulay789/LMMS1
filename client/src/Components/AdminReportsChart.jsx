@@ -44,41 +44,10 @@ const AdminReportsChart = ({ type }) => {
       }
     } catch (error) {
       console.error("Error fetching chart data:", error)
-      // Mock data for demonstration
-      setMockData()
+      // Show empty state instead of mock data
+      setChartData([])
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const setMockData = () => {
-    if (type === "revenue") {
-      setChartData([
-        { month: "Jan", revenue: 4000, enrollments: 240 },
-        { month: "Feb", revenue: 3000, enrollments: 198 },
-        { month: "Mar", revenue: 5000, enrollments: 300 },
-        { month: "Apr", revenue: 4500, enrollments: 278 },
-        { month: "May", revenue: 6000, enrollments: 389 },
-        { month: "Jun", revenue: 5500, enrollments: 349 },
-      ])
-    } else if (type === "enrollments") {
-      setChartData([
-        { name: "Programming", value: 400, color: "#8884d8" },
-        { name: "Design", value: 300, color: "#82ca9d" },
-        { name: "Marketing", value: 200, color: "#ffc658" },
-        { name: "Business", value: 150, color: "#ff7300" },
-        { name: "Other", value: 100, color: "#00ff00" },
-      ])
-    } else if (type === "detailed") {
-      setChartData([
-        { date: "2024-01-01", users: 120, courses: 15, revenue: 2400 },
-        { date: "2024-01-02", users: 132, courses: 16, revenue: 2600 },
-        { date: "2024-01-03", users: 145, courses: 18, revenue: 2800 },
-        { date: "2024-01-04", users: 158, courses: 19, revenue: 3000 },
-        { date: "2024-01-05", users: 167, courses: 20, revenue: 3200 },
-        { date: "2024-01-06", users: 178, courses: 22, revenue: 3400 },
-        { date: "2024-01-07", users: 189, courses: 23, revenue: 3600 },
-      ])
     }
   }
 
@@ -118,14 +87,43 @@ const AdminReportsChart = ({ type }) => {
   }
 
   const renderChart = () => {
+    // Show empty state if no data
+    if (!chartData || chartData.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+          <svg className="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No data available</h3>
+          <p className="text-gray-500 text-center max-w-sm">
+            {type === "revenue" && "Revenue data will appear here once payments are processed."}
+            {type === "enrollments" && "Enrollment data will appear here once students enroll in courses."}
+            {type === "detailed" && "Detailed analytics will appear here once there's activity on the platform."}
+          </p>
+        </div>
+      )
+    }
+
     switch (type) {
-      case "revenue":
-        const totalRevenue = chartData.reduce((sum, item) => sum + item.revenue, 0)
-        const avgRevenue = totalRevenue / chartData.length
-        const maxRevenue = Math.max(...chartData.map(item => item.revenue))
-        const minRevenue = Math.min(...chartData.map(item => item.revenue))
-        const maxMonth = chartData.find(item => item.revenue === maxRevenue)?.month
-        const minMonth = chartData.find(item => item.revenue === minRevenue)?.month
+      case "revenue": {
+        // Map month names to values for easy lookup
+        const monthNames = {
+          "January": 1, "February": 2, "March": 3, "April": 4,
+          "May": 5, "June": 6, "July": 7, "August": 8,
+          "September": 9, "October": 10, "November": 11, "December": 12
+        }
+
+        // Sort data by year and month
+        const sortedData = [...chartData].sort((a, b) => {
+          if (a.year !== b.year) return a.year - b.year
+          return monthNames[a.month] - monthNames[b.month]
+        })
+        
+        const totalRevenue = sortedData.reduce((sum, item) => sum + item.revenue, 0)
+        const avgRevenue = totalRevenue / sortedData.length
+        const maxRevenue = Math.max(...sortedData.map(item => item.revenue))
+        const minRevenue = Math.min(...sortedData.map(item => item.revenue))
+        const maxMonth = sortedData.find(item => item.revenue === maxRevenue)?.month
 
         return (
           <div className="space-y-6">
@@ -136,7 +134,7 @@ const AdminReportsChart = ({ type }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-blue-100 text-sm font-medium">Total Revenue</p>
-                    <p className="text-2xl font-bold">${totalRevenue.toLocaleString()}</p>
+                    <p className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</p>
                   </div>
                   <div className="bg-blue-400 bg-opacity-30 rounded-lg p-3">
                     <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -151,7 +149,7 @@ const AdminReportsChart = ({ type }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-100 text-sm font-medium">Average Revenue</p>
-                    <p className="text-2xl font-bold">${avgRevenue.toLocaleString()}</p>
+                    <p className="text-2xl font-bold">₹{avgRevenue.toLocaleString()}</p>
                   </div>
                   <div className="bg-green-400 bg-opacity-30 rounded-lg p-3">
                     <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -234,7 +232,7 @@ const AdminReportsChart = ({ type }) => {
                       {/* Revenue Amount */}
                       <div className="space-y-2">
                         <p className="text-sm text-gray-600">Revenue</p>
-                        <p className="text-2xl font-bold text-gray-900">${item.revenue.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-gray-900">₹{item.revenue.toLocaleString()}</p>
                       </div>
 
                       {/* Progress Bar */}
@@ -293,7 +291,7 @@ const AdminReportsChart = ({ type }) => {
                     </svg>
                   </div>
                   <p className="text-sm text-gray-600">Best Month</p>
-                  <p className="text-lg font-bold text-gray-900">{maxMonth}: ${maxRevenue.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-gray-900">{maxMonth}: ₹{maxRevenue.toLocaleString()}</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-blue-100 rounded-lg p-4 inline-block">
@@ -302,7 +300,7 @@ const AdminReportsChart = ({ type }) => {
                     </svg>
                   </div>
                   <p className="text-sm text-gray-600">Total Revenue</p>
-                  <p className="text-lg font-bold text-gray-900">${totalRevenue.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-gray-900">₹{totalRevenue.toLocaleString()}</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-orange-100 rounded-lg p-4 inline-block">
@@ -311,14 +309,15 @@ const AdminReportsChart = ({ type }) => {
                     </svg>
                   </div>
                   <p className="text-sm text-gray-600">Average/Month</p>
-                  <p className="text-lg font-bold text-gray-900">${avgRevenue.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-gray-900">₹{avgRevenue.toLocaleString()}</p>
                 </div>
               </div>
             </div>
           </div>
         )
+      }
 
-      case "enrollments":
+      case "enrollments": {
         return (
           <div className="space-y-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -401,8 +400,9 @@ const AdminReportsChart = ({ type }) => {
             </div>
           </div>
         )
+      }
 
-      case "detailed":
+      case "detailed": {
         return (
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={chartData}>
@@ -417,6 +417,7 @@ const AdminReportsChart = ({ type }) => {
             </BarChart>
           </ResponsiveContainer>
         )
+      }
 
       default:
         return <div>Chart type not supported</div>
