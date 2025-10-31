@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, X, Send } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { apiRequest } from "../config/api"
 
 const CourseDetailPage = () => {
   const { id } = useParams()
@@ -169,7 +170,7 @@ const CourseDetailPage = () => {
 
       console.log("Submitting review:", { rating, comment })
 
-      const response = await fetch(`http://localhost:2000/api/courseReviews/${id}/reviews`, {
+      const response = await apiRequest(`courseReviews/${id}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -273,7 +274,7 @@ const CourseDetailPage = () => {
   const enrollInCourse = async () => {
     try {
       const token = localStorage.getItem("token")
-      const res = await fetch(`http://localhost:2000/api/enrollments`, {
+      const res = await apiRequest(`enrollments`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ courseId: id }),
@@ -316,7 +317,7 @@ const CourseDetailPage = () => {
   const fetchRelatedCourses = async (category) => {
     setRelatedCoursesLoading(true)
     try {
-      const response = await fetch(`http://localhost:2000/api/courses?category=${category}&limit=4`)
+      const response = await apiRequest(`courses?category=${category}&limit=4`)
       if (response.ok) {
         const data = await response.json()
         const filteredCourses = data.courses.filter(course => course._id !== id)

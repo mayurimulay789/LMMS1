@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { Lock,  Shield, ArrowLeft, Tag, Check, X, User, Mail, MapPin, Phone, AlertCircle, Percent } from 'lucide-react'
+import { Lock,  Shield, ArrowLeft, Tag, Check, X, User, Mail, MapPin, Phone, AlertCircle, Percent, CreditCard } from 'lucide-react'
 import { createPaymentOrder, validatePromoCode, clearPaymentState } from "../store/slices/paymentSlice"
-import { CreditCard } from "lucide-react";
+import { apiRequest } from "../config/api"
 
 // Declare Razorpay for global usage
 const loadRazorpayScript = () => {
@@ -77,7 +77,7 @@ const CheckoutPage = () => {
   const fetchCourse = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/courses/${courseId}`, {
+      const response = await apiRequest(`courses/${courseId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -163,7 +163,7 @@ const CheckoutPage = () => {
           order_id: orderId,
           handler: async (response) => {
             try {
-              const verifyResponse = await fetch("http://localhost:2000/api/payments/verify", {
+              const verifyResponse = await apiRequest("payments/verify", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
