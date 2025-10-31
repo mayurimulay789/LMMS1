@@ -90,44 +90,63 @@ const productionOrigins = [
   process.env.FRONTEND_URL               // Alternative production URL
 ].filter(Boolean); // Remove undefined/null values
 
+// Add custom allowed origins from environment
+const customOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : [];
+
 // Determine allowed origins based on environment
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? productionOrigins
-  : [...developmentOrigins, ...productionOrigins];
+  ? [...productionOrigins, ...customOrigins]
+  : [...developmentOrigins, ...productionOrigins, ...customOrigins];
 
-// CORS middleware configuration for development - in production, Nginx handles CORS
-if (process.env.NODE_ENV !== 'production') {
-  app.use(
-    cors({
-      origin: function(origin, callback) {
-        // Allow all origins in development
+// CORS middleware configuration - Enhanced for multiple IPs and origins
+app.use(
+  cors({
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      // In development, allow all origins
+      if (process.env.NODE_ENV !== 'production') {
+        return callback(null, true);
+      }
+      
+      // In production, check allowed origins
+      if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
-      },
-      credentials: true,
-      methods: [
-        "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
-      ],
-      allowedHeaders: [
-        "Content-Type",
-        "Authorization",
-        "X-Requested-With",
-        "Accept",
-        "Origin",
-        "Access-Control-Request-Method",
-        "Access-Control-Request-Headers",
-        "Cache-Control",
-        "Pragma"
-      ],
-      exposedHeaders: [
-        'Content-Disposition',
-        'Content-Length',
-        'X-Total-Count',
-        'X-Rate-Limit-Remaining'
-      ],
-      maxAge: 1 // 1 second in development
-    })
-  );
-}
+      } else {
+        console.log(`CORS blocked origin: ${origin}`);
+        console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    methods: [
+      "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+    ],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+      "Access-Control-Request-Method",
+      "Access-Control-Request-Headers",
+      "Cache-Control",
+      "Pragma",
+      "X-Real-IP",
+      "X-Forwarded-For"
+    ],
+    exposedHeaders: [
+      'Content-Disposition',
+      'Content-Length',
+      'X-Total-Count',
+      'X-Rate-Limit-Remaining'
+    ],
+    maxAge: process.env.NODE_ENV === 'production' ? 86400 : 1 // 24 hours in production, 1 second in development
+  })
+);
 
 // Enhanced headers middleware for file uploads and preflight
 app.use((req, res, next) => {
