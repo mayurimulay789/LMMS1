@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react"
+import { apiRequest } from "../config/api"
 
 const ContactUsPage = () => {
   const [formData, setFormData] = useState({
@@ -66,11 +67,8 @@ const ContactUsPage = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("http://localhost:2000/api/contact", {
+      const response = await apiRequest("contact", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(formData),
       })
 

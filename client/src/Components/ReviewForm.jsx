@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Star } from "lucide-react"
+import { apiRequest } from "../config/api"
 
 const ReviewForm = ({ courseId, onReviewSubmit }) => {
   const [rating, setRating] = useState(0)
@@ -16,10 +17,9 @@ const ReviewForm = ({ courseId, onReviewSubmit }) => {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/courses/${courseId}/reviews`, {
+      const response = await apiRequest(`courses/${courseId}/reviews`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ rating, comment }),
