@@ -163,7 +163,7 @@ const CourseCard = ({ course, index = 0 }) => {
               {formatPrice(price)}
               {price > 0 && <span className="text-sm font-normal text-gray-500 ml-1">₹</span>}
             </div>
-            <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">
+            <button className="bg-rose-700 text-white px-4 py-2 rounded-lg hover:bg-rose-800 transition-colors font-medium text-sm">
               View Course
             </button>
           </div>

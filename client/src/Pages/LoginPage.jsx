@@ -88,41 +88,41 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-white flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="flex items-center justify-center space-x-2 mb-6">
-            <BookOpen className="h-10 w-10 text-red-600" />
-            <span className="text-2xl font-bold text-gray-900">Ryma Academy</span>
+          <Link to="/" className="flex items-center justify-center space-x-2 mb-4">
+            <BookOpen className="h-8 w-8 text-red-600 sm:h-10 sm:w-10" />
+            <span className="text-xl font-bold text-gray-900 sm:text-2xl">Ryma Academy</span>
           </Link>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h2>
-          <p className="text-gray-600">Sign in to your account to continue learning</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2 sm:text-3xl">Welcome back</h2>
+          <p className="text-sm text-gray-600 sm:text-base">Sign in to your account to continue learning</p>
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
                 <input
                   type="email"
                   id="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${
+                  className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors text-sm sm:text-base sm:py-3 ${
                     errors.email ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter your email"
@@ -137,14 +137,14 @@ const LoginPage = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-sm sm:text-base sm:py-3 ${
                     errors.password ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter your password"
@@ -154,7 +154,7 @@ const LoginPage = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </button>
               </div>
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
@@ -182,11 +182,11 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+              className="w-full bg-rose-700 text-white py-2 px-4 rounded-lg font-semibold hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center text-sm sm:text-base sm:py-3"
             >
               {isLoading ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 sm:h-5 sm:w-5"></div>
                   Signing in...
                 </>
               ) : (
@@ -196,21 +196,14 @@ const LoginPage = () => {
           </form>
 
           {/* Sign Up Link */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600 sm:text-base">
               Don't have an account?{" "}
               <Link to="/register" className="text-red-600 hover:text-red-800 font-medium">
                 Sign up here
               </Link>
             </p>
           </div>
-        </div>
-
-        {/* Demo Credentials */}
-        <div className="bg-red-50 rounded-lg p-4 text-center">
-          <p className="text-sm text-red-700 mb-2">Demo Credentials:</p>
-          <p className="text-xs text-red-600">Email: demo@aymaacademy.com</p>
-          <p className="text-xs text-blue-600">Password: demo123</p>
         </div>
       </div>
     </div>

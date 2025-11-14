@@ -4,6 +4,7 @@ const { body, validationResult } = require("express-validator")
 const Contact = require("../models/Contact")
 const auth = require("../middleware/auth")
 const adminMiddleware = require("../middleware/AdminMiddleware")
+const { sendContactNotificationEmail, sendContactAutoReplyEmail } = require("../services/emailService")
 
 // Validation rules
 const contactValidation = [

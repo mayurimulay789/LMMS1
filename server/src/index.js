@@ -201,7 +201,19 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 // Static files
 app.use("/certificates", express.static(path.join(__dirname, "public/certificates")))
-app.use("/uploads", express.static(path.join(__dirname, "public/uploads")))
+app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
+  maxAge: '1d', // Cache for 1 day
+  setHeaders: (res, path) => {
+    // Set CORS headers for uploaded files
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+
+    // Optimize caching for video files
+    if (path.endsWith('.mp4') || path.endsWith('.mov') || path.endsWith('.avi')) {
+      res.set('Cache-Control', 'public, max-age=86400'); // 24 hours for videos
+    }
+  }
+}))
 
 // MongoDB connection (original code)
 mongoose.connect(process.env.MONGODB_URI)

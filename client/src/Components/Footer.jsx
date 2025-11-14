@@ -49,28 +49,26 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="text-gray-800 bg-white border-t border-gray-200">
+    <footer className="bg-white border-t border-gray-200">
       {/* Main Footer Content */}
-      <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+      <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8 lg:py-12">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
           {/* Left Section - RYMA Academy with Social Links */}
-          <div className="space-y-6 lg:col-span-2">
-            <div className="space-y-4">
+          <div className="space-y-4 lg:col-span-2">
+            <div className="space-y-3">
               <Link 
                 to="/" 
-                className="flex items-center space-x-3 group"
+                className="inline-block"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >
-                <div>
-                  <span className="text-3xl font-bold text-transparent bg-gradient-to-r from-rose-800 to-red-600 bg-clip-text">
-                    RYMA Academy
-                  </span>
-                  <p className="mt-1 text-base text-gray-600">Learn. Grow. Lead</p>
-                </div>
+                <span className="text-2xl font-bold text-transparent bg-gradient-to-r from-rose-800 to-red-600 bg-clip-text sm:text-3xl">
+                  RYMA Academy
+                </span>
+                <p className="mt-1 text-sm text-gray-600 sm:text-base">Learn. Grow. Lead</p>
               </Link>
               
-              <p className="max-w-md text-base leading-relaxed text-gray-600">
+              <p className="text-sm leading-relaxed text-gray-600 sm:text-base sm:max-w-md">
                 Empowering learners worldwide with high-quality online courses. 
                 Join thousands of students and advance your career with expert-led instruction.
               </p>
@@ -78,7 +76,7 @@ const Footer = () => {
 
             {/* Social Links - Moved under RYMA Academy */}
             <div className="pt-2">
-              <h4 className="mb-3 text-base font-semibold text-gray-700">Connect With Us</h4>
+              <h4 className="mb-2 text-sm font-semibold text-gray-700 sm:text-base">Connect With Us</h4>
               <div className="flex space-x-2">
                 {socialLinks.map((social) => (
                   <a
@@ -86,10 +84,10 @@ const Footer = () => {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-3 transition-all duration-300 border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl hover:from-rose-50 hover:to-red-50 hover:scale-110 hover:shadow-lg group"
+                    className="p-2 transition-all duration-300 border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg hover:from-rose-50 hover:to-red-50 hover:scale-110 hover:shadow-lg group sm:p-3"
                     aria-label={social.name}
                   >
-                    <social.icon className="w-5 h-5 text-rose-600 group-hover:text-rose-700" />
+                    <social.icon className="w-4 h-4 text-rose-600 group-hover:text-rose-700 sm:w-5 sm:h-5" />
                   </a>
                 ))}
               </div>
@@ -98,15 +96,15 @@ const Footer = () => {
 
           {/* Company Links */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
               Company
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="block py-2 text-base text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group"
+                    className="block py-1 text-sm text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group sm:py-2 sm:text-base"
                   >
                     <span className="transition-all group-hover:font-medium">{link.name}</span>
                   </Link>
@@ -117,15 +115,15 @@ const Footer = () => {
 
           {/* Course Categories */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
               Categories
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {footerLinks.courses.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="block py-2 text-base text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group"
+                    className="block py-1 text-sm text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group sm:py-2 sm:text-base"
                   >
                     <span className="transition-all group-hover:font-medium">{link.name}</span>
                   </Link>
@@ -136,40 +134,40 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
               Contact Info
             </h3>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3 text-base text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group">
-                <div className="p-2 transition-colors bg-blue-100 rounded-lg shadow-sm group-hover:bg-blue-200">
-                  <Mail className="w-5 h-5 text-blue-600" />
+            <div className="space-y-3">
+              <div className="flex items-start space-x-2 text-sm text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group sm:space-x-3 sm:text-base">
+                <div className="p-1 transition-colors bg-blue-100 rounded-lg shadow-sm group-hover:bg-blue-200 sm:p-2 flex-shrink-0 mt-0.5">
+                  <Mail className="w-4 h-4 text-blue-600 sm:w-5 sm:h-5" />
                 </div>
-                <span>support@rymaacademy.com</span>
+                <span className="break-words">support@rymaacademy.com</span>
               </div>
-              <div className="flex items-center space-x-3 text-base text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group">
-                <div className="p-2 transition-colors bg-green-100 rounded-lg shadow-sm group-hover:bg-green-200">
-                  <Phone className="w-5 h-5 text-green-600" />
+              <div className="flex items-center space-x-2 text-sm text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group sm:space-x-3 sm:text-base">
+                <div className="p-1 transition-colors bg-green-100 rounded-lg shadow-sm group-hover:bg-green-200 sm:p-2 flex-shrink-0">
+                  <Phone className="w-4 h-4 text-green-600 sm:w-5 sm:h-5" />
                 </div>
                 <span>+1000000</span>
               </div>
-              <div className="flex items-center space-x-3 text-base text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group">
-                <div className="p-2 transition-colors bg-purple-100 rounded-lg shadow-sm group-hover:bg-purple-200">
-                  <MapPin className="w-5 h-5 text-purple-600" />
+              <div className="flex items-start space-x-2 text-sm text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group sm:space-x-3 sm:text-base">
+                <div className="p-1 transition-colors bg-purple-100 rounded-lg shadow-sm group-hover:bg-purple-200 sm:p-2 flex-shrink-0 mt-0.5">
+                  <MapPin className="w-4 h-4 text-purple-600 sm:w-5 sm:h-5" />
                 </div>
-                <span>123 Learning Street, Education City, EC 12345</span>
+                <span className="break-words">123 Learning Street, Education City, EC 12345</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="pt-8 mt-8 border-t border-gray-300">
-          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
-            <p className="text-base text-gray-500">
+        <div className="pt-6 mt-6 border-t border-gray-300 sm:pt-8 sm:mt-8">
+          <div className="flex flex-col space-y-3 text-center sm:text-left sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            <p className="text-xs text-gray-500 sm:text-sm">
               © {currentYear} RYMA Academy. All rights reserved.
             </p>
             
-            <div className="flex items-center space-x-6 text-base text-gray-500">
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-500 sm:gap-6 sm:text-sm">
               <Link to="/privacy" className="transition-colors hover:text-gray-900 hover:font-medium">
                 Privacy Policy
               </Link>

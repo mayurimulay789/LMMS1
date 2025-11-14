@@ -9,7 +9,6 @@ import { BookOpen, Users, Award, TrendingUp, Play, Star, ArrowRight, Quote } fro
 import CourseCard from "../Components/CourseCard"
 import { generateDefaultAvatar } from "../utils/imageUtils"
 
-
 import InstructorApplicationForm from "../Components/InstructorApplicationForm"
 import { apiRequest } from "../config/api"
 
@@ -80,29 +79,29 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section (omitted for brevity) */}
-      <section className="py-12 text-white bg-gradient-to-br from-rose-600 via-rose-900 to-rose-900 md:py-20">
+      {/* Hero Section */}
+      <section className="py-8 text-white bg-gradient-to-br from-rose-600 via-rose-900 to-rose-900 sm:py-12 md:py-20">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="grid items-center grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12"> 
+          <div className="grid items-center grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12"> 
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-              <h1 className="mb-4 text-4xl font-bold leading-tight sm:text-5xl md:text-6xl md:mb-6"> 
+              <h1 className="mb-4 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl"> 
                 Learn Without
                 <span className="text-rose-100"> Limits</span>
               </h1>
-              <p className="mb-6 text-lg leading-relaxed sm:text-xl md:mb-8 text-rose-100"> 
+              <p className="mb-6 text-base leading-relaxed text-rose-100 sm:text-lg md:text-xl"> 
                 Discover thousands of courses from expert instructors and advance your career with hands-on projects and
                 real-world skills.
               </p>
-              <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+              <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
                 <Link
                   to="/courses"
-                  className="flex items-center justify-center px-6 py-3 space-x-2 text-base font-semibold text-white transition-colors rounded-lg bg-rose-700 sm:px-8 sm:py-4 hover:bg-rose-600"
+                  className="flex items-center justify-center px-5 py-3 space-x-2 text-sm font-semibold text-white transition-colors rounded-lg bg-rose-700 sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-rose-600 sm:text-base"
                 >
                   <span>Explore Courses</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Link>
-                <button className="flex items-center justify-center px-6 py-3 space-x-2 text-base font-semibold text-white transition-colors border-2 border-white rounded-lg sm:px-8 sm:py-4 hover:bg-white hover:text-rose-900">
-                  <Play className="w-5 h-5" />
+                <button className="flex items-center justify-center px-5 py-3 space-x-2 text-sm font-semibold text-white transition-colors border-2 border-white rounded-lg sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-white hover:text-rose-900 sm:text-base">
+                  <Play className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Watch Demo</span>
                 </button>
               </div>
@@ -112,25 +111,25 @@ const HomePage = () => {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative mt-8 lg:mt-0" 
+              className="relative mt-6 lg:mt-0" 
             >
-              <div className="p-6 bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl sm:p-8"> 
-                <div className="grid grid-cols-2 gap-4 sm:gap-6"> 
+              <div className="p-4 bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl sm:p-6 md:p-8"> 
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6"> 
                   <div className="text-center">
-                    <div className="text-2xl font-bold sm:text-3xl text-rose-100">{stats.totalStudents.toLocaleString()}+</div> 
-                    <div className="text-sm sm:text-base text-rose-100">Students</div>
+                    <div className="text-xl font-bold sm:text-2xl md:text-3xl text-rose-100">{stats.totalStudents.toLocaleString()}+</div> 
+                    <div className="text-xs sm:text-sm md:text-base text-rose-100">Students</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold sm:text-3xl text-rose-100">{stats.totalCourses.toLocaleString()}+</div>
-                    <div className="text-sm sm:text-base text-rose-100">Courses</div>
+                    <div className="text-xl font-bold sm:text-2xl md:text-3xl text-rose-100">{stats.totalCourses.toLocaleString()}+</div>
+                    <div className="text-xs sm:text-sm md:text-base text-rose-100">Courses</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold sm:text-3xl text-rose-100">{stats.totalInstructors}+</div>
-                    <div className="text-sm sm:text-base text-rose-100">Instructors</div>
+                    <div className="text-xl font-bold sm:text-2xl md:text-3xl text-rose-100">{stats.totalInstructors}+</div>
+                    <div className="text-xs sm:text-sm md:text-base text-rose-100">Instructors</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold sm:text-3xl text-rose-100">{stats.completionRate}%</div>
-                    <div className="text-sm sm:text-base text-rose-100">Success Rate</div>
+                    <div className="text-xl font-bold sm:text-2xl md:text-3xl text-rose-100">{stats.completionRate}%</div>
+                    <div className="text-xs sm:text-sm md:text-base text-rose-100">Success Rate</div>
                   </div>
                 </div>
               </div>
@@ -139,18 +138,18 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* RYMA Academy Promotional Section (omitted for brevity) */}
-      <section className="py-8 bg-white md:py-12">
+      {/* RYMA Academy Promotional Section */}
+      <section className="py-8 bg-white sm:py-10 md:py-12">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="grid items-center grid-cols-1 gap-6 md:grid-cols-2 md:gap-8" 
+            className="grid items-center grid-cols-1 gap-4 md:grid-cols-2 md:gap-8" 
           >
             <div className="md:pr-8">
-              <h2 className="mb-2 text-2xl font-bold text-gray-800 md:text-3xl lg:text-4xl md:mb-4"> 
+              <h2 className="mb-2 text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl lg:text-4xl"> 
                 Join <span className="text-red-600">RYMA ACADEMY</span>
                 <span className="text-xs align-super">™</span>,{" "}
                 <span className="text-gray-600">#1 Training Institute in</span>{" "}
@@ -158,8 +157,8 @@ const HomePage = () => {
               </h2>
             </div>
 
-            <div className="pt-4 md:pt-0">
-              <p className="text-base leading-relaxed text-gray-700 md:text-lg"> 
+            <div className="pt-2 md:pt-0">
+              <p className="text-sm leading-relaxed text-gray-700 sm:text-base md:text-lg"> 
                 Learn Most Demanded Skills choose by our <span className="font-semibold">367+ Placement Partner</span>{" "}
                 with <span className="font-semibold">1.9 Lakh Job Openings</span>, Join our{" "}
                 <span className="font-semibold text-gray-800">Master in Digital Marketing Program</span> a way to
@@ -170,8 +169,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Trusted Partners Logos Section (omitted for brevity) */}
-      <section className="py-8 bg-white md:py-12"> 
+      {/* Trusted Partners Logos Section */}
+      <section className="py-6 bg-white sm:py-8 md:py-12"> 
         <div className="overflow-hidden">
           <style>{`
             @keyframes scroll {
@@ -193,11 +192,11 @@ const HomePage = () => {
               { name: "Zoho", src: "/Official Zoho Logo -.png" },
               { name: "Freelancer", src: "/About Freelancer_ Co.png" },
             ].map((logo, index) => (
-              <div key={index} className="flex-shrink-0 px-4 sm:px-6"> 
+              <div key={index} className="flex-shrink-0 px-3 sm:px-4 md:px-6"> 
                 <img
                   src={logo.src || "/placeholder.svg"}
                   alt={logo.name}
-                  className="object-contain w-auto h-12 p-2 bg-white border rounded-lg shadow-sm sm:h-16" 
+                  className="object-contain w-auto h-10 p-1 bg-white border rounded-lg shadow-sm sm:h-12 md:h-16" 
                 />
               </div>
             ))}
@@ -211,11 +210,11 @@ const HomePage = () => {
               { name: "Zoho", src: "/Official Zoho Logo -.png" },
               { name: "Freelancer", src: "/About Freelancer_ Co.png" },
             ].map((logo, index) => (
-              <div key={`dup-${index}`} className="flex-shrink-0 px-4 sm:px-6">
+              <div key={`dup-${index}`} className="flex-shrink-0 px-3 sm:px-4 md:px-6">
                 <img
                   src={logo.src || "/placeholder.svg"}
                   alt={logo.name}
-                  className="object-contain w-auto h-12 p-2 bg-white border rounded-lg shadow-sm sm:h-16"
+                  className="object-contain w-auto h-10 p-1 bg-white border rounded-lg shadow-sm sm:h-12 md:h-16"
                 />
               </div>
             ))}
@@ -223,23 +222,23 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Features Section (Why Choose RYMA?) (omitted for brevity) */}
-      <section className="py-8 bg-white md:py-12"> 
+      {/* Features Section (Why Choose RYMA?) */}
+      <section className="py-8 bg-white sm:py-10 md:py-12"> 
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="mb-8 text-center md:mb-16" 
+            className="mb-6 text-center sm:mb-8 md:mb-16" 
           >
-            <h2 className="mb-2 text-2xl font-bold text-black md:text-3xl lg:text-4xl md:mb-4">Why Choose RYMA?</h2> 
-            <p className="max-w-3xl mx-auto text-base text-gray-700 md:text-xl"> 
+            <h2 className="mb-2 text-xl font-bold text-black sm:text-2xl md:text-3xl lg:text-4xl">Why Choose RYMA?</h2> 
+            <p className="max-w-3xl mx-auto text-sm text-gray-700 sm:text-base md:text-xl"> 
               We provide everything you need to succeed in your learning journey
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 gap-6 lg:grid-cols-4 md:gap-8"> 
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 md:gap-8"> 
             {features.map((feature, index) => (
               <motion.div
                 key={index}
@@ -248,12 +247,12 @@ const HomePage = () => {
                 whileHover={{ scale: 1.05, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="flex flex-col items-center p-4 text-center shadow-lg bg-rose-800 sm:p-8 rounded-xl"
+                className="flex flex-col items-center p-4 text-center shadow-lg bg-rose-800 sm:p-6 md:p-8 rounded-xl"
               >
-                <div className="flex items-center justify-center w-12 h-12 mb-2 bg-white rounded-lg sm:w-16 sm:h-16 sm:mb-6"> 
-                  <feature.icon className="w-6 h-6 text-yellow-400 sm:h-8 sm:w-8" />
+                <div className="flex items-center justify-center w-10 h-10 mb-2 bg-white rounded-lg sm:w-12 sm:h-12 md:w-16 md:h-16"> 
+                  <feature.icon className="w-5 h-5 text-yellow-400 sm:w-6 sm:h-6 md:h-8 md:w-8" />
                 </div>
-                <h3 className="mb-1 text-sm font-semibold leading-tight text-white sm:text-xl sm:mb-4">{feature.title}</h3>
+                <h3 className="mb-1 text-sm font-semibold leading-tight text-white sm:text-base md:text-xl">{feature.title}</h3>
                 <p className="text-xs text-white sm:text-sm">{feature.description}</p>
               </motion.div>
             ))}
@@ -261,21 +260,18 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ================================================================================
-        FEATURED COURSES SECTION - MODIFIED FOR 1.5 - 2 CARDS IN VIEW 
-        ================================================================================
-      */}
-      <section className="py-8 bg-white md:py-12"> 
+      {/* Featured Courses Section */}
+      <section className="py-8 bg-white sm:py-10 md:py-12"> 
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8"> 
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="mb-8 text-center md:mb-16"
+            className="mb-6 text-center sm:mb-8 md:mb-16"
           >
-            <h2 className="mb-2 text-2xl font-bold text-black md:text-3xl lg:text-4xl md:mb-4">Featured Courses</h2>
-            <p className="max-w-3xl mx-auto text-base text-gray-700 md:text-xl">
+            <h2 className="mb-2 text-xl font-bold text-black sm:text-2xl md:text-3xl lg:text-4xl">Featured Courses</h2>
+            <p className="max-w-3xl mx-auto text-sm text-gray-700 sm:text-base md:text-xl">
               Start your learning journey with our most popular courses
             </p>
           </motion.div>
@@ -294,17 +290,11 @@ const HomePage = () => {
               ))}
             </div>
           ) : (
-            // 🌟 Slider Implementation: 
-            // 1. Container: Removed `snap-mandatory` and adjusted `space-x-4` to control spacing.
             <div className="flex pb-4 space-x-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-x-0 snap-x scroll-p-4"> 
               {featuredCourses.map((course, index) => (
                 <div 
                   key={course._id} 
-                  // 🌟 Card Sizing for 1.5 - 2 Cards: 
-                  // - `w-[60vw]` (60% viewport width) ensures about 1.5 cards are visible on a standard mobile screen (due to 4 units of space-x-4/1rem = 16px).
-                  // - `sm:w-[45vw]` (45% viewport width) ensures more than 2 cards are visible on small tablets.
-                  // - `md:w-full` reverts to the grid layout at medium screens and up.
-                  className="flex-shrink-0 w-[60vw] sm:w-[45vw] md:w-full lg:w-full snap-start"
+                  className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-full lg:w-full snap-start"
                 > 
                   <CourseCard course={course} index={index} />
                 </div>
@@ -312,94 +302,93 @@ const HomePage = () => {
             </div>
           )}
 
-          <div className="mt-8 text-center md:mt-12">
+          <div className="mt-6 text-center sm:mt-8 md:mt-12">
             <Link
               to="/courses"
-              className="inline-flex items-center px-6 py-3 space-x-2 text-base font-semibold text-white transition-colors rounded-lg bg-rose-900 sm:px-8 sm:py-4 hover:bg-rose-900"
+              className="inline-flex items-center px-5 py-3 space-x-2 text-sm font-semibold text-white transition-colors rounded-lg bg-rose-900 sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-rose-900 sm:text-base"
             >
               <span>View All Courses</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </Link>
           </div>
         </div>
       </section>
       
-      {/* 3 Steps to Success Section (omitted for brevity) */}
-      <section className="py-8 text-white md:py-12 bg-rose-900">
+      {/* 3 Steps to Success Section */}
+      <section className="py-8 text-white sm:py-10 md:py-12 bg-rose-900">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="mb-8 text-center md:mb-16"
+            className="mb-6 text-center sm:mb-8 md:mb-16"
           >
-
-            <h2 className="mb-2 text-3xl font-bold md:text-4xl lg:text-5xl md:mb-4">3 Steps to Success</h2>
-            <p className="max-w-3xl mx-auto mb-8 text-base md:text-xl text-rose-100 md:mb-12">
+            <h2 className="mb-2 text-2xl font-bold sm:text-3xl md:text-4xl lg:text-5xl">3 Steps to Success</h2>
+            <p className="max-w-3xl mx-auto mb-6 text-sm md:text-base text-rose-100 sm:mb-8 md:mb-12 md:text-xl">
               Get enrolled in Ryma Academy as an Instructor and help others grow.
             </p>
           </motion.div>
 
-          <div className="flex flex-col items-center justify-between space-y-8 md:flex-row md:space-y-0 md:space-x-8"> 
+          <div className="flex flex-col items-center justify-between space-y-6 sm:space-y-8 md:flex-row md:space-y-0 md:space-x-6 lg:space-x-8"> 
             <div className="flex-1 text-center">
-              <div className="flex items-center justify-center mx-auto mb-3 bg-white rounded-full w-14 h-14 sm:w-16 sm:h-16 bg-opacity-20 md:mb-4">
-                <span className="text-xl font-bold text-white sm:text-2xl">1</span>
+              <div className="flex items-center justify-center mx-auto mb-3 bg-white rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-opacity-20">
+                <span className="text-lg font-bold text-white sm:text-xl md:text-2xl">1</span>
               </div>
-              <h3 className="mb-1 text-xl font-semibold sm:text-2xl md:mb-2">Fill the Application Form</h3>
-              <p className="px-4 text-sm sm:text-base text-rose-100">Fill out the application form to publish your courses.</p>
+              <h3 className="mb-1 text-lg font-semibold sm:text-xl md:text-2xl">Fill the Application Form</h3>
+              <p className="px-4 text-xs sm:text-sm md:text-base text-rose-100">Fill out the application form to publish your courses.</p>
             </div>
 
-            <div className="w-0 h-0 bg-white md:block md:w-16 lg:w-24 md:h-1 bg-opacity-30"></div> 
+            <div className="w-0 h-0 bg-white md:block md:w-12 lg:w-16 xl:w-24 md:h-1 bg-opacity-30"></div> 
 
             <div className="flex-1 text-center">
-              <div className="flex items-center justify-center mx-auto mb-3 bg-white rounded-full w-14 h-14 sm:w-16 sm:h-16 bg-opacity-20 md:mb-4">
-                <span className="text-xl font-bold text-white sm:text-2xl">2</span>
+              <div className="flex items-center justify-center mx-auto mb-3 bg-white rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-opacity-20">
+                <span className="text-lg font-bold text-white sm:text-xl md:text-2xl">2</span>
               </div>
-              <h3 className="mb-1 text-xl font-semibold sm:text-2xl md:mb-2">Get Shortlisted</h3>
-              <p className="px-4 text-sm sm:text-base text-rose-100">You get shortlisted on your education profile</p>
+              <h3 className="mb-1 text-lg font-semibold sm:text-xl md:text-2xl">Get Shortlisted</h3>
+              <p className="px-4 text-xs sm:text-sm md:text-base text-rose-100">You get shortlisted on your education profile</p>
             </div>
 
-            <div className="w-0 h-0 bg-white md:block md:w-16 lg:w-24 md:h-1 bg-opacity-30"></div>
+            <div className="w-0 h-0 bg-white md:block md:w-12 lg:w-16 xl:w-24 md:h-1 bg-opacity-30"></div>
 
             <div className="flex-1 text-center">
-              <div className="flex items-center justify-center mx-auto mb-3 bg-white rounded-full w-14 h-14 sm:w-16 sm:h-16 bg-opacity-20 md:mb-4">
-                <span className="text-xl font-bold text-white sm:text-2xl">3</span>
+              <div className="flex items-center justify-center mx-auto mb-3 bg-white rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-opacity-20">
+                <span className="text-lg font-bold text-white sm:text-xl md:text-2xl">3</span>
               </div>
-              <h3 className="mb-1 text-xl font-semibold sm:text-2xl md:mb-2">Block Your Seat</h3>
-              <p className="px-4 text-sm sm:text-base text-rose-100">Be the part of our journey as a instructor and spread your knowledge. </p>
+              <h3 className="mb-1 text-lg font-semibold sm:text-xl md:text-2xl">Block Your Seat</h3>
+              <p className="px-4 text-xs sm:text-sm md:text-base text-rose-100">Be the part of our journey as a instructor and spread your knowledge. </p>
             </div>
           </div>
 
-          <div className="mt-8 text-center md:mt-12">
+          <div className="mt-6 text-center sm:mt-8 md:mt-12">
             <button
               onClick={() => setShowApplicationForm(true)}
-              className="inline-flex items-center px-6 py-3 space-x-2 text-base font-semibold transition-colors bg-white rounded-lg text-rose-900 sm:px-8 sm:py-4 hover:bg-rose-50"
+              className="inline-flex items-center px-5 py-3 space-x-2 text-sm font-semibold transition-colors bg-white rounded-lg text-rose-900 sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-rose-50 sm:text-base"
             >
               <span>Get Application Form</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section (omitted for brevity) */}
-      <section className="py-12 bg-white md:py-20"> 
+      {/* Testimonials Section */}
+      <section className="py-8 bg-white sm:py-10 md:py-12 lg:py-20"> 
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="mb-8 text-center md:mb-16"
+            className="mb-6 text-center sm:mb-8 md:mb-16"
           >
-            <h2 className="mb-2 text-2xl font-bold text-black md:text-3xl lg:text-4xl md:mb-4">What Our Students Say</h2>
-            <p className="max-w-3xl mx-auto text-base text-gray-700 md:text-xl">
+            <h2 className="mb-2 text-xl font-bold text-black sm:text-2xl md:text-3xl lg:text-4xl">What Our Students Say</h2>
+            <p className="max-w-3xl mx-auto text-sm text-gray-700 sm:text-base md:text-xl">
               Join thousands of successful learners who transformed their careers
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8"> 
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3 md:gap-8"> 
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
@@ -407,19 +396,18 @@ const HomePage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="p-6 bg-white border border-gray-100 shadow-lg sm:p-8 rounded-xl" 
+                className="p-4 bg-white border border-gray-100 shadow-lg sm:p-6 md:p-8 rounded-xl" 
               >
-
-                <Quote className="w-8 h-8 mb-4 text-rose-900" />
-                <p className="mb-6 italic text-gray-700">&ldquo;{testimonial.content}&rdquo;</p>
-                <div className="flex items-center space-x-4">
+                <Quote className="w-6 h-6 mb-3 text-rose-900 sm:w-8 sm:h-8" />
+                <p className="mb-4 text-sm italic text-gray-700 sm:text-base md:mb-6">&ldquo;{testimonial.content}&rdquo;</p>
+                <div className="flex items-center space-x-3 sm:space-x-4">
                   <img
                     src={testimonial.avatar || "/placeholder.svg"}
                     alt={testimonial.name}
-                    className="object-cover w-10 h-10 rounded-full sm:w-12 sm:h-12"
+                    className="object-cover w-8 h-8 rounded-full sm:w-10 sm:h-10 md:w-12 md:h-12"
                   />
                   <div>
-                    <div className="text-sm font-semibold text-black sm:text-base">{testimonial.name}</div>
+                    <div className="text-xs font-semibold text-black sm:text-sm md:text-base">{testimonial.name}</div>
                     <div className="text-xs text-gray-700 sm:text-sm">{testimonial.role}</div>
                     <div className="flex items-center mt-1">
                       {[...Array(testimonial.rating)].map((_, i) => (
@@ -434,8 +422,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* CTA Section (omitted for brevity) */}
-      <section className="py-12 md:py-20 bg-rose-900">
+      {/* CTA Section */}
+      <section className="py-8 bg-rose-900 sm:py-10 md:py-12 lg:py-20">
         <div className="px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -443,20 +431,20 @@ const HomePage = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl lg:text-4xl md:mb-4">Ready to Start Learning?</h2>
-            <p className="max-w-2xl mx-auto mb-6 text-base md:text-xl text-rose-100 md:mb-8">
+            <h2 className="mb-3 text-xl font-bold text-white sm:text-2xl md:text-3xl lg:text-4xl">Ready to Start Learning?</h2>
+            <p className="max-w-2xl mx-auto mb-4 text-sm md:text-base text-rose-100 sm:mb-6 md:mb-8 md:text-xl">
               Join our community of learners and take the first step towards your goals
             </p>
-            <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+            <div className="flex flex-col justify-center space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
               <Link
                 to="/register"
-                className="px-6 py-3 text-base font-semibold transition-colors bg-white rounded-lg text-rose-900 sm:px-8 sm:py-4 hover:bg-rose-50"
+                className="px-5 py-3 text-sm font-semibold transition-colors bg-white rounded-lg text-rose-900 sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-rose-50 sm:text-base"
               >
                 Get Started Free
               </Link>
               <Link
                 to="/courses"
-                className="px-6 py-3 text-base font-semibold text-white transition-colors border-2 border-white rounded-lg sm:px-8 sm:py-4 hover:bg-white hover:text-rose-900"
+                className="px-5 py-3 text-sm font-semibold text-white transition-colors border-2 border-white rounded-lg sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-white hover:text-rose-900 sm:text-base"
               >
                 Browse Courses
               </Link>
@@ -465,16 +453,16 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Application Form Modal (omitted for brevity) */}
+      {/* Application Form Modal */}
       {showApplicationForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div className="bg-white rounded-lg max-w-lg sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 sm:scale-100">
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">Instructor Application Form</h2>
+                <h2 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">Instructor Application Form</h2>
                 <button
                   onClick={() => setShowApplicationForm(false)}
-                  className="text-3xl leading-none text-gray-400 hover:text-gray-600"
+                  className="text-2xl leading-none text-gray-400 hover:text-gray-600 sm:text-3xl"
                 >
                   &times;
                 </button>
