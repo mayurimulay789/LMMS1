@@ -206,12 +206,7 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Demo Credentials */}
-        <div className="bg-red-50 rounded-lg p-4 text-center">
-          <p className="text-sm text-red-700 mb-2">Demo Credentials:</p>
-          <p className="text-xs text-red-600">Email: demo@aymaacademy.com</p>
-          <p className="text-xs text-blue-600">Password: demo123</p>
-        </div>
+       
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { Lock,  Shield, ArrowLeft, Tag, Check, X, User, Mail, MapPin, Phone, AlertCircle, Percent, CreditCard } from 'lucide-react'
-import { createPaymentOrder, validatePromoCode, clearPaymentState } from "../store/slices/paymentSlice"
+import { createPaymentOrder, validatePromoCode, clearPaymentState, clearPromo, fetchAvailableOffers } from "../store/slices/paymentSlice"
 import { apiRequest } from "../config/api"
 
 // Declare Razorpay for global usage
@@ -45,8 +45,11 @@ const CheckoutPage = () => {
     orderId,
     promoCode,
     discount,
+    discountType,
+    availableOffers,
     isLoading: paymentLoading,
     isValidatingPromo,
+    isFetchingOffers,
     error,
   } = useSelector((state) => state.payment)
 
@@ -74,6 +77,12 @@ const CheckoutPage = () => {
     }
   }, [courseId, isAuthenticated, navigate, user, dispatch])
 
+  useEffect(() => {
+    if (course && course._id) {
+      dispatch(fetchAvailableOffers(course._id))
+    }
+  }, [course, dispatch])
+
   const fetchCourse = async () => {
     try {
       const token = localStorage.getItem("token")
@@ -82,9 +91,25 @@ const CheckoutPage = () => {
           Authorization: `Bearer ${token}`,
         },
       })
-      if (response.ok) {
-        const data = await response.json()
-        setCourse(data)
+      // apiRequest returns { data, status, ok }
+      if (response && response.ok) {
+        const data = response.data
+
+        // Handle different response shapes
+        let courseData = null
+        if (data && data._id) {
+          courseData = data
+        } else if (data && data.data && data.data._id) {
+          courseData = data.data
+        } else if (data && data.course && data.course._id) {
+          courseData = data.course
+        } else {
+          courseData = data
+        }
+
+        setCourse(courseData)
+      } else {
+        console.error("Failed to fetch course", response?.data || response)
       }
     } catch (error) {
       console.error("Error fetching course:", error)
@@ -115,11 +140,18 @@ const CheckoutPage = () => {
 
   const calculateTotal = () => {
     const originalPrice = course?.price || 0
-    const discountAmount = (originalPrice * discount) / 100
+    let discountAmount = 0
+    if (discount && discountType === "percentage") {
+      discountAmount = (originalPrice * discount) / 100
+    } else if (discount && discountType === "fixed") {
+      discountAmount = discount
+    }
+
+    const final = Math.max(0, originalPrice - discountAmount)
     return {
       originalPrice,
       discountAmount,
-      finalPrice: originalPrice - discountAmount,
+      finalPrice: final,
     }
   }
 
@@ -296,13 +328,64 @@ const CheckoutPage = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-gray-900">₹{originalPrice}</div>
-                  {discount > 0 && <div className="text-sm text-green-600">-{discount}% off</div>}
+                  {discount > 0 && (
+                    <div className="text-sm text-green-600">
+                      {discountType === "percentage" ? `-${discount}% off` : `₹${discount} off`}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
+            {/* Available Offers */}
+            {availableOffers && availableOffers.length > 0 && (
+              <div className="p-6 bg-white rounded-lg shadow-sm">
+                <h2 className="mb-4 text-xl font-semibold text-gray-900">Available Offers</h2>
+                {isFetchingOffers ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="w-6 h-6 border-b-2 border-blue-600 rounded-full animate-spin"></div>
+                    <span className="ml-2 text-gray-600">Loading offers...</span>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {availableOffers.map((offer) => (
+                      <div
+                        key={offer.code}
+                        className="relative p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 group"
+                        onClick={() => {
+                          setPromoCodeInput(offer.code)
+                          dispatch(validatePromoCode({
+                            code: offer.code,
+                            courseId: course._id,
+                          }))
+                        }}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <Tag className="w-4 h-4 text-green-600" />
+                              <span className="font-semibold text-gray-900">{offer.code}</span>
+                              <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded">
+                                {offer.discountType === "percentage" ? `${offer.discountValue}% off` : `₹${offer.discountValue} off`}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-sm text-gray-600">{offer.description}</p>
+                          </div>
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <button className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200">
+                              Apply
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Promo Code */}
-            {/* <div className="p-6 bg-white rounded-lg shadow-sm">
+            <div className="p-6 bg-white rounded-lg shadow-sm">
               <h2 className="mb-4 text-xl font-semibold text-gray-900">Promo Code</h2>
               <form onSubmit={handlePromoCodeSubmit} className="flex space-x-3">
                 <div className="relative flex-1">
@@ -326,21 +409,32 @@ const CheckoutPage = () => {
               </form>
 
               {promoCode && (
-                <div className="flex items-center p-3 mt-3 space-x-2 border border-green-200 rounded-lg bg-green-50">
-                  <Check className="w-5 h-5 text-green-600" />
-                  <span className="text-green-800">
-                    Promo code "{promoCode}" applied! You save ₹{discountAmount.toFixed(2)}
-                  </span>
+                <div className="flex items-center justify-between p-3 mt-3 space-x-2 border border-green-200 rounded-lg bg-green-50">
+                  <div className="flex items-center space-x-2">
+                    <Check className="w-5 h-5 text-green-600" />
+                    <span className="text-green-800">
+                      Promo code "{promoCode}" applied! You save ₹{discountAmount.toFixed(2)}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setPromoCodeInput("")
+                      dispatch(clearPromo())
+                    }}
+                    className="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50"
+                  >
+                    Remove
+                  </button>
                 </div>
               )}
 
-              {error && error.includes("promo") && (
+              {error && (
                 <div className="flex items-center p-3 mt-3 space-x-2 border border-red-200 rounded-lg bg-red-50">
                   <X className="w-5 h-5 text-red-600" />
                   <span className="text-red-800">{error}</span>
                 </div>
               )}
-            </div> */}
+            </div>
 
             {/* Payment Method */}
            <div className="p-6 bg-white rounded-lg shadow-sm">
@@ -614,7 +708,7 @@ const CheckoutPage = () => {
                   <div className="flex justify-between text-green-600">
                     <span className="flex items-center">
                       <Percent className="w-4 h-4 mr-1" />
-                      Discount ({discount}%):
+                      {discountType === "percentage" ? `Discount (${discount}%):` : `Discount:`}
                     </span>
                     <span className="font-medium">-₹{discountAmount.toFixed(2)}</span>
                   </div>

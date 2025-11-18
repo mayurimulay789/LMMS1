@@ -5,6 +5,7 @@ const Course = require("../models/Course")
 const Payment = require("../models/Payment")
 const Enrollment = require("../models/Enrollment")
 const InstructorApplication = require("../models/InstructorApplication")
+const PromoCode = require("../models/PromoCode")
 const auth = require("../middleware/auth")
 const adminMiddleware = require("../middleware/AdminMiddleware")
 const mongoose = require("mongoose");
@@ -813,12 +814,16 @@ router.post("/instructor-applications/:applicationId/approve", async (req, res) 
 
     // Send approval email
     try {
-      await sendInstructorApprovalEmail({
+      const emailResult = await sendInstructorApprovalEmail({
         applicantName: application.applicantName,
         email: application.email,
         loginLink: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`,
       })
-      console.log('Approval email sent to:', application.email)
+      if (emailResult.success) {
+        console.log('Approval email sent to:', application.email)
+      } else {
+        console.log('Approval email skipped (configuration missing):', emailResult.message)
+      }
     } catch (emailError) {
       console.error('Approval email failed:', emailError)
       // Don't fail the approval if email fails
@@ -859,6 +864,221 @@ router.post("/instructor-applications/:applicationId/reject", async (req, res) =
   } catch (error) {
     console.error("Error rejecting application:", error)
     res.status(500).json({ message: "Failed to reject application" })
+  }
+})
+
+// ============= COUPON MANAGEMENT ROUTES =============
+
+// Get all coupons
+router.get("/coupons", async (req, res) => {
+  try {
+    const coupons = await PromoCode.find().sort({ createdAt: -1 })
+    res.json({
+      success: true,
+      data: coupons
+    })
+  } catch (error) {
+    console.error("Error fetching coupons:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch coupons"
+    })
+  }
+})
+
+// Get single coupon
+router.get("/coupons/:id", async (req, res) => {
+  try {
+    const coupon = await PromoCode.findById(req.params.id)
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: "Coupon not found"
+      })
+    }
+    res.json({
+      success: true,
+      data: coupon
+    })
+  } catch (error) {
+    console.error("Error fetching coupon:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch coupon"
+    })
+  }
+})
+
+// Create new coupon
+router.post("/coupons", async (req, res) => {
+  try {
+    const {
+      code,
+      description,
+      discountType,
+      discountValue,
+      minimumAmount,
+      maximumDiscount,
+      validFrom,
+      validUntil,
+      usageLimit,
+      userUsageLimit,
+      isActive,
+      isGlobal,
+      applicableCourses,
+      applicableCategories,
+    } = req.body
+
+    // Validate required fields
+    if (!code || !description || !discountType || !discountValue || !validFrom || !validUntil) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      })
+    }
+
+    // Validate discount value
+    if (discountType === "percentage" && discountValue > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Percentage discount cannot exceed 100%"
+      })
+    }
+
+    // Check if code already exists
+    const existingCode = await PromoCode.findOne({ code: code.toUpperCase() })
+    if (existingCode) {
+      return res.status(400).json({
+        success: false,
+        message: "Coupon code already exists"
+      })
+    }
+
+    const newCoupon = new PromoCode({
+      code: code.toUpperCase(),
+      description,
+      discountType,
+      discountValue,
+      minimumAmount: minimumAmount || 0,
+      maximumDiscount: maximumDiscount || undefined,
+      validFrom,
+      validUntil,
+      usageLimit: usageLimit || undefined,
+      userUsageLimit: userUsageLimit || 1,
+      isActive: isActive !== undefined ? isActive : true,
+      isGlobal: isGlobal !== undefined ? isGlobal : true,
+      applicableCourses: applicableCourses || [],
+      applicableCategories: applicableCategories || [],
+      createdBy: req.user._id,
+    })
+
+    await newCoupon.save()
+
+    res.status(201).json({
+      success: true,
+      message: "Coupon created successfully",
+      data: newCoupon
+    })
+  } catch (error) {
+    console.error("Error creating coupon:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to create coupon",
+      error: error.message
+    })
+  }
+})
+
+// Update coupon
+router.put("/coupons/:id", async (req, res) => {
+  try {
+    const {
+      description,
+      discountType,
+      discountValue,
+      minimumAmount,
+      maximumDiscount,
+      validFrom,
+      validUntil,
+      usageLimit,
+      userUsageLimit,
+      isActive,
+      isGlobal,
+      applicableCourses,
+      applicableCategories,
+    } = req.body
+
+    const coupon = await PromoCode.findById(req.params.id)
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: "Coupon not found"
+      })
+    }
+
+    // Validate discount value
+    if (discountType && discountType === "percentage" && discountValue > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Percentage discount cannot exceed 100%"
+      })
+    }
+
+    // Update fields
+    if (description) coupon.description = description
+    if (discountType) coupon.discountType = discountType
+    if (discountValue) coupon.discountValue = discountValue
+    if (minimumAmount !== undefined) coupon.minimumAmount = minimumAmount
+    if (maximumDiscount !== undefined) coupon.maximumDiscount = maximumDiscount
+    if (validFrom) coupon.validFrom = validFrom
+    if (validUntil) coupon.validUntil = validUntil
+    if (usageLimit !== undefined) coupon.usageLimit = usageLimit || undefined
+    if (userUsageLimit) coupon.userUsageLimit = userUsageLimit
+    if (isActive !== undefined) coupon.isActive = isActive
+    if (isGlobal !== undefined) coupon.isGlobal = isGlobal
+    if (applicableCourses) coupon.applicableCourses = applicableCourses
+    if (applicableCategories) coupon.applicableCategories = applicableCategories
+
+    await coupon.save()
+
+    res.json({
+      success: true,
+      message: "Coupon updated successfully",
+      data: coupon
+    })
+  } catch (error) {
+    console.error("Error updating coupon:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to update coupon",
+      error: error.message
+    })
+  }
+})
+
+// Delete coupon
+router.delete("/coupons/:id", async (req, res) => {
+  try {
+    const coupon = await PromoCode.findByIdAndDelete(req.params.id)
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: "Coupon not found"
+      })
+    }
+
+    res.json({
+      success: true,
+      message: "Coupon deleted successfully",
+      data: coupon
+    })
+  } catch (error) {
+    console.error("Error deleting coupon:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete coupon",
+      error: error.message
+    })
   }
 })
 

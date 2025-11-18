@@ -68,9 +68,9 @@ const CoursesPage = () => {
   const fetchCategories = async () => {
     try {
       const response = await apiRequest("courses/meta/categories")
-      if (response.ok) {
-        const data = await response.json()
-        setCategories(data)
+      // apiRequest returns an object: { data, status, ok }
+      if (response && response.ok) {
+        setCategories(response.data || [])
       }
     } catch (error) {
       console.error("Error fetching categories:", error)
@@ -98,11 +98,12 @@ const CoursesPage = () => {
       })
 
       const response = await apiRequest(`courses?${queryParams}`)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch courses: ${response.statusText}`)
+      // apiRequest returns { data, status, ok }
+      if (!response || !response.ok) {
+        throw new Error(`Failed to fetch courses`)
       }
 
-      const data = await response.json()
+      const data = response.data
       if (!data || !Array.isArray(data.courses)) {
         throw new Error("Invalid response format from server")
       }

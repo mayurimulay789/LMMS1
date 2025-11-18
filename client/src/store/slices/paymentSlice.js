@@ -14,8 +14,7 @@ export const createPaymentOrder = createAsyncThunk(
         body: JSON.stringify({ courseId, amount, promoCode, billingInfo }),
       })
 
-      const data = await response.json()
-      return data
+      return response.data
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -35,8 +34,7 @@ export const verifyPayment = createAsyncThunk(
         body: JSON.stringify(paymentData),
       })
 
-      const data = await response.json()
-      return data
+      return response.data
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -54,8 +52,7 @@ export const fetchUserPayments = createAsyncThunk(
         },
       })
 
-      const data = await response.json()
-      return data
+      return response.data
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -75,8 +72,25 @@ export const validatePromoCode = createAsyncThunk(
         body: JSON.stringify({ code, courseId }),
       })
 
-      const data = await response.json()
-      return data
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
+
+export const fetchAvailableOffers = createAsyncThunk(
+  "payment/fetchAvailableOffers",
+  async (courseId, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState()
+      const response = await apiRequest(`payments/available-offers?courseId=${courseId}`, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      })
+
+      return response.data
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -96,8 +110,7 @@ export const requestRefund = createAsyncThunk(
         body: JSON.stringify({ paymentId, reason }),
       })
 
-      const data = await response.json()
-      return data
+      return response.data
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -112,8 +125,11 @@ const paymentSlice = createSlice({
     paymentHistory: [],
     promoCode: null,
     discount: 0,
+    discountType: null,
+    availableOffers: [],
     isLoading: false,
     isValidatingPromo: false,
+    isFetchingOffers: false,
     error: null,
   },
   reducers: {
@@ -121,6 +137,13 @@ const paymentSlice = createSlice({
       state.orderId = null
       state.paymentStatus = null
       state.error = null
+    },
+    clearPromo: (state) => {
+      state.promoCode = null
+      state.discount = 0
+      state.discountType = null
+      state.error = null
+      state.isValidatingPromo = false
     },
   },
   extraReducers: (builder) => {
@@ -154,15 +177,31 @@ const paymentSlice = createSlice({
         state.isValidatingPromo = false
         state.promoCode = action.payload.code
         state.discount = action.payload.discount
+        state.discountType = action.payload.discountType || null
       })
       .addCase(validatePromoCode.rejected, (state, action) => {
         state.isValidatingPromo = false
         state.promoCode = null
         state.discount = 0
+        state.discountType = null
+        state.error = action.payload
+      })
+      // Fetch Available Offers
+      .addCase(fetchAvailableOffers.pending, (state) => {
+        state.isFetchingOffers = true
+      })
+      .addCase(fetchAvailableOffers.fulfilled, (state, action) => {
+        state.isFetchingOffers = false
+        state.availableOffers = action.payload.offers || []
+      })
+      .addCase(fetchAvailableOffers.rejected, (state, action) => {
+        state.isFetchingOffers = false
+        state.availableOffers = []
         state.error = action.payload
       })
   },
 })
 
-export const { clearPaymentState } = paymentSlice.actions
+export const { clearPaymentState, clearPromo } = paymentSlice.actions
 export default paymentSlice.reducer
+

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { Eye, EyeOff, Mail, Lock, User, BookOpen } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, BookOpen, CheckCircle, X } from "lucide-react"
 import { registerUser, clearError } from "../store/slices/authSlice"
 
 const RegisterPage = () => {
@@ -23,29 +23,48 @@ const RegisterPage = () => {
     referrerName: "",
     message: ""
   })
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+  const [countdown, setCountdown] = useState(5)
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
   const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth)
 
+  // Countdown and navigate after success
   useEffect(() => {
-    if (isAuthenticated) {
-      const from = location.state?.from
-      if (from && from !== '/register') {
-        navigate(from, { replace: true })
+    if (showSuccessPopup) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer)
+            handleRedirect()
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+
+      return () => clearInterval(timer)
+    }
+  }, [showSuccessPopup])
+
+  const handleRedirect = () => {
+    const user = JSON.parse(localStorage.getItem("user"))
+    const from = location.state?.from
+
+    if (from && from !== '/register') {
+      navigate(from, { replace: true })
+    } else {
+      if (user?.role === "admin") {
+        navigate("/admin", { replace: true })
+      } else if (user?.role === "instructor") {
+        navigate("/instructor", { replace: true })
       } else {
-        const user = JSON.parse(localStorage.getItem("user"))
-        if (user?.role === "admin") {
-          navigate("/admin")
-        } else if (user?.role === "instructor") {
-          navigate("/instructor")
-        } else {
-          navigate("/dashboard")
-        }
+        navigate("/dashboard", { replace: true })
       }
     }
-  }, [isAuthenticated, navigate, location])
+  }
 
   useEffect(() => {
     return () => {
@@ -55,10 +74,9 @@ const RegisterPage = () => {
 
   const validateReferralCode = async (email) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/validate-referral?email=${email}`)
-      const data = await response.json()
-      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/validate-referral?email=${encodeURIComponent(email)}`)
       if (response.ok) {
+        const data = await response.json()
         setReferralStatus({
           isValid: true,
           referrerName: data.name,
@@ -71,7 +89,7 @@ const RegisterPage = () => {
           message: "Invalid referral code"
         })
       }
-    } catch (error) {
+    } catch {
       setReferralStatus({
         isValid: false,
         referrerName: "",
@@ -82,66 +100,31 @@ const RegisterPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-    // Clear field error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }))
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }))
+    if (error) dispatch(clearError())
 
-    // Validate referral code when it's entered
-    if (name === 'referralCode' && value) {
-      // Check if it's a valid email format first
-      if (/\S+@\S+\.\S+/.test(value)) {
-        validateReferralCode(value)
-      } else {
-        setReferralStatus({
-          isValid: false,
-          referrerName: "",
-          message: "Please enter a valid email address"
-        })
-      }
-    } else if (name === 'referralCode' && !value) {
-      // Clear referral status if field is empty
-      setReferralStatus({
-        isValid: false,
-        referrerName: "",
-        message: ""
-      })
+    // Referral code validation
+    if (name === "referralCode") {
+      if (value && /\S+@\S+\.\S+/.test(value)) validateReferralCode(value)
+      else if (!value) setReferralStatus({ isValid: false, referrerName: "", message: "" })
+      else setReferralStatus({ isValid: false, referrerName: "", message: "Please enter a valid email address" })
     }
   }
 
   const validateForm = () => {
     const newErrors = {}
+    if (!formData.name.trim()) newErrors.name = "Name is required"
+    else if (formData.name.trim().length < 2) newErrors.name = "Name must be at least 2 characters"
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required"
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = "Name must be at least 2 characters"
-    }
+    if (!formData.email.trim()) newErrors.email = "Email is required"
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid"
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid"
-    }
+    if (!formData.password) newErrors.password = "Password is required"
+    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters"
 
-    if (!formData.password) {
-      newErrors.password = "Password is required"
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password"
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match"
-    }
+    if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password"
+    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match"
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -149,17 +132,61 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
+    if (!validateForm()) return
 
     const { confirmPassword, ...userData } = formData
-    dispatch(registerUser(userData))
+
+    try {
+      await dispatch(registerUser(userData)).unwrap()
+      setShowSuccessPopup(true)
+      setCountdown(5) // Reset countdown to 5 seconds
+    } catch (err) {
+      console.error("Registration failed:", err)
+    }
+  }
+
+  // Simple Success Popup Component
+  const SuccessPopup = () => {
+    if (!showSuccessPopup) return null
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-sm w-full mx-auto p-6 text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="h-8 w-8 text-green-600" />
+          </div>
+          
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            Account Registered Successfully!
+          </h3>
+          
+          <p className="text-gray-600 mb-4">
+            You will be redirected to your dashboard in {countdown} seconds.
+          </p>
+
+          <div className="flex flex-col space-y-3">
+            <div className="flex items-center justify-center space-x-2 text-blue-600 text-sm">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <span>Redirecting in {countdown} seconds...</span>
+            </div>
+            
+            <button
+              onClick={handleRedirect}
+              className="text-sm text-red-600 hover:text-red-800 font-medium underline"
+            >
+              Click here to redirect immediately
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      {/* Success Popup */}
+      <SuccessPopup />
+
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -171,11 +198,13 @@ const RegisterPage = () => {
           <p className="text-gray-600">Join thousands of learners and start your journey today</p>
         </div>
 
-        {/* Form */}
         <div className="bg-white rounded-lg shadow-md p-8">
+          {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-red-600">
+                {typeof error === "string" ? error : "Registration failed. Please try again."}
+              </p>
             </div>
           )}
 
@@ -193,6 +222,7 @@ const RegisterPage = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  disabled={isLoading}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${
                     errors.name ? "border-red-500" : "border-gray-300"
                   }`}
@@ -215,6 +245,7 @@ const RegisterPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  disabled={isLoading}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                     errors.email ? "border-red-500" : "border-gray-300"
                   }`}
@@ -223,8 +254,6 @@ const RegisterPage = () => {
               </div>
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
-
-            {/* No role selection - defaults to student */}
 
             {/* Password */}
             <div>
@@ -239,6 +268,7 @@ const RegisterPage = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
+                  disabled={isLoading}
                   className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                     errors.password ? "border-red-500" : "border-gray-300"
                   }`}
@@ -247,7 +277,8 @@ const RegisterPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  disabled={isLoading}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -255,8 +286,6 @@ const RegisterPage = () => {
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
 
-
-          
             {/* Confirm Password */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
@@ -270,6 +299,7 @@ const RegisterPage = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  disabled={isLoading}
                   className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                     errors.confirmPassword ? "border-red-500" : "border-gray-300"
                   }`}
@@ -278,7 +308,8 @@ const RegisterPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  disabled={isLoading}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -286,8 +317,7 @@ const RegisterPage = () => {
               {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
             </div>
 
-
-  {/* Referral Code */}
+            {/* Referral */}
             <div>
               <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 mb-2">
                 Referral Code (Optional)
@@ -300,32 +330,36 @@ const RegisterPage = () => {
                   name="referralCode"
                   value={formData.referralCode}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg ${
-                    referralStatus.isValid 
-                      ? "border-green-500 focus:ring-green-500" 
+                  disabled={isLoading}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:border-transparent transition-colors ${
+                    referralStatus.isValid
+                      ? "border-green-500 focus:ring-green-500"
                       : referralStatus.message && !referralStatus.isValid
                       ? "border-red-500 focus:ring-red-500"
                       : "border-gray-300 focus:ring-blue-500"
-                  } focus:border-transparent transition-colors`}
+                  }`}
                   placeholder="Enter referrer's email (optional)"
                 />
               </div>
               {referralStatus.message && (
-                <p className={`mt-1 text-sm ${
-                  referralStatus.isValid ? "text-green-600" : "text-red-600"
-                }`}>
+                <p
+                  className={`mt-1 text-sm ${
+                    referralStatus.isValid ? "text-green-600" : "text-red-600"
+                  }`}
+                >
                   {referralStatus.message}
                 </p>
               )}
             </div>
 
-            {/* Terms and Conditions */}
+            {/* Terms */}
             <div className="flex items-center">
               <input
                 id="terms"
                 name="terms"
                 type="checkbox"
                 required
+                disabled={isLoading}
                 className="h-4 w-4 text-red-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
@@ -340,11 +374,11 @@ const RegisterPage = () => {
               </label>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+              className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center shadow-lg"
             >
               {isLoading ? (
                 <>
@@ -357,7 +391,7 @@ const RegisterPage = () => {
             </button>
           </form>
 
-          {/* Sign In Link */}
+          {/* Login link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{" "}

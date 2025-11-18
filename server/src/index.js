@@ -202,6 +202,10 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 // Static files
 app.use("/certificates", express.static(path.join(__dirname, "public/certificates")))
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")))
+// Serve actual uploaded files from the uploads directory created by multer
+// This ensures URLs like /uploads/<file> and /api/uploads/<file> resolve correctly
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")))
+app.use("/api/uploads", express.static(path.join(__dirname, "../uploads")))
 
 // MongoDB connection (original code)
 mongoose.connect(process.env.MONGODB_URI)

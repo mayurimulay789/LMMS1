@@ -35,7 +35,7 @@ router.post("/apply", async (req, res) => {
 
     // Send confirmation email to applicant
     try {
-      await sendInstructorApplicationEmail({
+      const applicantEmailResult = await sendInstructorApplicationEmail({
         applicantName,
         email,
         phone,
@@ -43,7 +43,13 @@ router.post("/apply", async (req, res) => {
         qualifications,
         motivation,
       });
+      if (applicantEmailResult.success) {
+        console.log('Application confirmation email sent to:', email);
+      } else {
+        console.log('Application confirmation email skipped (configuration missing):', applicantEmailResult.message);
+      }
     } catch (applicantEmailError) {
+      console.error('Application confirmation email failed:', applicantEmailError);
       // Don't fail the application if email fails
     }
 
@@ -59,7 +65,9 @@ router.post("/apply", async (req, res) => {
           motivation,
           applicationId: application._id,
         });
+        console.log('Admin notification email sent for application:', application._id);
       } catch (adminEmailError) {
+        console.error('Admin notification email failed:', adminEmailError);
         // Don't fail the application if admin email fails
       }
     }

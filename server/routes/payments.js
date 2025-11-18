@@ -193,6 +193,46 @@ router.post("/verify", auth, async (req, res) => {
 })
 
 
+// Get available offers for a course
+router.get("/available-offers", auth, async (req, res) => {
+  try {
+    const { courseId } = req.query
+
+    if (!courseId) {
+      return res.status(400).json({ message: "Course ID is required" })
+    }
+
+    // Fetch valid promo codes for the course
+    const offers = await PromoCode.find({
+      isActive: true,
+      validFrom: { $lte: new Date() },
+      validUntil: { $gte: new Date() },
+      $or: [
+        { isGlobal: true },
+        { applicableCourses: courseId }
+      ],
+      excludedCourses: { $ne: courseId },
+      $or: [
+        { usageLimit: { $exists: false } },
+        { $expr: { $lt: ["$usedCount", "$usageLimit"] } }
+      ]
+    }).select('code description discountType discountValue minimumAmount maximumDiscount').sort({ discountValue: -1 })
+
+    res.json({
+      offers: offers.map(offer => ({
+        code: offer.code,
+        description: offer.description,
+        discountType: offer.discountType,
+        discountValue: offer.discountValue,
+        minimumAmount: offer.minimumAmount || 0,
+        maximumDiscount: offer.maximumDiscount || null,
+      }))
+    })
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch available offers" })
+  }
+})
+
 // Validate promo code
 router.post("/validate-promo", auth, async (req, res) => {
   try {

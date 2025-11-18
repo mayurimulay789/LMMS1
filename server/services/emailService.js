@@ -1,12 +1,12 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: process.env.EMAIL_PORT || 587,
+  host: process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: process.env.SMTP_PORT || process.env.EMAIL_PORT || 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.SMTP_USER || process.env.EMAIL_USER,
+    pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
   },
 });
 
@@ -14,13 +14,21 @@ const sendInstructorApplicationEmail = async (applicationData) => {
   try {
     const { applicantName, email, phone, experience, qualifications, motivation } = applicationData;
 
-    console.log('Attempting to send email from:', process.env.EMAIL_USER ? process.env.EMAIL_USER.substring(0, 5) + '...' : 'MISSING');
+    // Check if email configuration is available
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.warn('Email configuration missing. Skipping application confirmation email send.');
+      console.log('SMTP_USER set:', !!process.env.SMTP_USER);
+      console.log('SMTP_PASS set:', !!process.env.SMTP_PASS);
+      return { success: false, message: 'Email configuration missing' };
+    }
+
+    console.log('Attempting to send email from:', process.env.SMTP_USER ? process.env.SMTP_USER.substring(0, 5) + '...' : 'MISSING');
     console.log('To:', email);
-    console.log('Host:', process.env.EMAIL_HOST || 'DEFAULT');
-    console.log('Port:', process.env.EMAIL_PORT || 'DEFAULT');
+    console.log('Host:', process.env.SMTP_HOST || 'DEFAULT');
+    console.log('Port:', process.env.SMTP_PORT || 'DEFAULT');
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: 'Instructor Application Received - LearnHub',
       html: `
@@ -77,7 +85,7 @@ const sendAdminApplicationNotification = async (applicationData) => {
     console.log('To admin:', process.env.ADMIN_EMAIL || 'MISSING');
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL,
       subject: `New Instructor Application Received - ${applicantName}`,
       html: `
@@ -134,10 +142,18 @@ const sendInstructorApprovalEmail = async ({ applicantName, email, loginLink }) 
   try {
     console.log('Sending approval email to:', email);
 
+    // Check if email configuration is available
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.warn('Email configuration missing. Skipping email send.');
+      console.log('SMTP_USER set:', !!process.env.SMTP_USER);
+      console.log('SMTP_PASS set:', !!process.env.SMTP_PASS);
+      return { success: false, message: 'Email configuration missing' };
+    }
+
     const linkToUse = loginLink || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: 'Congratulations! Your Instructor Application is Approved - LearnHub',
       html: `
@@ -195,7 +211,7 @@ const sendInstructorRejectionEmail = async ({ applicantName, email }) => {
     console.log('Sending rejection email to:', email);
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: 'Update on Your Instructor Application - LearnHub',
       html: `

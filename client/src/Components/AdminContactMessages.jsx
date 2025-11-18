@@ -28,7 +28,7 @@ const AdminContactMessages = () => {
       })
 
       if (response.ok) {
-        const data = await response.json()
+        const data = response.data
         setContacts(data.contacts || [])
         setStats(data.stats || null)
       } else {

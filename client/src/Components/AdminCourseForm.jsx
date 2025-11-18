@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, Upload, X, Save, Eye, Edit, Trash2, Clock } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Plus, Upload, X, Save, Eye, Edit, Trash2, Clock, AlertCircle, Play, Pause, CheckCircle } from "lucide-react"
 import { getImageWithFallback } from "../utils/imageUtils"
 
 const AdminCourseForm = () => {
@@ -15,7 +15,7 @@ const AdminCourseForm = () => {
     price: "",
     level: "Beginner",
     thumbnail: null,
-    thumbnailSource: null, // 'upload' or 'link'
+    thumbnailSource: null,
     modules: [{
       id: Date.now(),
       name: "Module 1: Introduction",
@@ -24,8 +24,21 @@ const AdminCourseForm = () => {
     }],
   })
   const [isLoading, setIsLoading] = useState(true)
-  const [thumbnailMode, setThumbnailMode] = useState('upload') // 'upload' or 'link'
+  const [thumbnailMode, setThumbnailMode] = useState('upload')
   const [thumbnailLink, setThumbnailLink] = useState('')
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadSpeed, setUploadSpeed] = useState('')
+  const [uploadError, setUploadError] = useState(null)
+  const [uploadWarning, setUploadWarning] = useState(null)
+  const [uploadTime, setUploadTime] = useState(0)
+  const fileInputRef = useRef(null)
+
+  // File size limits (in bytes)
+  const FILE_SIZE_LIMITS = {
+    image: 5 * 1024 * 1024, // 5MB
+    video: 150 * 1024 * 1024, // 150MB
+  }
 
   // Helper functions for YouTube URLs
   const isYouTubeURL = (url) => {
@@ -37,7 +50,6 @@ const AdminCourseForm = () => {
   const getYouTubeThumbnail = (url) => {
     if (!isYouTubeURL(url)) return url
     
-    // Extract video ID from various YouTube URL formats
     let videoId = null
     
     if (url.includes('youtube.com/watch?v=')) {
@@ -51,6 +63,49 @@ const AdminCourseForm = () => {
     return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : url
   }
 
+  // Validate file before upload
+  const validateFile = (file, type) => {
+    const maxSize = type === 'thumbnail' ? FILE_SIZE_LIMITS.video : FILE_SIZE_LIMITS.video
+    
+    if (file.size > maxSize) {
+      const sizeInMB = (maxSize / (1024 * 1024)).toFixed(0)
+      throw new Error(`File too large. Maximum size for ${type} is ${sizeInMB}MB`)
+    }
+
+    // Validate file types
+    if (type === 'thumbnail') {
+      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/mov', 'video/avi', 'video/x-matroska']
+      
+      if (!validImageTypes.includes(file.type) && !validVideoTypes.includes(file.type)) {
+        throw new Error('Invalid file type. Please upload an image (JPEG, PNG, GIF, WebP) or video (MP4, WebM, OGG, MOV, AVI, MKV)')
+      }
+    }
+
+    return true
+  }
+
+  // Format file size for display
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  // Calculate upload speed
+  const calculateUploadSpeed = (bytesLoaded, timeElapsed) => {
+    const bytesPerSecond = bytesLoaded / (timeElapsed / 1000)
+    if (bytesPerSecond > 1024 * 1024) {
+      return (bytesPerSecond / (1024 * 1024)).toFixed(2) + ' MB/s'
+    } else if (bytesPerSecond > 1024) {
+      return (bytesPerSecond / 1024).toFixed(2) + ' KB/s'
+    } else {
+      return bytesPerSecond.toFixed(2) + ' B/s'
+    }
+  }
+
   const handleThumbnailLinkAdd = async () => {
     if (thumbnailLink.trim()) {
       setFormData(prev => ({
@@ -58,33 +113,6 @@ const AdminCourseForm = () => {
         thumbnail: thumbnailLink.trim(),
         thumbnailSource: 'link'
       }))
-      
-      // Optional: Validate URL in background (no blocking)
-      try {
-        const token = localStorage.getItem("token")
-        const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
-        
-        fetch(`${API_BASE_URL}/upload/validate-url`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ url: thumbnailLink.trim() }),
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log('URL validation result:', data)
-          if (!data.success) {
-            console.warn('URL may not be accessible:', data.data?.error)
-          }
-        })
-        .catch(error => {
-          console.log('URL validation failed (non-blocking):', error)
-        })
-      } catch (error) {
-        console.log('URL validation error (non-blocking):', error)
-      }
     }
   }
 
@@ -109,7 +137,6 @@ const AdminCourseForm = () => {
       }
     } catch (error) {
       console.error("Error fetching courses:", error)
-      // Show empty state instead of mock data
       setCourses([])
     } finally {
       setIsLoading(false)
@@ -125,47 +152,134 @@ const AdminCourseForm = () => {
   }
 
   const handleFileUpload = async (file, type) => {
-    const formDataUpload = new FormData()
-    formDataUpload.append(type === 'thumbnail' ? 'thumbnail' : 'video', file)
+    setIsUploading(true)
+    setUploadProgress(0)
+    setUploadSpeed('')
+    setUploadTime(0)
+    setUploadError(null)
+    setUploadWarning(null)
 
-    // Use correct endpoints based on file type
-    const endpoint = type === 'thumbnail' ? 'course-media' : 'lesson-video'
+    const startTime = Date.now()
+    let loaded = 0
 
     try {
-      const token = localStorage.getItem("token")
-      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
-      const response = await fetch(`${API_BASE_URL}/upload/${endpoint}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formDataUpload,
+      console.log('Starting optimized file upload:', {
+        name: file.name,
+        type: file.type,
+        size: formatFileSize(file.size),
+        isLarge: file.size > 50 * 1024 * 1024
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Upload successful:', data)
-        console.log('File type:', data.data.type)
-        console.log('File URL:', data.data.url)
-        return data.data.url
-      } else {
-        const errorData = await response.json()
-        console.error('Upload failed:', errorData)
-        return null
+      // Validate file first
+      validateFile(file, type)
+
+      const formDataUpload = new FormData()
+      formDataUpload.append(type === 'thumbnail' ? 'thumbnail' : 'video', file)
+
+      const endpoint = type === 'thumbnail' ? 'course-media' : 'lesson-video'
+
+      const token = localStorage.getItem("token")
+      if (!token) {
+        throw new Error('No authentication token found. Please log in again.')
       }
+
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      
+      console.log('Uploading to:', `${API_BASE_URL}/upload/${endpoint}`)
+
+      // Use XMLHttpRequest for better progress tracking
+      const xhr = new XMLHttpRequest()
+      
+      return new Promise((resolve, reject) => {
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            loaded = event.loaded
+            const percentComplete = (event.loaded / event.total) * 100
+            const currentTime = Date.now()
+            const timeElapsed = currentTime - startTime
+            
+            setUploadProgress(Math.round(percentComplete))
+            setUploadSpeed(calculateUploadSpeed(loaded, timeElapsed))
+            setUploadTime(timeElapsed)
+            
+            console.log(`Upload progress: ${Math.round(percentComplete)}% - ${calculateUploadSpeed(loaded, timeElapsed)}`)
+          }
+        })
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText)
+            console.log('Upload successful:', data)
+            
+            const totalTime = Date.now() - startTime
+            const averageSpeed = calculateUploadSpeed(file.size, totalTime)
+            
+            console.log(`Upload completed in ${(totalTime / 1000).toFixed(2)}s - Average speed: ${averageSpeed}`)
+            
+            if (!data.success) {
+              reject(new Error(data.message || 'Upload failed: Server returned unsuccessful response'))
+            } else if (!data.data?.url) {
+              reject(new Error('Upload failed: No URL returned from server'))
+            } else {
+              // Show optimization tips for large files
+              if (file.size > 50 * 1024 * 1024) {
+                setUploadWarning(`Large file uploaded successfully (${formatFileSize(file.size)}) in ${(totalTime / 1000).toFixed(2)}s. Consider compressing videos for better performance.`)
+              }
+              
+              resolve(data.data.url)
+            }
+          } else {
+            let errorData
+            try {
+              errorData = JSON.parse(xhr.responseText)
+            } catch (e) {
+              errorData = { message: `Upload failed with status: ${xhr.status}` }
+            }
+            reject(new Error(errorData.message || errorData.error || `Upload failed: ${xhr.status}`))
+          }
+        })
+
+        xhr.addEventListener('error', () => {
+          reject(new Error('Upload failed due to network error. Please check your connection.'))
+        })
+
+        xhr.addEventListener('timeout', () => {
+          reject(new Error('Upload timeout. Please try again with a smaller file or better connection.'))
+        })
+
+        // Set longer timeout for large files (10 minutes)
+        xhr.timeout = 10 * 60 * 1000
+
+        xhr.open('POST', `${API_BASE_URL}/upload/${endpoint}`)
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+        xhr.send(formDataUpload)
+      })
+
     } catch (error) {
       console.error(`Error uploading ${type}:`, error)
+      setUploadError(error.message)
+      throw error
+    } finally {
+      setIsUploading(false)
     }
-    return null
   }
 
   const handleThumbnailUpload = async (e) => {
     const file = e.target.files[0]
-    if (file) {
-      console.log('Selected file:', file)
-      console.log('File type:', file.type)
-      console.log('File name:', file.name)
+    if (!file) return
 
+    // Reset the input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+
+    console.log('Selected file for thumbnail:', {
+      name: file.name,
+      size: formatFileSize(file.size),
+      type: file.type
+    })
+
+    try {
       const url = await handleFileUpload(file, "thumbnail")
       if (url) {
         console.log('Setting thumbnail URL:', url)
@@ -174,23 +288,25 @@ const AdminCourseForm = () => {
           thumbnail: url,
           thumbnailSource: 'upload'
         }))
-
-        // Test if video URL is accessible
-        if (url.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i)) {
-          console.log('Testing video URL accessibility...')
-          fetch(url, { method: 'HEAD' })
-            .then(response => {
-              console.log('Video URL accessibility test:', response.status, response.statusText)
-            })
-            .catch(error => {
-              console.error('Video URL accessibility test failed:', error)
-            })
-        }
       }
+    } catch (error) {
+      console.error('Upload error:', error)
+      // Error is already displayed via uploadError state
     }
   }
 
-
+  // Optimize video before upload (client-side compression suggestion)
+  const suggestOptimization = (file) => {
+    if (file.type.startsWith('video/') && file.size > 50 * 1024 * 1024) {
+      return {
+        suggestion: "Consider compressing this video for faster upload and better performance",
+        originalSize: formatFileSize(file.size),
+        targetSize: "20-50MB",
+        tools: ["HandBrake", "FFmpeg", "Online video compressors"]
+      }
+    }
+    return null
+  }
 
   const addModule = () => {
     const newModuleOrder = formData.modules.length + 1
@@ -313,6 +429,8 @@ const AdminCourseForm = () => {
         }))
       }
 
+      console.log('Submitting course data:', submitData)
+
       const response = await fetch(url, {
         method: editingCourse ? "PUT" : "POST",
         headers: {
@@ -325,9 +443,14 @@ const AdminCourseForm = () => {
       if (response.ok) {
         resetForm()
         fetchCourses()
+        alert(editingCourse ? "Course updated successfully!" : "Course created successfully!")
+      } else {
+        const errorData = await response.json()
+        alert(`Error: ${errorData.message || 'Failed to save course'}`)
       }
     } catch (error) {
       console.error("Error saving course:", error)
+      alert("Error saving course. Please try again.")
     }
   }
 
@@ -351,6 +474,12 @@ const AdminCourseForm = () => {
     setEditingCourse(null)
     setThumbnailMode('upload')
     setThumbnailLink('')
+    setIsUploading(false)
+    setUploadProgress(0)
+    setUploadSpeed('')
+    setUploadTime(0)
+    setUploadError(null)
+    setUploadWarning(null)
   }
 
   const startEditing = (course) => {
@@ -372,7 +501,6 @@ const AdminCourseForm = () => {
     })
     setIsCreating(true)
     
-    // Set thumbnail mode and link based on existing data
     if (course.thumbnailSource === 'link') {
       setThumbnailMode('link')
       setThumbnailLink(course.thumbnail || '')
@@ -396,9 +524,11 @@ const AdminCourseForm = () => {
 
         if (response.ok) {
           fetchCourses()
+          alert("Course deleted successfully!")
         }
       } catch (error) {
         console.error("Error deleting course:", error)
+        alert("Error deleting course. Please try again.")
       }
     }
   }
@@ -418,7 +548,7 @@ const AdminCourseForm = () => {
       if (response.ok) {
         const data = await response.json()
         alert(`Duration recalculated successfully! Total duration: ${data.course.duration} minutes`)
-        fetchCourses() // Refresh the courses list
+        fetchCourses()
       } else {
         const errorData = await response.json()
         alert(`Error recalculating duration: ${errorData.message}`)
@@ -428,8 +558,6 @@ const AdminCourseForm = () => {
       alert("Error recalculating course duration")
     }
   }
-
-
 
   if (isLoading) {
     return (
@@ -522,8 +650,6 @@ const AdminCourseForm = () => {
                 />
               </div>
 
-
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
                 <select
@@ -553,12 +679,73 @@ const AdminCourseForm = () => {
               />
             </div>
 
-
-
             {/* Thumbnail Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Course Thumbnail</label>
               
+              {/* Upload Progress */}
+              {isUploading && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <span className="text-sm font-medium text-blue-700">Uploading...</span>
+                    </div>
+                    <div className="text-sm text-blue-600">
+                      {uploadProgress}%
+                    </div>
+                  </div>
+                  <div className="w-full bg-blue-200 rounded-full h-2 mb-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-xs text-blue-600">
+                    <span>Speed: {uploadSpeed}</span>
+                    <span>Time: {(uploadTime / 1000).toFixed(1)}s</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Upload Warning */}
+              {uploadWarning && (
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-center">
+                    <AlertCircle className="h-4 w-4 text-yellow-600 mr-2" />
+                    <div className="text-yellow-700 text-sm">
+                      {uploadWarning}
+                    </div>
+                    <button
+                      onClick={() => setUploadWarning(null)}
+                      className="ml-auto text-yellow-600 hover:text-yellow-800"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Upload Error */}
+              {uploadError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="text-red-600 text-sm">
+                      <strong>Upload failed:</strong> {uploadError}
+                    </div>
+                    <button
+                      onClick={() => setUploadError(null)}
+                      className="ml-auto text-red-500 hover:text-red-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="mt-2 text-xs text-red-500">
+                    Try using a smaller file or different format. You can also use external URLs.
+                  </div>
+                </div>
+              )}
+
               {/* Thumbnail Options Tabs */}
               <div className="flex space-x-1 mb-4">
                 <button
@@ -590,89 +777,66 @@ const AdminCourseForm = () => {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-4">
                     <input
+                      ref={fileInputRef}
                       type="file"
                       accept="image/*,video/*"
                       onChange={handleThumbnailUpload}
                       className="hidden"
                       id="thumbnail-upload"
+                      disabled={isUploading}
                     />
                     <label
                       htmlFor="thumbnail-upload"
-                      className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 flex items-center space-x-2 min-w-[200px]"
+                      className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer flex items-center space-x-2 min-w-[200px] ${
+                        isUploading 
+                          ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed' 
+                          : 'bg-gray-50 border-gray-300 hover:bg-gray-100 text-gray-600'
+                      }`}
                     >
-                      <Upload className="h-5 w-5 text-gray-400" />
-                      <span className="text-sm text-gray-600">Upload Thumbnail</span>
+                      <Upload className="h-5 w-5" />
+                      <span className="text-sm">
+                        {isUploading ? 'Uploading...' : 'Upload Thumbnail'}
+                      </span>
                     </label>
                     {formData.thumbnail && formData.thumbnailSource === 'upload' && (
                       <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center relative">
-                        {formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
+                        {formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv)$/i) ? (
                           <video
                             src={formData.thumbnail}
                             className="h-full w-full object-cover"
                             muted
                             controls={false}
                             preload="metadata"
-                            onMouseEnter={(e) => {
-                              e.target.play().catch(err => console.log('Video play failed:', err))
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.pause()
-                              e.target.currentTime = 0
-                            }}
-                            onError={(e) => {
-                              console.log('Video load error:', e)
-                              e.target.style.display = 'none'
-                              const fallback = e.target.parentElement.querySelector('.video-fallback') || document.createElement('div')
-                              fallback.className = 'video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                              fallback.textContent = 'VIDEO'
-                              if (!e.target.parentElement.querySelector('.video-fallback')) {
-                                e.target.parentElement.appendChild(fallback)
-                              }
-                            }}
-                            onLoadedData={(e) => {
-                              console.log('Video loaded successfully')
-                              const fallback = e.target.parentElement.querySelector('.video-fallback')
-                              if (fallback) fallback.remove()
-                            }}
                           />
                         ) : (
                           <img
                             src={formData.thumbnail}
                             alt="Thumbnail preview"
                             className="h-full w-full object-cover"
-                            onError={(e) => {
-                              console.log('Image load error:', e)
-                              e.target.style.display = 'none'
-                              const fallback = e.target.parentElement.querySelector('.image-fallback') || document.createElement('div')
-                              fallback.className = 'image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                              fallback.textContent = 'IMG'
-                              if (!e.target.parentElement.querySelector('.image-fallback')) {
-                                e.target.parentElement.appendChild(fallback)
-                              }
-                            }}
-                            onLoad={(e) => {
-                              console.log('Image loaded successfully')
-                              const fallback = e.target.parentElement.querySelector('.image-fallback')
-                              if (fallback) fallback.remove()
-                            }}
                           />
                         )}
                         <button
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, thumbnail: null, thumbnailSource: null }))}
                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          disabled={isUploading}
                         >
                           <X className="h-3 w-3" />
                         </button>
                       </div>
                     )}
                   </div>
-                  {formData.thumbnailSource === 'upload' && formData.thumbnail && (
-                    <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
-                      ✓ Uploaded to Cloudinary: {formData.thumbnail}
+                  {formData.thumbnailSource === 'upload' && formData.thumbnail && !isUploading && (
+                    <div className="text-xs text-green-600 bg-green-50 p-2 rounded flex items-center space-x-2">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>File uploaded successfully</span>
                     </div>
                   )}
-                  <p className="text-xs text-gray-500">Supports: Images (JPG, PNG, GIF) and Videos (MP4, WebM, MOV)</p>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>✅ Supports: Images (JPG, PNG, GIF, WebP) up to 5MB</p>
+                    <p>✅ Videos (MP4, WebM, OGG, MOV, AVI, MKV) up to 150MB</p>
+                   
+                  </div>
                 </div>
               )}
 
@@ -703,47 +867,20 @@ const AdminCourseForm = () => {
                             src={getYouTubeThumbnail(formData.thumbnail)}
                             alt="YouTube thumbnail"
                             className="h-full w-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = 'none'
-                              const fallback = e.target.parentElement.querySelector('.yt-fallback') || document.createElement('div')
-                              fallback.className = 'yt-fallback absolute inset-0 flex items-center justify-center bg-red-100 text-xs text-red-600 font-medium'
-                              fallback.textContent = 'YT'
-                              if (!e.target.parentElement.querySelector('.yt-fallback')) {
-                                e.target.parentElement.appendChild(fallback)
-                              }
-                            }}
                           />
-                        ) : formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
+                        ) : formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv)$/i) ? (
                           <video
                             src={formData.thumbnail}
                             className="h-full w-full object-cover"
                             muted
                             controls={false}
                             preload="metadata"
-                            onError={(e) => {
-                              e.target.style.display = 'none'
-                              const fallback = e.target.parentElement.querySelector('.video-fallback') || document.createElement('div')
-                              fallback.className = 'video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                              fallback.textContent = 'VIDEO'
-                              if (!e.target.parentElement.querySelector('.video-fallback')) {
-                                e.target.parentElement.appendChild(fallback)
-                              }
-                            }}
                           />
                         ) : (
                           <img
                             src={formData.thumbnail}
                             alt="External thumbnail"
                             className="h-full w-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = 'none'
-                              const fallback = e.target.parentElement.querySelector('.ext-fallback') || document.createElement('div')
-                              fallback.className = 'ext-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                              fallback.textContent = 'EXT'
-                              if (!e.target.parentElement.querySelector('.ext-fallback')) {
-                                e.target.parentElement.appendChild(fallback)
-                              }
-                            }}
                           />
                         )}
                         <button
@@ -759,7 +896,7 @@ const AdminCourseForm = () => {
                       </div>
                       <div className="flex-1">
                         <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                          ✓ External Link Applied: {formData.thumbnail}
+                          ✓ External Link Applied
                         </div>
                         {isYouTubeURL(formData.thumbnail) && (
                           <div className="text-xs text-purple-600 bg-purple-50 p-1 rounded mt-1">
@@ -770,7 +907,7 @@ const AdminCourseForm = () => {
                     </div>
                   )}
                   <p className="text-xs text-gray-500">
-                    Supports: YouTube URLs, direct image links, video links (no validation - ensure links are accessible)
+                    Supports: YouTube URLs, direct image links, video links
                   </p>
                 </div>
               )}
@@ -880,12 +1017,14 @@ const AdminCourseForm = () => {
                 type="button"
                 onClick={resetForm}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                disabled={isUploading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                disabled={isUploading}
               >
                 <Save className="h-4 w-4" />
                 <span>{editingCourse ? "Update Course" : "Create Course"}</span>
@@ -907,45 +1046,19 @@ const AdminCourseForm = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                    {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
+                    {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv)$/i) ? (
                       <video
                         src={course.thumbnail}
                         className="h-full w-full object-cover"
                         muted
                         controls={false}
                         preload="metadata"
-                        onError={(e) => {
-                          console.log('Course video load error:', e)
-                          console.log('Course video src:', course.thumbnail)
-                          e.target.style.display = 'none'
-                          const fallback = e.target.parentElement.querySelector('.course-video-fallback') || document.createElement('div')
-                          fallback.className = 'course-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-600 font-medium'
-                          fallback.textContent = 'VIDEO'
-                          if (!e.target.parentElement.querySelector('.course-video-fallback')) {
-                            e.target.parentElement.appendChild(fallback)
-                          }
-                        }}
-                        onLoadedData={(e) => {
-                          console.log('Course video loaded successfully')
-                          const fallback = e.target.parentElement.querySelector('.course-video-fallback')
-                          if (fallback) fallback.remove()
-                        }}
                       />
                     ) : (
                       <img
                         src={getImageWithFallback(course.thumbnail, 'thumbnail', { title: course.title, category: course.category })}
                         alt={course.title}
                         className="h-full w-full object-cover"
-                        onError={(e) => {
-                          console.log('Course image load error:', e)
-                          console.log('Course image src:', course.thumbnail)
-                          e.target.style.display = 'none'
-                          // Removed fallback block to prevent big block display
-                        }}
-                        onLoad={() => {
-                          console.log('Course image loaded successfully')
-                          // Removed fallback block removal
-                        }}
                       />
                     )}
                   </div>

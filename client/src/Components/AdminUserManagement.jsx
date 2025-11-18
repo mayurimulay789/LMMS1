@@ -121,7 +121,8 @@ const AdminUserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await api.get('/admin/users')
+      // Fetch all users without pagination for proper filtering
+      const response = await api.get('/admin/users?limit=10000')
       setUsers(response.data.users || [])
     } catch (error) {
       console.error('Error fetching users:', error)
