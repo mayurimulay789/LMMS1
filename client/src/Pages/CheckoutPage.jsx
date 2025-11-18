@@ -319,7 +319,7 @@ const CheckoutPage = () => {
                 <button
                   type="submit"
                   disabled={isValidatingPromo || !promoCodeInput.trim()}
-                  className="px-4 sm:px-6 py-2 sm:py-3 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap"
+                  className="px-4 sm:px-6 py-2 sm:py-3 text-white transition-colors bg-rose-700 rounded-lg hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap"
                 >
                   {isValidatingPromo ? "Validating..." : "Apply"}
                 </button>

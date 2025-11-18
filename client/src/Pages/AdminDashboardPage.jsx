@@ -1,14 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Users, BookOpen, TrendingUp, Download, } from "lucide-react"
+import { Users, BookOpen, TrendingUp, Download } from "lucide-react"
 import AdminReportsChart from "../Components/AdminReportsChart"
 import AdminUserManagement from "../Components/AdminUserManagement"
 import AdminCourseForm from "../Components/AdminCourseForm"
 import AdminInstructorApplications from "../Components/AdminInstructorApplications"
 import AdminContactMessages from "../Components/AdminContactMessages"
-
-
 import { IndianRupee } from "lucide-react"
 
 // Custom Indian Rupee Icon component
@@ -105,13 +103,13 @@ const AdminDashboardPage = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600">Manage your LMS platform</p>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">Admin Dashboard</h1>
+              <p className="text-gray-600 text-sm sm:text-base">Manage your LMS platform</p>
             </div>
-            <div className="flex space-x-4">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+            <div className="flex-shrink-0 w-full sm:w-auto">
+              <button className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base">
                 <Download className="h-4 w-4" />
                 <span>Export Data</span>
               </button>
@@ -121,14 +119,14 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b overflow-x-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-8 min-w-max">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                   activeTab === tab.id
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -142,21 +140,21 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {activeTab === "overview" && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {statCards.map((stat, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm p-6">
+                <div key={index} className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <p className="text-sm text-green-600 mt-1">{stat.change} from last month</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-1 truncate">{stat.title}</p>
+                      <p className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{stat.value}</p>
+                      <p className="text-xs sm:text-sm text-green-600 mt-1 truncate">{stat.change} from last month</p>
                     </div>
-                    <div className={`w-12 h-12 rounded-lg ${stat.color} flex items-center justify-center`}>
-                      <stat.icon className="h-6 w-6 text-white" />
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${stat.color} flex items-center justify-center flex-shrink-0 ml-3`}>
+                      <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                   </div>
                 </div>
@@ -164,7 +162,7 @@ const AdminDashboardPage = () => {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
               <AdminReportsChart type="revenue" />
               <AdminReportsChart type="enrollments" />
             </div>
@@ -174,7 +172,7 @@ const AdminDashboardPage = () => {
         {activeTab === "users" && <AdminUserManagement />}
         {activeTab === "courses" && <AdminCourseForm />}
         {activeTab === "reports" && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             <AdminReportsChart type="detailed" />
           </div>
         )}
