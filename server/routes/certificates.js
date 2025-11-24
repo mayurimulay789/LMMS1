@@ -94,7 +94,6 @@ const skills = extractSkillsFromCourse(course)
       },
     })
   } catch (error) {
-    console.error("Certificate generation error:", error)
     res.status(500).json({ message: error.message || "Failed to generate certificate" })
   }
 })
@@ -107,7 +106,6 @@ router.get("/me", auth, async (req, res) => {
 
     res.json(certificates)
   } catch (error) {
-    console.error("Get certificates error:", error)
     res.status(500).json({ message: "Failed to fetch certificates" })
   }
 })
@@ -124,7 +122,7 @@ router.get("/:certificateId", async (req, res) => {
       .populate("course", "title instructor description")
 
     if (!certificate) {
-      console.log("Certificate fetch failed for ID:", certificateId)
+
       return res.status(404).json({ message: "Certificate not found" })
     }
 

@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, X, Send } from "lucide-react"
+import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, X, Send, Download, Eye } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { apiRequest } from "../config/api"
 
 const CourseDetailPage = () => {
   const { id } = useParams()
@@ -15,20 +16,21 @@ const CourseDetailPage = () => {
   const [activeTab, setActiveTab] = useState("overview")
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [userProgress, setUserProgress] = useState(null)
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
-  const [showVideoControls, setShowVideoControls] = useState(false)
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [videoError, setVideoError] = useState("")
   const [relatedCourses, setRelatedCourses] = useState([])
   const [relatedCoursesLoading, setRelatedCoursesLoading] = useState(false)
   const [reviews, setReviews] = useState([])
   const [comment, setComment] = useState("")
   const [rating, setRating] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [successMessage, setSuccessMessage] = useState("")
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [completedVideos, setCompletedVideos] = useState(new Set())
   const [showReviewPrompt, setShowReviewPrompt] = useState(false)
+  const [userCertificates, setUserCertificates] = useState([])
+  const [certificatesLoading, setCertificatesLoading] = useState(false)
 
-  const videoRef = useRef(null)
+  const modalVideoRef = useRef(null)
   
   useEffect(() => {
     fetchCourseDetails()
@@ -52,6 +54,20 @@ const CourseDetailPage = () => {
     }
   }, [completedVideos, course, id])
 
+  // Reset video error when modal closes
+  useEffect(() => {
+    if (!showVideoModal) {
+      setVideoError("")
+    }
+  }, [showVideoModal])
+
+  // Fetch all user certificates when certificate tab is active
+  useEffect(() => {
+    if (activeTab === "certificate" && isAuthenticated) {
+      fetchUserCertificates()
+    }
+  }, [activeTab, isAuthenticated])
+
   const fetchCourseDetails = async () => {
     try {
       setIsLoading(true)
@@ -70,20 +86,37 @@ const CourseDetailPage = () => {
       })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Server error:", errorData);
-        setCourse(null);
-        return;
+        // Try to parse JSON error body safely
+        let errorData = null
+        try {
+          errorData = await response.json()
+        } catch (e) {
+          errorData = { message: response.statusText }
+        }
+        console.error("Server error:", errorData)
+        setCourse(null)
+        return
       }
 
       const data = await response.json()
       console.log("Fetched course:", data)
+
+      // Handle different response structures
+      let courseData = null
       if (data && data._id) {
-        setCourse(data)
-        setIsEnrolled(data.isEnrolled)
-        setUserProgress(data.userProgress)
-        if (data.category) {
-          fetchRelatedCourses(data.category)
+        courseData = data
+      } else if (data.data && data.data._id) {
+        courseData = data.data
+      } else if (data.course && data.course._id) {
+        courseData = data.course
+      }
+
+      if (courseData) {
+        setCourse(courseData)
+        setIsEnrolled(courseData.isEnrolled)
+        setUserProgress(courseData.userProgress)
+        if (courseData.category) {
+          fetchRelatedCourses(courseData.category)
         }
       } else {
         console.error("Invalid course data received:", data)
@@ -132,6 +165,101 @@ const CourseDetailPage = () => {
     }
   }
 
+  // Fetch user certificates from the same endpoint as CertificatesPage
+  const fetchUserCertificates = async () => {
+    if (!isAuthenticated) return;
+
+    setCertificatesLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      
+      // Use the same endpoint as your CertificatesPage component
+      const response = await fetch("/api/certificates/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch certificates");
+      }
+
+      const data = await response.json();
+      console.log("Fetched user certificates:", data);
+      
+      // Handle different response structures
+      let certificatesData = [];
+      if (Array.isArray(data)) {
+        certificatesData = data;
+      } else if (data.certificates && Array.isArray(data.certificates)) {
+        certificatesData = data.certificates;
+      } else if (data.data && Array.isArray(data.data)) {
+        certificatesData = data.data;
+      }
+      
+      setUserCertificates(certificatesData);
+      
+    } catch (error) {
+      console.error("Error fetching user certificates:", error);
+      // If the main endpoint fails, try alternative endpoints
+      try {
+        await fetchUserCertificatesFallback();
+      } catch (fallbackError) {
+        console.error("All certificate fetch attempts failed:", fallbackError);
+        setUserCertificates([]);
+      }
+    } finally {
+      setCertificatesLoading(false);
+    }
+  };
+
+  // Fallback method to fetch certificates from alternative endpoints
+  const fetchUserCertificatesFallback = async () => {
+    const token = localStorage.getItem("token");
+    const endpoints = [
+      `${import.meta.env.VITE_API_URL}/certificates/user/my-certificates`,
+      `${import.meta.env.VITE_API_URL}/certificates/my-certificates`,
+      `${import.meta.env.VITE_API_URL}/certificates/user`,
+      `${import.meta.env.VITE_API_URL}/certificates`,
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`Trying fallback endpoint: ${endpoint}`);
+        const response = await fetch(endpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`Successfully fetched from fallback: ${endpoint}`, data);
+          
+          let certificatesData = [];
+          if (Array.isArray(data)) {
+            certificatesData = data;
+          } else if (data.certificates && Array.isArray(data.certificates)) {
+            certificatesData = data.certificates;
+          } else if (data.data && Array.isArray(data.data)) {
+            certificatesData = data.data;
+          }
+          
+          if (certificatesData.length > 0) {
+            setUserCertificates(certificatesData);
+            return;
+          }
+        }
+      } catch (error) {
+        console.log(`Fallback endpoint ${endpoint} failed:`, error);
+      }
+    }
+    
+    setUserCertificates([]);
+  };
+
   const markVideoAsCompleted = (videoId) => {
     const newCompletedVideos = new Set(completedVideos)
     newCompletedVideos.add(videoId)
@@ -145,6 +273,120 @@ const CourseDetailPage = () => {
       }, 2000)
     }
   }
+
+  // Enhanced video playback handler
+  const handlePlayVideo = useCallback(() => {
+    if (!course?.thumbnail) {
+      setVideoError("No video available")
+      return
+    }
+
+    // Transform URL to fix old /api/uploads/ format
+    const videoUrl = course.thumbnail.replace('/api/uploads/', '/uploads/')
+
+    // Check if it's a video file or Cloudinary video URL
+    const isVideo = videoUrl.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv|m4v|3gp|wmv)$/i) ||
+                   videoUrl.includes('cloudinary.com') && videoUrl.includes('/video/upload/')
+
+    if (!isVideo) {
+      setVideoError("This course preview is an image, not a video")
+      return
+    }
+
+    setShowVideoModal(true)
+    setVideoError("")
+
+    // Use setTimeout to ensure modal is rendered before playing
+    setTimeout(() => {
+      if (modalVideoRef.current) {
+        const video = modalVideoRef.current
+
+        // Reset video source and reload
+        video.load()
+
+        video.play().catch((error) => {
+          console.error('Error playing video in modal:', error)
+          setVideoError(`Unable to play video: ${error.message}. The video format may not be supported by your browser.`)
+
+          // Show format suggestions
+          if (error.name === 'NotSupportedError') {
+            setVideoError(prev => prev + " Try using MP4 format for better compatibility.")
+          }
+        })
+      }
+    }, 100)
+  }, [course?.thumbnail])
+
+  // Handle video errors
+  const handleVideoError = useCallback((event) => {
+    // Get the native DOM event to access the actual error
+    const nativeEvent = event.nativeEvent || event
+    console.error('Video error event:', nativeEvent)
+
+    // Get the video element - handle both direct video errors and source errors
+    let videoElement = nativeEvent.currentTarget || nativeEvent.target
+
+    // If the target is a source element, get the parent video element
+    if (videoElement && videoElement.tagName === 'SOURCE') {
+      videoElement = videoElement.parentElement
+    }
+
+    // Wait a bit for the error to be set on the video element
+    setTimeout(() => {
+      const error = videoElement?.error
+
+      let errorMessage = "Failed to load video. "
+
+      if (error && typeof error.code === 'number') {
+        switch (error.code) {
+          case MediaError.MEDIA_ERR_ABORTED:
+            errorMessage += "Video playback was aborted."
+            break
+          case MediaError.MEDIA_ERR_NETWORK:
+            errorMessage += "Network error occurred while loading the video. Please check your internet connection."
+            break
+          case MediaError.MEDIA_ERR_DECODE:
+            errorMessage += "Video format is not supported by your browser. Please try using MP4 format."
+            break
+          case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            errorMessage += "Video format not supported. Supported formats: MP4, WebM, OGG."
+            break
+          default:
+            errorMessage += `An error occurred (code: ${error.code}).`
+        }
+      } else {
+        // Fallback error messages based on common issues
+        const videoSrc = videoElement?.currentSrc || videoElement?.src
+        if (!videoSrc) {
+          errorMessage += "No video source provided."
+        } else if (videoSrc.startsWith('blob:') || videoSrc.startsWith('data:')) {
+          errorMessage += "Video data appears to be corrupted or incomplete."
+        } else if (videoSrc.includes('cloudinary') && videoSrc.includes('video/upload/')) {
+          errorMessage += "Video file may be corrupted or not properly uploaded. Please try re-uploading the video."
+        } else {
+          errorMessage += "The video file could not be loaded. Please check the video URL and try again."
+        }
+      }
+
+      console.error('Video error details:', {
+        error,
+        errorCode: error?.code,
+        errorMessage: error?.message,
+        videoSrc: videoElement?.currentSrc || videoElement?.src,
+        networkState: videoElement?.networkState,
+        readyState: videoElement?.readyState,
+        finalErrorMessage: errorMessage
+      })
+
+      setVideoError(errorMessage)
+    }, 100)
+  }, [])
+
+  // Handle video load
+  const handleVideoLoad = useCallback(() => {
+    console.log('Video loaded successfully')
+    setVideoError("")
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -169,7 +411,7 @@ const CourseDetailPage = () => {
 
       console.log("Submitting review:", { rating, comment })
 
-      const response = await fetch(`http://localhost:2000/api/courseReviews/${id}/reviews`, {
+      const response = await apiRequest(`courseReviews/${id}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,12 +419,13 @@ const CourseDetailPage = () => {
         },
         body: JSON.stringify({ rating, comment }),
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to submit review")
+      // apiRequest returns { data, status, ok }
+      if (!response || !response.ok) {
+        const errMessage = response?.data?.message || "Failed to submit review"
+        throw new Error(errMessage)
       }
+
+      const data = response.data
 
       // Reset form
       setRating(0)
@@ -273,18 +516,18 @@ const CourseDetailPage = () => {
   const enrollInCourse = async () => {
     try {
       const token = localStorage.getItem("token")
-      const res = await fetch(`http://localhost:2000/api/enrollments`, {
+      const res = await apiRequest(`enrollments`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ courseId: id }),
       })
-      if (res.ok) {
-        const data = await res.json()
+      // apiRequest returns { data, status, ok }
+      if (res && res.ok) {
         alert("Enrolled successfully!")
         fetchCourseDetails()
       } else {
-        const err = await res.json()
-        alert(err.message || "Failed to enroll")
+        const errMessage = res?.data?.message || "Failed to enroll"
+        alert(errMessage)
       }
     } catch (err) {
       console.error(err)
@@ -302,26 +545,15 @@ const CourseDetailPage = () => {
     return price === 0 ? "Free" : `₹${price}`
   }
 
-  const handlePlayVideo = () => {
-    if (videoRef.current) {
-      setIsVideoPlaying(true)
-      setShowVideoControls(true)
-      videoRef.current.play().catch((error) => {
-        console.error('Error playing video:', error)
-        videoRef.current.controls = true
-      })
-    }
-  }
-
   const fetchRelatedCourses = async (category) => {
     setRelatedCoursesLoading(true)
     try {
-      const response = await fetch(`http://localhost:2000/api/courses?category=${category}&limit=4`)
-      if (response.ok) {
-        const data = await response.json()
-        const filteredCourses = data.courses.filter(course => course._id !== id)
-        setRelatedCourses(filteredCourses)
-      }
+      const response = await apiRequest(`courses?category=${category}&limit=4`)
+        if (response && response.ok) {
+          const data = response.data
+          const filteredCourses = (data.courses || []).filter(course => course._id !== id)
+          setRelatedCourses(filteredCourses)
+        }
     } catch (error) {
       console.error("Error fetching related courses:", error)
     } finally {
@@ -329,13 +561,142 @@ const CourseDetailPage = () => {
     }
   }
 
+  // Function to handle certificate download
+  const handleDownloadCertificate = async (certificateData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`/api/certificates/download/${certificateData.certificateId || certificateData.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download certificate");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `certificate-${certificateData.certificateId || certificateData.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      alert("Certificate downloaded successfully!");
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Failed to download certificate");
+    }
+  };
+
+  // Function to handle certificate view
+  const handleViewCertificate = (certificateData) => {
+    if (certificateData.verificationUrl) {
+      window.open(certificateData.verificationUrl, '_blank');
+    } else if (certificateData.imageUrl) {
+      window.open(certificateData.imageUrl, '_blank');
+    } else {
+      // Fallback to PDF view
+      window.open(`/api/certificates/pdf/${certificateData.certificateId || certificateData.id}`, '_blank');
+    }
+  };
+
+  // Function to get course name from certificate data
+  const getCourseNameFromCertificate = (certificateData) => {
+    return certificateData.courseName || "Course Certificate";
+  };
+
+  // Function to get certificate issue date
+  const getCertificateIssueDate = (certificateData) => {
+    return certificateData.issueDate || certificateData.issuedAt || 'N/A';
+  };
+
+  // Function to get certificate ID
+  const getCertificateId = (certificateData) => {
+    return certificateData.certificateId || certificateData.id || 'N/A';
+  };
+
   const tabs = [
     { id: "overview", label: "Overview" },
     { id: "curriculum", label: "Curriculum" },
     { id: "instructor", label: "Instructor" },
     { id: "reviews", label: "Reviews" },
-    { id: "certificate", label: "Certificate", locked: isEnrolled && userProgress?.completionPercentage < 100 },
+    { id: "certificate", label: "Certificate" },
   ]
+
+  // Video Modal Component
+  const VideoModal = () => (
+    <AnimatePresence>
+      {showVideoModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="bg-black rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden relative"
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setShowVideoModal(false)
+                if (modalVideoRef.current) {
+                  modalVideoRef.current.pause()
+                }
+              }}
+              className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+            >
+              <X className="h-6 w-6" />
+            </button>
+
+            {/* Video Player */}
+            <div className="relative pt-[56.25%]"> {/* 16:9 Aspect Ratio */}
+              {course?.thumbnail && (
+                <video
+                  ref={modalVideoRef}
+                  className="absolute top-0 left-0 w-full h-full"
+                  controls
+                  preload="metadata"
+                  onError={handleVideoError}
+                  onLoadedData={handleVideoLoad}
+                  onEnded={() => markVideoAsCompleted('preview')}
+                  crossOrigin="anonymous"
+                >
+                  <source src={course.thumbnail.replace('/api/uploads/', '/uploads/')} type="video/mp4" />
+                  <source src={course.thumbnail.replace('/api/uploads/', '/uploads/')} type="video/webm" />
+                  <source src={course.thumbnail.replace('/api/uploads/', '/uploads/')} type="video/ogg" />
+                  Your browser does not support the video tag.
+                  <p>Download the video: <a href={course.thumbnail.replace('/api/uploads/', '/uploads/')} target="_blank" rel="noopener noreferrer">Click here</a></p>
+                </video>
+              )}
+            </div>
+
+            {/* Video Error Message */}
+            {videoError && (
+              <div className="p-4 bg-red-900 bg-opacity-50 text-white">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-red-300 font-semibold">Video Error:</span>
+                </div>
+                <p className="text-sm text-red-200">{videoError}</p>
+                <div className="mt-2 text-xs text-red-300">
+                  <p>Supported formats: MP4, WebM, OGG</p>
+                  <p>Recommended: MP4 with H.264 codec for best compatibility</p>
+                </div>
+              </div>
+            )}
+
+            {/* Video Info */}
+            <div className="p-4 text-white">
+              <h3 className="text-xl font-bold mb-2">{course?.title} - Preview</h3>
+              <p className="text-gray-300">Course preview video</p>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  )
 
   // Review Modal Component
   const ReviewModal = () => (
@@ -501,8 +862,14 @@ const CourseDetailPage = () => {
     )
   }
 
+  // Check if thumbnail is a video
+  const isVideoThumbnail = course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv|m4v|3gp|wmv)$/i)
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Video Modal */}
+      <VideoModal />
+      
       {/* Review Modal */}
       <ReviewModal />
       
@@ -564,63 +931,32 @@ const CourseDetailPage = () => {
                 className="bg-white rounded-lg shadow-lg overflow-hidden"
               >
                 <div className="relative bg-gray-100">
-                  {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
-                    <video
-                      ref={videoRef}
-                      src={course.thumbnail}
-                      className="w-full h-48 object-cover"
-                      muted
-                      controls={false}
-                      preload="metadata"
-                      onEnded={() => markVideoAsCompleted('preview')}
-                      onError={(e) => {
-                        console.log('CourseDetail video load error:', e)
-                        console.log('CourseDetail video src:', course.thumbnail)
-                        e.target.style.display = 'none'
-                        const fallback = e.target.parentElement.querySelector('.coursedetail-video-fallback') || document.createElement('div')
-                        fallback.className = 'coursedetail-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
-                        fallback.textContent = 'VIDEO'
-                        if (!e.target.parentElement.querySelector('.coursedetail-video-fallback')) {
-                          e.target.parentElement.appendChild(fallback)
-                        }
-                      }}
-                      onLoadedData={(e) => {
-                        console.log('CourseDetail video loaded successfully')
-                        const fallback = e.target.parentElement.querySelector('.coursedetail-video-fallback')
-                        if (fallback) fallback.remove()
-                      }}
-                    />
+                  {isVideoThumbnail ? (
+                    // Video Thumbnail with Play Button
+                    <div className="relative">
+                      <div className="w-full h-48 bg-gray-800 flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <div className="mb-3">
+                            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto">
+                              <Play className="h-8 w-8 text-white ml-1" />
+                            </div>
+                          </div>
+                          <p className="text-sm font-medium">Video Preview Available</p>
+                          <p className="text-xs text-gray-300 mt-1">Click to watch</p>
+                        </div>
+                      </div>
+                    </div>
                   ) : (
+                    // Image Thumbnail
                     <img
                       src={course.thumbnail || "/placeholder.svg"}
                       alt={course.title}
                       className="w-full h-48 object-cover"
                       onError={(e) => {
-                        console.log('CourseDetail image load error:', e)
-                        console.log('CourseDetail image src:', course.thumbnail)
-                        e.target.style.display = 'none'
-                        const fallback = e.target.parentElement.querySelector('.coursedetail-image-fallback') || document.createElement('div')
-                        fallback.className = 'coursedetail-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
-                        fallback.textContent = 'IMG'
-                        if (!e.target.parentElement.querySelector('.coursedetail-image-fallback')) {
-                          e.target.parentElement.appendChild(fallback)
-                        }
-                      }}
-                      onLoad={(e) => {
-                        console.log('CourseDetail image loaded successfully')
-                        const fallback = e.target.parentElement.querySelector('.coursedetail-image-fallback')
-                        if (fallback) fallback.remove()
+                        e.target.src = "/placeholder.svg"
                       }}
                     />
                   )}
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <button
-                      onClick={handlePlayVideo}
-                      className="bg-white bg-opacity-90 rounded-full p-4 hover:bg-opacity-100 transition-all"
-                    >
-                      <Play className="h-8 w-8 text-gray-900 ml-1" />
-                    </button>
-                  </div>
                 </div>
 
                 <div className="p-6">
@@ -635,26 +971,34 @@ const CourseDetailPage = () => {
                         <Play className="h-5 w-5" />
                         <span>Continue Learning</span>
                       </button>
-                      {/* Removed progress bar as per user request */}
-                      {/* {userProgress && (
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 mb-2">Progress: {userProgress.completionPercentage}%</p>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-green-600 h-2 rounded-full"
-                              style={{ width: `${userProgress.completionPercentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      )} */}
+                      {isVideoThumbnail && (
+                        <button
+                          onClick={handlePlayVideo}
+                          className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                        >
+                          <Play className="h-4 w-4" />
+                          <span>Watch Preview</span>
+                        </button>
+                      )}
                     </div>
                   ) : (
-                    <button
-                      onClick={handleEnroll}
-                      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                    >
-                      {course.price === 0 ? "Enroll for Free" : "Buy Now"}
-                    </button>
+                    <div className="space-y-3">
+                      <button
+                        onClick={handleEnroll}
+                        className="w-full bg-rose-700 text-white py-3 rounded-lg font-semibold hover:bg-rose-800 transition-colors"
+                      >
+                        {course.price === 0 ? "Enroll for Free" : "Buy Now"}
+                      </button>
+                      {isVideoThumbnail && (
+                        <button
+                          onClick={handlePlayVideo}
+                          className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2"
+                        >
+                          <Play className="h-4 w-4" />
+                          <span>Preview this course</span>
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   <div className="mt-4 space-y-2 text-sm text-gray-600">
@@ -672,16 +1016,14 @@ const CourseDetailPage = () => {
                     </div>
                   </div>
 
-                  {/* <div className="mt-6 flex items-center justify-between">
-                    <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-900">
-                      <Heart className="h-4 w-4" />
-                      <span>Wishlist</span>
-                    </button>
-                    <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-900">
-                      <Share2 className="h-4 w-4" />
-                      <span>Share</span>
-                    </button>
-                  </div> */}
+                  {/* Video format info */}
+                  {isVideoThumbnail && (
+                    <div className="mt-3 p-2 bg-blue-50 rounded-lg">
+                      <p className="text-xs text-blue-700 text-center">
+                        📹 Video preview available - Click to watch
+                      </p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </div>
@@ -721,29 +1063,7 @@ const CourseDetailPage = () => {
             >
               {activeTab === "overview" && (
                 <div className="space-y-8">
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">What you'll learn</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {course.whatYouWillLearn.map((item, index) => (
-                        <div key={index} className="flex items-start space-x-3">
-                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-gray-700">{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">Requirements</h3>
-                    <ul className="space-y-2">
-                      {course.requirements.map((requirement, index) => (
-                        <li key={index} className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-gray-700">{requirement}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                
 
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">Course Details</h3>
@@ -1045,6 +1365,95 @@ const CourseDetailPage = () => {
                   )}
                 </div>
               )}
+
+              {activeTab === "certificate" && (
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">My Certificates</h3>
+
+                  {certificatesLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      <span className="ml-3 text-gray-600">Loading certificates...</span>
+                    </div>
+                  ) : userCertificates.length > 0 ? (
+                    <div className="space-y-4">
+                      {userCertificates.map((cert) => {
+                        const courseName = getCourseNameFromCertificate(cert);
+                        const issueDate = getCertificateIssueDate(cert);
+                        const certificateId = getCertificateId(cert);
+                        
+                        return (
+                          <div key={cert.id || cert.certificateId} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center space-x-3">
+                                <Award className="h-5 w-5 text-green-600" />
+                                <div>
+                                  <h5 className="font-semibold text-gray-900 text-sm">{courseName}</h5>
+                                  <p className="text-xs text-gray-600">Certificate of Completion</p>
+                                </div>
+                              </div>
+                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                Completed
+                              </span>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+                              <div>
+                                <span className="text-gray-600">Issued:</span>
+                                <span className="text-gray-900 ml-1">
+                                  {issueDate !== 'N/A' ? new Date(issueDate).toLocaleDateString() : 'N/A'}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-gray-600">ID:</span>
+                                <span className="text-gray-900 ml-1 font-mono">
+                                  {certificateId}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleViewCertificate(cert)}
+                                className="flex-1 bg-blue-100 text-blue-800 py-1.5 px-1 rounded text-xs hover:bg-blue-200 border border-blue-300 transition-colors flex items-center justify-center space-x-1"
+                              >
+                                <Eye className="h-3 w-3" />
+                                <span>View</span>
+                              </button>
+                              <button
+                                onClick={() => handleDownloadCertificate(cert)}
+                                className="flex-1 bg-green-100 text-green-800 py-1.5 px-1 rounded text-xs hover:bg-green-200 border border-green-300 transition-colors flex items-center justify-center space-x-1"
+                              >
+                                <Download className="h-3 w-3" />
+                                <span>Download</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                      <Award className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h5 className="text-lg font-semibold text-gray-900 mb-2">No Certificates Yet</h5>
+                      <p className="text-gray-600 mb-4">
+                        {isAuthenticated 
+                          ? "Complete courses to earn certificates that will appear here."
+                          : "Login to view your certificates."
+                        }
+                      </p>
+                      {!isAuthenticated && (
+                        <button
+                          onClick={() => navigate('/login')}
+                          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Login to View Certificates
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
           </div>
 
@@ -1070,25 +1479,10 @@ const CourseDetailPage = () => {
                   <div className="space-y-4">
                     {relatedCourses.map((course) => (
                       <div key={course._id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/courses/${course._id}`)}>
-                        {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
-                          <video
-                            src={course.thumbnail}
-                            className="w-16 h-12 object-cover rounded"
-                            muted
-                            onError={(e) => {
-                              e.target.style.display = 'none'
-                              const fallback = e.target.parentElement.querySelector('.related-video-fallback') || document.createElement('div')
-                              fallback.className = 'related-video-fallback w-16 h-12 flex items-center justify-center bg-gray-200 text-gray-600 font-medium text-xs rounded'
-                              fallback.textContent = 'VIDEO'
-                              if (!e.target.parentElement.querySelector('.related-video-fallback')) {
-                                e.target.parentElement.appendChild(fallback)
-                              }
-                            }}
-                            onLoadedData={(e) => {
-                              const fallback = e.target.parentElement.querySelector('.related-video-fallback')
-                              if (fallback) fallback.remove()
-                            }}
-                          />
+                        {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv|m4v|3gp|wmv)$/i) ? (
+                          <div className="w-16 h-12 bg-gray-800 rounded flex items-center justify-center">
+                            <Play className="h-6 w-6 text-white" />
+                          </div>
                         ) : (
                           <img
                             src={course.thumbnail || "/placeholder.svg"}

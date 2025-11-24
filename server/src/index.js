@@ -1,5 +1,32 @@
 const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") }); 
+// Load environment variables with fallbacks. Prefer environment-specific files.
+const dotenv = require("dotenv");
+function loadEnv() {
+  const candidates = [];
+  // If NODE_ENV is set, try .env.<env> first (e.g. .env.production)
+  if (process.env.NODE_ENV) {
+    candidates.push(path.resolve(__dirname, `../.env.${process.env.NODE_ENV}`));
+  }
+  // Project-level .env in repo root and server folder
+  candidates.push(path.resolve(__dirname, "../.env"));
+  candidates.push(path.resolve(__dirname, ".env"));
+
+  for (const p of candidates) {
+    try {
+      const result = dotenv.config({ path: p });
+      if (!result || result.error) continue;
+      console.log(`Loaded env from ${p}`);
+      return p;
+    } catch (e) {
+      // continue to next
+    }
+  }
+
+  console.warn('No .env file loaded from candidates:', candidates);
+  return null;
+}
+
+loadEnv();
 
 
 const express = require("express")
@@ -19,18 +46,28 @@ app.use(
   }),
 )
 
-// Rate limiting - Exclude safe GET requests and OPTIONS requests
+// Rate limiting - Exclude safe GET requests, OPTIONS requests, and payment endpoints
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1500,
   message: "Too many requests from this IP, please try again later.",
   skip: (req) => {
     // Skip rate limiting for safe GET requests and OPTIONS requests
-    return (req.method === 'GET' && (
+    const isGetRequest = req.method === 'GET' && (
       req.path.startsWith('/api/enrollments/progress/') ||
       req.path === '/api/enrollments/me' ||
-      req.path === '/api/certificates/me'
-    )) || req.method === 'OPTIONS';
+      req.path === '/api/certificates/me' ||
+      req.path === '/api/courses' ||
+      req.path.startsWith('/api/courses/')
+    );
+    
+    // Skip rate limiting for payment endpoints (critical for multi-IP access)
+    const isPaymentRequest = req.path.startsWith('/api/payments/');
+    
+    // Skip for OPTIONS preflight requests
+    const isOptionsRequest = req.method === 'OPTIONS';
+    
+    return isGetRequest || isPaymentRequest || isOptionsRequest;
   },
   handler: (req, res) => {
     console.log(`Rate limit reached for IP: ${req.ip}, path: ${req.path}, method: ${req.method}`);
@@ -49,38 +86,114 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan("dev"))
 }
 
-// CORS configuration - support multiple environments
-const allowedOrigins = [
-  'http://localhost:5173', // Development
-  'http://localhost:3000', // Alternative dev port
-  process.env.CLIENT_URL, // Production URL from environment variable
-  process.env.FRONTEND_URL, // Alternative env var name
-].filter(Boolean) // Remove undefined values
+// Enhanced CORS configuration for both development and production
+const developmentOrigins = [
+  'http://localhost:5173',  // Vite default
+  'http://localhost:3000',  // Alternative dev port
+  'http://127.0.0.1:5173', // Local IP variant
+  'http://127.0.0.1:3000'  // Local IP variant
+];
 
+const productionOrigins = [
+  'https://online.rymaacademy.cloud',    // Main production domain
+  process.env.CLIENT_URL,                // Production URL from env
+  process.env.FRONTEND_URL               // Alternative production URL
+].filter(Boolean); // Remove undefined/null values
+
+// Add custom allowed origins from environment
+const customOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : [];
+
+// Determine allowed origins based on environment
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? [...productionOrigins, ...customOrigins]
+  : [...developmentOrigins, ...productionOrigins, ...customOrigins];
+
+// CORS middleware configuration - Enhanced for multiple IPs and origins
 app.use(
   cors({
-    origin: function(origin, callback){
-      // Allow requests with no origin (mobile apps, curl, Postman, etc.)
-      if(!origin) return callback(null, true);
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
       
-      // In production, be more strict about origins
-      if(process.env.NODE_ENV === 'production' && !process.env.CLIENT_URL && !process.env.FRONTEND_URL) {
-        console.warn('⚠️ WARNING: No CLIENT_URL or FRONTEND_URL set in production environment');
-      }
+      // Always allow payments and core API endpoints from any origin for accessibility
+      const isPaymentRequest = callback.req && callback.req.path && callback.req.path.startsWith('/api/payments/');
+      const isCoreAPIRequest = callback.req && callback.req.path && (
+        callback.req.path.startsWith('/api/courses') ||
+        callback.req.path.startsWith('/api/health') ||
+        callback.req.path.startsWith('/api/auth')
+      );
       
-      if(allowedOrigins.indexOf(origin) !== -1){
+      if (isPaymentRequest || isCoreAPIRequest) {
         return callback(null, true);
       }
       
-      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-      console.error('❌ CORS Error:', msg);
-      return callback(new Error(msg), false);
+      // In development, allow all origins
+      if (process.env.NODE_ENV !== 'production') {
+        return callback(null, true);
+      }
+      
+      // For other requests in production, check allowed origins but be more permissive
+      if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('rymaacademy.cloud')) {
+        callback(null, true);
+      } else {
+        console.log(`CORS blocked origin: ${origin}`);
+        console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+        // For now, allow all origins to fix payment issues - can be restricted later
+        callback(null, true);
+      }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  }),
-)
+    methods: [
+      "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+    ],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+      "Access-Control-Request-Method",
+      "Access-Control-Request-Headers",
+      "Cache-Control",
+      "Pragma",
+      "X-Real-IP",
+      "X-Forwarded-For"
+    ],
+    exposedHeaders: [
+      'Content-Disposition',
+      'Content-Length',
+      'X-Total-Count',
+      'X-Rate-Limit-Remaining'
+    ],
+    maxAge: process.env.NODE_ENV === 'production' ? 86400 : 1 // 24 hours in production, 1 second in development
+  })
+);
+
+// Enhanced headers middleware for file uploads and preflight
+app.use((req, res, next) => {
+  // Set vary header to help with caching
+  res.vary('Origin');
+  
+  // Additional security headers for production
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+  }
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 
+      'Content-Type, Authorization, Content-Length, X-Requested-With, Accept, Origin, Cache-Control, Pragma');
+    res.header('Access-Control-Max-Age', process.env.NODE_ENV === 'production' ? '86400' : '1');
+    return res.status(200).json({});
+  }
+
+  next();
+});
 
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }))
@@ -88,9 +201,21 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 // Static files
 app.use("/certificates", express.static(path.join(__dirname, "public/certificates")))
-app.use("/uploads", express.static(path.join(__dirname, "public/uploads")))
+app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
+  maxAge: '1d', // Cache for 1 day
+  setHeaders: (res, path) => {
+    // Set CORS headers for uploaded files
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
 
-// MongoDB connection
+    // Optimize caching for video files
+    if (path.endsWith('.mp4') || path.endsWith('.mov') || path.endsWith('.avi')) {
+      res.set('Cache-Control', 'public, max-age=86400'); // 24 hours for videos
+    }
+  }
+}))
+
+// MongoDB connection (original code)
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch(err => console.error("❌ MongoDB connection error:", err));
@@ -115,6 +240,7 @@ const adminRoutes = require("../routes/admin")
 const instructorRoutes = require("../routes/instructor")
 const uploadRoutes = require("../routes/upload")
 const courseReviewsRoutes = require("../routes/courseReviews")
+const referralRoutes = require("../routes/referral")
 
 // Use routes
 app.use("/api/auth", authRoutes)
@@ -127,6 +253,7 @@ app.use("/api/admin", adminRoutes)
 app.use("/api/instructor", instructorRoutes)
 app.use("/api/upload", uploadRoutes)
 app.use("/api/courseReviews", courseReviewsRoutes)
+app.use("/api/referral", referralRoutes)
 
 app.use("/api/*splat", (req, res) => {
   res.status(404).json({

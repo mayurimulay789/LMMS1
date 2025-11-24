@@ -19,15 +19,22 @@ const FileUpload = ({
   const { token } = useSelector((state) => state.auth)
 
   const getUploadEndpoint = (type) => {
+    // Use production API URL
+    const baseUrl = import.meta.env.VITE_API_URL || 
+                   import.meta.env.VITE_BACKEND_URL || 
+                   'https://online.rymaacademy.cloud/api';
+    
     const endpoints = {
-      thumbnail: "/api/upload/course-thumbnail",
-      video: "/api/upload/lesson-video",
-      document: "/api/upload/course-material",
+      thumbnail: "/upload/course-thumbnail",
+      video: "/upload/lesson-video",
+      document: "/upload/course-material",
       avatar: "/api/upload/avatar",
       chat: "/api/upload/chat-file",
       gallery: "/api/upload/course-gallery",
     }
-    return endpoints[type] || "/api/upload/course-material"
+    
+    const path = endpoints[type] || "/api/upload/course-material";
+    return `${baseUrl}${path}`;
   }
 
   const getFileIcon = (fileType) => {
@@ -100,9 +107,22 @@ const FileUpload = ({
 
         xhr.open(
           "POST",
-          `${process.env.REACT_APP_SERVER_URL || "http://localhost:2000"}${getUploadEndpoint(uploadType)}`,
+          getUploadEndpoint(uploadType)
         )
         xhr.setRequestHeader("Authorization", `Bearer ${token}`)
+        xhr.setRequestHeader("Accept", "application/json")
+        // Don't set Content-Type header - it will be set automatically with the correct boundary for FormData
+        xhr.withCredentials = true // Enable credentials (cookies, authorization headers)
+        
+        // Add retry logic for development environment
+        if (window.location.hostname === 'localhost') {
+          xhr.timeout = 30000; // 30 seconds timeout for local development
+          xhr.ontimeout = () => {
+            console.warn('Upload timed out, retrying...');
+            setTimeout(() => uploadFile(file), 1000);
+          };
+        }
+        
         xhr.send(formData)
       })
     } catch (error) {

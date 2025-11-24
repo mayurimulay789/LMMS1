@@ -7,6 +7,25 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  referralCode: {
+    type: String,
+    sparse: true,
+    unique: true,
+  },
+  referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  referralRewards: {
+    earned: {
+      type: Number,
+      default: 0
+    },
+    pending: {
+      type: Number,
+      default: 0
+    },
+  },
   email: {
     type: String,
     required: true,

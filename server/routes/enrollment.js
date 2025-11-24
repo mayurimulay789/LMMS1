@@ -29,13 +29,16 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ message: "You are already enrolled in this course" });
     }
 
+    // Get correct lesson count from modules.subcourses
+    const allLessons = course.modules ? course.modules.flatMap(module => module.subcourses || []) : [];
+
     // Create new enrollment
     const enrollment = new Enrollment({
       user: userId,
       course: courseId,
       progress: {
         completedLessons: [],
-        totalLessons: course.lessons ? course.lessons.length : 0, // safe check
+        totalLessons: allLessons.length,
         completionPercentage: 0,
         lastAccessedAt: null,
       },
@@ -56,8 +59,7 @@ router.post("/", auth, async (req, res) => {
       courseId: course._id,
     });
   } catch (error) {
-    console.error("Enrollment error:", error);
-    res.status(500).json({ message: "Failed to enroll in course", error: error.message });
+    res.status(500).json({ message: "Failed to enroll in course" });
   }
 });
 
@@ -73,7 +75,6 @@ router.get("/me", auth, async (req, res) => {
 
     res.json(enrollments);
   } catch (error) {
-    console.error("Error fetching enrollments:", error);
     res.status(500).json({ message: "Failed to fetch enrollments" });
   }
 });
@@ -98,7 +99,6 @@ router.get("/:courseId", auth, async (req, res) => {
 
     res.json(enrollment);
   } catch (error) {
-    console.error("Error fetching enrollment:", error);
     res.status(500).json({ message: "Failed to fetch enrollment" });
   }
 })
@@ -121,9 +121,10 @@ router.post("/progress", auth, async (req, res) => {
     // Initialize progress if not exists (for legacy enrollments)
     if (!enrollment.progress) {
       const course = await Course.findById(courseId);
+      const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses || []) : []) : [];
       enrollment.progress = {
         completedLessons: [],
-        totalLessons: course ? course.lessons.length : 0,
+        totalLessons: allLessons.length,
         completionPercentage: 0,
         lastAccessedAt: new Date(),
       };
@@ -131,7 +132,8 @@ router.post("/progress", auth, async (req, res) => {
 
     // Always update totalLessons to current course lessons count
     const course = await Course.findById(courseId);
-    enrollment.progress.totalLessons = course ? course.lessons.length : 0;
+    const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses || []) : []) : [];
+    enrollment.progress.totalLessons = allLessons.length;
 
     // Check if lesson is already completed
     const existingLesson = enrollment.progress.completedLessons.find(
@@ -156,12 +158,22 @@ router.post("/progress", auth, async (req, res) => {
 
     // Check if course is completed and trigger certificate generation
     if (enrollment.progress.completionPercentage >= 100 && !enrollment.certificate.issued) {
+
       try {
         const certificateService = require("../services/certificateService");
         const User = require("../models/User");
 
         const user = await User.findById(userId);
+        if (!user) {
+          // Skip certificate generation if user not found
+          return;
+        }
+
         const course = await Course.findById(courseId);
+        if (!course) {
+          // Skip certificate generation if course not found
+          return;
+        }
 
         // Remove hoursCompleted calculation based on timeSpent
         const hoursCompleted = 0;
@@ -201,8 +213,10 @@ router.post("/progress", auth, async (req, res) => {
         enrollment.certificate.issuedAt = certificate.issueDate;
         enrollment.certificate.certificateId = certificate.certificateId;
         enrollment.status = "completed";
+
       } catch (error) {
-        console.error("Auto certificate generation error:", error);
+        // Don't fail the progress update if certificate generation fails
+        // The certificate can be generated manually later
       }
     }
 
@@ -231,7 +245,7 @@ router.get("/progress/:courseId", auth, async (req, res) => {
     // console.log(`Fetching progress for user: ${userId}, course: ${courseId}`);
 
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
-      console.warn(`Invalid course ID received: ${courseId}`);
+
       return res.status(400).json({ message: "Invalid course ID" });
     }
 
@@ -249,13 +263,14 @@ router.get("/progress/:courseId", auth, async (req, res) => {
       const course = await Course.findById(courseId);
       if (enrollment.status === "completed") {
         // For legacy completed enrollments, mark all lessons as complete
-        const allCompletedLessons = course.lessons.map(lesson => ({
+        const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses) : []) : [];
+        const allCompletedLessons = allLessons.map(lesson => ({
           lessonId: lesson._id,
           completedAt: enrollment.enrolledAt || new Date(),
         }));
         enrollment.progress = {
           completedLessons: allCompletedLessons,
-          totalLessons: course.lessons.length,
+          totalLessons: allLessons.length,
           completionPercentage: 100,
           timeSpent: 0, // Could estimate or leave as 0
           lastAccessedAt: new Date(),
@@ -300,13 +315,14 @@ router.get("/progress/:courseId", auth, async (req, res) => {
             enrollment.certificate.issuedAt = certificate.issueDate;
             enrollment.certificate.certificateId = certificate.certificateId;
           } catch (error) {
-            console.error("Auto certificate generation for legacy error:", error);
+            // Skip certificate generation on error
           }
         }
       } else {
+        const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses) : []) : [];
         enrollment.progress = {
           completedLessons: [],
-          totalLessons: course ? course.lessons.length : 0,
+          totalLessons: allLessons.length,
           completionPercentage: 0,
           timeSpent: 0,
           lastAccessedAt: new Date(),
@@ -318,11 +334,12 @@ router.get("/progress/:courseId", auth, async (req, res) => {
     // Fix progress inconsistency: if certificate is issued but progress < 100%, set to 100%
     if (enrollment.certificate.issued && enrollment.progress.completionPercentage < 100) {
       const course = await Course.findById(courseId);
-      enrollment.progress.completedLessons = course.lessons.map(lesson => ({
+      const allLessons = course ? (course.modules ? course.modules.flatMap(module => module.subcourses) : []) : [];
+      enrollment.progress.completedLessons = allLessons.map(lesson => ({
         lessonId: lesson._id.toString(),
         completedAt: enrollment.certificate.issuedAt || new Date(),
       }));
-      enrollment.progress.totalLessons = course.lessons.length;
+      enrollment.progress.totalLessons = allLessons.length;
       enrollment.progress.completionPercentage = 100;
       enrollment.status = "completed";
       await enrollment.save();
@@ -335,7 +352,6 @@ router.get("/progress/:courseId", auth, async (req, res) => {
       status: enrollment.status,
     });
   } catch (error) {
-    console.error("Error fetching progress:", error);
     res.status(500).json({ message: "Failed to fetch progress" });
   }
 });
@@ -366,7 +382,7 @@ router.post("/:courseId/force-certificate", auth, async (req, res) => {
       certificate: enrollment.certificate
     });
   } catch (err) {
-    console.error("Force certificate error:", err);
+
     res.status(500).json({ message: "Failed to issue certificate" });
   }
 });
@@ -395,7 +411,6 @@ router.get("/certificates/me", auth, async (req, res) => {
 
     res.json(certificates);
   } catch (error) {
-    console.error("Error fetching certificates:", error);
     res.status(500).json({ message: "Failed to fetch certificates" });
   }
 });

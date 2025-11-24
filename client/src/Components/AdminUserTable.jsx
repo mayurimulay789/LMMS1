@@ -22,7 +22,8 @@ const AdminUserTable = ({ defaultFilter = "all", title = "User Management" }) =>
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/admin/users", {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -40,39 +41,8 @@ const AdminUserTable = ({ defaultFilter = "all", title = "User Management" }) =>
       }
     } catch (error) {
       console.error("Error fetching users:", error)
-      // Mock data for demonstration
-      setUsers([
-        {
-          _id: "1",
-          name: "John Doe",
-          email: "john@example.com",
-          role: "student",
-          isEmailVerified: true,
-          createdAt: "2024-01-15",
-          lastLoginAt: "2024-01-20",
-          enrollments: 3,
-        },
-        {
-          _id: "2",
-          name: "Jane Smith",
-          email: "jane@example.com",
-          role: "instructor",
-          isEmailVerified: true,
-          createdAt: "2024-01-10",
-          lastLoginAt: "2024-01-19",
-          enrollments: 0,
-        },
-        {
-          _id: "3",
-          name: "Bob Johnson",
-          email: "bob@example.com",
-          role: "student",
-          isEmailVerified: false,
-          createdAt: "2024-01-18",
-          lastLoginAt: null,
-          enrollments: 1,
-        },
-      ])
+      // Show empty state instead of mock data
+      setUsers([])
     } finally {
       setIsLoading(false)
     }
@@ -103,7 +73,8 @@ const AdminUserTable = ({ defaultFilter = "all", title = "User Management" }) =>
   const handleUserAction = async (userId, action) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/users/${userId}/${action}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/${action}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -124,7 +95,8 @@ const AdminUserTable = ({ defaultFilter = "all", title = "User Management" }) =>
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/users/bulk/${action}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/users/bulk/${action}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

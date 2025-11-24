@@ -1,12 +1,12 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: process.env.EMAIL_PORT || 587,
+  host: process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: process.env.SMTP_PORT || process.env.EMAIL_PORT || 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.SMTP_USER || process.env.EMAIL_USER,
+    pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
   },
 });
 
@@ -14,13 +14,21 @@ const sendInstructorApplicationEmail = async (applicationData) => {
   try {
     const { applicantName, email, phone, experience, qualifications, motivation } = applicationData;
 
-    console.log('Attempting to send email from:', process.env.EMAIL_USER ? process.env.EMAIL_USER.substring(0, 5) + '...' : 'MISSING');
+    // Check if email configuration is available
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.warn('Email configuration missing. Skipping application confirmation email send.');
+      console.log('SMTP_USER set:', !!process.env.SMTP_USER);
+      console.log('SMTP_PASS set:', !!process.env.SMTP_PASS);
+      return { success: false, message: 'Email configuration missing' };
+    }
+
+    console.log('Attempting to send email from:', process.env.SMTP_USER ? process.env.SMTP_USER.substring(0, 5) + '...' : 'MISSING');
     console.log('To:', email);
-    console.log('Host:', process.env.EMAIL_HOST || 'DEFAULT');
-    console.log('Port:', process.env.EMAIL_PORT || 'DEFAULT');
+    console.log('Host:', process.env.SMTP_HOST || 'DEFAULT');
+    console.log('Port:', process.env.SMTP_PORT || 'DEFAULT');
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: 'Instructor Application Received - LearnHub',
       html: `
@@ -77,7 +85,7 @@ const sendAdminApplicationNotification = async (applicationData) => {
     console.log('To admin:', process.env.ADMIN_EMAIL || 'MISSING');
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL,
       subject: `New Instructor Application Received - ${applicantName}`,
       html: `
@@ -134,10 +142,18 @@ const sendInstructorApprovalEmail = async ({ applicantName, email, loginLink }) 
   try {
     console.log('Sending approval email to:', email);
 
+    // Check if email configuration is available
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.warn('Email configuration missing. Skipping email send.');
+      console.log('SMTP_USER set:', !!process.env.SMTP_USER);
+      console.log('SMTP_PASS set:', !!process.env.SMTP_PASS);
+      return { success: false, message: 'Email configuration missing' };
+    }
+
     const linkToUse = loginLink || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: 'Congratulations! Your Instructor Application is Approved - LearnHub',
       html: `
@@ -195,7 +211,7 @@ const sendInstructorRejectionEmail = async ({ applicantName, email }) => {
     console.log('Sending rejection email to:', email);
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: 'Update on Your Instructor Application - LearnHub',
       html: `
@@ -243,9 +259,139 @@ const sendInstructorRejectionEmail = async ({ applicantName, email }) => {
   }
 };
 
+const sendContactNotificationEmail = async (contactData) => {
+  try {
+    const { name, email, subject, message, phone, category, contactId } = contactData;
+
+    console.log('Sending contact notification to admin:', process.env.ADMIN_EMAIL || 'MISSING');
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.ADMIN_EMAIL,
+      subject: `New Contact Form Submission - ${subject}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #e11d48; text-align: center;">New Contact Form Submission!</h2>
+
+          <p>Dear Admin,</p>
+
+          <p>A new contact form has been submitted on the website. Please review the details below.</p>
+
+          <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">Contact Details:</h3>
+            <p><strong>Contact ID:</strong> ${contactId}</p>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+            <p><strong>Subject:</strong> ${subject}</p>
+            <p><strong>Category:</strong> ${category}</p>
+            <p><strong>Submission Date:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+
+          <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <h4 style="color: #856404; margin-top: 0;">Message:</h4>
+            <p style="white-space: pre-wrap;">${message}</p>
+          </div>
+
+          <p><strong>Next Steps:</strong></p>
+          <ul>
+            <li>Review the contact details and message</li>
+            <li>Respond to the inquiry if needed</li>
+            <li>Update the contact status in the admin dashboard</li>
+          </ul>
+
+          <p>You can reply directly to this email or use the admin panel to manage this contact.</p>
+
+          <p>Best regards,<br>
+          <strong>Ryma Academy Automated System</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated notification. New contact submissions require your attention.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Contact notification email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending contact notification email:', error);
+    throw error;
+  }
+};
+
+const sendContactAutoReplyEmail = async (contactData) => {
+  try {
+    const { name, email, subject, message } = contactData;
+
+    console.log('Sending auto-reply email to:', email);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Thank you for contacting Ryma Academy',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #e11d48; text-align: center;">Thank You for Contacting Us!</h2>
+
+          <p>Dear <strong>${name}</strong>,</p>
+
+          <p>Thank you for reaching out to Ryma Academy! We have received your message and our team will review it shortly.</p>
+
+          <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">Your Message Summary:</h3>
+            <p><strong>Subject:</strong> ${subject}</p>
+            <p><strong>Received:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+
+          <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <h4 style="color: #856404; margin-top: 0;">Your Message:</h4>
+            <p style="white-space: pre-wrap;">${message}</p>
+          </div>
+
+          <p><strong>What happens next?</strong></p>
+          <ol>
+            <li>Our team will review your inquiry within 24 hours</li>
+            <li>We'll respond to your email with more details</li>
+            <li>If urgent, we'll contact you directly</li>
+          </ol>
+
+          <p>If you have any additional information or questions, please don't hesitate to reply to this email.</p>
+
+          <p>You can also reach us at:</p>
+          <ul>
+            <li><strong>Email:</strong> info@rymaacademy.com</li>
+            <li><strong>Phone:</strong> +0000000000</li>
+            <li><strong>Office:</strong> Pune, Maharashtra, India</li>
+          </ul>
+
+          <p>Best regards,<br>
+          <strong>Ryma Academy Team</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated response. Please do not reply to this email directly for support inquiries.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Contact auto-reply email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending contact auto-reply email:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   sendInstructorApplicationEmail,
   sendAdminApplicationNotification,
   sendInstructorApprovalEmail,
   sendInstructorRejectionEmail,
+  sendContactNotificationEmail,
+  sendContactAutoReplyEmail,
 };

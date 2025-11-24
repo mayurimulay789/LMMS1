@@ -15,7 +15,8 @@ const AdminInstructorApplications = () => {
   const fetchApplications = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:2000/api/admin/instructor-applications", {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/instructor-applications`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -38,7 +39,8 @@ const AdminInstructorApplications = () => {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/instructor-applications/${applicationId}/approve`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/instructor-applications/${applicationId}/approve`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -63,7 +65,8 @@ const AdminInstructorApplications = () => {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/admin/instructor-applications/${applicationId}/reject`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+      const response = await fetch(`${API_BASE_URL}/admin/instructor-applications/${applicationId}/reject`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

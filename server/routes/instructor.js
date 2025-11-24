@@ -33,12 +33,9 @@ router.post("/apply", async (req, res) => {
 
     await application.save();
 
-    console.log('Application saved successfully. ID:', application._id);
-    console.log('Now attempting to send confirmation email to:', email);
-
     // Send confirmation email to applicant
     try {
-      await sendInstructorApplicationEmail({
+      const applicantEmailResult = await sendInstructorApplicationEmail({
         applicantName,
         email,
         phone,
@@ -46,10 +43,14 @@ router.post("/apply", async (req, res) => {
         qualifications,
         motivation,
       });
-      console.log('Applicant confirmation email sent for application:', application._id);
+      if (applicantEmailResult.success) {
+        console.log('Application confirmation email sent to:', email);
+      } else {
+        console.log('Application confirmation email skipped (configuration missing):', applicantEmailResult.message);
+      }
     } catch (applicantEmailError) {
-      console.error('Applicant email sending failed for application', application._id, ':', applicantEmailError);
-      // Don't fail the application if email fails, just log it
+      console.error('Application confirmation email failed:', applicantEmailError);
+      // Don't fail the application if email fails
     }
 
     // Send notification email to admin
@@ -66,16 +67,13 @@ router.post("/apply", async (req, res) => {
         });
         console.log('Admin notification email sent for application:', application._id);
       } catch (adminEmailError) {
-        console.error('Admin notification email failed for application', application._id, ':', adminEmailError);
-        // Don't fail the application if admin email fails, just log it
+        console.error('Admin notification email failed:', adminEmailError);
+        // Don't fail the application if admin email fails
       }
-    } else {
-      console.log('No ADMIN_EMAIL configured, skipping admin notification');
     }
 
     res.status(201).json({ message: "Application submitted successfully", applicationId: application._id });
   } catch (error) {
-    console.error("Error submitting application:", error);
     res.status(500).json({ message: "Failed to submit application" });
   }
 });
@@ -109,7 +107,6 @@ router.get("/stats", async (req, res) => {
       activeEnrollments,
     })
   } catch (error) {
-    console.error("Error fetching instructor stats:", error)
     res.status(500).json({ message: "Failed to fetch stats" })
   }
 })
@@ -133,7 +130,6 @@ router.get("/courses", async (req, res) => {
 
     res.json(coursesWithStats)
   } catch (error) {
-    console.error("Error fetching courses:", error)
     res.status(500).json({ message: "Failed to fetch courses" })
   }
 })
@@ -176,9 +172,7 @@ router.post("/courses", async (req, res) => {
           subcourseIndex += module.subcourses.length
         })
         course.duration = result.totalDuration
-        console.log(`Calculated durations for ${allSubcourses.length} subcourses. Total course duration: ${course.duration} minutes`)
       } catch (durationError) {
-        console.error("Error calculating subcourse durations:", durationError)
         // Continue with course creation even if duration calculation fails
       }
     }
@@ -186,7 +180,6 @@ router.post("/courses", async (req, res) => {
     await course.save()
     res.status(201).json(course)
   } catch (error) {
-    console.error("Error creating course:", error)
     res.status(500).json({ message: "Failed to create course" })
   }
 })
@@ -232,9 +225,7 @@ router.put("/courses/:courseId", async (req, res) => {
           subcourseIndex += module.subcourses.length
         })
         course.duration = result.totalDuration
-        console.log(`Updated durations for ${allSubcourses.length} subcourses. Total course duration: ${course.duration} minutes`)
       } catch (durationError) {
-        console.error("Error calculating subcourse durations:", durationError)
         // Continue with course update even if duration calculation fails
       }
     }
@@ -242,7 +233,6 @@ router.put("/courses/:courseId", async (req, res) => {
     await course.save()
     res.json(course)
   } catch (error) {
-    console.error("Error updating course:", error)
     res.status(500).json({ message: "Failed to update course" })
   }
 })
@@ -262,7 +252,6 @@ router.delete("/courses/:courseId", async (req, res) => {
 
     res.json({ message: "Course deleted successfully" })
   } catch (error) {
-    console.error("Error deleting course:", error)
     res.status(500).json({ message: "Failed to delete course" })
   }
 })
@@ -281,7 +270,6 @@ router.get("/students", async (req, res) => {
 
     res.json(enrollments)
   } catch (error) {
-    console.error("Error fetching students:", error)
     res.status(500).json({ message: "Failed to fetch students" })
   }
 })
@@ -344,7 +332,6 @@ router.get("/reports/:type", async (req, res) => {
 
     res.json(data)
   } catch (error) {
-    console.error("Error fetching report data:", error)
     res.status(500).json({ message: "Failed to fetch report data" })
   }
 })

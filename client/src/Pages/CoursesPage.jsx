@@ -13,6 +13,8 @@ const CoursesPage = () => {
   const [courses, setCourses] = useState([])
   const [categories, setCategories] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [hasError, setHasError] = useState(false)
   const [viewMode, setViewMode] = useState("grid")
   const [showFilters, setShowFilters] = useState(false)
 
@@ -66,19 +68,23 @@ const CoursesPage = () => {
   const fetchCategories = async () => {
     try {
       const response = await apiRequest("courses/meta/categories")
-      if (response.ok) {
-        const data = await response.json()
-        setCategories(data)
+      // apiRequest returns an object: { data, status, ok }
+      if (response && response.ok) {
+        setCategories(response.data || [])
       }
     } catch (error) {
       console.error("Error fetching categories:", error)
-      setCategories(["Programming", "Design", "Marketing", "Business", "Creative", "Technology", "Health", "Language"])
+      setCategories([])
     }
   }
 
   const fetchCourses = useCallback(async () => {
-    try {
+    if (isInitialLoad) {
       setIsLoading(true)
+    }
+    setHasError(false)
+
+    try {
       const queryParams = new URLSearchParams({
         page: pagination.currentPage,
         limit: 12,
@@ -92,108 +98,36 @@ const CoursesPage = () => {
       })
 
       const response = await apiRequest(`courses?${queryParams}`)
-      if (response.ok) {
-        const data = await response.json()
-        setCourses(data.courses)
-        setPagination((prev) => ({
-          ...prev,
-          totalPages: data.totalPages,
-          total: data.total,
-        }))
+      // apiRequest returns { data, status, ok }
+      if (!response || !response.ok) {
+        throw new Error(`Failed to fetch courses`)
       }
+
+      const data = response.data
+      if (!data || !Array.isArray(data.courses)) {
+        throw new Error("Invalid response format from server")
+      }
+
+      setCourses(data.courses)
+      setPagination((prev) => ({
+        ...prev,
+        totalPages: Math.max(1, data.totalPages || 1),
+        total: data.total || 0,
+      }))
     } catch (error) {
       console.error("Error fetching courses:", error)
-      // Mock data for demonstration
-      setCourses([
-        {
-          _id: "1",
-          title: "Complete JavaScript Course",
-          description: "Master JavaScript from basics to advanced concepts with hands-on projects",
-          instructor: "John Doe",
-          price: 99,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Programming",
-          avgRating: 4.8,
-          reviewCount: 1250,
-          enrollmentCount: 15000,
-          lessons: Array(24).fill({}),
-          level: "Beginner",
-        },
-        {
-          _id: "2",
-          title: "React Development Bootcamp",
-          description: "Build modern web applications with React and Redux",
-          instructor: "Jane Smith",
-          price: 149,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Programming",
-          avgRating: 4.9,
-          reviewCount: 890,
-          enrollmentCount: 8500,
-          lessons: Array(32).fill({}),
-          level: "Intermediate",
-        },
-        {
-          _id: "3",
-          title: "UI/UX Design Masterclass",
-          description: "Learn design principles and create stunning user interfaces",
-          instructor: "Mike Johnson",
-          price: 79,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Design",
-          avgRating: 4.7,
-          reviewCount: 650,
-          enrollmentCount: 5200,
-          lessons: Array(18).fill({}),
-          level: "Beginner",
-        },
-        {
-          _id: "4",
-          title: "Digital Marketing Strategy",
-          description: "Master digital marketing and grow your business online",
-          instructor: "Sarah Wilson",
-          price: 89,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Marketing",
-          avgRating: 4.6,
-          reviewCount: 420,
-          enrollmentCount: 3100,
-          lessons: Array(16).fill({}),
-          level: "Beginner",
-        },
-        {
-          _id: "5",
-          title: "Python for Data Science",
-          description: "Learn Python programming for data analysis and machine learning",
-          instructor: "David Chen",
-          price: 129,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Programming",
-          avgRating: 4.8,
-          reviewCount: 780,
-          enrollmentCount: 6200,
-          lessons: Array(28).fill({}),
-          level: "Intermediate",
-        },
-        {
-          _id: "6",
-          title: "Business Strategy Fundamentals",
-          description: "Develop strategic thinking and business planning skills",
-          instructor: "Lisa Brown",
-          price: 99,
-          thumbnail: "/placeholder.svg?height=200&width=400",
-          category: "Business",
-          avgRating: 4.5,
-          reviewCount: 320,
-          enrollmentCount: 2800,
-          lessons: Array(20).fill({}),
-          level: "Beginner",
-        },
-      ])
+      setHasError(true)
+      setCourses([])
+      setPagination((prev) => ({
+        ...prev,
+        totalPages: 1,
+        total: 0,
+      }))
     } finally {
       setIsLoading(false)
+      setIsInitialLoad(false)
     }
-  }, [filters, pagination.currentPage])
+  }, [filters, pagination.currentPage, isInitialLoad])
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
@@ -523,7 +457,7 @@ const CoursesPage = () => {
               })}
             </div>
             {Object.values(filters).some((value) => value && value !== "all" && value !== "") && (
-            <button onClick={clearFilters} className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm">
+            <button onClick={clearFilters} className="bg-rose-700 text-white px-4 py-2 rounded-lg hover:bg-rose-800 transition-colors text-sm">
               Clear All
             </button>
             )}
@@ -531,7 +465,26 @@ const CoursesPage = () => {
         </div>
 
         {/* Course Grid */}
-        {isLoading ? (
+        {hasError ? (
+          <div className="text-center py-12">
+            <div className="text-red-500 mb-4">
+              <svg className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-medium text-gray-900 mb-2">Failed to load courses</h3>
+            <p className="text-gray-600 mb-4">There was an error loading the courses. Please try again.</p>
+            <button
+              onClick={() => {
+                setHasError(false)
+                fetchCourses()
+              }}
+              className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        ) : isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, index) => (
               <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">

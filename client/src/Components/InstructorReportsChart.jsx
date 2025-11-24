@@ -16,6 +16,7 @@ import {
   Pie,
   Cell,
 } from "recharts"
+import { apiRequest } from "../config/api"
 
 const InstructorReportsChart = ({ type }) => {
   const [chartData, setChartData] = useState([])
@@ -28,10 +29,9 @@ const InstructorReportsChart = ({ type }) => {
   const fetchChartData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/instructor/reports/${type}`, {
+      const response = await apiRequest(`instructor/reports/${type}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 
@@ -43,41 +43,10 @@ const InstructorReportsChart = ({ type }) => {
       }
     } catch (error) {
       console.error("Error fetching instructor chart data:", error)
-      // Mock data for demonstration - instructor specific
-      setMockData()
+      // Show empty state instead of mock data
+      setChartData([])
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const setMockData = () => {
-    if (type === "revenue") {
-      setChartData([
-        { month: "Jan", revenue: 2000, enrollments: 120 },
-        { month: "Feb", revenue: 1500, enrollments: 99 },
-        { month: "Mar", revenue: 2500, enrollments: 150 },
-        { month: "Apr", revenue: 2250, enrollments: 139 },
-        { month: "May", revenue: 3000, enrollments: 194 },
-        { month: "Jun", revenue: 2750, enrollments: 174 },
-      ])
-    } else if (type === "enrollments") {
-      setChartData([
-        { name: "My Course 1", value: 200, color: "#8884d8" },
-        { name: "My Course 2", value: 150, color: "#82ca9d" },
-        { name: "My Course 3", value: 100, color: "#ffc658" },
-        { name: "My Course 4", value: 75, color: "#ff7300" },
-        { name: "Other Courses", value: 50, color: "#00ff00" },
-      ])
-    } else if (type === "detailed") {
-      setChartData([
-        { date: "2024-01-01", enrollments: 60, revenue: 1200 },
-        { date: "2024-01-02", enrollments: 66, revenue: 1300 },
-        { date: "2024-01-03", enrollments: 72, revenue: 1400 },
-        { date: "2024-01-04", enrollments: 79, revenue: 1500 },
-        { date: "2024-01-05", enrollments: 83, revenue: 1600 },
-        { date: "2024-01-06", enrollments: 89, revenue: 1700 },
-        { date: "2024-01-07", enrollments: 94, revenue: 1800 },
-      ])
     }
   }
 
@@ -109,6 +78,23 @@ const InstructorReportsChart = ({ type }) => {
   }
 
   const renderChart = () => {
+    // Show empty state if no data
+    if (!chartData || chartData.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+          <svg className="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No data available</h3>
+          <p className="text-gray-500 text-center max-w-sm">
+            {type === "revenue" && "Revenue data will appear here once your courses have enrollments."}
+            {type === "enrollments" && "Enrollment data will appear here once students enroll in your courses."}
+            {type === "detailed" && "Detailed analytics will appear here once there's activity on your courses."}
+          </p>
+        </div>
+      )
+    }
+
     switch (type) {
       case "revenue":
         const totalRevenue = chartData.reduce((sum, item) => sum + item.revenue, 0)

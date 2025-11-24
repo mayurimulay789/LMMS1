@@ -5,6 +5,7 @@ const Course = require("../models/Course")
 const Payment = require("../models/Payment")
 const Enrollment = require("../models/Enrollment")
 const InstructorApplication = require("../models/InstructorApplication")
+const PromoCode = require("../models/PromoCode")
 const auth = require("../middleware/auth")
 const adminMiddleware = require("../middleware/AdminMiddleware")
 const mongoose = require("mongoose");
@@ -17,16 +18,122 @@ router.use(adminMiddleware)
 // Get admin dashboard stats
 router.get("/stats", async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments()
-    const totalCourses = await Course.countDocuments()
-    const totalPayments = await Payment.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }])
-    const activeEnrollments = await Enrollment.countDocuments({ status: "active" })
+    // Get current date
+    const today = new Date()
+    const currentMonth = today.getMonth()
+    const currentYear = today.getFullYear()
+    
+    // Calculate last month's date range
+    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1
+    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear
+
+    // Get date ranges for current and previous months
+    const currentMonthStart = new Date(currentYear, currentMonth, 1)
+    const lastMonthStart = new Date(lastMonthYear, lastMonth, 1)
+
+    // Calculate statistics
+    const [
+      totalUsers,
+      totalCourses,
+      currentMonthPayments,
+      lastMonthPayments,
+      activeEnrollments,
+      lastMonthUsers,
+      lastMonthCourses,
+      lastMonthEnrollments
+    ] = await Promise.all([
+      // Total users count
+      User.countDocuments(),
+      
+      // Total courses count  
+      Course.countDocuments(),
+
+      // Current month revenue
+      Payment.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: currentMonthStart }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$amount" }
+          }
+        }
+      ]),
+
+      // Last month revenue
+      Payment.aggregate([
+        {
+          $match: {
+            createdAt: { 
+              $gte: lastMonthStart,
+              $lt: currentMonthStart
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$amount" }
+          }
+        }
+      ]),
+
+      // Active enrollments
+      Enrollment.countDocuments({ status: "active" }),
+
+      // Last month users count
+      User.countDocuments({ createdAt: { $lt: currentMonthStart } }),
+      
+      // Last month courses count
+      Course.countDocuments({ createdAt: { $lt: currentMonthStart } }),
+
+      // Last month enrollments count
+      Enrollment.countDocuments({ 
+        status: "active",
+        createdAt: { $lt: currentMonthStart } 
+      })
+    ])
+
+    // Calculate month-over-month changes
+    const currentMonthRevenue = currentMonthPayments[0]?.total || 0
+    const lastMonthRevenue = lastMonthPayments[0]?.total || 0
+
+    const revenueChange = lastMonthRevenue === 0 ? 0 : 
+      ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1)
+
+    const usersChange = lastMonthUsers === 0 ? 0 :
+      ((totalUsers - lastMonthUsers) / lastMonthUsers * 100).toFixed(1)
+    
+    const coursesChange = lastMonthCourses === 0 ? 0 :
+      ((totalCourses - lastMonthCourses) / lastMonthCourses * 100).toFixed(1)
+    
+    const enrollmentsChange = lastMonthEnrollments === 0 ? 0 :
+      ((activeEnrollments - lastMonthEnrollments) / lastMonthEnrollments * 100).toFixed(1)
+
+    // Get all time total revenue
+    const allTimeRevenue = await Payment.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" }
+        }
+      }
+    ])
 
     res.json({
       totalUsers,
-      totalCourses,
-      totalRevenue: totalPayments[0]?.total || 0,
+      totalCourses, 
+      totalRevenue: allTimeRevenue[0]?.total || 0,
       activeEnrollments,
+      changes: {
+        users: `${usersChange > 0 ? '+' : ''}${usersChange}%`,
+        courses: `${coursesChange > 0 ? '+' : ''}${coursesChange}%`, 
+        revenue: `${revenueChange > 0 ? '+' : ''}${revenueChange}%`,
+        enrollments: `${enrollmentsChange > 0 ? '+' : ''}${enrollmentsChange}%`
+      }
     })
   } catch (error) {
     console.error("Error fetching admin stats:", error)
@@ -148,6 +255,124 @@ router.post("/users/:userId/delete", async (req, res) => {
   } catch (error) {
     console.error("Error deleting user:", error)
     res.status(500).json({ message: "Failed to delete user" })
+  }
+})
+
+// Create new user
+router.post("/users", async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email })
+    if (existingUser) {
+      return res.status(400).json({ message: "User with this email already exists" })
+    }
+
+    // Create new user
+    const user = new User({
+      name,
+      email,
+      password,
+      role: role || "student",
+      isEmailVerified: true, // Admin created users are verified by default
+    })
+
+    await user.save()
+
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = user.toObject()
+    res.status(201).json({ message: "User created successfully", user: userWithoutPassword })
+  } catch (error) {
+    console.error("Error creating user:", error)
+    res.status(500).json({ message: "Failed to create user" })
+  }
+})
+
+// Update user
+router.put("/users/:userId", async (req, res) => {
+  try {
+    const { name, email, role, isEmailVerified, profile } = req.body
+    const userId = req.params.userId
+
+    // Check if email is being changed and if it already exists
+    if (email) {
+      const existingUser = await User.findOne({ email, _id: { $ne: userId } })
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already exists" })
+      }
+    }
+
+    const updateData = {}
+    if (name) updateData.name = name
+    if (email) updateData.email = email
+    if (role) updateData.role = role
+    if (typeof isEmailVerified === 'boolean') updateData.isEmailVerified = isEmailVerified
+    if (profile) updateData.profile = { ...updateData.profile, ...profile }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true, runValidators: true }
+    ).select('-password')
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    res.json({ message: "User updated successfully", user })
+  } catch (error) {
+    console.error("Error updating user:", error)
+    res.status(500).json({ message: "Failed to update user" })
+  }
+})
+
+// Get single user details
+router.get("/users/:userId", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select('-password')
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    // Get enrollment count for this user
+    const enrollmentCount = await Enrollment.countDocuments({ user: user._id })
+    
+    res.json({
+      ...user.toObject(),
+      enrollments: enrollmentCount,
+    })
+  } catch (error) {
+    console.error("Error fetching user:", error)
+    res.status(500).json({ message: "Failed to fetch user" })
+  }
+})
+
+// Update user role
+router.post("/users/:userId/role", async (req, res) => {
+  try {
+    const { role } = req.body
+    const userId = req.params.userId
+
+    if (!["student", "instructor", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" })
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true, runValidators: true }
+    ).select('-password')
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    res.json({ message: "User role updated successfully", user })
+  } catch (error) {
+    console.error("Error updating user role:", error)
+    res.status(500).json({ message: "Failed to update user role" })
   }
 })
 
@@ -589,12 +814,16 @@ router.post("/instructor-applications/:applicationId/approve", async (req, res) 
 
     // Send approval email
     try {
-      await sendInstructorApprovalEmail({
+      const emailResult = await sendInstructorApprovalEmail({
         applicantName: application.applicantName,
         email: application.email,
         loginLink: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`,
       })
-      console.log('Approval email sent to:', application.email)
+      if (emailResult.success) {
+        console.log('Approval email sent to:', application.email)
+      } else {
+        console.log('Approval email skipped (configuration missing):', emailResult.message)
+      }
     } catch (emailError) {
       console.error('Approval email failed:', emailError)
       // Don't fail the approval if email fails
@@ -635,6 +864,221 @@ router.post("/instructor-applications/:applicationId/reject", async (req, res) =
   } catch (error) {
     console.error("Error rejecting application:", error)
     res.status(500).json({ message: "Failed to reject application" })
+  }
+})
+
+// ============= COUPON MANAGEMENT ROUTES =============
+
+// Get all coupons
+router.get("/coupons", async (req, res) => {
+  try {
+    const coupons = await PromoCode.find().sort({ createdAt: -1 })
+    res.json({
+      success: true,
+      data: coupons
+    })
+  } catch (error) {
+    console.error("Error fetching coupons:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch coupons"
+    })
+  }
+})
+
+// Get single coupon
+router.get("/coupons/:id", async (req, res) => {
+  try {
+    const coupon = await PromoCode.findById(req.params.id)
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: "Coupon not found"
+      })
+    }
+    res.json({
+      success: true,
+      data: coupon
+    })
+  } catch (error) {
+    console.error("Error fetching coupon:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch coupon"
+    })
+  }
+})
+
+// Create new coupon
+router.post("/coupons", async (req, res) => {
+  try {
+    const {
+      code,
+      description,
+      discountType,
+      discountValue,
+      minimumAmount,
+      maximumDiscount,
+      validFrom,
+      validUntil,
+      usageLimit,
+      userUsageLimit,
+      isActive,
+      isGlobal,
+      applicableCourses,
+      applicableCategories,
+    } = req.body
+
+    // Validate required fields
+    if (!code || !description || !discountType || !discountValue || !validFrom || !validUntil) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      })
+    }
+
+    // Validate discount value
+    if (discountType === "percentage" && discountValue > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Percentage discount cannot exceed 100%"
+      })
+    }
+
+    // Check if code already exists
+    const existingCode = await PromoCode.findOne({ code: code.toUpperCase() })
+    if (existingCode) {
+      return res.status(400).json({
+        success: false,
+        message: "Coupon code already exists"
+      })
+    }
+
+    const newCoupon = new PromoCode({
+      code: code.toUpperCase(),
+      description,
+      discountType,
+      discountValue,
+      minimumAmount: minimumAmount || 0,
+      maximumDiscount: maximumDiscount || undefined,
+      validFrom,
+      validUntil,
+      usageLimit: usageLimit || undefined,
+      userUsageLimit: userUsageLimit || 1,
+      isActive: isActive !== undefined ? isActive : true,
+      isGlobal: isGlobal !== undefined ? isGlobal : true,
+      applicableCourses: applicableCourses || [],
+      applicableCategories: applicableCategories || [],
+      createdBy: req.user._id,
+    })
+
+    await newCoupon.save()
+
+    res.status(201).json({
+      success: true,
+      message: "Coupon created successfully",
+      data: newCoupon
+    })
+  } catch (error) {
+    console.error("Error creating coupon:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to create coupon",
+      error: error.message
+    })
+  }
+})
+
+// Update coupon
+router.put("/coupons/:id", async (req, res) => {
+  try {
+    const {
+      description,
+      discountType,
+      discountValue,
+      minimumAmount,
+      maximumDiscount,
+      validFrom,
+      validUntil,
+      usageLimit,
+      userUsageLimit,
+      isActive,
+      isGlobal,
+      applicableCourses,
+      applicableCategories,
+    } = req.body
+
+    const coupon = await PromoCode.findById(req.params.id)
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: "Coupon not found"
+      })
+    }
+
+    // Validate discount value
+    if (discountType && discountType === "percentage" && discountValue > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Percentage discount cannot exceed 100%"
+      })
+    }
+
+    // Update fields
+    if (description) coupon.description = description
+    if (discountType) coupon.discountType = discountType
+    if (discountValue) coupon.discountValue = discountValue
+    if (minimumAmount !== undefined) coupon.minimumAmount = minimumAmount
+    if (maximumDiscount !== undefined) coupon.maximumDiscount = maximumDiscount
+    if (validFrom) coupon.validFrom = validFrom
+    if (validUntil) coupon.validUntil = validUntil
+    if (usageLimit !== undefined) coupon.usageLimit = usageLimit || undefined
+    if (userUsageLimit) coupon.userUsageLimit = userUsageLimit
+    if (isActive !== undefined) coupon.isActive = isActive
+    if (isGlobal !== undefined) coupon.isGlobal = isGlobal
+    if (applicableCourses) coupon.applicableCourses = applicableCourses
+    if (applicableCategories) coupon.applicableCategories = applicableCategories
+
+    await coupon.save()
+
+    res.json({
+      success: true,
+      message: "Coupon updated successfully",
+      data: coupon
+    })
+  } catch (error) {
+    console.error("Error updating coupon:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to update coupon",
+      error: error.message
+    })
+  }
+})
+
+// Delete coupon
+router.delete("/coupons/:id", async (req, res) => {
+  try {
+    const coupon = await PromoCode.findByIdAndDelete(req.params.id)
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: "Coupon not found"
+      })
+    }
+
+    res.json({
+      success: true,
+      message: "Coupon deleted successfully",
+      data: coupon
+    })
+  } catch (error) {
+    console.error("Error deleting coupon:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete coupon",
+      error: error.message
+    })
   }
 })
 

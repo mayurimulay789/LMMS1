@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Mail, Eye, MessageSquare, Clock, AlertCircle, CheckCircle, XCircle, Filter } from "lucide-react"
+import { apiRequest } from "../config/api"
 
 const AdminContactMessages = () => {
   const [contacts, setContacts] = useState([])
@@ -20,15 +21,14 @@ const AdminContactMessages = () => {
       const params = new URLSearchParams()
       if (filter !== "all") params.append("status", filter)
 
-      const response = await fetch(`http://localhost:2000/api/contact?${params}`, {
+      const response = await apiRequest(`contact?${params}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       })
 
       if (response.ok) {
-        const data = await response.json()
+        const data = response.data
         setContacts(data.contacts || [])
         setStats(data.stats || null)
       } else {
@@ -44,11 +44,10 @@ const AdminContactMessages = () => {
   const updateContactStatus = async (contactId, status) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:2000/api/contact/${contactId}/status`, {
+      const response = await apiRequest(`contact/${contactId}/status`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
         body: JSON.stringify({ status }),
       })
@@ -84,15 +83,15 @@ const AdminContactMessages = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case "new":
-        return <Clock className="h-4 w-4" />
+        return <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
       case "in-progress":
-        return <AlertCircle className="h-4 w-4" />
+        return <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
       case "resolved":
-        return <CheckCircle className="h-4 w-4" />
+        return <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
       case "closed":
-        return <XCircle className="h-4 w-4" />
+        return <XCircle className="h-3 w-3 sm:h-4 sm:w-4" />
       default:
-        return <MessageSquare className="h-4 w-4" />
+        return <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
     }
   }
 
@@ -108,7 +107,7 @@ const AdminContactMessages = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
         <div className="animate-pulse space-y-4">
           <div className="h-4 bg-gray-300 rounded w-1/4"></div>
           <div className="space-y-3">
@@ -122,43 +121,43 @@ const AdminContactMessages = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
             <div className="flex items-center">
-              <Mail className="h-8 w-8 text-blue-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Total Messages</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total || 0}</p>
+              <Mail className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              <div className="ml-2 sm:ml-3">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Messages</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.total || 0}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
             <div className="flex items-center">
-              <AlertCircle className="h-8 w-8 text-red-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Unread</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.unread || 0}</p>
+              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
+              <div className="ml-2 sm:ml-3">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Unread</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.unread || 0}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
             <div className="flex items-center">
-              <Clock className="h-8 w-8 text-yellow-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">New</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.new || 0}</p>
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600" />
+              <div className="ml-2 sm:ml-3">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">New</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.new || 0}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
             <div className="flex items-center">
-              <CheckCircle className="h-8 w-8 text-green-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Resolved</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.resolved || 0}</p>
+              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+              <div className="ml-2 sm:ml-3">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Resolved</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.resolved || 0}</p>
               </div>
             </div>
           </div>
@@ -167,16 +166,18 @@ const AdminContactMessages = () => {
 
       {/* Filter Tabs */}
       <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-4 border-b">
-          <div className="flex items-center space-x-4">
-            <Filter className="h-5 w-5 text-gray-500" />
-            <span className="font-medium text-gray-700">Filter by Status:</span>
-            <div className="flex space-x-2">
+        <div className="p-3 sm:p-4 border-b">
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+            <div className="flex items-center space-x-2">
+              <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
+              <span className="font-medium text-gray-700 text-sm sm:text-base">Filter by Status:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
               {["all", "new", "in-progress", "resolved", "closed"].map((status) => (
                 <button
                   key={status}
                   onClick={() => setFilter(status)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium ${
                     filter === status
                       ? "bg-blue-100 text-blue-800 border border-blue-300"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -194,22 +195,22 @@ const AdminContactMessages = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Contact
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Subject
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -217,53 +218,56 @@ const AdminContactMessages = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {contacts.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan="6" className="px-3 py-4 sm:px-6 sm:py-4 text-center text-gray-500 text-sm">
                     No contact messages found
                   </td>
                 </tr>
               ) : (
                 contacts.map((contact) => (
                   <tr key={contact._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{contact.name}</div>
-                          <div className="text-sm text-gray-500">{contact.email}</div>
+                          <div className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">{contact.name}</div>
+                          <div className="text-xs sm:text-sm text-gray-500 truncate max-w-[120px] sm:max-w-none">{contact.email}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 max-w-xs truncate">{contact.subject}</div>
+                    <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 max-w-[100px] sm:max-w-xs truncate">{contact.subject}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
                       <span className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
                         {contact.category || "General"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(contact.status)}`}>
+                    <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-xs font-medium ${getStatusColor(contact.status)}`}>
                         {getStatusIcon(contact.status)}
-                        <span className="ml-1">
+                        <span className="ml-1 hidden sm:inline">
                           {contact.status === "in-progress" ? "In Progress" : contact.status.charAt(0).toUpperCase() + contact.status.slice(1)}
+                        </span>
+                        <span className="ml-1 sm:hidden">
+                          {contact.status === "in-progress" ? "Progress" : contact.status.charAt(0).toUpperCase()}
                         </span>
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                       {formatDate(contact.createdAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                    <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-1 sm:space-x-2">
                         <button
                           onClick={() => setSelectedContact(contact)}
                           className="text-blue-600 hover:text-blue-900 p-1"
                           title="View Message"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                         </button>
                         {contact.status === "new" && (
                           <button
                             onClick={() => updateContactStatus(contact._id, "in-progress")}
-                            className="text-yellow-600 hover:text-yellow-900 px-2 py-1 text-xs rounded"
+                            className="text-yellow-600 hover:text-yellow-900 px-1 py-0.5 sm:px-2 sm:py-1 text-xs rounded text-xs"
                           >
                             Start
                           </button>
@@ -271,7 +275,7 @@ const AdminContactMessages = () => {
                         {contact.status === "in-progress" && (
                           <button
                             onClick={() => updateContactStatus(contact._id, "resolved")}
-                            className="text-green-600 hover:text-green-900 px-2 py-1 text-xs rounded"
+                            className="text-green-600 hover:text-green-900 px-1 py-0.5 sm:px-2 sm:py-1 text-xs rounded text-xs"
                           >
                             Resolve
                           </button>
@@ -289,39 +293,39 @@ const AdminContactMessages = () => {
       {/* Message Detail Modal */}
       {selectedContact && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Contact Message Details</h3>
+          <div className="relative top-4 sm:top-10 mx-auto p-3 sm:p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-1 sm:mt-3">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900">Contact Message Details</h3>
                 <button
                   onClick={() => setSelectedContact(null)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <XCircle className="h-6 w-6" />
+                  <XCircle className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Name</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedContact.name}</p>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700">Name</label>
+                    <p className="mt-1 text-xs sm:text-sm text-gray-900">{selectedContact.name}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedContact.email}</p>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700">Email</label>
+                    <p className="mt-1 text-xs sm:text-sm text-gray-900">{selectedContact.email}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Phone</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedContact.phone || "Not provided"}</p>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700">Phone</label>
+                    <p className="mt-1 text-xs sm:text-sm text-gray-900">{selectedContact.phone || "Not provided"}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Category</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedContact.category || "General"}</p>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700">Category</label>
+                    <p className="mt-1 text-xs sm:text-sm text-gray-900">{selectedContact.category || "General"}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Status</label>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedContact.status)}`}>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700">Status</label>
+                    <span className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedContact.status)} mt-1`}>
                       {getStatusIcon(selectedContact.status)}
                       <span className="ml-1">
                         {selectedContact.status === "in-progress" ? "In Progress" : selectedContact.status.charAt(0).toUpperCase() + selectedContact.status.slice(1)}
@@ -329,29 +333,29 @@ const AdminContactMessages = () => {
                     </span>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Date</label>
-                    <p className="mt-1 text-sm text-gray-900">{formatDate(selectedContact.createdAt)}</p>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700">Date</label>
+                    <p className="mt-1 text-xs sm:text-sm text-gray-900">{formatDate(selectedContact.createdAt)}</p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Subject</label>
-                  <p className="mt-1 text-sm text-gray-900 font-medium">{selectedContact.subject}</p>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">Subject</label>
+                  <p className="mt-1 text-xs sm:text-sm text-gray-900 font-medium">{selectedContact.subject}</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Message</label>
-                  <div className="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded-md whitespace-pre-wrap">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">Message</label>
+                  <div className="mt-1 text-xs sm:text-sm text-gray-900 bg-gray-50 p-2 sm:p-3 rounded-md whitespace-pre-wrap max-h-32 sm:max-h-48 overflow-y-auto">
                     {selectedContact.message}
                   </div>
                 </div>
 
                 {/* Status Update Actions */}
-                <div className="flex justify-end space-x-3 pt-4 border-t">
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-3 sm:pt-4 border-t">
                   {selectedContact.status === "new" && (
                     <button
                       onClick={() => updateContactStatus(selectedContact._id, "in-progress")}
-                      className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition-colors"
+                      className="bg-yellow-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-yellow-700 transition-colors text-sm sm:text-base"
                     >
                       Mark In Progress
                     </button>
@@ -359,14 +363,14 @@ const AdminContactMessages = () => {
                   {selectedContact.status === "in-progress" && (
                     <button
                       onClick={() => updateContactStatus(selectedContact._id, "resolved")}
-                      className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                      className="bg-green-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-green-700 transition-colors text-sm sm:text-base"
                     >
                       Mark Resolved
                     </button>
                   )}
                   <button
                     onClick={() => setSelectedContact(null)}
-                    className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                    className="bg-gray-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-gray-700 transition-colors text-sm sm:text-base"
                   >
                     Close
                   </button>
