@@ -370,7 +370,7 @@ const ReferEarn = () => {
     Start Referring Now
   </button>
 </div>
-            <button className="bg-transparent border-2 border-white text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-rose-800 transition-all duration-300 hover:shadow-xl transform hover:scale-105">
+            <button className="bg-white text-rose-800 px-10 ml-5 py-4 rounded-lg font-bold text-lg hover:bg-rose-100 transition-all duration-300 shadow-lg border-2 border-white hover:shadow-xl transform hover:scale-105">
               Learn More
             </button>
           </div>

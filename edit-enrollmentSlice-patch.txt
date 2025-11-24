@@ -1,0 +1,168 @@
+"enrollment/fetchUserEnrollments",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState()
+      const response = await apiRequest("enrollments/me", {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      })
+
+      const data = await response.json()
+      return data
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
+=======
+export const fetchUserEnrollments = createAsyncThunk(
+  "enrollment/fetchUserEnrollments",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState()
+      const token = auth.token || localStorage.getItem("token");
+
+      const response = await apiRequest("enrollments/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = response.data
+      return data
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+export const fetchUserProgress = createAsyncThunk(
+  "enrollment/fetchUserProgress",
+  async (courseId, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState()
+      const response = await apiRequest(`enrollments/progress/${courseId}`, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      })
+
+      const data = await response.json()
+      return { courseId, progress: data.progress }
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
+=======
+export const fetchUserProgress = createAsyncThunk(
+  "enrollment/fetchUserProgress",
+  async (courseId, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState()
+      const token = auth.token || localStorage.getItem("token")
+
+      const response = await apiRequest(`enrollments/progress/${courseId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = response.data
+      return { courseId, progress: data.progress }
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+export const fetchUserCertificates = createAsyncThunk(
+  "enrollment/fetchUserCertificates",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState()
+      const response = await apiRequest("certificates/me", {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      })
+
+      const data = await response.json()
+      return data
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
+=======
+export const fetchUserCertificates = createAsyncThunk(
+  "enrollment/fetchUserCertificates",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState()
+      const token = auth.token || localStorage.getItem("token")
+
+      const response = await apiRequest("certificates/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = response.data
+      return data
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+export const updateProgress = createAsyncThunk(
+  "enrollment/updateProgress",
+  async ({ courseId, lessonId }, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState()
+      const response = await apiRequest("enrollments/progress", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+        body: JSON.stringify({ courseId, lessonId }),
+      })
+
+      const data = await response.json()
+      return data
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
+=======
+export const updateProgress = createAsyncThunk(
+  "enrollment/updateProgress",
+  async ({ courseId, lessonId }, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState()
+      const token = auth.token || localStorage.getItem("token")
+
+      const response = await apiRequest("enrollments/progress", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ courseId, lessonId }),
+      })
+
+      const data = response.data
+      return data
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
