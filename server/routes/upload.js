@@ -126,7 +126,7 @@ router.post("/course-media", auth, instructorMiddleware, upload.single("thumbnai
     }
 
     // Construct URL for the uploaded file
-    const fileUrl = `/api/uploads/${req.file.filename}`;
+    const fileUrl = `/uploads/${req.file.filename}`;
     const fullUrl = `${req.protocol}://${req.get('host')}${fileUrl}`;
 
     console.log('File uploaded successfully:', {
@@ -180,6 +180,7 @@ router.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
   }
 }));
 
+
 // Upload lesson video (separate endpoint for even larger files if needed)
 router.post("/lesson-video", auth, instructorMiddleware, upload.single("video"), async (req, res, next) => {
   try {
@@ -193,7 +194,9 @@ router.post("/lesson-video", auth, instructorMiddleware, upload.single("video"),
       });
     }
 
-    const fileUrl = `/api/uploads/${req.file.filename}`;
+
+    const fileUrl = `/uploads/${req.file.filename}`;
+
     const fullUrl = `${req.protocol}://${req.get('host')}${fileUrl}`;
 
     console.log('Lesson video uploaded:', {

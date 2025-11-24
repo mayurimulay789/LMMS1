@@ -378,7 +378,7 @@ const RegisterPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center shadow-lg"
+              className="w-full bg-rose-700 text-white py-3 px-4 rounded-lg font-semibold hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center shadow-lg"
             >
               {isLoading ? (
                 <>

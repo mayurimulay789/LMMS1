@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { Play, Clock, CheckCircle, ArrowLeft, Lock, Award } from "lucide-react"
+import { Play, Clock, CheckCircle, ArrowLeft, Lock, Award, Menu, X } from "lucide-react"
 import { motion } from "framer-motion"
 import toast from "react-hot-toast"
 import { apiRequest } from "../config/api"
@@ -23,10 +23,9 @@ const LearnPage = () => {
   const [certificateId, setCertificateId] = useState(null)
   const [isYouTubeLoaded, setIsYouTubeLoaded] = useState(false)
   const [completedLessons, setCompletedLessons] = useState([])
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const youtubePlayerRef = useRef(null)
-
-
 
   // Load YouTube API
   useEffect(() => {
@@ -101,7 +100,7 @@ const LearnPage = () => {
       })
       if (response.ok) {
         const data = await response.json()
-        console.log("LearnPage fetchCourseDetails response data:", data)  // Debug log
+        console.log("LearnPage fetchCourseDetails response data:", data)
         setCourse(data)
         setIsEnrolled(data.isEnrolled)
         if (!data.isEnrolled) setError("You are not enrolled in this course")
@@ -131,14 +130,12 @@ const LearnPage = () => {
         console.log('Progress response data:', data);
         setProgress(data.progress)
         setCompletedLessons(data.progress?.completedLessons || [])
-        // Set certificate from enrollment if available
         if (data.certificate && data.certificate.issued) {
           console.log('Setting certificateId from enrollment:', data.certificate.certificateId);
           setCertificateId(data.certificate.certificateId)
         } else {
           console.log('No issued certificate in enrollment response');
         }
-        // Fetch certificate if course is completed (for additional Certificate model records if any)
         if (isCourseCompleted()) {
           await fetchCertificate()
         }
@@ -188,7 +185,6 @@ const LearnPage = () => {
         setProgress(data.progress)
         setCompletedLessons(data.progress?.completedLessons || [])
         toast.success("Lesson completed!")
-        // Refresh progress to update UI immediately
         await fetchProgress()
       }
     } catch (err) {
@@ -225,7 +221,6 @@ const LearnPage = () => {
         toast("Generating certificate...");
 
         try {
-          // Attempt to generate certificate manually
           const token = localStorage.getItem("token");
           const response = await apiRequest("certificates/generate", {
             method: "POST",
@@ -239,11 +234,7 @@ const LearnPage = () => {
             const data = await response.json();
             console.log('Certificate generated:', data);
             toast.success("Certificate generated successfully!");
-
-            // Refresh progress to get updated certificate info
             await fetchProgress();
-
-            // Open the certificate
             if (data.certificate?.certificateId) {
               window.open(`/api/certificates/pdf/${data.certificate.certificateId}`, "_blank");
             }
@@ -271,9 +262,9 @@ const LearnPage = () => {
 
   const renderVideoPlayer = (lesson) => {
     if (!lesson.videoUrl) return (
-      <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
-        <Lock className="h-12 w-12 text-gray-400" />
-        <p className="text-gray-600">Video not available</p>
+      <div className="flex flex-col items-center justify-center h-48 sm:h-64 bg-gray-100 rounded-lg p-4">
+        <Lock className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-2" />
+        <p className="text-sm sm:text-base text-gray-600 text-center">Video not available</p>
       </div>
     )
 
@@ -289,9 +280,9 @@ const LearnPage = () => {
       )
     } else if (videoId && !isYouTubeLoaded) {
       return (
-        <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600 ml-2">Loading YouTube player...</p>
+        <div className="flex flex-col items-center justify-center h-48 sm:h-64 bg-gray-100 rounded-lg p-4">
+          <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
+          <p className="text-sm sm:text-base text-gray-600 mt-2">Loading YouTube player...</p>
         </div>
       )
     }
@@ -308,28 +299,59 @@ const LearnPage = () => {
     )
   }
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>
-  if (error) return <div className="min-h-screen flex items-center justify-center">{error}</div>
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-600"></div>
+    </div>
+  )
+  
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="text-center">
+        <p className="text-red-600 text-lg sm:text-xl">{error}</p>
+        <button 
+          onClick={() => navigate(-1)}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Go Back
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-start space-y-4 lg:space-y-0 lg:space-x-4">
-          <button onClick={() => navigate(`/courses/${courseId}`)} className="flex items-center space-x-2 text-gray-600 hover:text-gray-900">
-            <ArrowLeft className="h-5 w-5" />
-            <span>Back to Course</span>
-          </button>
-          <div className="flex-1">
-            <h1 className="text-xl font-semibold text-gray-900">{course.title}</h1>
-            <p className="text-sm text-gray-600">Continue your learning journey</p>
+      <div className="bg-white border-b border-gray-200 px-3 sm:px-4 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+          <div className="flex items-center justify-between w-full sm:w-auto">
+            <button 
+              onClick={() => navigate(`/courses/${courseId}`)} 
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base">Back to Course</span>
+            </button>
+            
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="sm:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+            >
+              {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
+          
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{course?.title}</h1>
+            <p className="text-xs sm:text-sm text-gray-600">Continue your learning journey</p>
+          </div>
+          
           {progress && (
-            <div className="text-right">
-              <div className="text-sm text-gray-600 mb-1">
+            <div className="text-right w-full sm:w-auto">
+              <div className="text-xs sm:text-sm text-gray-600 mb-1">
                 Progress: {progress.completionPercentage}%
               </div>
-              <div className="w-24 bg-gray-200 rounded-full h-2">
+              <div className="w-full sm:w-24 bg-gray-200 rounded-full h-2">
                 <div
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${progress.completionPercentage}%` }}
@@ -340,13 +362,72 @@ const LearnPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar */}
-        <div className="lg:col-span-1 space-y-4">
-          {/* Certificate */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* Sidebar - Mobile Overlay */}
+        {isSidebarOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)}>
+            <div className="absolute left-0 top-0 h-full w-4/5 max-w-sm bg-white shadow-lg p-4 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">Course Content</h2>
+                <button onClick={() => setIsSidebarOpen(false)} className="p-1">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <button
+                type="button"
+                className={`flex items-center p-3 rounded-lg shadow-sm w-full mb-4 ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer`}
+                onClick={() => {
+                  handleCertificateClick()
+                  setIsSidebarOpen(false)
+                }}
+              >
+                {isCourseCompleted() ? <Award className="h-5 w-5 text-green-600 mr-2" /> : <Lock className="h-5 w-5 text-gray-400 mr-2" />}
+                <span className={`${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium text-sm`}>
+                  {isCourseCompleted() ? "View Certificate" : "Certificate Locked"}
+                </span>
+              </button>
+
+              <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
+                {course?.lessons?.map((lesson, index) => (
+                  <motion.div
+                    key={lesson._id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className={`p-3 rounded-lg cursor-pointer transition-colors ${selectedLesson?._id === lesson._id ? "bg-red-50 border border-red-200" : "hover:bg-gray-50"}`}
+                    onClick={() => {
+                      setSelectedLesson(lesson)
+                      setIsSidebarOpen(false)
+                    }}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${selectedLesson?._id === lesson._id ? "bg-red-600 text-white" : "bg-gray-200 text-gray-600"}`}>
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-gray-900 line-clamp-2">{lesson.title}</h4>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Clock className="h-3 w-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">{formatDuration(lesson.duration)}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        {isLessonCompleted(lesson._id) && <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sidebar - Desktop */}
+        <div className="hidden lg:block lg:col-span-1 space-y-4">
           <button
             type="button"
-            className={`flex items-center p-4 rounded-lg shadow-sm ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer`}
+            className={`flex items-center p-4 rounded-lg shadow-sm w-full ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer`}
             onClick={handleCertificateClick}
           >
             {isCourseCompleted() ? <Award className="h-6 w-6 text-green-600 mr-3" /> : <Lock className="h-6 w-6 text-gray-400 mr-3" />}
@@ -355,7 +436,6 @@ const LearnPage = () => {
             </span>
           </button>
 
-          {/* Lessons */}
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Content</h3>
             <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -390,30 +470,32 @@ const LearnPage = () => {
         {/* Video Player */}
         <div className="lg:col-span-3">
           {selectedLesson ? (
-            <motion.div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedLesson.title}</h2>
-              {selectedLesson.description && <p className="text-gray-600 mb-4">{selectedLesson.description}</p>}
+            <motion.div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{selectedLesson.title}</h2>
+              {selectedLesson.description && <p className="text-sm sm:text-base text-gray-600 mb-4">{selectedLesson.description}</p>}
               {renderVideoPlayer(selectedLesson)}
 
               {isLessonCompleted(selectedLesson._id) && (
-                <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
+                <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 flex items-center space-x-3">
+                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
                   <div>
-                    <p className="text-green-800 font-medium">Lesson Completed!</p>
-                    <p className="text-green-600 text-sm">Great job! Continue to the next lesson.</p>
+                    <p className="text-green-800 font-medium text-sm sm:text-base">Lesson Completed!</p>
+                    <p className="text-green-600 text-xs sm:text-sm">Great job! Continue to the next lesson.</p>
                   </div>
                 </div>
               )}
 
               {selectedLesson.resources?.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Resources</h3>
+                <div className="mt-4 sm:mt-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Resources</h3>
                   <div className="space-y-2">
                     {selectedLesson.resources.map((res, idx) => (
                       <a key={idx} href={res.url} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-medium text-blue-600">{res.type?.toUpperCase() || "LINK"}</div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{res.title}</p>
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-medium text-blue-600">
+                          {res.type?.toUpperCase()?.charAt(0) || "L"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">{res.title}</p>
                           <p className="text-xs text-gray-600">Click to download/view</p>
                         </div>
                       </a>
@@ -423,10 +505,16 @@ const LearnPage = () => {
               )}
             </motion.div>
           ) : (
-            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-              <Play className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Select a Lesson</h3>
-              <p className="text-gray-600">Choose a lesson from the sidebar to start learning</p>
+            <div className="bg-white rounded-lg shadow-sm p-6 sm:p-12 text-center">
+              <Play className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Select a Lesson</h3>
+              <p className="text-sm sm:text-base text-gray-600">Choose a lesson from the sidebar to start learning</p>
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="mt-4 sm:hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Open Lessons
+              </button>
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, X, Send } from "lucide-react"
+import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, X, Send, Download, Eye } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { apiRequest } from "../config/api"
 
@@ -27,6 +27,8 @@ const CourseDetailPage = () => {
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [completedVideos, setCompletedVideos] = useState(new Set())
   const [showReviewPrompt, setShowReviewPrompt] = useState(false)
+  const [userCertificates, setUserCertificates] = useState([])
+  const [certificatesLoading, setCertificatesLoading] = useState(false)
 
   const modalVideoRef = useRef(null)
   
@@ -58,6 +60,13 @@ const CourseDetailPage = () => {
       setVideoError("")
     }
   }, [showVideoModal])
+
+  // Fetch all user certificates when certificate tab is active
+  useEffect(() => {
+    if (activeTab === "certificate" && isAuthenticated) {
+      fetchUserCertificates()
+    }
+  }, [activeTab, isAuthenticated])
 
   const fetchCourseDetails = async () => {
     try {
@@ -156,6 +165,101 @@ const CourseDetailPage = () => {
     }
   }
 
+  // Fetch user certificates from the same endpoint as CertificatesPage
+  const fetchUserCertificates = async () => {
+    if (!isAuthenticated) return;
+
+    setCertificatesLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      
+      // Use the same endpoint as your CertificatesPage component
+      const response = await fetch("/api/certificates/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch certificates");
+      }
+
+      const data = await response.json();
+      console.log("Fetched user certificates:", data);
+      
+      // Handle different response structures
+      let certificatesData = [];
+      if (Array.isArray(data)) {
+        certificatesData = data;
+      } else if (data.certificates && Array.isArray(data.certificates)) {
+        certificatesData = data.certificates;
+      } else if (data.data && Array.isArray(data.data)) {
+        certificatesData = data.data;
+      }
+      
+      setUserCertificates(certificatesData);
+      
+    } catch (error) {
+      console.error("Error fetching user certificates:", error);
+      // If the main endpoint fails, try alternative endpoints
+      try {
+        await fetchUserCertificatesFallback();
+      } catch (fallbackError) {
+        console.error("All certificate fetch attempts failed:", fallbackError);
+        setUserCertificates([]);
+      }
+    } finally {
+      setCertificatesLoading(false);
+    }
+  };
+
+  // Fallback method to fetch certificates from alternative endpoints
+  const fetchUserCertificatesFallback = async () => {
+    const token = localStorage.getItem("token");
+    const endpoints = [
+      `${import.meta.env.VITE_API_URL}/certificates/user/my-certificates`,
+      `${import.meta.env.VITE_API_URL}/certificates/my-certificates`,
+      `${import.meta.env.VITE_API_URL}/certificates/user`,
+      `${import.meta.env.VITE_API_URL}/certificates`,
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`Trying fallback endpoint: ${endpoint}`);
+        const response = await fetch(endpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`Successfully fetched from fallback: ${endpoint}`, data);
+          
+          let certificatesData = [];
+          if (Array.isArray(data)) {
+            certificatesData = data;
+          } else if (data.certificates && Array.isArray(data.certificates)) {
+            certificatesData = data.certificates;
+          } else if (data.data && Array.isArray(data.data)) {
+            certificatesData = data.data;
+          }
+          
+          if (certificatesData.length > 0) {
+            setUserCertificates(certificatesData);
+            return;
+          }
+        }
+      } catch (error) {
+        console.log(`Fallback endpoint ${endpoint} failed:`, error);
+      }
+    }
+    
+    setUserCertificates([]);
+  };
+
   const markVideoAsCompleted = (videoId) => {
     const newCompletedVideos = new Set(completedVideos)
     newCompletedVideos.add(videoId)
@@ -177,9 +281,12 @@ const CourseDetailPage = () => {
       return
     }
 
+    // Transform URL to fix old /api/uploads/ format
+    const videoUrl = course.thumbnail.replace('/api/uploads/', '/uploads/')
+
     // Check if it's a video file or Cloudinary video URL
-    const isVideo = course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv|m4v|3gp|wmv)$/i) ||
-                   course.thumbnail.includes('cloudinary.com') && course.thumbnail.includes('/video/upload/')
+    const isVideo = videoUrl.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv|m4v|3gp|wmv)$/i) ||
+                   videoUrl.includes('cloudinary.com') && videoUrl.includes('/video/upload/')
 
     if (!isVideo) {
       setVideoError("This course preview is an image, not a video")
@@ -454,12 +561,70 @@ const CourseDetailPage = () => {
     }
   }
 
+  // Function to handle certificate download
+  const handleDownloadCertificate = async (certificateData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`/api/certificates/download/${certificateData.certificateId || certificateData.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download certificate");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `certificate-${certificateData.certificateId || certificateData.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      alert("Certificate downloaded successfully!");
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Failed to download certificate");
+    }
+  };
+
+  // Function to handle certificate view
+  const handleViewCertificate = (certificateData) => {
+    if (certificateData.verificationUrl) {
+      window.open(certificateData.verificationUrl, '_blank');
+    } else if (certificateData.imageUrl) {
+      window.open(certificateData.imageUrl, '_blank');
+    } else {
+      // Fallback to PDF view
+      window.open(`/api/certificates/pdf/${certificateData.certificateId || certificateData.id}`, '_blank');
+    }
+  };
+
+  // Function to get course name from certificate data
+  const getCourseNameFromCertificate = (certificateData) => {
+    return certificateData.courseName || "Course Certificate";
+  };
+
+  // Function to get certificate issue date
+  const getCertificateIssueDate = (certificateData) => {
+    return certificateData.issueDate || certificateData.issuedAt || 'N/A';
+  };
+
+  // Function to get certificate ID
+  const getCertificateId = (certificateData) => {
+    return certificateData.certificateId || certificateData.id || 'N/A';
+  };
+
   const tabs = [
     { id: "overview", label: "Overview" },
     { id: "curriculum", label: "Curriculum" },
     { id: "instructor", label: "Instructor" },
     { id: "reviews", label: "Reviews" },
-    { id: "certificate", label: "Certificate", locked: isEnrolled && userProgress?.completionPercentage < 100 },
+    { id: "certificate", label: "Certificate" },
   ]
 
   // Video Modal Component
@@ -499,11 +664,11 @@ const CourseDetailPage = () => {
                   onEnded={() => markVideoAsCompleted('preview')}
                   crossOrigin="anonymous"
                 >
-                  <source src={course.thumbnail} type="video/mp4" />
-                  <source src={course.thumbnail} type="video/webm" />
-                  <source src={course.thumbnail} type="video/ogg" />
+                  <source src={course.thumbnail.replace('/api/uploads/', '/uploads/')} type="video/mp4" />
+                  <source src={course.thumbnail.replace('/api/uploads/', '/uploads/')} type="video/webm" />
+                  <source src={course.thumbnail.replace('/api/uploads/', '/uploads/')} type="video/ogg" />
                   Your browser does not support the video tag.
-                  <p>Download the video: <a href={course.thumbnail} target="_blank" rel="noopener noreferrer">Click here</a></p>
+                  <p>Download the video: <a href={course.thumbnail.replace('/api/uploads/', '/uploads/')} target="_blank" rel="noopener noreferrer">Click here</a></p>
                 </video>
               )}
             </div>
@@ -820,7 +985,7 @@ const CourseDetailPage = () => {
                     <div className="space-y-3">
                       <button
                         onClick={handleEnroll}
-                        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                        className="w-full bg-rose-700 text-white py-3 rounded-lg font-semibold hover:bg-rose-800 transition-colors"
                       >
                         {course.price === 0 ? "Enroll for Free" : "Buy Now"}
                       </button>
@@ -898,29 +1063,7 @@ const CourseDetailPage = () => {
             >
               {activeTab === "overview" && (
                 <div className="space-y-8">
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">What you'll learn</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {course.whatYouWillLearn.map((item, index) => (
-                        <div key={index} className="flex items-start space-x-3">
-                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-gray-700">{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">Requirements</h3>
-                    <ul className="space-y-2">
-                      {course.requirements.map((requirement, index) => (
-                        <li key={index} className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-gray-700">{requirement}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                
 
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">Course Details</h3>
@@ -1216,6 +1359,95 @@ const CourseDetailPage = () => {
                           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                         >
                           Login to Review
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "certificate" && (
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">My Certificates</h3>
+
+                  {certificatesLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      <span className="ml-3 text-gray-600">Loading certificates...</span>
+                    </div>
+                  ) : userCertificates.length > 0 ? (
+                    <div className="space-y-4">
+                      {userCertificates.map((cert) => {
+                        const courseName = getCourseNameFromCertificate(cert);
+                        const issueDate = getCertificateIssueDate(cert);
+                        const certificateId = getCertificateId(cert);
+                        
+                        return (
+                          <div key={cert.id || cert.certificateId} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center space-x-3">
+                                <Award className="h-5 w-5 text-green-600" />
+                                <div>
+                                  <h5 className="font-semibold text-gray-900 text-sm">{courseName}</h5>
+                                  <p className="text-xs text-gray-600">Certificate of Completion</p>
+                                </div>
+                              </div>
+                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                Completed
+                              </span>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+                              <div>
+                                <span className="text-gray-600">Issued:</span>
+                                <span className="text-gray-900 ml-1">
+                                  {issueDate !== 'N/A' ? new Date(issueDate).toLocaleDateString() : 'N/A'}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-gray-600">ID:</span>
+                                <span className="text-gray-900 ml-1 font-mono">
+                                  {certificateId}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleViewCertificate(cert)}
+                                className="flex-1 bg-blue-100 text-blue-800 py-1.5 px-1 rounded text-xs hover:bg-blue-200 border border-blue-300 transition-colors flex items-center justify-center space-x-1"
+                              >
+                                <Eye className="h-3 w-3" />
+                                <span>View</span>
+                              </button>
+                              <button
+                                onClick={() => handleDownloadCertificate(cert)}
+                                className="flex-1 bg-green-100 text-green-800 py-1.5 px-1 rounded text-xs hover:bg-green-200 border border-green-300 transition-colors flex items-center justify-center space-x-1"
+                              >
+                                <Download className="h-3 w-3" />
+                                <span>Download</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                      <Award className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h5 className="text-lg font-semibold text-gray-900 mb-2">No Certificates Yet</h5>
+                      <p className="text-gray-600 mb-4">
+                        {isAuthenticated 
+                          ? "Complete courses to earn certificates that will appear here."
+                          : "Login to view your certificates."
+                        }
+                      </p>
+                      {!isAuthenticated && (
+                        <button
+                          onClick={() => navigate('/login')}
+                          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Login to View Certificates
                         </button>
                       )}
                     </div>

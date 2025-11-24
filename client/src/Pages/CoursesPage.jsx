@@ -457,7 +457,7 @@ const CoursesPage = () => {
               })}
             </div>
             {Object.values(filters).some((value) => value && value !== "all" && value !== "") && (
-            <button onClick={clearFilters} className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm">
+            <button onClick={clearFilters} className="bg-rose-700 text-white px-4 py-2 rounded-lg hover:bg-rose-800 transition-colors text-sm">
               Clear All
             </button>
             )}
