@@ -8,7 +8,7 @@ import {
   BookOpen, 
   CheckCircle, 
   Image as ImageIcon, 
-  Video, 
+  Video,
   Clock, 
   Award, 
   TrendingUp,
