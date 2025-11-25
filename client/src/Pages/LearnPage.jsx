@@ -50,7 +50,7 @@ const LearnPage = () => {
       return
     }
     fetchCourseDetails()
-  }, [courseId, isAuthenticated])
+  }, [courseId, isAuthenticated, navigate])
 
   // Set selected lesson from URL or first lesson
   useEffect(() => {
@@ -94,20 +94,35 @@ const LearnPage = () => {
   // Fetch course details
   const fetchCourseDetails = async () => {
     try {
+      setIsLoading(true)
+      setError(null)
+      
       const token = localStorage.getItem("token")
+      if (!token) {
+        navigate("/login")
+        return
+      }
+
       const response = await apiRequest(`courses/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (response.ok) {
-        const data = await response.json()
+
+      if (response && response.ok) {
+        const data = response.data
         console.log("LearnPage fetchCourseDetails response data:", data)
         setCourse(data)
-        setIsEnrolled(data.isEnrolled)
-        if (!data.isEnrolled) setError("You are not enrolled in this course")
-        else await fetchProgress()
-      } else setError("Course not found")
+        setIsEnrolled(data.isEnrolled || false)
+        
+        if (!data.isEnrolled) {
+          setError("You are not enrolled in this course")
+        } else {
+          await fetchProgress()
+        }
+      } else {
+        setError("Course not found or access denied")
+      }
     } catch (err) {
-      console.error(err)
+      console.error("Error fetching course details:", err)
       setError("Failed to load course")
     } finally {
       setIsLoading(false)
@@ -121,49 +136,54 @@ const LearnPage = () => {
         console.warn("fetchProgress called with undefined courseId, skipping API call")
         return
       }
+      
       const token = localStorage.getItem("token")
       const response = await apiRequest(`enrollments/progress/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Progress response data:', data);
+      
+      if (response && response.ok) {
+        const data = response.data
+        console.log('Progress response data:', data)
         setProgress(data.progress)
         setCompletedLessons(data.progress?.completedLessons || [])
+        
         if (data.certificate && data.certificate.issued) {
-          console.log('Setting certificateId from enrollment:', data.certificate.certificateId);
+          console.log('Setting certificateId from enrollment:', data.certificate.certificateId)
           setCertificateId(data.certificate.certificateId)
         } else {
-          console.log('No issued certificate in enrollment response');
+          console.log('No issued certificate in enrollment response')
         }
+        
         if (isCourseCompleted()) {
           await fetchCertificate()
         }
       }
     } catch (err) {
-      console.error(err)
+      console.error("Error fetching progress:", err)
     }
   }
 
   // Fetch certificate for completed course
   const fetchCertificate = async () => {
     try {
-      console.log('Fetching certificate for courseId:', courseId);
+      console.log('Fetching certificate for courseId:', courseId)
       const response = await apiRequest("certificates/me", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
-      if (response.ok) {
-        const certs = await response.json()
-        console.log('Fetched certificates:', certs);
-        const cert = certs.find(c => c.course === courseId)
+      
+      if (response && response.ok) {
+        const certs = response.data
+        console.log('Fetched certificates:', certs)
+        const cert = certs.find(c => c.course === courseId || c.course?._id === courseId)
         if (cert) {
-          console.log('Found certificate:', cert);
-          setCertificateId(cert.certificateId)
+          console.log('Found certificate:', cert)
+          setCertificateId(cert.certificateId || cert._id)
         } else {
-          console.log('No certificate found for this course');
+          console.log('No certificate found for this course')
         }
       } else {
-        console.log('Certificate fetch failed with status:', response.status);
+        console.log('Certificate fetch failed with status:', response?.status)
       }
     } catch (error) {
       console.error("Failed to fetch certificate", error)
@@ -173,22 +193,27 @@ const LearnPage = () => {
   // Mark lesson complete
   const markLessonComplete = async (lessonId) => {
     if (isLessonCompleted(lessonId)) return
+    
     try {
       const token = localStorage.getItem("token")
       const response = await apiRequest("enrollments/progress", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ courseId, lessonId, timeSpent: 0 }),
       })
-      if (response.ok) {
-        const data = await response.json()
+      
+      if (response && response.ok) {
+        const data = response.data
         setProgress(data.progress)
         setCompletedLessons(data.progress?.completedLessons || [])
         toast.success("Lesson completed!")
         await fetchProgress()
       }
     } catch (err) {
-      console.error(err)
+      console.error("Error marking lesson complete:", err)
       toast.error("Failed to mark lesson as complete")
     }
   }
@@ -200,6 +225,7 @@ const LearnPage = () => {
     course?.lessons?.every(lesson => isLessonCompleted(lesson._id))
 
   const formatDuration = (minutes) => {
+    if (!minutes) return "0m"
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
@@ -210,61 +236,66 @@ const LearnPage = () => {
       isCourseCompleted: isCourseCompleted(),
       certificateId,
       courseId
-    });
+    })
 
     if (isCourseCompleted()) {
       if (certificateId) {
-        console.log('Opening PDF for certificateId:', certificateId);
+        console.log('Opening PDF for certificateId:', certificateId)
         window.open(`/api/certificates/pdf/${certificateId}`, "_blank")
       } else {
-        console.log('No certificateId found, attempting to generate certificate');
-        toast("Generating certificate...");
+        console.log('No certificateId found, attempting to generate certificate')
+        toast.loading("Generating certificate...")
 
         try {
-          const token = localStorage.getItem("token");
+          const token = localStorage.getItem("token")
           const response = await apiRequest("certificates/generate", {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${token}`
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
             },
             body: JSON.stringify({ courseId })
-          });
+          })
 
-          if (response.ok) {
-            const data = await response.json();
-            console.log('Certificate generated:', data);
-            toast.success("Certificate generated successfully!");
-            await fetchProgress();
+          if (response && response.ok) {
+            const data = response.data
+            console.log('Certificate generated:', data)
+            toast.dismiss()
+            toast.success("Certificate generated successfully!")
+            await fetchProgress()
             if (data.certificate?.certificateId) {
-              window.open(`/api/certificates/pdf/${data.certificate.certificateId}`, "_blank");
+              window.open(`/api/certificates/pdf/${data.certificate.certificateId}`, "_blank")
             }
           } else {
-            const errorData = await response.json();
-            console.error('Certificate generation failed:', errorData);
-            toast.error(errorData.message || "Failed to generate certificate. Please contact support.");
+            toast.dismiss()
+            const errorMessage = response?.data?.message || "Failed to generate certificate. Please contact support."
+            console.error('Certificate generation failed:', errorMessage)
+            toast.error(errorMessage)
           }
         } catch (error) {
-          console.error('Certificate generation error:', error);
-          toast.error("Failed to generate certificate. Please contact support.");
+          toast.dismiss()
+          console.error('Certificate generation error:', error)
+          toast.error("Failed to generate certificate. Please contact support.")
         }
       }
     } else {
-      console.log('Course not completed, showing toast');
+      console.log('Course not completed, showing toast')
       toast("Complete all lessons to unlock your certificate!")
     }
   }
 
   const getYouTubeVideoId = (url) => {
+    if (!url) return null
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
     const match = url.match(regExp)
     return (match && match[2].length === 11) ? match[2] : null
   }
 
   const renderVideoPlayer = (lesson) => {
-    if (!lesson.videoUrl) return (
-      <div className="flex flex-col items-center justify-center h-48 sm:h-64 bg-gray-100 rounded-lg p-4">
-        <Lock className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-2" />
-        <p className="text-sm sm:text-base text-gray-600 text-center">Video not available</p>
+    if (!lesson?.videoUrl) return (
+      <div className="flex flex-col items-center justify-center h-48 p-4 bg-gray-100 rounded-lg sm:h-64">
+        <Lock className="w-8 h-8 mb-2 text-gray-400 sm:h-12 sm:w-12" />
+        <p className="text-sm text-center text-gray-600 sm:text-base">Video not available</p>
       </div>
     )
 
@@ -280,9 +311,9 @@ const LearnPage = () => {
       )
     } else if (videoId && !isYouTubeLoaded) {
       return (
-        <div className="flex flex-col items-center justify-center h-48 sm:h-64 bg-gray-100 rounded-lg p-4">
-          <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
-          <p className="text-sm sm:text-base text-gray-600 mt-2">Loading YouTube player...</p>
+        <div className="flex flex-col items-center justify-center h-48 p-4 bg-gray-100 rounded-lg sm:h-64">
+          <div className="w-6 h-6 border-b-2 border-blue-600 rounded-full animate-spin sm:h-8 sm:w-8"></div>
+          <p className="mt-2 text-sm text-gray-600 sm:text-base">Loading YouTube player...</p>
         </div>
       )
     }
@@ -300,18 +331,18 @@ const LearnPage = () => {
   }
 
   if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-600"></div>
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="w-8 h-8 border-b-2 border-blue-600 rounded-full animate-spin sm:h-12 sm:w-12"></div>
     </div>
   )
   
-  if (error) return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="text-center">
-        <p className="text-red-600 text-lg sm:text-xl">{error}</p>
+  if (error || !course) return (
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="max-w-md text-center">
+        <p className="mb-4 text-lg text-red-600 sm:text-xl">{error || "Course not found"}</p>
         <button 
           onClick={() => navigate(-1)}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           Go Back
         </button>
@@ -319,42 +350,66 @@ const LearnPage = () => {
     </div>
   )
 
+  if (!isEnrolled) return (
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="max-w-md text-center">
+        <Lock className="w-12 h-12 mx-auto mb-4 text-gray-400 sm:h-16 sm:w-16" />
+        <h2 className="mb-2 text-xl font-bold text-gray-900 sm:text-2xl">Course Locked</h2>
+        <p className="mb-6 text-gray-600">You need to enroll in this course to access the content.</p>
+        <div className="space-y-3">
+          <button 
+            onClick={() => navigate(`/courses/${courseId}`)}
+            className="w-full px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+          >
+            View Course Details
+          </button>
+          <button 
+            onClick={() => navigate("/courses")}
+            className="w-full px-4 py-2 text-gray-700 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Browse Courses
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-3 sm:px-4 py-3 sm:py-4">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+      <div className="px-3 py-3 bg-white border-b border-gray-200 sm:px-4 sm:py-4">
+        <div className="flex flex-col items-start mx-auto space-y-3 max-w-7xl sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
           <div className="flex items-center justify-between w-full sm:w-auto">
             <button 
               onClick={() => navigate(`/courses/${courseId}`)} 
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center space-x-2 text-gray-600 transition-colors hover:text-gray-900"
             >
-              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              <ArrowLeft className="w-4 h-4 sm:h-5 sm:w-5" />
               <span className="text-sm sm:text-base">Back to Course</span>
             </button>
             
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="sm:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+              className="p-2 transition-colors bg-gray-100 rounded-lg sm:hidden hover:bg-gray-200"
             >
-              {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
           
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{course?.title}</h1>
-            <p className="text-xs sm:text-sm text-gray-600">Continue your learning journey</p>
+            <h1 className="text-lg font-semibold text-gray-900 truncate sm:text-xl">{course?.title}</h1>
+            <p className="text-xs text-gray-600 sm:text-sm">Continue your learning journey</p>
           </div>
           
           {progress && (
-            <div className="text-right w-full sm:w-auto">
-              <div className="text-xs sm:text-sm text-gray-600 mb-1">
-                Progress: {progress.completionPercentage}%
+            <div className="w-full text-right sm:w-auto">
+              <div className="mb-1 text-xs text-gray-600 sm:text-sm">
+                Progress: {Math.round(progress.completionPercentage || 0)}%
               </div>
-              <div className="w-full sm:w-24 bg-gray-200 rounded-full h-2">
+              <div className="w-full h-2 bg-gray-200 rounded-full sm:w-24">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${progress.completionPercentage}%` }}
+                  className="h-2 transition-all duration-300 bg-blue-600 rounded-full"
+                  style={{ width: `${Math.round(progress.completionPercentage || 0)}%` }}
                 ></div>
               </div>
             </div>
@@ -362,27 +417,27 @@ const LearnPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4 px-3 py-4 mx-auto max-w-7xl sm:px-4 sm:py-6 lg:grid-cols-4 sm:gap-6">
         {/* Sidebar - Mobile Overlay */}
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)}>
-            <div className="absolute left-0 top-0 h-full w-4/5 max-w-sm bg-white shadow-lg p-4 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="flex justify-between items-center mb-4">
+          <div className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden" onClick={() => setIsSidebarOpen(false)}>
+            <div className="absolute top-0 left-0 w-4/5 h-full max-w-sm p-4 overflow-y-auto bg-white shadow-lg" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Course Content</h2>
                 <button onClick={() => setIsSidebarOpen(false)} className="p-1">
-                  <X className="h-5 w-5" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
               
               <button
                 type="button"
-                className={`flex items-center p-3 rounded-lg shadow-sm w-full mb-4 ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer`}
+                className={`flex items-center p-3 rounded-lg shadow-sm w-full mb-4 ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer transition-colors`}
                 onClick={() => {
                   handleCertificateClick()
                   setIsSidebarOpen(false)
                 }}
               >
-                {isCourseCompleted() ? <Award className="h-5 w-5 text-green-600 mr-2" /> : <Lock className="h-5 w-5 text-gray-400 mr-2" />}
+                {isCourseCompleted() ? <Award className="w-5 h-5 mr-2 text-green-600" /> : <Lock className="w-5 h-5 mr-2 text-gray-400" />}
                 <span className={`${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium text-sm`}>
                   {isCourseCompleted() ? "View Certificate" : "Certificate Locked"}
                 </span>
@@ -407,13 +462,13 @@ const LearnPage = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-medium text-gray-900 line-clamp-2">{lesson.title}</h4>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Clock className="h-3 w-3 text-gray-400" />
+                        <div className="flex items-center mt-1 space-x-2">
+                          <Clock className="w-3 h-3 text-gray-400" />
                           <span className="text-xs text-gray-500">{formatDuration(lesson.duration)}</span>
                         </div>
                       </div>
                       <div className="flex items-center space-x-1">
-                        {isLessonCompleted(lesson._id) && <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />}
+                        {isLessonCompleted(lesson._id) && <CheckCircle className="flex-shrink-0 w-3 h-3 text-green-600 sm:h-4 sm:w-4" />}
                       </div>
                     </div>
                   </motion.div>
@@ -424,22 +479,22 @@ const LearnPage = () => {
         )}
 
         {/* Sidebar - Desktop */}
-        <div className="hidden lg:block lg:col-span-1 space-y-4">
+        <div className="hidden space-y-4 lg:block lg:col-span-1">
           <button
             type="button"
-            className={`flex items-center p-4 rounded-lg shadow-sm w-full ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer`}
+            className={`flex items-center p-4 rounded-lg shadow-sm w-full ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer transition-colors`}
             onClick={handleCertificateClick}
           >
-            {isCourseCompleted() ? <Award className="h-6 w-6 text-green-600 mr-3" /> : <Lock className="h-6 w-6 text-gray-400 mr-3" />}
+            {isCourseCompleted() ? <Award className="w-6 h-6 mr-3 text-green-600" /> : <Lock className="w-6 h-6 mr-3 text-gray-400" />}
             <span className={`${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium`}>
               {isCourseCompleted() ? "View Certificate" : "Certificate Locked"}
             </span>
           </button>
 
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Content</h3>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {course.lessons.map((lesson, index) => (
+          <div className="p-4 bg-white rounded-lg shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Course Content</h3>
+            <div className="space-y-2 overflow-y-auto max-h-96">
+              {course.lessons?.map((lesson, index) => (
                 <motion.div
                   key={lesson._id}
                   initial={{ opacity: 0, y: 10 }}
@@ -452,13 +507,13 @@ const LearnPage = () => {
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${selectedLesson?._id === lesson._id ? "bg-red-600 text-white" : "bg-gray-200 text-gray-600"}`}>{index + 1}</div>
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium text-gray-900 truncate">{lesson.title}</h4>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Clock className="h-3 w-3 text-gray-400" />
+                      <div className="flex items-center mt-1 space-x-2">
+                        <Clock className="w-3 h-3 text-gray-400" />
                         <span className="text-xs text-gray-500">{formatDuration(lesson.duration)}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
-                      {isLessonCompleted(lesson._id) && <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />}
+                      {isLessonCompleted(lesson._id) && <CheckCircle className="flex-shrink-0 w-4 h-4 text-green-600" />}
                     </div>
                   </div>
                 </motion.div>
@@ -470,28 +525,38 @@ const LearnPage = () => {
         {/* Video Player */}
         <div className="lg:col-span-3">
           {selectedLesson ? (
-            <motion.div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{selectedLesson.title}</h2>
-              {selectedLesson.description && <p className="text-sm sm:text-base text-gray-600 mb-4">{selectedLesson.description}</p>}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-white rounded-lg shadow-sm sm:p-6"
+            >
+              <h2 className="mb-2 text-xl font-bold text-gray-900 sm:text-2xl">{selectedLesson.title}</h2>
+              {selectedLesson.description && <p className="mb-4 text-sm text-gray-600 sm:text-base">{selectedLesson.description}</p>}
               {renderVideoPlayer(selectedLesson)}
 
               {isLessonCompleted(selectedLesson._id) && (
-                <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+                <div className="flex items-center p-3 mt-4 space-x-3 border border-green-200 rounded-lg bg-green-50 sm:p-4">
+                  <CheckCircle className="w-5 h-5 text-green-600 sm:h-6 sm:w-6" />
                   <div>
-                    <p className="text-green-800 font-medium text-sm sm:text-base">Lesson Completed!</p>
-                    <p className="text-green-600 text-xs sm:text-sm">Great job! Continue to the next lesson.</p>
+                    <p className="text-sm font-medium text-green-800 sm:text-base">Lesson Completed!</p>
+                    <p className="text-xs text-green-600 sm:text-sm">Great job! Continue to the next lesson.</p>
                   </div>
                 </div>
               )}
 
               {selectedLesson.resources?.length > 0 && (
                 <div className="mt-4 sm:mt-6">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Resources</h3>
+                  <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg sm:mb-4">Resources</h3>
                   <div className="space-y-2">
                     {selectedLesson.resources.map((res, idx) => (
-                      <a key={idx} href={res.url} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-medium text-blue-600">
+                      <a 
+                        key={idx} 
+                        href={res.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center p-3 space-x-3 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
+                      >
+                        <div className="flex items-center justify-center w-6 h-6 text-xs font-medium text-blue-600 bg-blue-100 rounded-full sm:w-8 sm:h-8">
                           {res.type?.toUpperCase()?.charAt(0) || "L"}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -505,13 +570,13 @@ const LearnPage = () => {
               )}
             </motion.div>
           ) : (
-            <div className="bg-white rounded-lg shadow-sm p-6 sm:p-12 text-center">
-              <Play className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Select a Lesson</h3>
-              <p className="text-sm sm:text-base text-gray-600">Choose a lesson from the sidebar to start learning</p>
+            <div className="p-6 text-center bg-white rounded-lg shadow-sm sm:p-12">
+              <Play className="w-12 h-12 mx-auto mb-3 text-gray-300 sm:h-16 sm:w-16 sm:mb-4" />
+              <h3 className="mb-2 text-lg font-semibold text-gray-900 sm:text-xl">Select a Lesson</h3>
+              <p className="text-sm text-gray-600 sm:text-base">Choose a lesson from the sidebar to start learning</p>
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="mt-4 sm:hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-4 py-2 mt-4 text-white transition-colors bg-blue-600 rounded-lg sm:hidden hover:bg-blue-700"
               >
                 Open Lessons
               </button>
