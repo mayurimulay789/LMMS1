@@ -84,7 +84,7 @@ const Footer = () => {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 transition-all duration-300 border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg hover:from-rose-50 hover:to-red-50 hover:scale-110 hover:shadow-lg group sm:p-3"
+                    className="p-2 transition-all duration-300 border border-gray-200 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 hover:from-rose-50 hover:to-red-50 hover:scale-110 hover:shadow-lg group sm:p-3"
                     aria-label={social.name}
                   >
                     <social.icon className="w-4 h-4 text-rose-600 group-hover:text-rose-700 sm:w-5 sm:h-5" />
@@ -145,16 +145,17 @@ const Footer = () => {
                 <span className="break-words">support@rymaacademy.com</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group sm:space-x-3 sm:text-base">
-                <div className="p-1 transition-colors bg-green-100 rounded-lg shadow-sm group-hover:bg-green-200 sm:p-2 flex-shrink-0">
+                <div className="flex-shrink-0 p-1 transition-colors bg-green-100 rounded-lg shadow-sm group-hover:bg-green-200 sm:p-2">
                   <Phone className="w-4 h-4 text-green-600 sm:w-5 sm:h-5" />
                 </div>
-                <span>+1000000</span>
+                <span>+91 - 9873336133</span>
               </div>
               <div className="flex items-start space-x-2 text-sm text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group sm:space-x-3 sm:text-base">
                 <div className="p-1 transition-colors bg-purple-100 rounded-lg shadow-sm group-hover:bg-purple-200 sm:p-2 flex-shrink-0 mt-0.5">
                   <MapPin className="w-4 h-4 text-purple-600 sm:w-5 sm:h-5" />
                 </div>
-                <span className="break-words">123 Learning Street, Education City, EC 12345</span>
+                <span className="break-words">D-7/31 1st Floor Main Vishram Chowk
+Sector-6, Vishram Chowk</span>
               </div>
             </div>
           </div>
@@ -162,22 +163,12 @@ const Footer = () => {
 
         {/* Bottom Section */}
         <div className="pt-6 mt-6 border-t border-gray-300 sm:pt-8 sm:mt-8">
-          <div className="flex flex-col space-y-3 text-center sm:text-left sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-            <p className="text-xs text-gray-500 sm:text-sm">
+          <div className="flex flex-col space-y-3 text-center sm:text-center sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            <p className="text-xs text-center text-gray-500 sm:text-sm">
               © {currentYear} RYMA Academy. All rights reserved.
             </p>
             
-            <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-500 sm:gap-6 sm:text-sm">
-              <Link to="/privacy" className="transition-colors hover:text-gray-900 hover:font-medium">
-                Privacy Policy
-              </Link>
-              <Link to="/terms" className="transition-colors hover:text-gray-900 hover:font-medium">
-                Terms of Service
-              </Link>
-              <Link to="/refund" className="transition-colors hover:text-gray-900 hover:font-medium">
-                Refund Policy
-              </Link>
-            </div>
+            
           </div>
         </div>
       </div>

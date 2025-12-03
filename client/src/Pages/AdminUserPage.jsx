@@ -1,11 +1,10 @@
-"use client"
 
-import AdminUserManagement from "../Components/AdminUserManagement"
+import AdminUserManagement from "../Components/AdminUserManagement.jsx"
 
 const AdminUsersPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminUserManagement />
+<AdminUserManagement/>
     </div>
   )
 }

@@ -68,11 +68,18 @@ router.post("/create-order", auth, async (req, res) => {
       }
     }
 
-    const finalAmount = Math.max(0, (amount || course.price) - discount)
+    // Server-authoritative final amount: calculate from course.price and discount
+    const finalAmount = Math.max(0, course.price - discount)
+
+    // Convert to paise using rounding to avoid floating-point discrepancies
+    const paise = Math.round(finalAmount * 100)
+
+    // Log computed amounts for debugging coupon/rounding issues
+    console.log('[payments:create-order] coursePrice:', course.price, 'incomingAmount:', amount, 'discount:', discount, 'finalAmount:', finalAmount, 'paise:', paise, 'promoCode:', validPromoCode?.code)
 
     // Create Razorpay order
     const options = {
-      amount: Math.round(finalAmount * 100), // amount in paise
+      amount: paise, // amount in paise (integer)
       currency: "INR",
       receipt: `order_${Date.now()}`,
       notes: {
@@ -101,6 +108,7 @@ router.post("/create-order", auth, async (req, res) => {
     res.json({
       orderId: order.id,
       amount: finalAmount,
+      paise,
       currency: "INR",
       key: process.env.RAZORPAY_KEY_ID,
       paymentId: payment._id,

@@ -38,6 +38,7 @@ const rateLimit = require("express-rate-limit")
 const morgan = require("morgan")
 
 const app = express()
+app.set("trust proxy", true);
 
 // Security middleware
 app.use(
@@ -49,7 +50,7 @@ app.use(
 // Rate limiting - Exclude safe GET requests, OPTIONS requests, and payment endpoints
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 1500,
+  max: 5000,
   message: "Too many requests from this IP, please try again later.",
   skip: (req) => {
     // Skip rate limiting for safe GET requests and OPTIONS requests
@@ -113,41 +114,38 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
 // CORS middleware configuration - Enhanced for multiple IPs and origins
 app.use(
   cors({
-    origin: function(origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
+    origin: function (origin, callback) {
       if (!origin) return callback(null, true);
-      
-      // Always allow payments and core API endpoints from any origin for accessibility
-      const isPaymentRequest = callback.req && callback.req.path && callback.req.path.startsWith('/api/payments/');
-      const isCoreAPIRequest = callback.req && callback.req.path && (
-        callback.req.path.startsWith('/api/courses') ||
-        callback.req.path.startsWith('/api/health') ||
-        callback.req.path.startsWith('/api/auth')
-      );
-      
-      if (isPaymentRequest || isCoreAPIRequest) {
+
+      const reqPath = callback.req?.path || "";
+
+      const isPaymentRequest = reqPath.startsWith('/api/payments/');
+      const isCoreAPIRequest =
+        reqPath.startsWith('/api/courses') ||
+        reqPath.startsWith('/api/health') ||
+        reqPath.startsWith('/api/auth');
+
+      const isAdminRequest = reqPath.startsWith('/api/admin/');
+
+      if (isPaymentRequest || isCoreAPIRequest || isAdminRequest) {
         return callback(null, true);
       }
-      
-      // In development, allow all origins
-      if (process.env.NODE_ENV !== 'production') {
+
+      if (process.env.NODE_ENV !== "production") {
         return callback(null, true);
       }
-      
-      // For other requests in production, check allowed origins but be more permissive
-      if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('rymaacademy.cloud')) {
-        callback(null, true);
-      } else {
-        console.log(`CORS blocked origin: ${origin}`);
-        console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
-        // For now, allow all origins to fix payment issues - can be restricted later
-        callback(null, true);
+
+      if (allowedOrigins.includes(origin) || origin.includes("rymaacademy.cloud")) {
+        return callback(null, true);
       }
+
+      console.log(`CORS blocked origin: ${origin}`);
+      return callback(null, true); // permissive fallback
     },
+
     credentials: true,
-    methods: [
-      "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
-    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -159,17 +157,21 @@ app.use(
       "Cache-Control",
       "Pragma",
       "X-Real-IP",
-      "X-Forwarded-For"
+      "X-Forwarded-For",
     ],
+
     exposedHeaders: [
-      'Content-Disposition',
-      'Content-Length',
-      'X-Total-Count',
-      'X-Rate-Limit-Remaining'
+      "Content-Disposition",
+      "Content-Length",
+      "X-Total-Count",
+      "X-Rate-Limit-Remaining",
     ],
-    maxAge: process.env.NODE_ENV === 'production' ? 86400 : 1 // 24 hours in production, 1 second in development
+
+    maxAge: process.env.NODE_ENV === "production" ? 86400 : 1,
   })
 );
+
+   
 
 // Enhanced headers middleware for file uploads and preflight
 app.use((req, res, next) => {
