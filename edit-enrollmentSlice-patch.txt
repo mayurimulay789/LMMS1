@@ -38,7 +38,6 @@ export const fetchUserEnrollments = createAsyncThunk(
 )
 >>>>>>> REPLACE
 
-<<<<<<< SEARCH
 export const fetchUserProgress = createAsyncThunk(
   "enrollment/fetchUserProgress",
   async (courseId, { getState, rejectWithValue }) => {
@@ -57,30 +56,7 @@ export const fetchUserProgress = createAsyncThunk(
     }
   },
 )
-=======
-export const fetchUserProgress = createAsyncThunk(
-  "enrollment/fetchUserProgress",
-  async (courseId, { getState, rejectWithValue }) => {
-    try {
-      const { auth } = getState()
-      const token = auth.token || localStorage.getItem("token")
 
-      const response = await apiRequest(`enrollments/progress/${courseId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      const data = response.data
-      return { courseId, progress: data.progress }
-    } catch (error) {
-      return rejectWithValue(error.message)
-    }
-  },
-)
->>>>>>> REPLACE
-
-<<<<<<< SEARCH
 export const fetchUserCertificates = createAsyncThunk(
   "enrollment/fetchUserCertificates",
   async (_, { getState, rejectWithValue }) => {
@@ -99,28 +75,6 @@ export const fetchUserCertificates = createAsyncThunk(
     }
   },
 )
-=======
-export const fetchUserCertificates = createAsyncThunk(
-  "enrollment/fetchUserCertificates",
-  async (_, { getState, rejectWithValue }) => {
-    try {
-      const { auth } = getState()
-      const token = auth.token || localStorage.getItem("token")
-
-      const response = await apiRequest("certificates/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      const data = response.data
-      return data
-    } catch (error) {
-      return rejectWithValue(error.message)
-    }
-  },
-)
->>>>>>> REPLACE
 
 <<<<<<< SEARCH
 export const updateProgress = createAsyncThunk(

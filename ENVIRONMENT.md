@@ -39,7 +39,7 @@ npm run dev:local
 ### Client Environment Variables
 | Variable | Description | Local Value | Production Value |
 |----------|-------------|-------------|------------------|
-| `VITE_API_URL` | Backend API URL | `http://localhost:2000/api` | Your production API URL |
+| `VITE_API_URL` | Backend API URL | `https://localhost:2000/api` | Your production API URL |
 | `VITE_RAZORPAY_KEY_ID` | Razorpay Key ID | Test key | Live key |
 | `VITE_APP_NAME` | Application name | LMMS Learning Management System | Your app name |
 

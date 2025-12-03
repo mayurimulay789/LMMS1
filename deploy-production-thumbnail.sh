@@ -119,7 +119,7 @@ cd ..
 sleep 3
 
 # Test base API
-if curl -f http://localhost:2000/api > /dev/null 2>&1; then
+if curl -f https://localhost:2000/api > /dev/null 2>&1; then
     print_success "Local server is running"
 else
     print_warning "Local server test failed - continuing with deployment"

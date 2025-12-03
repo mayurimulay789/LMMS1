@@ -74,7 +74,7 @@ VITE_RAZORPAY_KEY_ID=your-production-razorpay-key-id
 ## CORS Configuration
 
 The server is configured to accept requests from:
-- Development: http://localhost:5173
+- Development: https://localhost:5173
 - Production: The domain specified in CLIENT_URL or FRONTEND_URL environment variables
 
 Make sure to set the correct production URL in your environment variables.

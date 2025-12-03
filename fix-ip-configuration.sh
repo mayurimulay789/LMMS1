@@ -149,7 +149,7 @@ echo "🔍 Testing API connectivity..."
 sleep 5
 
 # Test local API
-if curl -f http://localhost:2000/api/health > /dev/null 2>&1; then
+if curl -f https://localhost:2000/api/health > /dev/null 2>&1; then
     echo "✅ Local API is working"
 else
     echo "❌ Local API test failed"
