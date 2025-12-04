@@ -258,13 +258,6 @@ const AdminUserManagement = () => {
               <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
               <p className="text-gray-600">Manage all system users, roles, and permissions</p>
             </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-            >
-              <Plus size={20} />
-              Add New User
-            </button>
           </div>
 
           {/* Stats */}
@@ -424,7 +417,7 @@ const AdminUserManagement = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentUsers.map((user) => {
-                  const RoleIcon = roleIcons[user.role]
+                  const RoleIcon = roleIcons[user.role] || Users
                   return (
                     <tr key={user._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
@@ -827,7 +820,7 @@ const AdminUserManagement = () => {
 
                 <div className="space-y-3">
                   {['student', 'instructor', 'admin'].map((role) => {
-                    const RoleIcon = roleIcons[role]
+                    const RoleIcon = roleIcons[role] || Users
                     const isCurrentRole = currentUser.role === role
                     
                     return (

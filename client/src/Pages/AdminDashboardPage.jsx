@@ -96,8 +96,8 @@ const AdminDashboardPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="w-32 h-32 border-b-2 border-blue-600 rounded-full animate-spin"></div>
       </div>
     )
   }
@@ -105,16 +105,16 @@ const AdminDashboardPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
+      <div className="bg-white border-b shadow-sm">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="flex flex-col items-start justify-between gap-4 py-4 sm:flex-row sm:items-center sm:py-6">
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">Admin Dashboard</h1>
-              <p className="text-gray-600 text-sm sm:text-base">Manage your LMS platform</p>
+              <h1 className="text-2xl font-bold text-gray-900 truncate sm:text-3xl">Admin Dashboard</h1>
+              <p className="text-sm text-gray-600 sm:text-base">Manage your LMS platform</p>
             </div>
             <div className="flex-shrink-0 w-full sm:w-auto">
-              <button className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base">
-                <Download className="h-4 w-4" />
+              <button className="flex items-center justify-center w-full px-4 py-2 space-x-2 text-sm text-white transition-colors bg-blue-600 rounded-lg sm:w-auto hover:bg-blue-700 sm:text-base">
+                <Download className="w-4 h-4" />
                 <span>Export Data</span>
               </button>
             </div>
@@ -123,8 +123,8 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b overflow-x-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="overflow-x-auto bg-white border-b">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <nav className="flex space-x-8 min-w-max">
             {tabs.map((tab) => (
               <button
@@ -144,21 +144,21 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="px-3 py-4 mx-auto max-w-7xl sm:px-4 sm:px-6 lg:px-8 sm:py-6 lg:py-8">
         {activeTab === "overview" && (
           <div className="space-y-6 sm:space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
               {statCards.map((stat, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                <div key={index} className="p-4 bg-white rounded-lg shadow-sm sm:p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm text-gray-600 mb-1 truncate">{stat.title}</p>
-                      <p className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{stat.value}</p>
-                      <p className="text-xs sm:text-sm text-green-600 mt-1 truncate">{stat.change} from last month</p>
+                      <p className="mb-1 text-xs text-gray-600 truncate sm:text-sm">{stat.title}</p>
+                      <p className="text-xl font-bold text-gray-900 truncate sm:text-2xl">{stat.value}</p>
+                      <p className="mt-1 text-xs text-green-600 truncate sm:text-sm">{stat.change} from last month</p>
                     </div>
                     <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${stat.color} flex items-center justify-center flex-shrink-0 ml-3`}>
-                      <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                      <stat.icon className="w-5 h-5 text-white sm:h-6 sm:w-6" />
                     </div>
                   </div>
                 </div>
@@ -166,7 +166,7 @@ const AdminDashboardPage = () => {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 sm:gap-8">
               <AdminReportsChart type="revenue" />
               <AdminReportsChart type="enrollments" />
             </div>

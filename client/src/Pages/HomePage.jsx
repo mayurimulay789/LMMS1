@@ -121,10 +121,7 @@ const HomePage = () => {
                   <span>Explore Courses</span>
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Link>
-                <button className="flex items-center justify-center px-5 py-3 space-x-2 text-sm font-semibold text-white transition-colors border-2 border-white rounded-lg sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-white hover:text-rose-900 sm:text-base">
-                  <Play className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span>Watch Demo</span>
-                </button>
+                
               </div>
             </motion.div>
 
@@ -353,7 +350,7 @@ const HomePage = () => {
 
           <div className="flex flex-col items-center justify-between space-y-6 sm:space-y-8 md:flex-row md:space-y-0 md:space-x-6 lg:space-x-8"> 
             <div className="flex-1 text-center">
-              <div className="flex items-center justify-center mx-auto mb-3 bg-white rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-opacity-20">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-white rounded-full sm:w-14 sm:h-14 md:w-16 md:h-16 bg-opacity-20">
                 <span className="text-lg font-bold text-white sm:text-xl md:text-2xl">1</span>
               </div>
               <h3 className="mb-1 text-lg font-semibold sm:text-xl md:text-2xl">Fill the Application Form</h3>
@@ -363,7 +360,7 @@ const HomePage = () => {
             <div className="w-0 h-0 bg-white md:block md:w-12 lg:w-16 xl:w-24 md:h-1 bg-opacity-30"></div> 
 
             <div className="flex-1 text-center">
-              <div className="flex items-center justify-center mx-auto mb-3 bg-white rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-opacity-20">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-white rounded-full sm:w-14 sm:h-14 md:w-16 md:h-16 bg-opacity-20">
                 <span className="text-lg font-bold text-white sm:text-xl md:text-2xl">2</span>
                 </div>
               <h3 className="mb-1 text-lg font-semibold sm:text-xl md:text-2xl">Get Shortlisted</h3>
@@ -373,7 +370,7 @@ const HomePage = () => {
             <div className="w-0 h-0 bg-white md:block md:w-12 lg:w-16 xl:w-24 md:h-1 bg-opacity-30"></div>
 
             <div className="flex-1 text-center">
-              <div className="flex items-center justify-center mx-auto mb-3 bg-white rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-opacity-20">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-white rounded-full sm:w-14 sm:h-14 md:w-16 md:h-16 bg-opacity-20">
                 <span className="text-lg font-bold text-white sm:text-xl md:text-2xl">3</span>
               </div>
               <h3 className="mb-1 text-lg font-semibold sm:text-xl md:text-2xl">Block Your Seat</h3>

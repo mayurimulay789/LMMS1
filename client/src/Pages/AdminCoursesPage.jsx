@@ -188,7 +188,7 @@ const AdminCoursesPage = () => {
                 <p className="mb-4 text-sm text-gray-500 line-clamp-2">{course.description}</p>
 
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-lg font-bold text-gray-900">${course.price}</div>
+                  <div className="text-lg font-bold text-gray-900">₹{course.price}</div>
                   <div className="text-sm text-gray-500">{course.students || 0} students</div>
                 </div>
 
