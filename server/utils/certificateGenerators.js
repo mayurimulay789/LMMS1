@@ -100,7 +100,7 @@
 //           .fontSize(14)
 //           .font("Helvetica")
 //           .fillColor("#666666")
-//           .text(`Course Duration: ${certificateData.courseDuration} hours`, 0, 430, { align: "center" })
+//           .text(`Course Duration: {certificateData.courseDuration} hours`, 0, 430, { align: "center" })
 //       }
 
 //       if (certificateData.finalScore) {

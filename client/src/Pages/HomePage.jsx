@@ -440,36 +440,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-8 bg-rose-900 sm:py-10 md:py-12 lg:py-20">
-        <div className="px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="mb-3 text-xl font-bold text-white sm:text-2xl md:text-3xl lg:text-4xl">Ready to Start Learning?</h2>
-            <p className="max-w-2xl mx-auto mb-4 text-sm md:text-base text-rose-100 sm:mb-6 md:mb-8 md:text-xl">
-              Join our community of learners and take the first step towards your goals
-            </p>
-            <div className="flex flex-col justify-center space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
-              <Link
-                to="/register"
-                className="px-5 py-3 text-sm font-semibold transition-colors bg-white rounded-lg text-rose-900 sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-rose-50 sm:text-base"
-              >
-                Get Started Free
-              </Link>
-              <Link
-                to="/courses"
-                className="px-5 py-3 text-sm font-semibold text-white transition-colors border-2 border-white rounded-lg sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-white hover:text-rose-900 sm:text-base"
-              >
-                Browse Courses
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      
 
       {/* Application Form Modal */}
       {showApplicationForm && (

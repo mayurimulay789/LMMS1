@@ -112,12 +112,7 @@ const AdminDashboardPage = () => {
               <h1 className="text-2xl font-bold text-gray-900 truncate sm:text-3xl">Admin Dashboard</h1>
               <p className="text-sm text-gray-600 sm:text-base">Manage your LMS platform</p>
             </div>
-            <div className="flex-shrink-0 w-full sm:w-auto">
-              <button className="flex items-center justify-center w-full px-4 py-2 space-x-2 text-sm text-white transition-colors bg-blue-600 rounded-lg sm:w-auto hover:bg-blue-700 sm:text-base">
-                <Download className="w-4 h-4" />
-                <span>Export Data</span>
-              </button>
-            </div>
+            
           </div>
         </div>
       </div>

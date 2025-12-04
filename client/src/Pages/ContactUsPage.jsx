@@ -95,19 +95,19 @@ const ContactUsPage = () => {
     {
       icon: Mail,
       title: "Email",
-      content: "info@rymaacademy.com",
+      content: "support@rymaacademy.com",
       description: "Send us an email anytime!",
     },
     {
       icon: Phone,
       title: "Phone",
-      content: "+0000000000",
-      description: "Mon-Fri from 8am to 5pm",
+      content: "+91 - 9873336133",
+      description: "Mon-Sat",
     },
     {
       icon: MapPin,
       title: "Office",
-      content: "Pune, Maharashtra, India",
+      content: "D-7/31 1st Floor Main Vishram Chowk Sector-6, Vishram Chowk",
       description: "Come say hello at our office",
     },
   ]
@@ -155,17 +155,7 @@ const ContactUsPage = () => {
               </div>
 
               {/* FAQ Link */}
-              <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-rose-50 rounded-lg">
-                <h3 className="font-semibold text-rose-900 text-sm sm:text-base mb-1 sm:mb-2">
-                  Frequently Asked Questions
-                </h3>
-                <p className="text-xs sm:text-sm text-rose-700 mb-2 sm:mb-3">
-                  Find answers to common questions about our courses and platform.
-                </p>
-                <button className="text-rose-600 hover:text-rose-800 font-medium text-xs sm:text-sm">
-                  View FAQ →
-                </button>
-              </div>
+              
             </div>
           </div>
 

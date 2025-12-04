@@ -1089,13 +1089,13 @@ const AdminCourseForm = () => {
                     <Eye className="h-4 w-4" />
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={() => recalculateCourseDurations(course._id)}
                     className="text-purple-600 hover:text-purple-800 p-2"
                     title="Recalculate Duration"
                   >
                     <Clock className="h-4 w-4" />
-                  </button>
+                  </button> */}
 
                   <button onClick={() => startEditing(course)} className="text-green-600 hover:text-green-800 p-2">
                     <Edit className="h-4 w-4" />

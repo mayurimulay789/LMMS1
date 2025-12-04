@@ -197,56 +197,7 @@ const ReferEarn = () => {
         </div>
       </section>
 
-      {/* Referral Code Section */}
-      <section className="py-16 bg-gradient-to-r from-rose-50 to-pink-50">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-white rounded-2xl shadow-2xl p-10 border border-rose-200 hover:shadow-3xl transition-shadow duration-300">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">Start Referring</h2>
-              <p className="text-gray-600">Share your unique code and start earning today!</p>
-            </div>
-            
-            {/* Referral Code Display */}
-            <div className="bg-gradient-to-r from-rose-700 to-rose-800 rounded-xl p-8 mb-8 text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <span className="text-white text-lg block mb-4">Your Email (Use as Referral ID)</span>
-              <div className="flex items-center justify-center gap-6">
-                <code className="text-3xl font-bold text-white bg-rose-900 bg-opacity-30 px-8 py-4 rounded-lg tracking-wider border-2 border-rose-400 shadow-inner">
-                  {userEmail}
-                </code>
-                <button
-                  onClick={() => copyToClipboard(userEmail)}
-                  className="bg-white text-rose-700 p-4 rounded-xl hover:bg-rose-50 transition-all duration-300 shadow-lg border-2 border-rose-200 hover:border-rose-300 hover:shadow-xl transform hover:scale-105"
-                >
-                  <Copy className="w-8 h-8" />
-                </button>
-              </div>
-              {copied && (
-                <div className="text-rose-200 mt-4 font-medium text-lg animate-pulse">✓ Copied to clipboard!</div>
-              )}
-            </div>
-
-            {/* Referral Link */}
-            <div className="bg-rose-50 rounded-xl p-8 border border-rose-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold mb-6 text-center text-gray-800">Your Referral Link</h3>
-              <div className="flex items-center gap-4">
-                <input
-                  type="text"
-                  value={referralLink}
-                  readOnly
-                  className="flex-1 px-6 py-4 border-2 border-rose-200 rounded-xl text-gray-700 bg-white text-lg font-mono focus:border-rose-400 focus:outline-none shadow-inner"
-                />
-                <button
-                  onClick={() => copyToClipboard(referralLink)}
-                  className="bg-gradient-to-r from-rose-700 to-rose-800 text-white px-8 py-4 rounded-xl hover:from-rose-800 hover:to-rose-900 transition-all duration-300 font-semibold shadow-lg border-2 border-rose-600 hover:shadow-xl transform hover:scale-105"
-                >
-                  Copy Link
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      
       {/* Program Wise Benefits */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6">
@@ -358,24 +309,7 @@ const ReferEarn = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-white text-gray-800">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Start Earning?</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Join thousands of Ryma Academy students who are already earning rewards by referring their friends.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-           <div className="flex justify-end">
-  <button className="bg-white text-rose-800 px-10 ml-16 py-4 rounded-lg font-bold text-lg hover:bg-rose-100 transition-all duration-300 shadow-lg border-2 border-white hover:shadow-xl transform hover:scale-105">
-    Start Referring Now
-  </button>
-</div>
-            <button className="bg-white text-rose-800 px-10 ml-5 py-4 rounded-lg font-bold text-lg hover:bg-rose-100 transition-all duration-300 shadow-lg border-2 border-white hover:shadow-xl transform hover:scale-105">
-              Learn More
-            </button>
-          </div>
-        </div>
-      </section>
+      
     </div>
   );
 };

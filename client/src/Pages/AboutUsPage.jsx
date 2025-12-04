@@ -241,28 +241,7 @@ const AboutUsPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 sm:py-16 bg-gradient-to-r from-rose-50 to-pink-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Ready to Start Your Journey?</h2>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto mb-6 sm:mb-8 px-4 sm:px-0">
-            Join thousands of students who have transformed their careers with Ryma Academy
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Link 
-              to="/courses" 
-              className="bg-gradient-to-r from-rose-700 to-rose-800 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold hover:from-rose-800 hover:to-rose-900 transition-all duration-300 transform hover:scale-105 shadow-lg inline-block text-sm sm:text-base"
-            >
-              Explore Courses
-            </Link>
-            <Link 
-              to="/contact" 
-              className="border-2 border-rose-700 text-rose-700 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold hover:bg-rose-700 hover:text-white transition-all duration-300 transform hover:scale-105 inline-block text-sm sm:text-base"
-            >
-              Contact Us
-            </Link>
-          </div>
-        </div>
-      </section>
+      
     </div>
   )
 }

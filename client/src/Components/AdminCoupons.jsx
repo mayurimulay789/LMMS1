@@ -647,7 +647,7 @@ const AdminCoupons = () => {
                       className="w-full bg-gray-50 text-gray-900 rounded-lg px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
                     >
                       <option value="percentage">Percentage (%)</option>
-                      <option value="fixed">Fixed Amount ($)</option>
+                      <option value="fixed">Fixed Amount</option>
                     </select>
                   </div>
 

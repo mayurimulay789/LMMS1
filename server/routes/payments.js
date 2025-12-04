@@ -446,7 +446,7 @@ async function handleSuccessfulPayment(paymentEntity) {
 
       // Update course enrollment count
       await Course.findByIdAndUpdate(payment.course, {
-        $inc: { enrollmentCount: 1 },
+        inc: { enrollmentCount: 1 },
       })
 
       // Update promo code usage if applicable

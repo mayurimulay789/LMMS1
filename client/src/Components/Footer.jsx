@@ -154,7 +154,7 @@ const Footer = () => {
                 <div className="p-1 transition-colors bg-purple-100 rounded-lg shadow-sm group-hover:bg-purple-200 sm:p-2 flex-shrink-0 mt-0.5">
                   <MapPin className="w-4 h-4 text-purple-600 sm:w-5 sm:h-5" />
                 </div>
-                <span className="break-words">D-7/31 1st Floor Main Vishram Chowk
+<span className="break-words">D-7/31 1st Floor Main Vishram Chowk
 Sector-6, Vishram Chowk</span>
               </div>
             </div>
