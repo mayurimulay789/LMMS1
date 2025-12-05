@@ -203,7 +203,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 // Static files
 app.use("/certificates", express.static(path.join(__dirname, "public/certificates")))
-app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
+app.use("/uploads", express.static(path.join(__dirname, "../src/uploads"), {
   maxAge: '1d', // Cache for 1 day
   setHeaders: (res, path) => {
     // Set CORS headers for uploaded files
