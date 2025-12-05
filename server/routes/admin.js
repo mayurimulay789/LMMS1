@@ -404,6 +404,8 @@ router.post("/courses", async (req, res) => {
   try {
     const { calculateLessonsDurations } = require("../utils/videoUtils")
 
+    console.log("course data for saving course",req.body);
+
     const course = new Course({
       ...req.body,
       instructor: req.user.name,
