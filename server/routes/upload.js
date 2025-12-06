@@ -431,7 +431,18 @@ router.post("/course-media", auth, instructorMiddleware, upload.single("thumbnai
     const fileType = req.file.mimetype.startsWith('video/') ? 'video' : 'image';
     const folder = `lms/course/${fileType}s`;
     
-    const cloudinaryUrl = await uploadToCloudinary(req.file.buffer, folder);
+    let cloudinaryUrl;
+    try {
+      // pass resource type so Cloudinary treats videos/raw correctly
+      cloudinaryUrl = await uploadToCloudinary(req.file.buffer, folder, fileType, req.file.mimetype);
+    } catch (err) {
+      console.error('Cloudinary upload error (sanitized):', { folder, err });
+      return res.status(502).json({
+        success: false,
+        error: 'Upload provider error',
+        message: 'Failed to upload file to storage provider. Please try again later.'
+      });
+    }
 
     console.log('File uploaded to Cloudinary successfully:', {
       cloudinaryUrl: cloudinaryUrl,
@@ -481,7 +492,17 @@ router.post("/lesson-video", auth, instructorMiddleware, upload.single("video"),
     });
 
     // Upload video to Cloudinary in videos folder
-    const cloudinaryUrl = await uploadToCloudinary(req.file.buffer, 'lms/course/videos');
+    let cloudinaryUrl;
+    try {
+      cloudinaryUrl = await uploadToCloudinary(req.file.buffer, 'lms/course/videos', 'video', req.file.mimetype);
+    } catch (err) {
+      console.error('Cloudinary video upload error (sanitized):', err);
+      return res.status(502).json({
+        success: false,
+        error: 'Upload provider error',
+        message: 'Failed to upload video to storage provider. Please try again later.'
+      });
+    }
 
     console.log('Lesson video uploaded to Cloudinary:', {
       cloudinaryUrl: cloudinaryUrl,
@@ -536,7 +557,17 @@ router.post("/certificate", auth, adminMiddleware, upload.single("certificate"),
     });
 
     // Upload PDF to Cloudinary in certificates folder
-    const cloudinaryUrl = await uploadToCloudinary(req.file.buffer, 'lms/certificates');
+    let cloudinaryUrl;
+    try {
+      cloudinaryUrl = await uploadToCloudinary(req.file.buffer, 'lms/certificates', 'raw', req.file.mimetype);
+    } catch (err) {
+      console.error('Cloudinary certificate upload error (sanitized):', err);
+      return res.status(502).json({
+        success: false,
+        error: 'Upload provider error',
+        message: 'Failed to upload certificate to storage provider. Please try again later.'
+      });
+    }
 
     res.json({
       success: true,
@@ -589,7 +620,17 @@ router.post("/course-preview", auth, instructorMiddleware, upload.single("course
     const fileType = isImage ? 'image' : 'video';
     const folder = `lms/course/previews/${fileType}s`;
     
-    const cloudinaryUrl = await uploadToCloudinary(req.file.buffer, folder);
+    let cloudinaryUrl;
+    try {
+      cloudinaryUrl = await uploadToCloudinary(req.file.buffer, folder, fileType, req.file.mimetype);
+    } catch (err) {
+      console.error('Cloudinary course preview upload error (sanitized):', { folder, err });
+      return res.status(502).json({
+        success: false,
+        error: 'Upload provider error',
+        message: 'Failed to upload course preview to storage provider. Please try again later.'
+      });
+    }
 
     res.json({
       success: true,
@@ -605,6 +646,65 @@ router.post("/course-preview", auth, instructorMiddleware, upload.single("course
     });
   } catch (error) {
     console.error("Course preview upload error:", error);
+    next(error);
+  }
+});
+
+// Upload user avatar to Cloudinary (authenticated users)
+router.post("/avatar", auth, upload.single("avatar"), async (req, res, next) => {
+  try {
+    console.log('=== UPLOAD USER AVATAR START ===');
+
+    if (!req.file) {
+      console.log('No avatar file received in request');
+      return res.status(400).json({
+        success: false,
+        error: "No file uploaded",
+        message: "Please select an avatar image to upload",
+      });
+    }
+
+    console.log('Avatar file received:', {
+      name: req.file.originalname,
+      type: req.file.mimetype,
+      size: (req.file.size / 1024).toFixed(2) + 'KB'
+    });
+
+    // Restrict avatar to images only
+    if (!req.file.mimetype.startsWith('image/')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid file type',
+        message: 'Avatar must be an image file',
+      })
+    }
+
+    // Upload to Cloudinary in avatars folder
+    let cloudinaryUrl;
+    try {
+      cloudinaryUrl = await uploadToCloudinary(req.file.buffer, 'lms/avatars', 'image', req.file.mimetype);
+    } catch (err) {
+      console.error('Cloudinary avatar upload error (sanitized):', err);
+      return res.status(502).json({
+        success: false,
+        error: 'Upload provider error',
+        message: 'Failed to upload avatar to storage provider. Please try again later.'
+      });
+    }
+
+    console.log('Avatar uploaded to Cloudinary:', { cloudinaryUrl });
+
+    res.json({
+      success: true,
+      message: 'Avatar uploaded successfully',
+      data: {
+        url: cloudinaryUrl,
+      },
+    });
+
+    console.log('=== UPLOAD USER AVATAR END ===');
+  } catch (error) {
+    console.error('Avatar upload error:', error);
     next(error);
   }
 });

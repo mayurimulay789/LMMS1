@@ -268,9 +268,12 @@ const CourseDetailPage = () => {
     
     // Show review modal after completing a video
     if (!localStorage.getItem(`reviewSubmitted_${id}`)) {
-      setTimeout(() => {
-        setShowReviewModal(true)
-      }, 2000)
+      // Only prompt for a review if the user has purchased the course
+      if (isEnrolled) {
+        setTimeout(() => {
+          setShowReviewModal(true)
+        }, 2000)
+      }
     }
   }
 
@@ -801,7 +804,7 @@ const CourseDetailPage = () => {
   // Review Prompt Component (floating button)
   const ReviewPrompt = () => (
     <AnimatePresence>
-      {showReviewPrompt && (
+      {showReviewPrompt && isEnrolled && (
         <motion.button
           initial={{ opacity: 0, scale: 0, x: 100 }}
           animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -870,8 +873,8 @@ const CourseDetailPage = () => {
       {/* Video Modal */}
       <VideoModal />
       
-      {/* Review Modal */}
-      <ReviewModal />
+      {/* Review Modal (only for purchased users) */}
+      {isEnrolled && <ReviewModal />}
       
       {/* Floating Review Prompt */}
       <ReviewPrompt />
@@ -1213,9 +1216,10 @@ const CourseDetailPage = () => {
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h3>
 
-                  {/* Review Form - Only show if user is authenticated */}
+                  {/* Review Form - Only show if user has purchased the course */}
                   {isAuthenticated ? (
-                    <form onSubmit={handleSubmit} className="space-y-3 mb-6">
+                    isEnrolled ? (
+                      <form onSubmit={handleSubmit} className="space-y-3 mb-6">
                       <div>
                         <label className="block mb-1 font-medium">Rating</label>
                         <fieldset className="starability-slot">
@@ -1298,7 +1302,29 @@ const CourseDetailPage = () => {
                       >
                         {loading ? "Submitting..." : "Submit Review"}
                       </button>
-                    </form>
+                      </form>
+                    ) : (
+                      <div className="mb-6 p-4 bg-yellow-50 rounded-lg">
+                        <p className="text-yellow-800">
+                          <strong>Buy this course to leave a review.</strong>{' '}
+                          You can only submit reviews after purchasing the course.
+                        </p>
+                        <div className="mt-3">
+                          <button
+                            onClick={() => {
+                              if (course.price === 0) {
+                                enrollInCourse()
+                              } else {
+                                navigate(`/checkout/${course._id}`)
+                              }
+                            }}
+                            className="mt-2 px-4 py-2 bg-rose-700 text-white rounded hover:bg-rose-800"
+                          >
+                            {course.price === 0 ? 'Enroll for Free' : 'Buy Now'}
+                          </button>
+                        </div>
+                      </div>
+                    )
                   ) : (
                     <div className="mb-6 p-4 bg-blue-50 rounded-lg">
                       <p className="text-blue-800">

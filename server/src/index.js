@@ -618,6 +618,9 @@ app.use("/uploads", express.static(path.join(__dirname, "../src/uploads"), {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Cross-Origin-Resource-Policy', 'cross-origin');
 
+  }
+}))
+
 
 // Remove local uploads folder from static serving since we're using Cloudinary
 // app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
