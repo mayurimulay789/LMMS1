@@ -158,7 +158,7 @@ const PaymentSuccessPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Amount Paid:</span>
-                  <span className="font-semibold">${paymentDetails?.amount}</span>
+                  <span className="font-semibold">₹{paymentDetails?.amount}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Date:</span>

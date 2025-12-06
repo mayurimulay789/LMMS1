@@ -69,7 +69,7 @@ const certificateSchema = new mongoose.Schema(
     ],
     pdfPath: {
       type: String,
-      required: true,
+      default: null,
     },
     pdfUrl: {
       type: String,
