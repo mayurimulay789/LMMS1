@@ -260,7 +260,7 @@ class CertificateService {
       .fontSize(12)
       .fillColor(textColor)
       .font("Helvetica-Bold")
-      .text("LearnHub LMS", doc.page.width - 200, doc.page.height - 120)
+      .text("RymaAcademy LMS", doc.page.width - 200, doc.page.height - 120)
 
     doc
       .moveTo(doc.page.width - 200, doc.page.height - 100)
