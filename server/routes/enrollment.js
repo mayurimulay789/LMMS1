@@ -66,6 +66,7 @@ router.post("/", auth, async (req, res) => {
 // ✅ GET /api/enrollments/me - Get all user enrollments
 router.get("/me", auth, async (req, res) => {
   try {
+    console.log("fteching fucntion is calling");
     const userId = req.user.id;
 
     const enrollments = await Enrollment.find({ user: userId })

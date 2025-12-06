@@ -381,7 +381,8 @@ const LearnPage = () => {
         <div className="flex flex-col items-start mx-auto space-y-3 max-w-7xl sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
           <div className="flex items-center justify-between w-full sm:w-auto">
             <button 
-              onClick={() => navigate(`/courses/${courseId}`)} 
+              // onClick={() => navigate(`/courses/${courseId}`)} 
+              onClick={() => navigate(`/my-courses`)} 
               className="flex items-center space-x-2 text-gray-600 transition-colors hover:text-gray-900"
             >
               <ArrowLeft className="w-4 h-4 sm:h-5 sm:w-5" />

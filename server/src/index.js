@@ -608,8 +608,8 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
-// Static files (removed local uploads folder, keep only certificates if needed)
-app.use("/certificates", express.static(path.join(__dirname, "public/certificates")))
+  // Static files (removed local uploads folder, keep only certificates if needed)
+// app.use("/certificates", express.static(path.join(__dirname, "public/certificates")));
 
 app.use("/uploads", express.static(path.join(__dirname, "../src/uploads"), {
   maxAge: '1d', // Cache for 1 day
@@ -618,21 +618,12 @@ app.use("/uploads", express.static(path.join(__dirname, "../src/uploads"), {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Cross-Origin-Resource-Policy', 'cross-origin');
 
-
-// Remove local uploads folder from static serving since we're using Cloudinary
-// app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
-//   maxAge: '1d', // Cache for 1 day
-//   setHeaders: (res, path) => {
-//     // Set CORS headers for uploaded files
-//     res.set('Access-Control-Allow-Origin', '*');
-//     res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-
-//     // Optimize caching for video files
-//     if (path.endsWith('.mp4') || path.endsWith('.mov') || path.endsWith('.avi')) {
-//       res.set('Cache-Control', 'public, max-age=86400'); // 24 hours for videos
-//     }
-//   }
-// }))
+    // Optimize caching for video files
+    if (path.endsWith('.mp4') || path.endsWith('.mov') || path.endsWith('.avi')) {
+      res.set('Cache-Control', 'public, max-age=86400'); // 24 hours for videos
+    }
+  }
+}));  
 
 // MongoDB connection (original code)
 mongoose.connect(process.env.MONGODB_URI)
@@ -667,7 +658,7 @@ const referralRoutes = require("../routes/referral")
 app.use("/api/auth", authRoutes)
 app.use("/api/courses", courseRoutes)
 app.use("/api/contact", contactRoutes)
-app.use("/api/enrollments", enrollmentRoutes)
+app.use("/api/enrollments", enrollmentRoutes)   //enrollments
 app.use("/api/payments", paymentRoutes)
 app.use("/api/certificates", certificateRoutes)
 app.use("/api/admin", adminRoutes)
@@ -824,5 +815,7 @@ server.on("error", (err) => {
   }
   process.exit(1)
 })
+
+
 
 module.exports = app
