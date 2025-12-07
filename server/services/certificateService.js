@@ -1,21 +1,11 @@
 const PDFDocument = require("pdfkit")
 const QRCode = require("qrcode")
-const fs = require("fs")
-const path = require("path")
 const { v4: uuidv4 } = require("uuid")
+const { uploadToCloudinary } = require("../utils/cloudinary")
 const Certificate = require("../models/Certificate")
 
 class CertificateService {
-  constructor() {
-    this.certificatesDir = path.join(__dirname, "../public/certificates")
-    this.ensureDirectoryExists()
-  }
-
-  ensureDirectoryExists() {
-    if (!fs.existsSync(this.certificatesDir)) {
-      fs.mkdirSync(this.certificatesDir, { recursive: true })
-    }
-  }
+  constructor() {}
 
   async generateCertificate(data) {
     try {
@@ -35,26 +25,13 @@ class CertificateService {
 
       // Generate unique certificate ID
       const certificateId = `CERT_${Date.now()}_${uuidv4().substr(0, 8).toUpperCase()}`
-      const filename = `${certificateId}.pdf`
-      const filePath = path.join(this.certificatesDir, filename)
-      const publicUrl = `${process.env.BACKEND_URL || "http://localhost:5000"}/certificates/${filename}`
       const verificationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/verify-certificate/${certificateId}`
 
       // Generate QR code for verification
       const qrCodeData = await QRCode.toDataURL(verificationUrl)
 
-      // Create PDF document
-      const doc = new PDFDocument({
-        size: "A4",
-        layout: "landscape",
-        margins: { top: 50, bottom: 50, left: 50, right: 50 },
-      })
-
-      // Pipe to file
-      doc.pipe(fs.createWriteStream(filePath))
-
-      // Add certificate content
-      await this.addCertificateContent(doc, {
+      // Build PDF in-memory (no local file storage)
+      const pdfBuffer = await this.createCertificatePdfBuffer({
         studentName,
         courseName,
         instructor,
@@ -67,14 +44,9 @@ class CertificateService {
         verificationUrl,
       })
 
-      // Finalize PDF
-      doc.end()
-
-      // Wait for PDF to be written
-      await new Promise((resolve, reject) => {
-        doc.on("end", resolve)
-        doc.on("error", reject)
-      })
+      // Upload PDF to Cloudinary as a raw file (keeps it private to a single URL)
+      const cloudFolder = process.env.CLOUDINARY_CERT_FOLDER || "lms/certificates"
+      const pdfUrl = await uploadToCloudinary(pdfBuffer, cloudFolder, "raw", "application/pdf")
 
       // Generate certificate number
       const year = new Date().getFullYear()
@@ -96,34 +68,83 @@ class CertificateService {
         finalScore,
         hoursCompleted,
         skills,
-        pdfPath: filePath,
-        pdfUrl: publicUrl,
+        pdfPath: pdfUrl,
+        pdfUrl,
         verificationUrl,
         qrCodeData,
         metadata: {
           ...metadata,
           generatedAt: new Date(),
-          fileSize: fs.statSync(filePath).size,
+          fileSize: pdfBuffer.length,
         },
       })
 
-      try {
-        await certificate.save()
-      } catch (saveError) {
-        console.error("Certificate DB save error:", saveError)
-        // Cleanup: Delete the generated PDF if DB save fails
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath)
-          console.log(`Cleaned up orphaned PDF: ${filePath}`)
-        }
-        throw new Error(`Failed to save certificate to database: ${saveError.message}`)
-      }
+      await certificate.save()
 
       return certificate
     } catch (error) {
       console.error("Certificate generation error:", error)
       throw new Error(`Failed to generate certificate: ${error.message}`)
     }
+  }
+
+  async createCertificatePdfBuffer(content) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const doc = new PDFDocument({
+          size: "A4",
+          layout: "landscape",
+          margins: { top: 50, bottom: 50, left: 50, right: 50 },
+        })
+
+        const chunks = []
+        doc.on("data", (chunk) => chunks.push(chunk))
+        doc.on("end", () => resolve(Buffer.concat(chunks)))
+        doc.on("error", reject)
+
+        await this.addCertificateContent(doc, content)
+        doc.end()
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+
+  // Regenerate a certificate PDF from an existing certificate record (used for migrations)
+  async regenerateCertificateAsset(certificate) {
+    const verificationUrl =
+      certificate.verificationUrl ||
+      `${process.env.FRONTEND_URL || "http://localhost:3000"}/verify-certificate/${certificate.certificateId}`
+
+    const qrCodeData = await QRCode.toDataURL(verificationUrl)
+
+    const pdfBuffer = await this.createCertificatePdfBuffer({
+      studentName: certificate.studentName,
+      courseName: certificate.courseName,
+      instructor: certificate.instructor,
+      completionDate: certificate.completionDate,
+      finalScore: certificate.finalScore,
+      hoursCompleted: certificate.hoursCompleted,
+      skills: certificate.skills,
+      certificateId: certificate.certificateId,
+      qrCodeData,
+      verificationUrl,
+    })
+
+    const cloudFolder = process.env.CLOUDINARY_CERT_FOLDER || "lms/certificates"
+    const pdfUrl = await uploadToCloudinary(pdfBuffer, cloudFolder, "raw", "application/pdf")
+
+    certificate.pdfUrl = pdfUrl
+    certificate.pdfPath = pdfUrl
+    certificate.metadata = {
+      ...certificate.metadata,
+      regeneratedAt: new Date(),
+      fileSize: pdfBuffer.length,
+    }
+
+    await certificate.save()
+
+    return pdfUrl
   }
 
   async addCertificateContent(doc, data) {
@@ -289,7 +310,15 @@ class CertificateService {
         .populate("course", "title instructor category")
         .sort({ createdAt: -1 })
 
-      return certificates.map((cert) => ({
+      return certificates.map((cert) => {
+        const isCloudinary = cert.pdfUrl && cert.pdfUrl.includes("res.cloudinary.com")
+        const isRaw = isCloudinary && cert.pdfUrl.includes("/raw/upload/")
+        const apiProxyUrl = `${process.env.BACKEND_URL || "http://localhost:2000"}/api/certificates/pdf/${cert.certificateId}`
+
+        // If the stored URL is a Cloudinary image upload, force the proxy so we can re-upload as raw.
+        const resolvedPdfUrl = isCloudinary && !isRaw ? apiProxyUrl : isRaw ? cert.pdfUrl : apiProxyUrl
+
+        return {
         id: cert._id,
         certificateId: cert.certificateId,
         certificateNumber: cert.certificateNumber,
@@ -299,11 +328,12 @@ class CertificateService {
         issueDate: cert.issueDate,
         grade: cert.grade,
         finalScore: cert.finalScore,
-        pdfUrl: cert.pdfUrl,
+        pdfUrl: resolvedPdfUrl,
         verificationUrl: cert.verificationUrl,
         skills: cert.skills,
         course: cert.course,
-      }))
+        }
+      })
     } catch (error) {
       console.error("Get user certificates error:", error)
       throw new Error("Failed to fetch user certificates")

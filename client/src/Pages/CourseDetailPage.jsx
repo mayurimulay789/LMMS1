@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, X, Send, Download, Eye } from "lucide-react"
+import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, X, Send, Download } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { apiRequest } from "../config/api"
 
@@ -595,21 +595,9 @@ const CourseDetailPage = () => {
     }
   };
 
-  // Function to handle certificate view
-  const handleViewCertificate = (certificateData) => {
-    if (certificateData.verificationUrl) {
-      window.open(certificateData.verificationUrl, '_blank');
-    } else if (certificateData.imageUrl) {
-      window.open(certificateData.imageUrl, '_blank');
-    } else {
-      // Fallback to PDF view
-      window.open(`/api/certificates/pdf/${certificateData.certificateId || certificateData.id}`, '_blank');
-    }
-  };
-
   // Function to get course name from certificate data
   const getCourseNameFromCertificate = (certificateData) => {
-    return certificateData.courseName || "Course Certificate";
+    return certificateData.courseName || certificateData.course?.title || "Course Certificate";
   };
 
   // Function to get certificate issue date
@@ -620,6 +608,18 @@ const CourseDetailPage = () => {
   // Function to get certificate ID
   const getCertificateId = (certificateData) => {
     return certificateData.certificateId || certificateData.id || 'N/A';
+  };
+
+  // Function to check if certificate belongs to current course
+  const isCertificateForCurrentCourse = (cert) => {
+    const certCourseName = getCourseNameFromCertificate(cert).toLowerCase();
+    const currentCourseName = (course?.title || "").toLowerCase();
+    return certCourseName === currentCourseName;
+  };
+
+  // Function to check if user can download certificate
+  const canDownloadCertificate = () => {
+    return isAuthenticated && isEnrolled && userCertificates.some(isCertificateForCurrentCourse);
   };
 
   const tabs = [
@@ -1394,16 +1394,40 @@ const CourseDetailPage = () => {
 
               {activeTab === "certificate" && (
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">My Certificates</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">My Certificate</h3>
 
-                  {certificatesLoading ? (
+                  {!isAuthenticated ? (
+                    <div className="text-center py-8 bg-blue-50 rounded-lg">
+                      <Award className="h-12 w-12 text-blue-300 mx-auto mb-4" />
+                      <h5 className="text-lg font-semibold text-gray-900 mb-2">Login to View Certificates</h5>
+                      <p className="text-gray-600 mb-4">Sign in to access your earned certificates.</p>
+                      <button
+                        onClick={() => navigate('/login')}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        Login
+                      </button>
+                    </div>
+                  ) : !isEnrolled ? (
+                    <div className="text-center py-8 bg-yellow-50 rounded-lg">
+                      <Award className="h-12 w-12 text-yellow-300 mx-auto mb-4" />
+                      <h5 className="text-lg font-semibold text-gray-900 mb-2">Enroll to Get Certificate</h5>
+                      <p className="text-gray-600 mb-4">Purchase and complete this course to earn your certificate.</p>
+                      <button
+                        onClick={() => handleEnroll()}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        {course.price === 0 ? 'Enroll for Free' : 'Buy Now'}
+                      </button>
+                    </div>
+                  ) : certificatesLoading ? (
                     <div className="flex items-center justify-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                       <span className="ml-3 text-gray-600">Loading certificates...</span>
                     </div>
-                  ) : userCertificates.length > 0 ? (
+                  ) : userCertificates.filter(isCertificateForCurrentCourse).length > 0 ? (
                     <div className="space-y-4">
-                      {userCertificates.map((cert) => {
+                      {userCertificates.filter(isCertificateForCurrentCourse).map((cert) => {
                         const courseName = getCourseNameFromCertificate(cert);
                         const issueDate = getCertificateIssueDate(cert);
                         const certificateId = getCertificateId(cert);
@@ -1438,22 +1462,13 @@ const CourseDetailPage = () => {
                               </div>
                             </div>
 
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => handleViewCertificate(cert)}
-                                className="flex-1 bg-blue-100 text-blue-800 py-1.5 px-1 rounded text-xs hover:bg-blue-200 border border-blue-300 transition-colors flex items-center justify-center space-x-1"
-                              >
-                                <Eye className="h-3 w-3" />
-                                <span>View</span>
-                              </button>
-                              <button
-                                onClick={() => handleDownloadCertificate(cert)}
-                                className="flex-1 bg-green-100 text-green-800 py-1.5 px-1 rounded text-xs hover:bg-green-200 border border-green-300 transition-colors flex items-center justify-center space-x-1"
-                              >
-                                <Download className="h-3 w-3" />
-                                <span>Download</span>
-                              </button>
-                            </div>
+                            <button
+                              onClick={() => handleDownloadCertificate(cert)}
+                              className="w-full bg-green-100 text-green-800 py-2 px-3 rounded text-xs hover:bg-green-200 border border-green-300 transition-colors flex items-center justify-center space-x-1 font-medium"
+                            >
+                              <Download className="h-4 w-4" />
+                              <span>Download Certificate</span>
+                            </button>
                           </div>
                         );
                       })}
@@ -1461,21 +1476,10 @@ const CourseDetailPage = () => {
                   ) : (
                     <div className="text-center py-8 bg-gray-50 rounded-lg">
                       <Award className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h5 className="text-lg font-semibold text-gray-900 mb-2">No Certificates Yet</h5>
-                      <p className="text-gray-600 mb-4">
-                        {isAuthenticated 
-                          ? "Complete courses to earn certificates that will appear here."
-                          : "Login to view your certificates."
-                        }
+                      <h5 className="text-lg font-semibold text-gray-900 mb-2">No Certificate Yet</h5>
+                      <p className="text-gray-600">
+                        Complete this course to earn your certificate.
                       </p>
-                      {!isAuthenticated && (
-                        <button
-                          onClick={() => navigate('/login')}
-                          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                          Login to View Certificates
-                        </button>
-                      )}
                     </div>
                   )}
                 </div>
