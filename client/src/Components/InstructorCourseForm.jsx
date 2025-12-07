@@ -452,12 +452,20 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
                         muted
                         controls={false}
                         preload="metadata"
+                        onError={(e) => {
+                          console.error('Video load error:', formData.thumbnail);
+                          e.target.style.display = 'none';
+                        }}
                       />
                     ) : (
                       <img
-                        src={formData.thumbnail || "/placeholder.svg"}
+                        src={formData.thumbnail}
                         alt="Thumbnail preview"
                         className="h-full w-full object-cover"
+                        onError={(e) => {
+                          console.error('Image load error:', formData.thumbnail);
+                          e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMzIgMjBDMjYuNDggMjAgMjIgMjQuNDggMjIgMzBDMjIgMzUuNTIgMjYuNDggNDAgMzIgNDBDMzcuNTIgNDAgNDIgMzUuNTIgNDIgMzBDNDIgMjQuNDggMzcuNTIgMjAgMzIgMjBaTTMyIDM2QzI4LjY5IDM2IDI2IDMzLjMxIDI2IDMwQzI2IDI2LjY5IDI4LjY5IDI0IDMyIDI0QzM1LjMxIDI0IDM4IDI2LjY5IDM4IDMwQzM4IDMzLjMxIDM1LjMxIDM2IDMyIDM2WiIgZmlsbD0iIzlDQTNCMCIvPjwvc3ZnPg==';
+                        }}
                       />
                     )}
                   </div>
@@ -605,21 +613,34 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
             <div key={course._id} className="p-6 hover:bg-gray-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                    {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
-                      <video
-                        src={course.thumbnail}
-                        className="h-full w-full object-cover"
-                        muted
-                        controls={false}
-                        preload="metadata"
-                      />
+                  <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    {course.thumbnail ? (
+                      course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
+                        <video
+                          src={course.thumbnail}
+                          className="h-full w-full object-cover"
+                          muted
+                          controls={false}
+                          preload="metadata"
+                          onError={(e) => {
+                            console.error('Video load error for course:', course.title, course.thumbnail);
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = '<div class="flex items-center justify-center h-full w-full"><svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></div>';
+                          }}
+                        />
+                      ) : (
+                        <img
+                          src={course.thumbnail}
+                          alt={course.title}
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            console.error('Image load error for course:', course.title, course.thumbnail);
+                            e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMzIgMjBDMjYuNDggMjAgMjIgMjQuNDggMjIgMzBDMjIgMzUuNTIgMjYuNDggNDAgMzIgNDBDMzcuNTIgNDAgNDIgMzUuNTIgNDIgMzBDNDIgMjQuNDggMzcuNTIgMjAgMzIgMjBaTTMyIDM2QzI4LjY5IDM2IDI2IDMzLjMxIDI2IDMwQzI2IDI2LjY5IDI4LjY5IDI0IDMyIDI0QzM1LjMxIDI0IDM4IDI2LjY5IDM4IDMwQzM4IDMzLjMxIDM1LjMxIDM2IDMyIDM2WiIgZmlsbD0iIzlDQTNCMCIvPjwvc3ZnPg==';
+                          }}
+                        />
+                      )
                     ) : (
-                      <img
-                        src={course.thumbnail || "/placeholder.svg"}
-                        alt={course.title}
-                        className="h-full w-full object-cover"
-                      />
+                      <ImageIcon className="h-8 w-8 text-gray-400" />
                     )}
                   </div>
                   <div>

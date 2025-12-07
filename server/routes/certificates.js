@@ -496,7 +496,7 @@ router.get("/download/:certificateId", auth, async (req, res) => {
       
       // For Cloudinary raw files, add download flag
       if (downloadUrl.includes('/raw/upload/')) {
-        // Add flag to force download
+        // Add flag to force download (fl_attachment without value defaults to download)
         downloadUrl = downloadUrl.replace('/raw/upload/', '/raw/upload/fl_attachment/');
       } else {
         // For regular URLs, add download parameter
@@ -629,20 +629,17 @@ router.get("/pdf/:certificateId", async (req, res) => {
 
     // Check if it's a Cloudinary URL
     if (certificate.pdfUrl.includes('cloudinary.com')) {
-      // For Cloudinary raw files, we need to add the .pdf extension explicitly
-      let cloudinaryUrl = certificate.pdfUrl;
+      let viewUrl = certificate.pdfUrl;
       
-      // Add transformation to ensure it's served as PDF
-      if (cloudinaryUrl.includes('/raw/upload/')) {
-        // Replace /raw/upload/ with /raw/upload/fl_attachment:certificate.pdf/
-        // This tells Cloudinary to serve it as a downloadable PDF
-        cloudinaryUrl = cloudinaryUrl.replace('/raw/upload/', '/raw/upload/fl_inline/');
-        
-        // OR try this alternative for inline viewing:
-        // cloudinaryUrl = cloudinaryUrl + '.pdf';
+      // For Cloudinary raw files, add inline viewing flag
+      if (viewUrl.includes('/raw/upload/')) {
+        // Use fl_attachment:false to make PDF open inline in browser instead of downloading
+        if (!viewUrl.includes('fl_attachment')) {
+          viewUrl = viewUrl.replace('/raw/upload/', '/raw/upload/fl_attachment:false/');
+        }
       }
       
-      return res.redirect(cloudinaryUrl);
+      return res.redirect(viewUrl);
     } else {
       // Fallback to local file for old certificates
       const filePath = certificate.pdfPath;

@@ -25,9 +25,17 @@ router.post("/create-order", auth, async (req, res) => {
     const { courseId, amount, promoCode, billingInfo } = req.body
     const userId = req.user.id
 
+    console.log('[payments:create-order] Request received:', { 
+      courseId, 
+      amount, 
+      userId,
+      hasPromoCode: !!promoCode 
+    });
+
     // Fetch course details
     const course = await Course.findById(courseId)
     if (!course) {
+      console.error('[payments:create-order] Course not found:', courseId);
       return res.status(404).json({ message: "Course not found" })
     }
 
@@ -37,6 +45,7 @@ router.post("/create-order", auth, async (req, res) => {
       course: courseId,
     })
     if (existingEnrollment) {
+      console.log('[payments:create-order] User already enrolled:', { userId, courseId });
       return res.status(400).json({ message: "Already enrolled in this course" })
     }
 
@@ -91,6 +100,8 @@ router.post("/create-order", auth, async (req, res) => {
 
     const order = await razorpay.orders.create(options)
 
+    console.log('[payments:create-order] Razorpay order created:', order.id);
+
     // Create payment record
     const payment = new Payment({
       user: userId,
@@ -105,6 +116,8 @@ router.post("/create-order", auth, async (req, res) => {
 
     await payment.save()
 
+    console.log('[payments:create-order] Payment record saved:', payment._id);
+
     res.json({
       orderId: order.id,
       amount: finalAmount,
@@ -114,7 +127,8 @@ router.post("/create-order", auth, async (req, res) => {
       paymentId: payment._id,
     })
   } catch (error) {
-    res.status(500).json({ message: "Failed to create payment order" })
+    console.error('[payments:create-order] Error:', error);
+    res.status(500).json({ message: "Failed to create payment order", error: error.message })
   }
 })
 
@@ -123,6 +137,13 @@ router.post("/verify", auth, async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
     const userId = req.user.id;
+
+    console.log('[payments:verify] Request received:', { 
+      razorpay_order_id, 
+      razorpay_payment_id, 
+      userId,
+      hasSignature: !!razorpay_signature 
+    });
 
     // Compute expected signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -133,10 +154,16 @@ router.post("/verify", auth, async (req, res) => {
 
     // Compare signatures
     if (expectedSignature !== razorpay_signature) {
+      console.error('[payments:verify] Signature mismatch:', {
+        expected: expectedSignature.substring(0, 10) + '...',
+        received: razorpay_signature.substring(0, 10) + '...'
+      });
       return res.status(400).json({
         message: "Payment verification failed"
       });
     }
+
+    console.log('[payments:verify] Signature verified successfully');
 
     // Find the payment record
     const payment = await Payment.findOne({
@@ -145,10 +172,18 @@ router.post("/verify", auth, async (req, res) => {
     }).populate("course");
 
     if (!payment) {
+      console.error('[payments:verify] Payment record not found:', { razorpay_order_id, userId });
       return res.status(404).json({ message: "Payment record not found" });
     }
 
+    console.log('[payments:verify] Payment record found:', { 
+      paymentId: payment._id, 
+      status: payment.status,
+      courseId: payment.course._id 
+    });
+
     if (payment.status === "completed") {
+      console.log('[payments:verify] Payment already completed, returning existing enrollment');
       const enrollment = await Enrollment.findOne({
         user: userId,
         course: payment.course._id,
@@ -169,6 +204,8 @@ router.post("/verify", auth, async (req, res) => {
     payment.completedAt = new Date();
     await payment.save();
 
+    console.log('[payments:verify] Payment status updated to completed');
+
     // Create enrollment
     const enrollment = new Enrollment({
       user: userId,
@@ -183,10 +220,14 @@ router.post("/verify", auth, async (req, res) => {
     });
     await enrollment.save();
 
+    console.log('[payments:verify] Enrollment created:', enrollment._id);
+
     // Update course enrollment count
     await Course.findByIdAndUpdate(payment.course._id, {
       $inc: { enrollmentCount: 1 },
     });
+
+    console.log('[payments:verify] Course enrollment count updated');
 
     res.json({
       status: "success",
@@ -196,7 +237,8 @@ router.post("/verify", auth, async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ message: "Failed to verify payment" });
+    console.error('[payments:verify] Error:', error);
+    res.status(500).json({ message: "Failed to verify payment", error: error.message });
   }
 })
 

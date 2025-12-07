@@ -535,8 +535,11 @@ router.post("/certificate", auth, adminMiddleware, upload.single("certificate"),
       size: (req.file.size / 1024).toFixed(2) + 'KB'
     });
 
-    // Upload PDF to Cloudinary in certificates folder
-    const cloudinaryUrl = await uploadToCloudinary(req.file.buffer, 'lms/certificates');
+    // Upload PDF to Cloudinary in certificates folder with resource_type: 'raw'
+    const cloudinaryUrl = await uploadToCloudinary(req.file.buffer, 'lms/certificates', {
+      resource_type: 'raw',
+      filename: req.file.originalname
+    });
 
     res.json({
       success: true,

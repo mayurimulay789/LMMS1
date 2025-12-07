@@ -69,6 +69,19 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// Helper function to generate inline viewing URL for PDFs
+const generateInlineUrl = (cloudinaryUrl) => {
+  // For raw PDFs, add fl_attachment:false to make them open inline
+  // Example: https://res.cloudinary.com/xxx/raw/upload/v123/file.pdf
+  // Becomes: https://res.cloudinary.com/xxx/raw/upload/fl_attachment:false/v123/file.pdf
+  
+  if (cloudinaryUrl.includes('/raw/upload/')) {
+    return cloudinaryUrl.replace('/raw/upload/', '/raw/upload/fl_attachment:false/');
+  }
+  
+  return cloudinaryUrl;
+};
+
 // Upload file to Cloudinary from buffer
 const uploadToCloudinary = async (fileBuffer, folder = 'lms/course', options = {}) => {
   console.log(`☁️ Starting Cloudinary upload to folder: ${folder}`);
@@ -112,7 +125,15 @@ const uploadToCloudinary = async (fileBuffer, folder = 'lms/course', options = {
           console.log(`   📁 Folder: ${result.folder}`);
           console.log(`   📄 Resource Type: ${result.resource_type}`);
           console.log(`   📦 Format: ${result.format || 'N/A'}`);
-          resolve(result.secure_url);
+          
+          // For raw files (PDFs), generate inline viewing URL
+          let finalUrl = result.secure_url;
+          if (result.resource_type === 'raw' && result.format === 'pdf') {
+            finalUrl = generateInlineUrl(result.secure_url);
+            console.log(`   🔗 Inline URL: ${finalUrl}`);
+          }
+          
+          resolve(finalUrl);
         }
       }
     );
@@ -197,5 +218,6 @@ module.exports = {
   uploadCertificateToCloudinary,
   uploadCourseImageToCloudinary,
   uploadCourseVideoToCloudinary,
-  deleteFromCloudinary
+  deleteFromCloudinary,
+  generateInlineUrl
 };

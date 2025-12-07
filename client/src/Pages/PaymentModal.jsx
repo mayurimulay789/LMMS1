@@ -27,13 +27,11 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         }),
       });
 
-      const emailData = await emailResponse.json();
-
       if (emailResponse.ok) {
         console.log("Enrollment email sent successfully");
         return true;
       } else {
-        console.error("Failed to send enrollment email:", emailData);
+        console.error("Failed to send enrollment email:", emailResponse.data);
         return false;
       }
     } catch (error) {
@@ -65,13 +63,16 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         }),
       });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (!data.orderId) {
+        console.error("Failed to create order:", data);
         alert("Failed to create order. Try again.");
         setLoading(false);
         return;
       }
+
+      console.log('[PaymentModal] Order created successfully:', data.orderId);
 
       // 2️⃣ Configure Razorpay checkout options
       const options = {
@@ -82,8 +83,19 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         name: "Ryma Academy",
         description: `Course: ${courseTitle}`,
         image: "/logo.png",
+        // Add modal configuration to ensure payment stays in modal
+        modal: {
+          ondismiss: function() {
+            console.log('Payment cancelled by user');
+            setLoading(false);
+          },
+          escape: true,
+          backdropclose: false
+        },
         handler: async function (response) {
           try {
+            console.log('Payment handler called with response:', response);
+            
             // Verify payment on backend
             const verifyRes = await apiRequest("payments/verify", {
               method: "POST",
@@ -98,7 +110,8 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
               }),
             });
 
-            const verifyData = await verifyRes.json();
+            const verifyData = verifyRes.data;
+            console.log('Payment verification response:', verifyData);
 
             if (verifyData.status === "success") {
               setPaymentStatus('success');
@@ -147,16 +160,27 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         },
       };
 
-      // 3️⃣ Open Razorpay checkout
+      // 3️⃣ Check if Razorpay is loaded
+      if (!window.Razorpay) {
+        console.error("Razorpay SDK not loaded");
+        alert("Payment system not loaded. Please refresh the page and try again.");
+        setLoading(false);
+        return;
+      }
+
+      // Open Razorpay checkout
       const rzp = new window.Razorpay(options);
-      rzp.open();
       
+      // Handle payment failures
       rzp.on('payment.failed', function (response) {
         console.error("Payment failed:", response.error);
         setPaymentStatus('error');
         alert(`Payment failed: ${response.error.description}`);
         setLoading(false);
       });
+
+      // Open the payment modal
+      rzp.open();
 
     } catch (error) {
       console.error("Razorpay payment error:", error);
