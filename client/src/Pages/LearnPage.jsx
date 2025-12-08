@@ -240,8 +240,33 @@ const LearnPage = () => {
 
     if (isCourseCompleted()) {
       if (certificateId) {
-        console.log('Opening PDF for certificateId:', certificateId)
-        window.open(`/api/certificates/pdf/${certificateId}`, "_blank")
+        console.log('Downloading PDF for certificateId:', certificateId)
+        try {
+          const token = localStorage.getItem("token")
+          const response = await fetch(`/api/certificates/download/${certificateId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          
+          if (!response.ok) {
+            throw new Error("Failed to download certificate")
+          }
+          
+          const blob = await response.blob()
+          const url = window.URL.createObjectURL(blob)
+          const link = document.createElement("a")
+          link.href = url
+          link.download = `certificate-${certificateId}.pdf`
+          document.body.appendChild(link)
+          link.click()
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(link)
+          toast.success("Certificate downloaded successfully!")
+        } catch (error) {
+          console.error("Download error:", error)
+          toast.error("Failed to download certificate")
+        }
       } else {
         console.log('No certificateId found, attempting to generate certificate')
         toast.loading("Generating certificate...")
@@ -264,7 +289,33 @@ const LearnPage = () => {
             toast.success("Certificate generated successfully!")
             await fetchProgress()
             if (data.certificate?.certificateId) {
-              window.open(`/api/certificates/pdf/${data.certificate.certificateId}`, "_blank")
+              // Download the newly generated certificate
+              try {
+                const token = localStorage.getItem("token")
+                const downloadResponse = await fetch(`/api/certificates/download/${data.certificate.certificateId}`, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                })
+                
+                if (!downloadResponse.ok) {
+                  throw new Error("Failed to download certificate")
+                }
+                
+                const blob = await downloadResponse.blob()
+                const url = window.URL.createObjectURL(blob)
+                const link = document.createElement("a")
+                link.href = url
+                link.download = `certificate-${data.certificate.certificateId}.pdf`
+                document.body.appendChild(link)
+                link.click()
+                window.URL.revokeObjectURL(url)
+                document.body.removeChild(link)
+                toast.success("Certificate downloaded successfully!")
+              } catch (downloadError) {
+                console.error("Download error:", downloadError)
+                toast.error("Certificate generated but download failed")
+              }
             }
           } else {
             toast.dismiss()
@@ -381,8 +432,7 @@ const LearnPage = () => {
         <div className="flex flex-col items-start mx-auto space-y-3 max-w-7xl sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
           <div className="flex items-center justify-between w-full sm:w-auto">
             <button 
-              // onClick={() => navigate(`/courses/${courseId}`)} 
-              onClick={() => navigate(`/my-courses`)} 
+              onClick={() => navigate(`/courses/${courseId}`)} 
               className="flex items-center space-x-2 text-gray-600 transition-colors hover:text-gray-900"
             >
               <ArrowLeft className="w-4 h-4 sm:h-5 sm:w-5" />
@@ -440,7 +490,7 @@ const LearnPage = () => {
               >
                 {isCourseCompleted() ? <Award className="w-5 h-5 mr-2 text-green-600" /> : <Lock className="w-5 h-5 mr-2 text-gray-400" />}
                 <span className={`${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium text-sm`}>
-                  {isCourseCompleted() ? "View Certificate" : "Certificate Locked"}
+                  {isCourseCompleted() ? "Download Certificate" : "Certificate Locked"}
                 </span>
               </button>
 
@@ -488,7 +538,7 @@ const LearnPage = () => {
           >
             {isCourseCompleted() ? <Award className="w-6 h-6 mr-3 text-green-600" /> : <Lock className="w-6 h-6 mr-3 text-gray-400" />}
             <span className={`${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium`}>
-              {isCourseCompleted() ? "View Certificate" : "Certificate Locked"}
+              {isCourseCompleted() ? "Download Certificate" : "Certificate Locked"}
             </span>
           </button>
 
