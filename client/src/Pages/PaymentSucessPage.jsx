@@ -81,10 +81,10 @@ const PaymentSuccessPage = () => {
 
   if (verificationStatus === "verifying") {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifying Payment</h2>
+          <div className="w-16 h-16 mx-auto mb-4 border-b-2 border-blue-600 rounded-full animate-spin"></div>
+          <h2 className="mb-2 text-2xl font-bold text-gray-900">Verifying Payment</h2>
           <p className="text-gray-600">Please wait while we confirm your payment and set up your course access...</p>
         </div>
       </div>
@@ -93,10 +93,10 @@ const PaymentSuccessPage = () => {
 
   if (verificationStatus === "error") {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8 text-center">
-          <div className="text-red-500 mb-4">
-            <svg className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="w-full max-w-md p-8 text-center bg-white rounded-lg shadow-sm">
+          <div className="mb-4 text-red-500">
+            <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -105,20 +105,20 @@ const PaymentSuccessPage = () => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Payment Verification Failed</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">Payment Verification Failed</h2>
+          <p className="mb-6 text-gray-600">
             We couldn't verify your payment. Please contact support if you believe this is an error.
           </p>
           <div className="space-y-3">
             <button
               onClick={() => navigate("/dashboard")}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+              className="w-full px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
             >
               Go to Dashboard
             </button>
             <button
               onClick={() => navigate("/contact")}
-              className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full px-4 py-2 text-gray-700 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               Contact Support
             </button>
@@ -129,24 +129,24 @@ const PaymentSuccessPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 bg-gray-50">
+      <div className="max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
         {/* Success Header */}
-        <div className="text-center mb-8">
-          <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
+        <div className="mb-8 text-center">
+          <CheckCircle className="w-20 h-20 mx-auto mb-4 text-green-500" />
+          <h1 className="mb-2 text-4xl font-bold text-gray-900">Payment Successful!</h1>
           <p className="text-xl text-gray-600">
             Welcome to your new course, {user?.name}! You now have lifetime access.
           </p>
         </div>
 
         {/* Payment Summary */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment Summary</h2>
+        <div className="p-6 mb-8 bg-white rounded-lg shadow-sm">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">Payment Summary</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Transaction Details</h3>
+              <h3 className="mb-2 font-medium text-gray-900">Transaction Details</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Transaction ID:</span>
@@ -168,7 +168,7 @@ const PaymentSuccessPage = () => {
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Course Access</h3>
+              <h3 className="mb-2 font-medium text-gray-900">Course Access</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Course:</span>
@@ -180,7 +180,7 @@ const PaymentSuccessPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Access:</span>
-                  <span className="text-green-600 font-medium">Lifetime</span>
+                  <span className="font-medium text-green-600">Lifetime</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Certificate:</span>
@@ -193,39 +193,39 @@ const PaymentSuccessPage = () => {
 
         {/* Course Preview */}
         {course && (
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Course</h2>
+          <div className="p-6 mb-8 bg-white rounded-lg shadow-sm">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Your Course</h2>
 
             <div className="flex items-start space-x-4">
               <img
                 src={course.thumbnail || "/placeholder.svg"}
                 alt={course.title}
-                className="w-32 h-24 rounded-lg object-cover"
+                className="object-cover w-32 h-24 rounded-lg"
               />
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{course.title}</h3>
-                <p className="text-gray-600 mb-3">{course.description}</p>
+                <h3 className="mb-2 text-lg font-semibold text-gray-900">{course.title}</h3>
+                <p className="mb-3 text-gray-600">{course.description}</p>
 
-                <div className="flex items-center space-x-6 text-sm text-gray-600 mb-4">
+                <div className="flex items-center mb-4 space-x-6 text-sm text-gray-600">
                   <div className="flex items-center space-x-1">
-                    <Clock className="h-4 w-4" />
+                    <Clock className="w-4 h-4" />
                     <span>{course.duration}</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Users className="h-4 w-4" />
+                    <Users className="w-4 h-4" />
                     <span>{course.enrollmentCount} students</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Award className="h-4 w-4" />
+                    <Award className="w-4 h-4" />
                     <span>{course.level}</span>
                   </div>
                 </div>
 
                 <Link
                   to={`/courses/${course._id}/learn`}
-                  className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center px-6 py-3 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
                 >
-                  <Play className="h-5 w-5 mr-2" />
+                  <Play className="w-5 h-5 mr-2" />
                   Start Learning Now
                 </Link>
               </div>
@@ -234,60 +234,39 @@ const PaymentSuccessPage = () => {
         )}
 
         {/* Next Steps */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">What's Next?</h2>
+        <div className="p-6 mb-8 bg-white rounded-lg shadow-sm">
+          <h2 className="mb-6 text-xl font-semibold text-gray-900">What's Next?</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {nextSteps.map((step, index) => (
               <div
                 key={index}
-                className="text-center p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                className="p-4 text-center transition-shadow border border-gray-200 rounded-lg hover:shadow-md"
               >
-                <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <step.icon className="h-6 w-6 text-blue-600" />
+                <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-blue-100 rounded-full">
+                  <step.icon className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-600 mb-4">{step.description}</p>
+                <h3 className="mb-2 font-semibold text-gray-900">{step.title}</h3>
+                <p className="mb-4 text-sm text-gray-600">{step.description}</p>
                 <Link
                   to={step.link}
-                  className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm"
+                  className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800"
                 >
                   {step.action}
-                  <ArrowRight className="h-4 w-4 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1" />
                 </Link>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Welcome Message */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-8 text-white text-center">
-          <h2 className="text-2xl font-bold mb-4">Welcome to Your Learning Journey!</h2>
-          <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            You've taken the first step towards mastering new skills. We're excited to be part of your learning journey.
-            Remember, consistency is key - try to dedicate some time each day to your studies.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to={`/courses/${course?._id}/learn`}
-              className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            >
-              Start First Lesson
-            </Link>
-            <Link
-              to="/dashboard"
-              className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
-            >
-              Go to Dashboard
-            </Link>
-          </div>
-        </div>
+       
 
         {/* Receipt Download */}
-        <div className="text-center mt-8">
-          <p className="text-gray-600 mb-4">Need a receipt for your records?</p>
-          <button className="text-blue-600 hover:text-blue-800 font-medium">
-            <Download className="h-4 w-4 inline mr-2" />
+        <div className="mt-8 text-center">
+          <p className="mb-4 text-gray-600">Need a receipt for your records?</p>
+          <button className="font-medium text-blue-600 hover:text-blue-800">
+            <Download className="inline w-4 h-4 mr-2" />
             Download Receipt
           </button>
         </div>

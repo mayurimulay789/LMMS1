@@ -1,12 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Share2, Eye, Award, Calendar, User, BookOpen, ExternalLink } from "lucide-react"
+import { Download, Award, Calendar, User, BookOpen } from "lucide-react"
 import { motion } from "framer-motion"
 
-const CertificateCard = ({ certificate, onDownload, onShare, onView }) => {
+const CertificateCard = ({ certificate, onDownload }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const [imageError, setImageError] = useState(false)
 
   const handleDownload = async () => {
     setIsLoading(true)
@@ -17,14 +16,6 @@ const CertificateCard = ({ certificate, onDownload, onShare, onView }) => {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleShare = () => {
-    onShare(certificate)
-  }
-
-  const handleView = () => {
-    onView(certificate)
   }
 
   const formatDate = (date) => {
@@ -128,45 +119,15 @@ const CertificateCard = ({ certificate, onDownload, onShare, onView }) => {
 
       {/* Actions */}
       <div className="p-4 bg-white border-t border-gray-100">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handleView}
-              className="btn btn-sm btn-outline flex items-center space-x-1 hover:bg-primary-50 hover:border-primary-300"
-            >
-              <Eye className="h-4 w-4" />
-              <span>View</span>
-            </button>
-            <button
-              onClick={handleDownload}
-              disabled={isLoading}
-              className="btn btn-sm btn-primary flex items-center space-x-1"
-            >
-              {isLoading ? <div className="spinner h-4 w-4" /> : <Download className="h-4 w-4" />}
-              <span>{isLoading ? "Downloading..." : "Download"}</span>
-            </button>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handleShare}
-              className="btn btn-sm btn-ghost flex items-center space-x-1 text-gray-600 hover:text-primary-600"
-            >
-              <Share2 className="h-4 w-4" />
-              <span>Share</span>
-            </button>
-            {certificate.verificationUrl && (
-              <a
-                href={certificate.verificationUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-sm btn-ghost flex items-center space-x-1 text-gray-600 hover:text-primary-600"
-              >
-                <ExternalLink className="h-4 w-4" />
-                <span>Verify</span>
-              </a>
-            )}
-          </div>
+        <div className="flex items-center justify-center w-full">
+          <button
+            onClick={handleDownload}
+            disabled={isLoading}
+            className="btn btn-sm btn-primary flex items-center space-x-1 w-full justify-center"
+          >
+            {isLoading ? <div className="spinner h-4 w-4" /> : <Download className="h-4 w-4" />}
+            <span>{isLoading ? "Downloading..." : "Download"}</span>
+          </button>
         </div>
 
         {/* Issue Date */}

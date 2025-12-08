@@ -49,18 +49,42 @@ export const createApiUrl = (endpoint) => {
   return `${API_BASE_URL}/${cleanEndpoint}`;
 };
 
+// Check if request body is FormData (for file uploads)
+const isFormData = (body) => {
+  return body && body instanceof FormData;
+};
+
 // Generic API fetch wrapper with enhanced error handling
 export const apiRequest = async (url, options = {}) => {
   const fullUrl = url.startsWith('http') ? url : createApiUrl(url);
+  
+  // Get token from localStorage
+  const token = localStorage.getItem('token');
+  
+  // Prepare headers
+  const headers = {
+    Accept: 'application/json',
+    ...options.headers
+  };
+
+  // Add Authorization header if token exists
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // For FormData requests (file uploads), let browser set Content-Type
+  if (isFormData(options.body)) {
+    // Remove Content-Type header for FormData - browser will set it with boundary
+    delete headers['Content-Type'];
+  } else {
+    // For non-FormData requests, set Content-Type to JSON
+    headers['Content-Type'] = 'application/json';
+  }
 
   try {
     const response = await fetch(fullUrl, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...options.headers
-      },
+      headers: headers,
       credentials: 'include' // Include credentials for CORS
     });
 
@@ -68,14 +92,40 @@ export const apiRequest = async (url, options = {}) => {
       console.error(
         `API Request Failed: ${response.status} ${response.statusText} for ${fullUrl}`
       );
-      const errBody = await response.text().catch(() => null);
-      const err = new Error(`HTTP error! status: ${response.status}`);
-      err.response = { status: response.status, statusText: response.statusText, body: errBody };
+      
+      // Try to get error message from response
+      let errorMessage = `HTTP error! status: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch (e) {
+        // If response is not JSON, get text
+        const textError = await response.text().catch(() => null);
+        if (textError) {
+          errorMessage = textError;
+        }
+      }
+      
+      const err = new Error(errorMessage);
+      err.response = {
+        status: response.status,
+        statusText: response.statusText,
+        url: fullUrl
+      };
       throw err;
     }
 
     const data = await response.json().catch(() => null);
-    return { data, status: response.status, ok: response.ok };
+    return {
+      ok: response.ok,
+      status: response.status,
+      data: data,
+      json: () => Promise.resolve(data)
+    };
   } catch (error) {
     if (apiConfig.enableLogging) {
       console.error('API Request Error:', {
@@ -86,6 +136,43 @@ export const apiRequest = async (url, options = {}) => {
     }
     throw error;
   }
+};
+
+// Specialized upload function for file uploads
+export const uploadFile = async (file, endpoint, fieldName = 'file') => {
+  const formData = new FormData();
+  formData.append(fieldName, file);
+
+  if (apiConfig.enableLogging) {
+    console.log('📤 Uploading file:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      endpoint: endpoint
+    });
+  }
+
+  return apiRequest(endpoint, {
+    method: 'POST',
+    body: formData
+  });
+};
+
+// Specialized upload functions for specific use cases
+export const uploadCourseThumbnail = async (file) => {
+  return uploadFile(file, 'upload/course-media', 'thumbnail');
+};
+
+export const uploadLessonVideo = async (file) => {
+  return uploadFile(file, 'upload/lesson-video', 'video');
+};
+
+export const uploadCertificate = async (file) => {
+  return uploadFile(file, 'upload/certificate', 'certificate');
+};
+
+export const uploadCoursePreview = async (file) => {
+  return uploadFile(file, 'upload/course-preview', 'coursePreview');
 };
 
 // If axios is available, create an axios instance and export as default so
@@ -104,6 +191,12 @@ axiosInstance.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // For FormData requests, let browser set Content-Type
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+  
   return config;
 });
 
