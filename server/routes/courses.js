@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const Course = require("../models/Course")
+const CourseReview = require("../models/CourseReview")
 const Enrollment = require("../models/Enrollment")
 const Progress = require("../models/Progress")
 const jwt = require("jsonwebtoken")
@@ -214,7 +215,10 @@ router.get("/:id", async (req, res) => {
         course: course._id,
       })
 
-      isEnrolled = !!enrollment
+      // Consider enrolled only if enrollment is paid/active or completed
+      isEnrolled = !!(
+        enrollment && (enrollment.payment || ["active", "completed"].includes(enrollment.status))
+      )
 
       if (isEnrolled) {
         userProgress = await Progress.findOne({
@@ -245,6 +249,46 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch course" })
   }
 })
+
+// POST /courses/:id/reviews - Submit a review (used by client ReviewForm)
+router.post('/:id/reviews', auth, async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+
+    if (!rating || rating <= 0 || !comment || !comment.trim()) {
+      return res.status(400).json({ message: 'Rating and comment are required' });
+    }
+
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const enrollment = await Enrollment.findOne({ user: req.user.id, course: course._id });
+    if (!enrollment || (!enrollment.payment && !['active', 'completed'].includes(enrollment.status))) {
+      return res.status(403).json({ message: 'You must purchase this course to submit a review' });
+    }
+
+    const review = new CourseReview({
+      course: course._id,
+      user: req.user.id,
+      name: req.user.name || 'Anonymous',
+      avatar: req.user.avatar || null,
+      rating,
+      comment,
+    });
+
+    await review.save();
+
+    const allReviews = await CourseReview.find({ course: course._id });
+    const avgRating = allReviews.length > 0 ? allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length : 0;
+
+    await Course.findByIdAndUpdate(course._id, { avgRating, reviewCount: allReviews.length });
+
+    res.status(201).json(review);
+  } catch (err) {
+    console.error('Error adding inline review:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // GET /courses/:id/lessons - Get course lessons (protected route for enrolled users)
 router.get("/:id/lessons", auth, async (req, res) => {

@@ -131,6 +131,7 @@ const DashboardPage = () => {
               user={user}
               onSave={handleProfileUpdate}
               onCancel={() => setShowProfileForm(false)}
+              startEditing={true}
             />
           ) : (
             <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
@@ -181,33 +182,7 @@ const DashboardPage = () => {
             </div>
           )}
 
-          {/* Recent Activity */}
-          <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div className="text-sm">
-                  <p className="text-gray-900">Completed "React Hooks"</p>
-                  <p className="text-gray-500">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="text-sm">
-                  <p className="text-gray-900">Started "Advanced JavaScript"</p>
-                  <p className="text-gray-500">1 day ago</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <div className="text-sm">
-                  <p className="text-gray-900">Earned certificate</p>
-                  <p className="text-gray-500">3 days ago</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Recent Activity removed per request */}
 
           {/* Recent Certificates */}
           <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
@@ -226,8 +201,8 @@ const DashboardPage = () => {
               </div>
             ) : (
               <div className="space-y-3">
-                {certificates.slice(0, 3).map((certificate) => (
-                  <div key={certificate._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                {certificates.slice(0, 3).map((certificate, idx) => (
+                  <div key={certificate._id || certificate.certificateId || certificate.id || idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">{certificate.courseName}</p>
                       <p className="text-xs text-gray-600">

@@ -1,44 +1,28 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { Edit2, Save, X, Globe, Linkedin, Twitter, Github, Camera, Upload } from "lucide-react"
+import { Edit2, Save, X, Globe, Camera, Upload } from "lucide-react"
 import { updateProfile, clearProfileError, clearProfileSuccess } from "../store/slices/profileSlice"
 import { uploadAvatar } from "../store/slices/authSlice"
 
-const ProfileForm = ({ user, onCancel, onSave }) => {
+const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
   const dispatch = useDispatch()
   const { isLoading, error, success } = useSelector((state) => state.profile)
 
   const [formData, setFormData] = useState({
     bio: user?.profile?.bio || "",
     website: user?.profile?.website || "",
-    social: {
-      linkedin: user?.profile?.social?.linkedin || "",
-      twitter: user?.profile?.social?.twitter || "",
-      github: user?.profile?.social?.github || "",
-    },
   })
 
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(Boolean(startEditing))
   const [avatarFile, setAvatarFile] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(user?.profile?.avatar || null)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
   const handleInputChange = (field, value) => {
-    if (field.startsWith("social.")) {
-      const socialField = field.split(".")[1]
-      setFormData(prev => ({
-        ...prev,
-        social: {
-          ...prev.social,
-          [socialField]: value
-        }
-      }))
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [field]: value
-      }))
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
   }
 
   const handleSubmit = async (e) => {
@@ -62,7 +46,14 @@ const ProfileForm = ({ user, onCancel, onSave }) => {
         onSave(result.user)
         setIsEditing(false)
         setAvatarFile(null)
-        setAvatarPreview(avatarUrl)
+
+        // Append cache-buster to force browser to fetch the updated image.
+        if (avatarUrl) {
+          const sep = avatarUrl.includes('?') ? '&' : '?'
+          setAvatarPreview(`${avatarUrl}${sep}t=${Date.now()}`)
+        } else {
+          setAvatarPreview(avatarUrl)
+        }
       }
     } catch (error) {
       console.error("Profile update failed:", error)
@@ -100,11 +91,6 @@ const ProfileForm = ({ user, onCancel, onSave }) => {
     setFormData({
       bio: user?.profile?.bio || "",
       website: user?.profile?.website || "",
-      social: {
-        linkedin: user?.profile?.social?.linkedin || "",
-        twitter: user?.profile?.social?.twitter || "",
-        github: user?.profile?.social?.github || "",
-      },
     })
     setAvatarFile(null)
     setAvatarPreview(user?.profile?.avatar || null)
@@ -113,9 +99,12 @@ const ProfileForm = ({ user, onCancel, onSave }) => {
     dispatch(clearProfileError())
   }
 
-  if (success) {
-    dispatch(clearProfileSuccess())
-  }
+  // Avoid dispatching actions during render — useEffect runs after render
+  useEffect(() => {
+    if (success) {
+      dispatch(clearProfileSuccess())
+    }
+  }, [success, dispatch])
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
@@ -263,100 +252,7 @@ const ProfileForm = ({ user, onCancel, onSave }) => {
           )}
         </div>
 
-        {/* Social Links */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Social Links
-          </label>
-          <div className="space-y-3">
-            {/* LinkedIn */}
-            <div className="flex items-center space-x-2">
-              <Linkedin className="h-4 w-4 text-blue-600" />
-              {isEditing ? (
-                <input
-                  type="url"
-                  value={formData.social.linkedin}
-                  onChange={(e) => handleInputChange("social.linkedin", e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://linkedin.com/in/yourprofile"
-                />
-              ) : (
-                <span className="text-gray-600">
-                  {formData.social.linkedin ? (
-                    <a
-                      href={formData.social.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      LinkedIn Profile
-                    </a>
-                  ) : (
-                    "No LinkedIn profile"
-                  )}
-                </span>
-              )}
-            </div>
-
-            {/* Twitter */}
-            <div className="flex items-center space-x-2">
-              <Twitter className="h-4 w-4 text-blue-400" />
-              {isEditing ? (
-                <input
-                  type="url"
-                  value={formData.social.twitter}
-                  onChange={(e) => handleInputChange("social.twitter", e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://twitter.com/yourusername"
-                />
-              ) : (
-                <span className="text-gray-600">
-                  {formData.social.twitter ? (
-                    <a
-                      href={formData.social.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      Twitter Profile
-                    </a>
-                  ) : (
-                    "No Twitter profile"
-                  )}
-                </span>
-              )}
-            </div>
-
-            {/* GitHub */}
-            <div className="flex items-center space-x-2">
-              <Github className="h-4 w-4 text-gray-700" />
-              {isEditing ? (
-                <input
-                  type="url"
-                  value={formData.social.github}
-                  onChange={(e) => handleInputChange("social.github", e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://github.com/yourusername"
-                />
-              ) : (
-                <span className="text-gray-600">
-                  {formData.social.github ? (
-                    <a
-                      href={formData.social.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      GitHub Profile
-                    </a>
-                  ) : (
-                    "No GitHub profile"
-                  )}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+        {/* Social Links removed per request */}
       </form>
     </div>
   )

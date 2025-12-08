@@ -60,6 +60,7 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
   }
 
   const handleFileUpload = async (file, type) => {
+    // Use XMLHttpRequest for multipart upload (more reliable and matches admin flow)
     const formDataUpload = new FormData()
     formDataUpload.append(type === 'thumbnail' ? 'thumbnail' : 'video', file)
 
@@ -67,25 +68,49 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await apiRequest(`upload/${endpoint}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formDataUpload,
-      })
+      if (!token) throw new Error('No authentication token found')
 
-      if (response.ok) {
-        const data = await response.json()
-        return data.data.url
-      } else {
-        console.error('Upload failed:', response.statusText)
-        return null
-      }
+      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
+
+      return await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+
+        xhr.open('POST', `${API_BASE_URL}/upload/${endpoint}`)
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            try {
+              const data = JSON.parse(xhr.responseText)
+              if (data && data.data && data.data.url) {
+                resolve(data.data.url)
+              } else {
+                reject(new Error('Upload succeeded but no URL returned'))
+              }
+            } catch (e) {
+              reject(new Error('Invalid JSON response from upload'))
+            }
+          } else {
+            let errMsg = `Upload failed with status ${xhr.status}`
+            try {
+              const err = JSON.parse(xhr.responseText)
+              errMsg = err.message || err.error || errMsg
+            } catch (e) {}
+            reject(new Error(errMsg))
+          }
+        }
+
+        xhr.onerror = () => reject(new Error('Network error during upload'))
+        xhr.ontimeout = () => reject(new Error('Upload timed out'))
+
+        // Longer timeout for uploads
+        xhr.timeout = 10 * 60 * 1000
+        xhr.send(formDataUpload)
+      })
     } catch (error) {
       console.error(`Error uploading ${type}:`, error)
+      return null
     }
-    return null
   }
 
   const handleThumbnailUpload = async (e) => {

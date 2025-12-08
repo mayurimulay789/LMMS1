@@ -54,13 +54,22 @@ export const apiRequest = async (url, options = {}) => {
   const fullUrl = url.startsWith('http') ? url : createApiUrl(url);
 
   try {
+    // If the body is a FormData instance, DO NOT set Content-Type header;
+    // the browser will set the proper multipart boundary for us.
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
+    const defaultHeaders = {
+      Accept: 'application/json',
+      ...options.headers
+    };
+
+    if (!isFormData) {
+      defaultHeaders['Content-Type'] = 'application/json';
+    }
+
     const response = await fetch(fullUrl, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...options.headers
-      },
+      headers: defaultHeaders,
       credentials: 'include' // Include credentials for CORS
     });
 
@@ -75,7 +84,15 @@ export const apiRequest = async (url, options = {}) => {
     }
 
     const data = await response.json().catch(() => null);
-    return { data, status: response.status, ok: response.ok };
+    // Return helper methods to keep compatibility with code that expects a
+    // Fetch-like Response (i.e., calling response.json()).
+    return {
+      data,
+      status: response.status,
+      ok: response.ok,
+      json: async () => data,
+      text: async () => (data === null ? null : JSON.stringify(data)),
+    };
   } catch (error) {
     if (apiConfig.enableLogging) {
       console.error('API Request Error:', {

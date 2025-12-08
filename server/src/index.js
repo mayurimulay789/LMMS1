@@ -240,6 +240,9 @@ app.use("/uploads", express.static(path.join(__dirname, "../src/uploads"), {
 }));
 
 
+  }
+}))
+
 
 // Remove local uploads folder from static serving since we're using Cloudinary
 // app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
