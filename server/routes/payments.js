@@ -8,6 +8,7 @@ const Course = require("../models/Course")
 const User = require("../models/User")
 const PromoCode = require("../models/PromoCode")
 const auth = require("../middleware/auth")
+const { sendCoursePurchaseEmail, sendAdminCoursePurchaseNotification } = require("../services/emailService_updated")
 
 
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -189,7 +190,44 @@ router.post("/verify", auth, async (req, res) => {
       console.error('🔴 [payments:verify] Payment record not found for order:', razorpay_order_id);
       return res.status(404).json({ message: "Payment record not found" });
     }
+const user = await User.findById(userId);
 
+    // Send purchase confirmation email to user
+    try {
+      await sendCoursePurchaseEmail({
+        userEmail: user.email,
+        userName: user.name,
+        courseTitle: payment.course.title,
+        coursePrice: payment.amount + payment.discount,
+        amountPaid: payment.amount,
+        discount: payment.discount,
+        paymentDate: payment.completedAt,
+        courseThumbnail: payment.course.thumbnail,
+        courseInstructor: payment.course.instructor,
+      });
+    } catch (emailError) {
+      console.error('Error sending purchase confirmation email to user:', emailError);
+      // Continue even if email fails
+    }
+
+    // Send purchase notification email to admin
+    try {
+      await sendAdminCoursePurchaseNotification({
+        userEmail: user.email,
+        userName: user.name,
+        userId: userId,
+        courseTitle: payment.course.title,
+        coursePrice: payment.amount + payment.discount,
+        amountPaid: payment.amount,
+        discount: payment.discount,
+        paymentDate: payment.completedAt,
+        courseId: payment.course._id,
+        paymentId: payment._id,
+      });
+    } catch (adminEmailError) {
+      console.error('Error sending purchase notification email to admin:', adminEmailError);
+      // Continue even if email fails
+    }
     console.log('🟢 [payments:verify] Payment record found:', payment._id);
 
     if (payment.status === "completed") {
@@ -365,7 +403,41 @@ router.post("/refund", auth, async (req, res) => {
     if (payment.completedAt < thirtyDaysAgo) {
       return res.status(400).json({ message: "Refund period has expired (30 days)" })
     }
+try {
+        await sendCoursePurchaseEmail({
+          userEmail: user.email,
+          userName: user.name,
+          courseTitle: payment.course.title,
+          coursePrice: payment.amount + payment.discount,
+          amountPaid: payment.amount,
+          discount: payment.discount,
+          paymentDate: payment.completedAt,
+          courseThumbnail: payment.course.thumbnail,
+          courseInstructor: payment.course.instructor,
+        });
+      } catch (emailError) {
+        console.error('Webhook: Error sending purchase confirmation email to user:', emailError);
+        // Continue even if email fails
+      }
 
+      // Send purchase notification email to admin
+      try {
+        await sendAdminCoursePurchaseNotification({
+          userEmail: user.email,
+          userName: user.name,
+          userId: payment.user,
+          courseTitle: payment.course.title,
+          coursePrice: payment.amount + payment.discount,
+          amountPaid: payment.amount,
+          discount: payment.discount,
+          paymentDate: payment.completedAt,
+          courseId: payment.course._id,
+          paymentId: payment._id,
+        });
+      } catch (adminEmailError) {
+        console.error('Webhook: Error sending purchase notification email to admin:', adminEmailError);
+        // Continue even if email fails
+      }
     // Create refund in Razorpay
     const refund = await razorpay.payments.refund(payment.razorpay_payment_id, {
       amount: Math.round(payment.amount * 100), // amount in paise
@@ -440,7 +512,7 @@ async function handleSuccessfulPayment(paymentEntity) {
   try {
     const payment = await Payment.findOne({
       razorpay_order_id: paymentEntity.order_id,
-    })
+    }) .populate('course');     
 
     if (!payment || payment.status === "completed") {
       return // Already processed
@@ -480,17 +552,17 @@ async function handleSuccessfulPayment(paymentEntity) {
     // Create enrollment if not exists
     const existingEnrollment = await Enrollment.findOne({
       user: payment.user,
-      course: payment.course,
+      course: payment.course._id,
     })
 
     if (!existingEnrollment) {
       const enrollment = new Enrollment({
         user: payment.user,
-        course: payment.course,
+        course: payment.course._id,
         payment: payment._id,
         status: "active",
         progress: {
-          totalLessons: payment.course.lessons.length,
+          totalLessons: payment.course.lessons?.length || 10,
           completionPercentage: 0,
           lastAccessedAt: new Date(),
         },
@@ -499,13 +571,13 @@ async function handleSuccessfulPayment(paymentEntity) {
       await enrollment.save()
 
       // Update course enrollment count
-      await Course.findByIdAndUpdate(payment.course, {
-        inc: { enrollmentCount: 1 },
+      await Course.findByIdAndUpdate(payment.course._id, {
+        $inc: { enrollmentCount: 1 },
       })
 
       // Update promo code usage if applicable
       if (payment.promoCode) {
-        await PromoCode.findOneAndUpdate({ code: payment.promoCode }, { $inc: { usedCount: 1 } })
+             await PromoCode.findOneAndUpdate({ code: payment.promoCode }, { $inc: { usedCount: 1 } })
       }
     }
   } catch (error) {
