@@ -15,6 +15,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 import toast from "react-hot-toast"
+import { createApiUrl } from "../config/api"
 
 const CertificateVerificationPage = () => {
   const { certificateId } = useParams()
@@ -44,7 +45,8 @@ const CertificateVerificationPage = () => {
     setCertificate(null)
 
     try {
-      const response = await fetch(`/api/certificates/verify/${code}`)
+      const verifyUrl = createApiUrl(`certificates/verify/${code}`)
+      const response = await fetch(verifyUrl)
       const data = await response.json()
 
       if (response.ok && data.valid) {
@@ -67,7 +69,8 @@ const CertificateVerificationPage = () => {
 
   const handleDownloadPDF = () => {
     if (certificate) {
-      window.open(`/api/certificates/pdf/${certificate.certificateId}`, "_blank")
+      const pdfUrl = createApiUrl(`certificates/pdf/${certificate.certificateId}`)
+      window.open(pdfUrl, "_blank")
     }
   }
 

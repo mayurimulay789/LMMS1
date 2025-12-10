@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
 import { Award, Download, Search, Filter, Calendar, BookOpen, Trophy, X } from "lucide-react"
 import toast from "react-hot-toast"
+import { createApiUrl } from "../config/api"
 import CertificateCard from "../Components/CertificateCard"
 
 const CertificatesPage = () => {
@@ -28,7 +29,8 @@ const CertificatesPage = () => {
   const fetchCertificates = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch("/api/certificates/me", {
+      const url = createApiUrl("certificates/me")
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -84,7 +86,8 @@ const CertificatesPage = () => {
 
   const handleDownload = async (certificateId) => {
     try {
-      const response = await fetch(`/api/certificates/download/${certificateId}`, {
+      const downloadUrl = createApiUrl(`certificates/download/${certificateId}`)
+      const response = await fetch(downloadUrl, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

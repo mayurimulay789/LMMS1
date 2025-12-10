@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { createApiUrl } from "../../config/api"
 
 export const generateCertificate = createAsyncThunk(
   "certificates/generate",
   async ({ courseId, userId }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch("/api/certificates/generate", {
+      const url = createApiUrl("certificates/generate")
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,7 +33,8 @@ export const downloadCertificate = createAsyncThunk(
   async (certificateId, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState()
-      const response = await fetch(`/api/certificates/${certificateId}/download`, {
+      const apiUrl = createApiUrl(`certificates/${certificateId}/download`)
+      const response = await fetch(apiUrl, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },

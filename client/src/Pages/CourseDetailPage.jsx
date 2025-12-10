@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { Play, Clock, Users, Star, BookOpen, Award, CheckCircle, Globe, X, Send, Download } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { apiRequest } from "../config/api"
+import { apiRequest, createApiUrl } from "../config/api"
 
 const CourseDetailPage = () => {
   const { id } = useParams()
@@ -174,7 +174,8 @@ const CourseDetailPage = () => {
       const token = localStorage.getItem("token");
       
       // Use the same endpoint as your CertificatesPage component
-      const response = await fetch("/api/certificates/me", {
+      const url = createApiUrl("certificates/me")
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -568,7 +569,8 @@ const CourseDetailPage = () => {
   const handleDownloadCertificate = async (certificateData) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/certificates/download/${certificateData.certificateId || certificateData.id}`, {
+      const downloadUrl = createApiUrl(`certificates/download/${certificateData.certificateId || certificateData.id}`)
+      const response = await fetch(downloadUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

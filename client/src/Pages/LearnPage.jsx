@@ -6,7 +6,7 @@ import { useSelector } from "react-redux"
 import { Play, Clock, CheckCircle, ArrowLeft, Lock, Award, Menu, X } from "lucide-react"
 import { motion } from "framer-motion"
 import toast from "react-hot-toast"
-import { apiRequest } from "../config/api"
+import { apiRequest, createApiUrl } from "../config/api"
 
 const LearnPage = () => {
   const { courseId } = useParams()
@@ -30,16 +30,40 @@ const LearnPage = () => {
 
   // Load YouTube API
   useEffect(() => {
-    if (!window.YT) {
-      const tag = document.createElement('script')
-      tag.src = 'https://www.youtube.com/iframe_api'
-      const firstScriptTag = document.getElementsByTagName('script')[0]
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+    // Check if YouTube API is fully loaded and ready
+    if (window.YT && window.YT.Player) {
+      setIsYouTubeLoaded(true)
+      return
+    }
 
+    // Check if script is already being loaded
+    const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]')
+    if (existingScript) {
+      // Script exists but API might not be ready yet
       window.onYouTubeIframeAPIReady = () => {
+        console.log('YouTube API Ready')
         setIsYouTubeLoaded(true)
       }
-    } else {
+      // Check if it's already loaded
+      if (window.YT && window.YT.Player) {
+        setIsYouTubeLoaded(true)
+      }
+      return
+    }
+
+    // Load the YouTube API script
+    const tag = document.createElement('script')
+    tag.src = 'https://www.youtube.com/iframe_api'
+    tag.async = true
+    tag.onerror = () => {
+      console.error('Failed to load YouTube API')
+    }
+    
+    const firstScriptTag = document.getElementsByTagName('script')[0]
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
+    window.onYouTubeIframeAPIReady = () => {
+      console.log('YouTube API Ready')
       setIsYouTubeLoaded(true)
     }
   }, [])
@@ -79,7 +103,9 @@ const LearnPage = () => {
 
     if (selectedLesson && isYouTubeLoaded && youtubePlayerRef.current) {
       const videoId = getYouTubeVideoId(selectedLesson.videoUrl)
-      if (videoId) {
+      if (videoId && window.YT && window.YT.Player) {
+        console.log('Initializing YouTube player for video:', videoId)
+        
         // Clear the div and recreate it
         const container = youtubePlayerRef.current.parentNode
         const newDiv = document.createElement('div')
@@ -87,26 +113,40 @@ const LearnPage = () => {
         container.replaceChild(newDiv, youtubePlayerRef.current)
         youtubePlayerRef.current = newDiv
 
-        // Create new player instance
-        playerInstanceRef.current = new window.YT.Player(newDiv, {
-          width: '100%', 
-            height: '100%',
-          videoId: videoId,
-          playerVars: {
-            autoplay: 1,
-            controls: 1,
-            rel: 0,
-            showinfo: 0,
-            modestbranding: 1
-          },
-          events: {
-            onStateChange: (event) => {
-              if (event.data === window.YT.PlayerState.ENDED) {
-                handleVideoEnd(selectedLesson._id)
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+          try {
+            // Create new player instance
+            playerInstanceRef.current = new window.YT.Player(newDiv, {
+              width: '100%', 
+              height: '100%',
+              videoId: videoId,
+              playerVars: {
+                autoplay: 1,
+                controls: 1,
+                rel: 0,
+                showinfo: 0,
+                modestbranding: 1,
+                origin: window.location.origin
+              },
+              events: {
+                onReady: (event) => {
+                  console.log('YouTube player ready')
+                },
+                onError: (event) => {
+                  console.error('YouTube player error:', event.data)
+                },
+                onStateChange: (event) => {
+                  if (event.data === window.YT.PlayerState.ENDED) {
+                    handleVideoEnd(selectedLesson._id)
+                  }
+                }
               }
-            }
+            })
+          } catch (error) {
+            console.error('Error creating YouTube player:', error)
           }
-        })
+        }, 100)
       }
     }
 
@@ -290,7 +330,9 @@ const LearnPage = () => {
         console.log('Downloading PDF for certificateId:', certificateId)
         try {
           const token = localStorage.getItem("token")
-          const response = await fetch(`/api/certificates/download/${certificateId}`, {
+          const downloadUrl = createApiUrl(`certificates/download/${certificateId}`)
+          console.log('Certificate download URL:', downloadUrl)
+          const response = await fetch(downloadUrl, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -339,7 +381,9 @@ const LearnPage = () => {
               // Download the newly generated certificate
               try {
                 const token = localStorage.getItem("token")
-                const downloadResponse = await fetch(`/api/certificates/download/${data.certificate.certificateId}`, {
+                const downloadUrl = createApiUrl(`certificates/download/${data.certificate.certificateId}`)
+                console.log('Certificate download URL:', downloadUrl)
+                const downloadResponse = await fetch(downloadUrl, {
                   headers: {
                     Authorization: `Bearer ${token}`,
                   },
