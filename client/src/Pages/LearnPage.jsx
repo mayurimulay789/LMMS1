@@ -26,6 +26,7 @@ const LearnPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const youtubePlayerRef = useRef(null)
+  const playerInstanceRef = useRef(null)
 
   // Load YouTube API
   useEffect(() => {
@@ -65,15 +66,34 @@ const LearnPage = () => {
     }
   }, [course, searchParams])
 
-  // Initialize YouTube player when lesson changes
   useEffect(() => {
+   
+    if (playerInstanceRef.current) {
+      try {
+        playerInstanceRef.current.destroy()
+        playerInstanceRef.current = null
+      } catch (e) {
+        console.error("Error destroying player:", e)
+      }
+    }
+
     if (selectedLesson && isYouTubeLoaded && youtubePlayerRef.current) {
       const videoId = getYouTubeVideoId(selectedLesson.videoUrl)
       if (videoId) {
-        new window.YT.Player(youtubePlayerRef.current, {
+        // Clear the div and recreate it
+        const container = youtubePlayerRef.current.parentNode
+        const newDiv = document.createElement('div')
+        newDiv.id = `youtube-player-${selectedLesson._id}`
+        container.replaceChild(newDiv, youtubePlayerRef.current)
+        youtubePlayerRef.current = newDiv
+
+        // Create new player instance
+        playerInstanceRef.current = new window.YT.Player(newDiv, {
+          width: '100%', 
+            height: '100%',
           videoId: videoId,
           playerVars: {
-            autoplay: 0,
+            autoplay: 1,
             controls: 1,
             rel: 0,
             showinfo: 0,
@@ -82,11 +102,22 @@ const LearnPage = () => {
           events: {
             onStateChange: (event) => {
               if (event.data === window.YT.PlayerState.ENDED) {
-                markLessonComplete(selectedLesson._id)
+                handleVideoEnd(selectedLesson._id)
               }
             }
           }
         })
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (playerInstanceRef.current) {
+        try {
+          playerInstanceRef.current.destroy()
+        } catch (e) {
+          console.error("Error destroying player on cleanup:", e)
+        }
       }
     }
   }, [selectedLesson, isYouTubeLoaded])
@@ -215,6 +246,22 @@ const LearnPage = () => {
     } catch (err) {
       console.error("Error marking lesson complete:", err)
       toast.error("Failed to mark lesson as complete")
+    }
+  }
+
+  // Handle video end - mark complete and play next
+  const handleVideoEnd = async (lessonId) => {
+    // Mark current lesson as complete
+    await markLessonComplete(lessonId)
+    
+    // Find next lesson
+    const currentIndex = course.lessons.findIndex(l => l._id === lessonId)
+    if (currentIndex !== -1 && currentIndex < course.lessons.length - 1) {
+      const nextLesson = course.lessons[currentIndex + 1]
+      toast.success(`Playing next lesson: ${nextLesson.title}`)
+      setSelectedLesson(nextLesson)
+    } else {
+      toast.success("Course completed! 🎉")
     }
   }
 
@@ -353,10 +400,10 @@ const LearnPage = () => {
     const videoId = getYouTubeVideoId(lesson.videoUrl)
     if (videoId && isYouTubeLoaded) {
       return (
-        <div className="aspect-video">
+        <div className="relative w-full overflow-hidden rounded-lg" style={{ height: '500px' }}>
           <div
             ref={youtubePlayerRef}
-            className="w-full h-full rounded-lg"
+            className="absolute top-0 left-0 w-full h-full"
           />
         </div>
       )
@@ -370,12 +417,12 @@ const LearnPage = () => {
     }
 
     return (
-      <div className="aspect-video">
+      <div className="relative w-full overflow-hidden rounded-lg" style={{ height: '700px' }}>
         <video
           src={lesson.videoUrl}
           controls
-          className="w-full h-full rounded-lg"
-          onEnded={() => markLessonComplete(lesson._id)}
+          className="absolute top-0 left-0 w-full h-full object-cover"
+          onEnded={() => handleVideoEnd(lesson._id)}
         />
       </div>
     )

@@ -107,15 +107,15 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
   }, [success, dispatch])
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="p-6 bg-white rounded-lg shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="text-blue-600 hover:text-blue-800 flex items-center space-x-1 text-sm"
+            className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800"
           >
-            <Edit2 className="h-4 w-4" />
+            <Edit2 className="w-4 h-4" />
             <span>Edit</span>
           </button>
         ) : (
@@ -123,16 +123,16 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="text-green-600 hover:text-green-800 flex items-center space-x-1 text-sm disabled:opacity-50"
+              className="flex items-center space-x-1 text-sm text-green-600 hover:text-green-800 disabled:opacity-50"
             >
-              <Save className="h-4 w-4" />
+              <Save className="w-4 h-4" />
               <span>{isLoading ? "Saving..." : "Save"}</span>
             </button>
             <button
               onClick={handleCancel}
-              className="text-gray-600 hover:text-gray-800 flex items-center space-x-1 text-sm"
+              className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-800"
             >
-              <X className="h-4 w-4" />
+              <X className="w-4 h-4" />
               <span>Cancel</span>
             </button>
           </div>
@@ -140,29 +140,29 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="p-3 mb-4 border border-red-200 rounded-md bg-red-50">
+          <p className="text-sm text-red-800">{error}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Avatar Upload Field */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-gray-700">
             Profile Picture
           </label>
           <div className="flex items-center space-x-4">
             {/* Avatar Display/Preview */}
             <div className="relative">
-              <div className="w-20 h-20 rounded-full border-2 border-gray-300 overflow-hidden bg-gray-100 flex items-center justify-center">
+              <div className="flex items-center justify-center w-20 h-20 overflow-hidden bg-gray-100 border-2 border-gray-300 rounded-full">
                 {avatarPreview ? (
                   <img
                     src={avatarPreview}
                     alt="Profile"
-                    className="w-full h-full object-cover"
+                    className="object-cover w-full h-full"
                   />
                 ) : (
-                  <Camera className="h-8 w-8 text-gray-400" />
+                  <Camera className="w-8 h-8 text-gray-400" />
                 )}
               </div>
               {isEditing && (
@@ -177,9 +177,9 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
                   />
                   <label
                     htmlFor="avatar-upload"
-                    className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-1 cursor-pointer hover:bg-blue-700 transition-colors flex items-center justify-center"
+                    className="absolute bottom-0 right-0 flex items-center justify-center p-1 text-white transition-colors bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700"
                   >
-                    <Upload className="h-3 w-3" />
+                    <Upload className="w-3 h-3" />
                   </label>
                 </>
               )}
@@ -202,7 +202,7 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
 
         {/* Bio Field */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
             Bio
           </label>
           {isEditing ? (
@@ -222,8 +222,8 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
 
         {/* Website Field */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            <Globe className="h-4 w-4 inline mr-1" />
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            <Globe className="inline w-4 h-4 mr-1" />
             Website
           </label>
           {isEditing ? (
@@ -235,7 +235,7 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
               placeholder="https://yourwebsite.com"
             />
           ) : (
-            <p className="text-gray-600 bg-gray-50 p-3 rounded-md">
+            <p className="p-3 text-gray-600 rounded-md bg-gray-50">
               {formData.website ? (
                 <a
                   href={formData.website}
