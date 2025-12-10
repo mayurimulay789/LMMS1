@@ -30,8 +30,11 @@ const LearnPage = () => {
 
   // Load YouTube API
   useEffect(() => {
+    let pollInterval = null
+    
     // Check if YouTube API is fully loaded and ready
     if (window.YT && window.YT.Player) {
+      console.log('YouTube API already loaded')
       setIsYouTubeLoaded(true)
       return
     }
@@ -39,32 +42,83 @@ const LearnPage = () => {
     // Check if script is already being loaded
     const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]')
     if (existingScript) {
-      // Script exists but API might not be ready yet
+      console.log('YouTube API script already exists, waiting for it to load...')
+      
+      // Poll for YouTube API readiness (in case callback doesn't fire)
+      pollInterval = setInterval(() => {
+        if (window.YT && window.YT.Player) {
+          console.log('YouTube API Ready (via polling)')
+          clearInterval(pollInterval)
+          setIsYouTubeLoaded(true)
+        }
+      }, 100)
+      
+      // Also set up callback
       window.onYouTubeIframeAPIReady = () => {
-        console.log('YouTube API Ready')
+        console.log('YouTube API Ready (via callback)')
+        if (pollInterval) clearInterval(pollInterval)
         setIsYouTubeLoaded(true)
       }
-      // Check if it's already loaded
-      if (window.YT && window.YT.Player) {
-        setIsYouTubeLoaded(true)
+      
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        if (pollInterval) {
+          clearInterval(pollInterval)
+          if (window.YT && window.YT.Player) {
+            setIsYouTubeLoaded(true)
+          } else {
+            console.error('YouTube API failed to load within timeout')
+          }
+        }
+      }, 10000)
+      
+      return () => {
+        if (pollInterval) clearInterval(pollInterval)
       }
-      return
     }
 
     // Load the YouTube API script
+    console.log('Loading YouTube API script...')
     const tag = document.createElement('script')
     tag.src = 'https://www.youtube.com/iframe_api'
     tag.async = true
     tag.onerror = () => {
-      console.error('Failed to load YouTube API')
+      console.error('Failed to load YouTube API script')
+      if (pollInterval) clearInterval(pollInterval)
     }
     
     const firstScriptTag = document.getElementsByTagName('script')[0]
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
 
+    // Poll for YouTube API readiness (backup for callback)
+    pollInterval = setInterval(() => {
+      if (window.YT && window.YT.Player) {
+        console.log('YouTube API Ready (via polling)')
+        clearInterval(pollInterval)
+        setIsYouTubeLoaded(true)
+      }
+    }, 100)
+
     window.onYouTubeIframeAPIReady = () => {
-      console.log('YouTube API Ready')
+      console.log('YouTube API Ready (via callback)')
+      if (pollInterval) clearInterval(pollInterval)
       setIsYouTubeLoaded(true)
+    }
+    
+    // Timeout after 10 seconds
+    setTimeout(() => {
+      if (pollInterval) {
+        clearInterval(pollInterval)
+        if (window.YT && window.YT.Player) {
+          setIsYouTubeLoaded(true)
+        } else {
+          console.error('YouTube API failed to load within timeout')
+        }
+      }
+    }, 10000)
+    
+    return () => {
+      if (pollInterval) clearInterval(pollInterval)
     }
   }, [])
 
@@ -113,11 +167,23 @@ const LearnPage = () => {
         container.replaceChild(newDiv, youtubePlayerRef.current)
         youtubePlayerRef.current = newDiv
 
-        // Small delay to ensure DOM is ready
-        setTimeout(() => {
+        // Ensure DOM and YouTube API are fully ready before creating player
+        const initializePlayer = () => {
+          // Double check API is ready
+          if (!window.YT || !window.YT.Player) {
+            console.error('YouTube API not available when trying to create player')
+            return
+          }
+
+          // Check if the element still exists in DOM
+          if (!document.getElementById(newDiv.id)) {
+            console.error('Player element not in DOM')
+            return
+          }
+
           try {
             // Create new player instance
-            playerInstanceRef.current = new window.YT.Player(newDiv, {
+            playerInstanceRef.current = new window.YT.Player(newDiv.id, {
               width: '100%', 
               height: '100%',
               videoId: videoId,
@@ -127,26 +193,47 @@ const LearnPage = () => {
                 rel: 0,
                 showinfo: 0,
                 modestbranding: 1,
-                origin: window.location.origin
+                origin: window.location.origin,
+                enablejsapi: 1
               },
               events: {
                 onReady: (event) => {
-                  console.log('YouTube player ready')
+                  console.log('✅ YouTube player ready and loaded')
+                  // Ensure video plays on mobile/touch devices
+                  try {
+                    event.target.playVideo()
+                  } catch (e) {
+                    console.log('Autoplay prevented:', e)
+                  }
                 },
                 onError: (event) => {
-                  console.error('YouTube player error:', event.data)
+                  console.error('❌ YouTube player error:', event.data)
+                  // Error codes: 2=Invalid ID, 5=HTML5 error, 100=Video not found, 101/150=Embedding disabled
                 },
                 onStateChange: (event) => {
+                  console.log('YouTube player state changed:', event.data)
                   if (event.data === window.YT.PlayerState.ENDED) {
                     handleVideoEnd(selectedLesson._id)
                   }
                 }
               }
             })
+            console.log('YouTube player instance created')
           } catch (error) {
             console.error('Error creating YouTube player:', error)
           }
-        }, 100)
+        }
+
+        // Use requestAnimationFrame + setTimeout for better reliability across browsers
+        requestAnimationFrame(() => {
+          setTimeout(initializePlayer, 150)
+        })
+      } else if (videoId) {
+        console.warn('YouTube API or Player not ready yet:', {
+          hasYT: !!window.YT,
+          hasPlayer: !!(window.YT && window.YT.Player),
+          isYouTubeLoaded
+        })
       }
     }
 
