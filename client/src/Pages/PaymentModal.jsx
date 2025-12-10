@@ -83,8 +83,12 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         description: `Course: ${courseTitle}`,
         image: "/logo.png",
         handler: async function (response) {
+          console.log('🟢 [Payment] Razorpay payment successful, starting verification...');
+          console.log('🟢 [Payment] Response:', response);
+          
           try {
             // Verify payment on backend
+            console.log('🔵 [Payment] Sending verification request to backend...');
             const verifyRes = await apiRequest("payments/verify", {
               method: "POST",
               headers: {
@@ -98,9 +102,19 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
               }),
             });
 
-            const verifyData = verifyRes.data;
+            console.log('🟢 [Payment] Verification response received:', verifyRes);
+            
+            // Check if response is valid
+            if (!verifyRes || !verifyRes.data) {
+              console.error('🔴 [Payment] Invalid verification response:', verifyRes);
+              throw new Error('Invalid verification response from server');
+            }
 
-            if (verifyData.status === "success") {
+            const verifyData = verifyRes.data;
+            console.log('🟢 [Payment] Verification data:', verifyData);
+
+            if (verifyData.status === "success" || verifyRes.ok) {
+              console.log('✅ [Payment] Payment verified successfully!');
               setPaymentStatus('success');
               
               // Send enrollment email
@@ -122,14 +136,23 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
               }, 3000);
               
             } else {
+              console.error('🔴 [Payment] Payment verification failed:', verifyData);
               setPaymentStatus('error');
-              alert("Payment verification failed!");
+              alert(`Payment verification failed: ${verifyData.message || 'Unknown error'}`);
               setLoading(false);
             }
           } catch (error) {
-            console.error("Payment verification error:", error);
+            console.error('🔴 [Payment] Payment verification error:', error);
+            console.error('🔴 [Payment] Error details:', {
+              message: error.message,
+              stack: error.stack,
+              response: error.response
+            });
             setPaymentStatus('error');
-            alert("Payment verification failed!");
+            
+            // Show user-friendly error message
+            const errorMsg = error.message || 'Payment verification failed. Please contact support with your payment ID.';
+            alert(`Verification Error: ${errorMsg}`);
             setLoading(false);
           }
         },

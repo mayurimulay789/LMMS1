@@ -190,44 +190,7 @@ router.post("/verify", auth, async (req, res) => {
       console.error('🔴 [payments:verify] Payment record not found for order:', razorpay_order_id);
       return res.status(404).json({ message: "Payment record not found" });
     }
-const user = await User.findById(userId);
 
-    // Send purchase confirmation email to user
-    try {
-      await sendCoursePurchaseEmail({
-        userEmail: user.email,
-        userName: user.name,
-        courseTitle: payment.course.title,
-        coursePrice: payment.amount + payment.discount,
-        amountPaid: payment.amount,
-        discount: payment.discount,
-        paymentDate: payment.completedAt,
-        courseThumbnail: payment.course.thumbnail,
-        courseInstructor: payment.course.instructor,
-      });
-    } catch (emailError) {
-      console.error('Error sending purchase confirmation email to user:', emailError);
-      // Continue even if email fails
-    }
-
-    // Send purchase notification email to admin
-    try {
-      await sendAdminCoursePurchaseNotification({
-        userEmail: user.email,
-        userName: user.name,
-        userId: userId,
-        courseTitle: payment.course.title,
-        coursePrice: payment.amount + payment.discount,
-        amountPaid: payment.amount,
-        discount: payment.discount,
-        paymentDate: payment.completedAt,
-        courseId: payment.course._id,
-        paymentId: payment._id,
-      });
-    } catch (adminEmailError) {
-      console.error('Error sending purchase notification email to admin:', adminEmailError);
-      // Continue even if email fails
-    }
     console.log('🟢 [payments:verify] Payment record found:', payment._id);
 
     if (payment.status === "completed") {
@@ -288,7 +251,16 @@ const user = await User.findById(userId);
   } catch (error) {
     console.error('🔴 [payments:verify] Error:', error);
     console.error('🔴 [payments:verify] Error stack:', error.stack);
-    res.status(500).json({ message: "Failed to verify payment", error: error.message });
+    console.error('🔴 [payments:verify] Error name:', error.name);
+    
+    // Ensure we always send a response
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        status: "error",
+        message: "Failed to verify payment", 
+        error: error.message 
+      });
+    }
   }
 })
 
