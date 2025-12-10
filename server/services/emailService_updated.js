@@ -506,6 +506,163 @@ const sendAdminSignupNotification = async (userData) => {
   }
 };
 
+const sendCoursePurchaseEmail = async (purchaseData) => {
+  try {
+    const { userEmail, userName, courseTitle, coursePrice, amountPaid, discount, paymentDate, courseThumbnail, courseInstructor } = purchaseData;
+
+    console.log('Sending course purchase confirmation email to:', userEmail);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: userEmail,
+      subject: `🎉 Enrollment Successful - Welcome to ${courseTitle}!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #10b981; text-align: center;">🎉 Congratulations on Your Enrollment!</h2>
+
+          <p>Dear <strong>${userName}</strong>,</p>
+
+          <p>Thank you for purchasing <strong>${courseTitle}</strong>! Your enrollment has been confirmed and you now have full access to the course content.</p>
+
+          <div style="background-color: #f0fdf4; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #10b981;">
+            <h3 style="color: #333; margin-top: 0;">📚 Course Details:</h3>
+            <p><strong>Course:</strong> ${courseTitle}</p>
+            <p><strong>Instructor:</strong> ${courseInstructor || 'RYMAACADEMY'}</p>
+            <p><strong>Original Price:</strong> ₹${coursePrice.toFixed(2)}</p>
+            ${discount > 0 ? `<p><strong>Discount:</strong> ₹${discount.toFixed(2)}</p>` : ''}
+            <p><strong>Amount Paid:</strong> <span style="color: #10b981; font-weight: bold;">₹${amountPaid.toFixed(2)}</span></p>
+            <p><strong>Purchase Date:</strong> ${new Date(paymentDate).toLocaleString()}</p>
+          </div>
+
+          <p><strong>What's Next?</strong></p>
+          <ul style="color: #555;">
+            <li>🔓 Access all course materials immediately</li>
+            <li>📹 Watch high-quality video lectures</li>
+            <li>📝 Download course resources and notes</li>
+            <li>💬 Interact with instructors and peers</li>
+            <li>✅ Complete assignments and quizzes</li>
+            <li>🏆 Earn a certificate upon completion</li>
+          </ul>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/learn/${courseTitle.toLowerCase().replace(/\\s+/g, '-')}"
+               style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Start Learning Now
+            </a>
+          </div>
+
+          <p><strong>Important Information:</strong></p>
+          <ul style="color: #555; font-size: 14px;">
+            <li>You can access this course anytime from your dashboard</li>
+            <li>Your progress is automatically saved</li>
+            <li>Need help? Contact our support team</li>
+          </ul>
+
+          <p>If you have any questions or need assistance, please contact our support team at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
+
+          <p>Happy Learning!<br>
+          <strong>RYMAACADEMY Team</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated confirmation email. Please do not reply to this email directly.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Course purchase confirmation email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending course purchase email:', error);
+    throw error;
+  }
+};
+
+const sendAdminCoursePurchaseNotification = async (purchaseData) => {
+  try {
+    const { userEmail, userName, userId, courseTitle, coursePrice, amountPaid, discount, paymentDate, courseId, paymentId } = purchaseData;
+
+    console.log('Sending admin course purchase notification from:', process.env.EMAIL_USER ? process.env.EMAIL_USER.substring(0, 5) + '...' : 'MISSING');
+    console.log('To admin:', process.env.ADMIN_EMAIL || 'MISSING');
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.ADMIN_EMAIL,
+      subject: `💰 New Course Purchase - ${courseTitle} by ${userName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #3b82f6; text-align: center;">💰 New Course Purchase Alert!</h2>
+
+          <p>Dear Admin,</p>
+
+          <p>A new course purchase has been completed. Please review the transaction details below.</p>
+
+          <div style="background-color: #eff6ff; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+            <h3 style="color: #333; margin-top: 0;">Purchase Details:</h3>
+            <p><strong>Payment ID:</strong> ${paymentId}</p>
+            <p><strong>User ID:</strong> ${userId}</p>
+            <p><strong>Student Name:</strong> ${userName}</p>
+            <p><strong>Student Email:</strong> <a href="mailto:${userEmail}">${userEmail}</a></p>
+            <p><strong>Course ID:</strong> ${courseId}</p>
+            <p><strong>Course Title:</strong> ${courseTitle}</p>
+          </div>
+
+          <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">💵 Payment Details:</h3>
+            <p><strong>Original Price:</strong> ₹${coursePrice.toFixed(2)}</p>
+            ${discount > 0 ? `<p><strong>Discount Applied:</strong> ₹${discount.toFixed(2)}</p>` : ''}
+            <p><strong>Amount Paid:</strong> <span style="color: #3b82f6; font-weight: bold; font-size: 16px;">₹${amountPaid.toFixed(2)}</span></p>
+            <p><strong>Purchase Date & Time:</strong> ${new Date(paymentDate).toLocaleString()}</p>
+            <p><strong>Status:</strong> <span style="color: #10b981; font-weight: bold;">✓ Completed</span></p>
+          </div>
+
+          <p><strong>Summary:</strong></p>
+          <ul style="color: #555;">
+            <li>Student: ${userName} (${userEmail})</li>
+            <li>Course: ${courseTitle}</li>
+            <li>Revenue Generated: ₹${amountPaid.toFixed(2)}</li>
+            <li>Transaction Time: ${new Date(paymentDate).toLocaleString()}</li>
+          </ul>
+
+          <p><strong>Next Steps:</strong></p>
+          <ul style="color: #555;">
+            <li>Verify the transaction in your payment gateway dashboard</li>
+            <li>Monitor student engagement and progress</li>
+            <li>Ensure the student has access to course materials</li>
+            <li>Send course materials if applicable</li>
+          </ul>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/dashboard?tab=payments&payment=${paymentId}"
+               style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              View Payment Details
+            </a>
+          </div>
+
+          <p>If you need to verify payment details or take any action, you can access the payment information through the admin dashboard.</p>
+
+          <p>Best regards,<br>
+          <strong>RYMAACADEMY Automated System</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated notification for course purchases. New transactions require your review.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Admin course purchase notification email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending admin course purchase notification email:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   sendInstructorApplicationEmail,
   sendAdminApplicationNotification,
@@ -515,4 +672,6 @@ module.exports = {
   sendAdminContactNotification,
   sendWelcomeEmail,
   sendAdminSignupNotification,
+  sendCoursePurchaseEmail,
+  sendAdminCoursePurchaseNotification,
 };

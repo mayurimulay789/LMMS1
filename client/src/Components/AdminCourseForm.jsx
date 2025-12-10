@@ -795,7 +795,7 @@ const AdminCourseForm = () => {
                     >
                       <Upload className="w-5 h-5" />
                       <span className="text-sm">
-                        {isUploading ? 'Uploading...' : 'Upload Thumbnail'}
+                        {isUploading ? 'Uploading...' : 'Upload Thumbnai'}
                       </span>
                     </label>
                     {formData.thumbnail && formData.thumbnailSource === 'upload' && (

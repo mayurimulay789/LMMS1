@@ -161,7 +161,7 @@ const LoginPage = () => {
             </div>
 
             {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
                   id="remember-me"
@@ -176,7 +176,7 @@ const LoginPage = () => {
               <Link to="/forgot-password" className="text-sm text-red-600 hover:text-red-800">
                 Forgot password?
               </Link>
-            </div>
+            </div> */}
 
             {/* Submit Button */}
             <button
