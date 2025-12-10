@@ -27,7 +27,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         }),
       });
 
-      const emailData = await emailResponse.json();
+      const emailData = emailResponse.data;
 
       if (emailResponse.ok) {
         console.log("Enrollment email sent successfully");
@@ -65,7 +65,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         }),
       });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (!data.orderId) {
         alert("Failed to create order. Try again.");
@@ -98,7 +98,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
               }),
             });
 
-            const verifyData = await verifyRes.json();
+            const verifyData = verifyRes.data;
 
             if (verifyData.status === "success") {
               setPaymentStatus('success');
