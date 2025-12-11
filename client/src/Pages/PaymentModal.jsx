@@ -162,31 +162,46 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
               setPaymentStatus('success');
               setLoading(false);
               
-              // Send enrollment email (non-blocking)
+              // Call the success callback IMMEDIATELY
+              try {
+                onOnline();
+                console.log('✅ [Payment] Success callback executed');
+              } catch (callbackError) {
+                console.error('❌ [Payment] Error in success callback:', callbackError);
+              }
+              
+              // Send enrollment email (non-blocking, don't wait for it)
               sendEnrollmentEmail("online").then(emailSent => {
                 if (emailSent) {
-                  console.log("Payment successful and email sent!");
+                  console.log("✅ Payment successful and email sent!");
                 } else {
-                  console.log("Payment successful but email failed to send");
+                  console.log("⚠️ Payment successful but email failed to send");
                 }
               }).catch(err => {
-                console.error('Email sending error:', err);
+                console.error('❌ Email sending error:', err);
               });
-
-              // Call the success callback
-              onOnline();
               
-              // Auto close after 3 seconds
+              // Auto close and refresh after 2 seconds
               setTimeout(() => {
+                console.log('🔵 [Payment] Closing modal and refreshing...');
                 onClose();
                 setPaymentStatus(null);
-              }, 3000);
+                // Force page reload to show updated enrollment
+                window.location.reload();
+              }, 2000);
               
             } else {
               console.error('🔴 [Payment] Payment verification failed:', verifyData);
               setPaymentStatus('error');
-              alert(`Payment verification failed: ${verifyData.message || 'Unknown error'}`);
+              const errorMessage = verifyData.message || 'Unknown error';
+              alert(`Payment verification failed: ${errorMessage}\n\nYour payment may have been successful. Please check your enrollments or contact support with your payment details.`);
               setLoading(false);
+              
+              // Close modal after 3 seconds even on error
+              setTimeout(() => {
+                onClose();
+                setPaymentStatus(null);
+              }, 3000);
             }
           } catch (error) {
             clearTimeout(verificationTimeout);
@@ -199,9 +214,15 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
             setPaymentStatus('error');
             
             // Show user-friendly error message
-            const errorMsg = error.message || 'Payment verification failed. Please contact support with your payment ID.';
-            alert(`Verification Error: ${errorMsg}`);
+            const errorMsg = error.message || 'Payment verification failed';
+            alert(`Verification Error: ${errorMsg}\n\nIf your payment was deducted, please check your enrollments or contact support with your payment details.`);
             setLoading(false);
+            
+            // Close modal after 3 seconds to not leave user stuck
+            setTimeout(() => {
+              onClose();
+              setPaymentStatus(null);
+            }, 3000);
           }
         },
         prefill: {
