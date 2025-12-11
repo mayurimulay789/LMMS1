@@ -9,6 +9,45 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
 
   if (!isOpen) return null;
 
+  // Helper function to verify payment with retry logic
+  const verifyPaymentWithRetry = async (paymentData, maxRetries = 2) => {
+    let lastError = null;
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 0) {
+          console.log(`🔄 [Payment] Retry attempt ${attempt}/${maxRetries}...`);
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+        
+        const verifyRes = await apiRequest("payments/verify", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(paymentData),
+        });
+        
+        // If successful, return the response
+        if (verifyRes && verifyRes.data) {
+          return verifyRes;
+        }
+      } catch (error) {
+        lastError = error;
+        console.error(`❌ [Payment] Attempt ${attempt + 1} failed:`, error.message);
+        
+        // Don't retry on 4xx errors (client errors)
+        if (error.response && error.response.status >= 400 && error.response.status < 500) {
+          throw error;
+        }
+      }
+    }
+    
+    // All retries failed
+    throw lastError || new Error('Verification failed after retries');
+  };
+
   // Function to send enrollment email
   const sendEnrollmentEmail = async (paymentMethod) => {
     try {
@@ -86,21 +125,26 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
           console.log('🟢 [Payment] Razorpay payment successful, starting verification...');
           console.log('🟢 [Payment] Response:', response);
           
+          // Create timeout for verification (30 seconds)
+          const verificationTimeout = setTimeout(() => {
+            console.error('🔴 [Payment] Verification timeout!');
+            setPaymentStatus('error');
+            alert('Payment verification is taking too long. Please check your enrollment status or contact support.');
+            setLoading(false);
+          }, 30000);
+          
           try {
-            // Verify payment on backend
+            // Verify payment on backend with retry logic
             console.log('🔵 [Payment] Sending verification request to backend...');
-            const verifyRes = await apiRequest("payments/verify", {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                courseId: selectedCourseId,
-              }),
+            const verifyRes = await verifyPaymentWithRetry({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              courseId: selectedCourseId,
             });
+            
+            // Clear timeout on successful response
+            clearTimeout(verificationTimeout);
 
             console.log('🟢 [Payment] Verification response received:', verifyRes);
             
@@ -116,15 +160,18 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
             if (verifyData.status === "success" || verifyRes.ok) {
               console.log('✅ [Payment] Payment verified successfully!');
               setPaymentStatus('success');
+              setLoading(false);
               
-              // Send enrollment email
-              const emailSent = await sendEnrollmentEmail("online");
-              
-              if (emailSent) {
-                console.log("Payment successful and email sent!");
-              } else {
-                console.log("Payment successful but email failed to send");
-              }
+              // Send enrollment email (non-blocking)
+              sendEnrollmentEmail("online").then(emailSent => {
+                if (emailSent) {
+                  console.log("Payment successful and email sent!");
+                } else {
+                  console.log("Payment successful but email failed to send");
+                }
+              }).catch(err => {
+                console.error('Email sending error:', err);
+              });
 
               // Call the success callback
               onOnline();
@@ -142,6 +189,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
               setLoading(false);
             }
           } catch (error) {
+            clearTimeout(verificationTimeout);
             console.error('🔴 [Payment] Payment verification error:', error);
             console.error('🔴 [Payment] Error details:', {
               message: error.message,
@@ -172,14 +220,24 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
 
       // 3️⃣ Open Razorpay checkout
       const rzp = new window.Razorpay(options);
-      rzp.open();
       
       rzp.on('payment.failed', function (response) {
-        console.error("Payment failed:", response.error);
+        console.error('🔴 [Payment] Payment failed:', response.error);
         setPaymentStatus('error');
         alert(`Payment failed: ${response.error.description}`);
         setLoading(false);
       });
+      
+      // Handle modal dismiss (user closes without paying)
+      options.modal = {
+        ondismiss: function() {
+          console.log('⚠️ [Payment] Payment modal dismissed by user');
+          setLoading(false);
+          setPaymentStatus(null);
+        }
+      };
+      
+      rzp.open();
 
     } catch (error) {
       console.error("Razorpay payment error:", error);

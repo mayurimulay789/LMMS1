@@ -241,12 +241,49 @@ router.post("/verify", auth, async (req, res) => {
     console.log('✅ [payments:verify] Course enrollment count updated');
 
     console.log('✅ [payments:verify] Verification completed successfully!');
+    
+    // Send response immediately to avoid timeout
     res.json({
       status: "success",
       payment,
       course: payment.course,
       enrollment,
     });
+
+    // Send emails asynchronously after response (non-blocking)
+    const user = await User.findById(userId);
+    if (user && user.email) {
+      // Send purchase confirmation email to user
+      sendCoursePurchaseEmail({
+        userEmail: user.email,
+        userName: user.name,
+        courseTitle: payment.course.title,
+        coursePrice: payment.amount + payment.discount,
+        amountPaid: payment.amount,
+        discount: payment.discount,
+        paymentDate: payment.completedAt,
+        courseThumbnail: payment.course.thumbnail,
+        courseInstructor: payment.course.instructor,
+      }).catch(emailError => {
+        console.error('Error sending purchase confirmation email to user:', emailError);
+      });
+
+      // Send purchase notification email to admin
+      sendAdminCoursePurchaseNotification({
+        userEmail: user.email,
+        userName: user.name,
+        userId: userId,
+        courseTitle: payment.course.title,
+        coursePrice: payment.amount + payment.discount,
+        amountPaid: payment.amount,
+        discount: payment.discount,
+        paymentDate: payment.completedAt,
+        courseId: payment.course._id,
+        paymentId: payment._id,
+      }).catch(adminEmailError => {
+        console.error('Error sending purchase notification email to admin:', adminEmailError);
+      });
+    }
 
   } catch (error) {
     console.error('🔴 [payments:verify] Error:', error);
