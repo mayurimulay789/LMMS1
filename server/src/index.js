@@ -75,13 +75,13 @@ const limiter = rateLimit({
       req.path === '/api/courses' ||
       req.path.startsWith('/api/courses/')
     );
-    
+
     // Skip rate limiting for payment endpoints (critical for multi-IP access)
     const isPaymentRequest = req.path.startsWith('/api/payments/');
-    
+
     // Skip for OPTIONS preflight requests
     const isOptionsRequest = req.method === 'OPTIONS';
-    
+
     return isGetRequest || isPaymentRequest || isOptionsRequest;
   },
   handler: (req, res) => {
@@ -101,6 +101,15 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan("dev"))
 }
 
+app.use((req, res, next) => {
+  res.setHeader(
+    "Access-Control-Expose-Headers",
+    "x-rtb-fingerprint-id"
+  );
+  next();
+});
+
+
 // Enhanced CORS configuration for both development and production
 const developmentOrigins = [
   'http://localhost:5173',  // Vite default
@@ -116,7 +125,7 @@ const productionOrigins = [
 ].filter(Boolean); // Remove undefined/null values
 
 // Add custom allowed origins from environment
-const customOrigins = process.env.ALLOWED_ORIGINS 
+const customOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
   : [];
 
@@ -184,13 +193,13 @@ app.use(
     maxAge: process.env.NODE_ENV === "production" ? 86400 : 1,
   })
 );
-   
+
 
 // Enhanced headers middleware for file uploads and preflight
 app.use((req, res, next) => {
   // Set vary header to help with caching
   res.vary('Origin');
-  
+
   // Additional security headers for production
   if (process.env.NODE_ENV === 'production') {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -201,7 +210,7 @@ app.use((req, res, next) => {
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 
+    res.header('Access-Control-Allow-Headers',
       'Content-Type, Authorization, Content-Length, X-Requested-With, Accept, Origin, Cache-Control, Pragma');
     res.header('Access-Control-Max-Age', process.env.NODE_ENV === 'production' ? '86400' : '1');
     return res.status(200).json({});
@@ -245,7 +254,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../src/uploads"), {
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch(err => console.error("❌ MongoDB connection error:", err));
-  
+
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
@@ -319,7 +328,7 @@ app.get("/api", (req, res) => {
     },
   })
 })
- 
+
 
 // Cloudinary test endpoint
 app.get("/api/cloudinary-test", (req, res) => {
@@ -329,7 +338,7 @@ app.get("/api/cloudinary-test", (req, res) => {
       message: "Cloudinary credentials not found in .env"
     });
   }
-  
+
   res.json({
     status: "configured",
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
