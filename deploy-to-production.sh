@@ -11,6 +11,7 @@ mkdir -p backup/$(date +%Y%m%d_%H%M%S)
 cp server/models/Course.js backup/$(date +%Y%m%d_%H%M%S)/Course.js.bak 2>/dev/null || true
 cp server/routes/upload.js backup/$(date +%Y%m%d_%H%M%S)/upload.js.bak 2>/dev/null || true
 
+
 # Step 2: Deploy backend files
 echo "📁 Deploying backend files..."
 

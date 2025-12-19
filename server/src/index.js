@@ -52,41 +52,41 @@ const developmentOrigins = ["http://localhost:5173", "http://localhost:3000", "h
 const productionOrigins = ["https://online.rymaacademy.cloud", process.env.CLIENT_URL, process.env.FRONTEND_URL].filter(Boolean);
 const customOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) : [];
 
-const allowedOrigins = process.env.NODE_ENV === "production" 
-  ? [...productionOrigins, ...customOrigins] 
+const allowedOrigins = process.env.NODE_ENV === "production"
+  ? [...productionOrigins, ...customOrigins]
   : [...developmentOrigins, ...productionOrigins, ...customOrigins];
 
 app.use(cors({
+  exposedHeaders: ["x-rtb-fingerprint-id"],
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
-    
+
     // Check if origin is allowed or is a subdomain of rymaacademy.cloud
     if (allowedOrigins.includes(origin) || origin.endsWith("rymaacademy.cloud")) {
       return callback(null, true);
     }
-    
+
     // During dev, be permissive. In prod, you may want to be stricter.
     if (process.env.NODE_ENV !== "production") return callback(null, true);
-    
     console.log(`CORS blocked origin: ${origin}`);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: [
-    "Content-Type", 
-    "Authorization", 
-    "X-Requested-With", 
-    "Accept", 
-    "Origin", 
-    "Cache-Control", 
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+    "Cache-Control",
     "Pragma",
     "x-rtb-fingerprint-id" // Allows the client to SEND the header
   ],
   exposedHeaders: [
-    "Content-Disposition", 
-    "Content-Length", 
+    "Content-Disposition",
+    "Content-Length",
     "X-Total-Count",
     "x-rtb-fingerprint-id" // CRITICAL: Allows the browser to READ the header
   ],
@@ -149,7 +149,7 @@ app.get("/api/health", (req, res) => {
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err.message);
   if (err.code === "ECONNRESET") return;
-  
+
   if (!res.headersSent) {
     res.status(err.status || 500).json({
       error: err.name || "Internal Server Error",

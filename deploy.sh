@@ -100,3 +100,4 @@ fi
 echo "✅ Deployment completed successfully!"
 echo "🌍 Your application is now running at https://online.rymaacademy.cloud"
 echo "📊 Monitor the application using: pm2 monit"
+

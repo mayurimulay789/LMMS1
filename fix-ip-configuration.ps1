@@ -102,6 +102,10 @@ BACKUP_ENABLED=true
 BACKUP_CRON=0 0 * * *
 "@
 
+location / {
+    add_header 'Access-Control-Expose-Headers' 'x-rtb-fingerprint-id';
+}
+
 $serverEnv | Out-File -FilePath "server\.env" -Encoding utf8
 
 Write-Host "📦 Building client with new configuration..." -ForegroundColor Yellow

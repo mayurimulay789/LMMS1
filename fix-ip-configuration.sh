@@ -101,6 +101,12 @@ SSL_CERT_PATH=/etc/letsencrypt/live/online.rymaacademy.cloud/fullchain.pem
 # Backup Configuration
 BACKUP_ENABLED=true
 BACKUP_CRON=0 0 * * *
+
+
+location / {
+    add_header 'Access-Control-Expose-Headers' 'x-rtb-fingerprint-id';
+}
+
 EOF
 
 echo "🔄 Restarting Application Services..."
