@@ -107,10 +107,10 @@ router.post("/create-order", auth, async (req, res) => {
     console.log('🔵 [payments:create-order] Creating payment record...');
     const payment = new Payment({
       user: userId,
-      course: courseId,
+      course: courseId, //
       razorpay_order_id: order.id,
-      amount: finalAmount,
-      promoCode: validPromoCode?.code,
+      amount: finalAmount,  //
+      promoCode: validPromoCode?.code, //
       discount: discount,
       billingInfo,
       status: "pending",

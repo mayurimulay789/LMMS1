@@ -404,7 +404,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
                 <div className="space-y-4">
                   <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <p className="text-sm text-yellow-800">
-                      <strong>Cash on Delivery:</strong> You'll pay ₹{amount} when you receive course access. Enrollment confirmation will be sent to your email.
+                      <strong>Cash on Delivery:</strong> Your pay ₹{amount} when you receive course access. Enrollment confirmation will be sent to your email.
                     </p>
                   </div>
                   

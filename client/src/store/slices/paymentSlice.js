@@ -3,7 +3,7 @@ import { apiRequest } from "../../config/api"
 
 export const createPaymentOrder = createAsyncThunk(
   "payment/createOrder",
-  async ({ courseId, amount, promoCode, billingInfo }, { getState, rejectWithValue }) => {
+  async ({ courseId, amount, promoCode, billingInfo }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token")
       if (!token) {

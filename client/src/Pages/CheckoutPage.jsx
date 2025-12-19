@@ -210,24 +210,20 @@ const CheckoutPage = () => {
       alert("Please accept the terms and conditions")
       return
     }
-
     if (!validateBillingInfo()) {
       return
     }
-
     setProcessingPayment(true)
     dispatch(clearError())
-
     try {
       const { finalPrice } = calculateTotal()
-
       const result = await dispatch(
         createPaymentOrder({
           courseId: course._id,
           amount: finalPrice,
           promoCode: promoCode || null,
           billingInfo: billingInfo,
-        }),
+        }),11
       )
 
       if (createPaymentOrder.fulfilled.match(result)) {
@@ -495,7 +491,7 @@ const CheckoutPage = () => {
                 <div className="flex items-center p-2 sm:p-3 mt-3 space-x-2 border border-green-200 rounded-lg bg-green-50">
                   <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                   <span className="text-xs sm:text-sm text-green-800">
-                    Promo code "{promoCode}" applied! You save ₹{discountAmount.toFixed(2)}
+                    Promo code `${promoCode}` applied! You save ₹{discountAmount.toFixed(2)}
                   </span>
                 </div>
               )}
