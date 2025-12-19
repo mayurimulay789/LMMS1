@@ -82,13 +82,15 @@ export const apiRequest = async (url, options = {}) => {
   }
 
   try {
-    console.log(`[API] ${options.method || 'GET'} ${fullUrl}`);\n    \n    const response = await fetch(fullUrl, {
+    console.log(`[API] ${options.method || 'GET'} ${fullUrl}`);
+    const response = await fetch(fullUrl, {
       ...options,
       headers: headers,
       credentials: 'include' // Include credentials for CORS
     });
 
-    console.log(`[API] Response status: ${response.status} for ${fullUrl}`);\n\n    if (!response.ok) {
+    console.log(`[API] Response status: ${response.status} for ${fullUrl}`); 
+    if (!response.ok) {
       console.error(
         `[API] Request Failed: ${response.status} ${response.statusText} for ${fullUrl}`
       );
@@ -97,7 +99,8 @@ export const apiRequest = async (url, options = {}) => {
       let errorMessage = `HTTP error! status: ${response.status}`;
       try {
         const errorData = await response.json();
-        console.error('[API] Error data:', errorData);\n        if (errorData.message) {
+        console.error('[API] Error data:', errorData);    
+        if (errorData.message) {
           errorMessage = errorData.message;
         } else if (errorData.error) {
           errorMessage = errorData.error;
@@ -108,9 +111,12 @@ export const apiRequest = async (url, options = {}) => {
           const textError = await response.text();
           if (textError) {
             errorMessage = textError;
-            console.error('[API] Error text:', textError);\n          }
+            console.error('[API] Error text:', textError);          
+          }
+          console.log(`Error ${e}`)
         } catch (textErr) {
-          console.error('[API] Could not parse error response');\n        }
+          console.error(`[API] Could not parse error response ${textErr}`);        
+        }
       }
       
       const err = new Error(errorMessage);
@@ -125,9 +131,10 @@ export const apiRequest = async (url, options = {}) => {
     let data = null;
     try {
       data = await response.json();
-      console.log(`[API] Response data received for ${fullUrl}`);\n    } catch (jsonErr) {
-      console.warn('[API] Response is not JSON:', jsonErr);\n    }
-    
+      console.log(`[API] Response data received for ${fullUrl}`);
+    } catch (jsonErr) {
+      console.warn('[API] Response is not JSON:', jsonErr);
+    }
     return {
       ok: response.ok,
       status: response.status,
