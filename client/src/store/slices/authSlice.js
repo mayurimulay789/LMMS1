@@ -267,8 +267,12 @@ const authSlice = createSlice({
       // Upload Avatar
       .addCase(uploadAvatar.fulfilled, (state, action) => {
         if (state.user) {
-          state.user.avatar = action.payload.avatarUrl
-          localStorage.setItem("user", JSON.stringify(state.user))
+          // Handle multiple possible response shapes from the upload endpoint
+          const avatarUrl = action.payload?.data?.url || action.payload?.url || action.payload?.avatarUrl || null
+          if (avatarUrl) {
+            state.user.avatar = avatarUrl
+            localStorage.setItem("user", JSON.stringify(state.user))
+          }
         }
       })
   },

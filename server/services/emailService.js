@@ -30,14 +30,14 @@ const sendInstructorApplicationEmail = async (applicationData) => {
     const mailOptions = {
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
-      subject: 'Instructor Application Received - LearnHub',
+      subject: 'Instructor Application Received - RymaAcademy',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-          <h2 style="color: #e11d48; text-align: center;">Welcome to LearnHub Instructor Program!</h2>
+          <h2 style="color: #e11d48; text-align: center;">Welcome to Ryma Academy Instructor Program!</h2>
 
           <p>Dear <strong>${applicantName}</strong>,</p>
 
-          <p>Thank you for your interest in becoming an instructor at LearnHub! We have received your application and our team will review it shortly.</p>
+          <p>Thank you for your interest in becoming an instructor at Ryma Academy! We have received your application and our team will review it shortly.</p>
 
           <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="color: #333; margin-top: 0;">Application Summary:</h3>
@@ -58,7 +58,7 @@ const sendInstructorApplicationEmail = async (applicationData) => {
           <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:support@learnhub.com">support@learnhub.com</a>.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Team</strong></p>
+          <strong>Ryma Academy Team</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -119,7 +119,7 @@ const sendAdminApplicationNotification = async (applicationData) => {
           <p>If you need more information, contact the applicant at ${email} or ${phone}.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Automated System</strong></p>
+          <strong>Ryma Academy Automated System</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -155,14 +155,14 @@ const sendInstructorApprovalEmail = async ({ applicantName, email, loginLink }) 
     const mailOptions = {
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
-      subject: 'Congratulations! Your Instructor Application is Approved - LearnHub',
+      subject: 'Congratulations! Your Instructor Application is Approved - Ryma Academy',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
           <h2 style="color: #10b981; text-align: center;">Congratulations! 🎉</h2>
 
           <p>Dear <strong>${applicantName}</strong>,</p>
 
-          <p>Great news! Your application to become an instructor at LearnHub has been <strong>approved</strong>! Your instructor account has been created successfully.</p>
+          <p>Great news! Your application to become an instructor at Ryma Academy has been <strong>approved</strong>! Your instructor account has been created successfully.</p>
 
           <div style="background-color: #f0fdf4; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #10b981;">
             <p><strong>What happens next?</strong></p>
@@ -182,12 +182,12 @@ const sendInstructorApprovalEmail = async ({ applicantName, email, loginLink }) 
           <p>If the button doesn't work, copy and paste this link into your browser:</p>
           <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 3px;">${linkToUse}</p>
 
-          <p>Welcome to the LearnHub instructor community! We're excited to have you on board.</p>
+          <p>Welcome to the Ryma Academy instructor community! We're excited to have you on board.</p>
 
           <p>If you have any questions, please contact us at <a href="mailto:support@learnhub.com">support@learnhub.com</a>.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Team</strong></p>
+          <strong>Ryma Academy Team</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -213,14 +213,14 @@ const sendInstructorRejectionEmail = async ({ applicantName, email }) => {
     const mailOptions = {
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
-      subject: 'Update on Your Instructor Application - LearnHub',
+      subject: 'Update on Your Instructor Application - Ryma Academy',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
           <h2 style="color: #6b7280; text-align: center;">Application Update</h2>
 
           <p>Dear <strong>${applicantName}</strong>,</p>
 
-          <p>Thank you for your interest in becoming an instructor at LearnHub and for taking the time to submit your application.</p>
+          <p>Thank you for your interest in becoming an instructor at Ryma Academy and for taking the time to submit your application.</p>
 
           <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #f59e0b;">
             <p>After careful review, we regret to inform you that we are unable to approve your application at this time.</p>
@@ -235,12 +235,12 @@ const sendInstructorRejectionEmail = async ({ applicantName, email }) => {
             <li>Reapply in the future when you feel ready</li>
           </ul>
 
-          <p>We appreciate your interest in LearnHub and wish you the best in your teaching journey.</p>
+          <p>We appreciate your interest in Ryma Academy and wish you the best in your teaching journey.</p>
 
           <p>If you have any questions or would like feedback on your application, please contact us at <a href="mailto:support@learnhub.com">support@learnhub.com</a>.</p>
 
           <p>Best regards,<br>
-          <strong>LearnHub Team</strong></p>
+          <strong>Ryma Academy Team</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">

@@ -9,6 +9,45 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
 
   if (!isOpen) return null;
 
+  // Helper function to verify payment with retry logic
+  const verifyPaymentWithRetry = async (paymentData, maxRetries = 2) => {
+    let lastError = null;
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 0) {
+          console.log(`🔄 [Payment] Retry attempt ${attempt}/${maxRetries}...`);
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+        
+        const verifyRes = await apiRequest("payments/verify", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(paymentData),
+        });
+        
+        // If successful, return the response
+        if (verifyRes && verifyRes.data) {
+          return verifyRes;
+        }
+      } catch (error) {
+        lastError = error;
+        console.error(`❌ [Payment] Attempt ${attempt + 1} failed:`, error.message);
+        
+        // Don't retry on 4xx errors (client errors)
+        if (error.response && error.response.status >= 400 && error.response.status < 500) {
+          throw error;
+        }
+      }
+    }
+    
+    // All retries failed
+    throw lastError || new Error('Verification failed after retries');
+  };
+
   // Function to send enrollment email
   const sendEnrollmentEmail = async (paymentMethod) => {
     try {
@@ -27,7 +66,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         }),
       });
 
-      const emailData = await emailResponse.json();
+      const emailData = emailResponse.data;
 
       if (emailResponse.ok) {
         console.log("Enrollment email sent successfully");
@@ -65,7 +104,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         }),
       });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (!data.orderId) {
         alert("Failed to create order. Try again.");
@@ -83,54 +122,107 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
         description: `Course: ${courseTitle}`,
         image: "/logo.png",
         handler: async function (response) {
+          console.log('🟢 [Payment] Razorpay payment successful, starting verification...');
+          console.log('🟢 [Payment] Response:', response);
+          
+          // Create timeout for verification (30 seconds)
+          const verificationTimeout = setTimeout(() => {
+            console.error('🔴 [Payment] Verification timeout!');
+            setPaymentStatus('error');
+            alert('Payment verification is taking too long. Please check your enrollment status or contact support.');
+            setLoading(false);
+          }, 30000);
+          
           try {
-            // Verify payment on backend
-            const verifyRes = await apiRequest("payments/verify", {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                courseId: selectedCourseId,
-              }),
+            // Verify payment on backend with retry logic
+            console.log('🔵 [Payment] Sending verification request to backend...');
+            const verifyRes = await verifyPaymentWithRetry({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              courseId: selectedCourseId,
             });
+            
+            // Clear timeout on successful response
+            clearTimeout(verificationTimeout);
 
-            const verifyData = await verifyRes.json();
+            console.log('🟢 [Payment] Verification response received:', verifyRes);
+            
+            // Check if response is valid
+            if (!verifyRes || !verifyRes.data) {
+              console.error('🔴 [Payment] Invalid verification response:', verifyRes);
+              throw new Error('Invalid verification response from server');
+            }
 
-            if (verifyData.status === "success") {
+            const verifyData = verifyRes.data;
+            console.log('🟢 [Payment] Verification data:', verifyData);
+
+            if (verifyData.status === "success" || verifyRes.ok) {
+              console.log('✅ [Payment] Payment verified successfully!');
               setPaymentStatus('success');
+              setLoading(false);
               
-              // Send enrollment email
-              const emailSent = await sendEnrollmentEmail("online");
-              
-              if (emailSent) {
-                console.log("Payment successful and email sent!");
-              } else {
-                console.log("Payment successful but email failed to send");
+              // Call the success callback IMMEDIATELY
+              try {
+                onOnline();
+                console.log('✅ [Payment] Success callback executed');
+              } catch (callbackError) {
+                console.error('❌ [Payment] Error in success callback:', callbackError);
               }
-
-              // Call the success callback
-              onOnline();
               
-              // Auto close after 3 seconds
+              // Send enrollment email (non-blocking, don't wait for it)
+              sendEnrollmentEmail("online").then(emailSent => {
+                if (emailSent) {
+                  console.log("✅ Payment successful and email sent!");
+                } else {
+                  console.log("⚠️ Payment successful but email failed to send");
+                }
+              }).catch(err => {
+                console.error('❌ Email sending error:', err);
+              });
+              
+              // Auto close and refresh after 2 seconds
+              setTimeout(() => {
+                console.log('🔵 [Payment] Closing modal and refreshing...');
+                onClose();
+                setPaymentStatus(null);
+                // Force page reload to show updated enrollment
+                window.location.reload();
+              }, 2000);
+              
+            } else {
+              console.error('🔴 [Payment] Payment verification failed:', verifyData);
+              setPaymentStatus('error');
+              const errorMessage = verifyData.message || 'Unknown error';
+              alert(`Payment verification failed: ${errorMessage}\n\nYour payment may have been successful. Please check your enrollments or contact support with your payment details.`);
+              setLoading(false);
+              
+              // Close modal after 3 seconds even on error
               setTimeout(() => {
                 onClose();
                 setPaymentStatus(null);
               }, 3000);
-              
-            } else {
-              setPaymentStatus('error');
-              alert("Payment verification failed!");
-              setLoading(false);
             }
           } catch (error) {
-            console.error("Payment verification error:", error);
+            clearTimeout(verificationTimeout);
+            console.error('🔴 [Payment] Payment verification error:', error);
+            console.error('🔴 [Payment] Error details:', {
+              message: error.message,
+              stack: error.stack,
+              response: error.response
+            });
             setPaymentStatus('error');
-            alert("Payment verification failed!");
+            
+            // Show user-friendly error message
+            const errorMsg = error.message || 'Payment verification failed';
+            alert(`Verification Error: ${errorMsg}\n\nIf your payment was deducted, please check your enrollments or contact support with your payment details.`);
             setLoading(false);
+            
+            // Close modal after 3 seconds to not leave user stuck
+            setTimeout(() => {
+              onClose();
+              setPaymentStatus(null);
+            }, 3000);
           }
         },
         prefill: {
@@ -149,14 +241,24 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
 
       // 3️⃣ Open Razorpay checkout
       const rzp = new window.Razorpay(options);
-      rzp.open();
       
       rzp.on('payment.failed', function (response) {
-        console.error("Payment failed:", response.error);
+        console.error('🔴 [Payment] Payment failed:', response.error);
         setPaymentStatus('error');
         alert(`Payment failed: ${response.error.description}`);
         setLoading(false);
       });
+      
+      // Handle modal dismiss (user closes without paying)
+      options.modal = {
+        ondismiss: function() {
+          console.log('⚠️ [Payment] Payment modal dismissed by user');
+          setLoading(false);
+          setPaymentStatus(null);
+        }
+      };
+      
+      rzp.open();
 
     } catch (error) {
       console.error("Razorpay payment error:", error);

@@ -1,12 +1,52 @@
 const express = require("express")
 const router = express.Router()
 const path = require("path")
+const fs = require("fs")
+const axios = require("axios")
 const Certificate = require("../models/Certificate")
 const Enrollment = require("../models/Enrollment")
 const Course = require("../models/Course")
 const User = require("../models/User")
 const certificateService = require("../services/certificateService")
+const { uploadToCloudinary } = require("../utils/cloudinary")
 const auth = require("../middleware/auth")
+
+// Promote any legacy local PDFs to Cloudinary on-demand
+async function ensureCloudPdf(certificate) {
+  if (certificate?.pdfUrl && certificate.pdfUrl.includes("res.cloudinary.com")) {
+    // If already on Cloudinary but stored under image upload, regenerate and re-upload as raw to fix PDF preview
+    if (certificate.pdfUrl.includes("/raw/upload/")) {
+      return certificate.pdfUrl
+    }
+
+    try {
+      const pdfUrl = await certificateService.regenerateCertificateAsset(certificate)
+      return pdfUrl
+    } catch (regenErr) {
+      console.warn("Could not regenerate certificate PDF as raw", regenErr.message)
+      return certificate.pdfUrl
+    }
+  }
+
+  const localPath = certificate?.pdfPath
+  if (localPath && fs.existsSync(localPath)) {
+    const buffer = fs.readFileSync(localPath)
+    const cloudFolder = process.env.CLOUDINARY_CERT_FOLDER || "lms/certificates"
+    const pdfUrl = await uploadToCloudinary(buffer, cloudFolder, "raw", "application/pdf")
+    certificate.pdfUrl = pdfUrl
+    certificate.pdfPath = pdfUrl
+    await certificate.save()
+    // Best-effort cleanup; ignore errors
+    try {
+      fs.unlinkSync(localPath)
+    } catch (cleanupErr) {
+      console.warn("Could not remove local certificate file", cleanupErr.message)
+    }
+    return pdfUrl
+  }
+
+  return null
+}
 
 // Generate certificate (triggered automatically or manually)
 router.post("/generate", auth, async (req, res) => {
@@ -154,17 +194,23 @@ router.get("/download/:certificateId", auth, async (req, res) => {
       return res.status(404).json({ message: "Certificate not found" })
     }
 
-    const filePath = certificate.pdfPath
-
-    if (!require("fs").existsSync(filePath)) {
+    let pdfUrl = await ensureCloudPdf(certificate)
+    if (!pdfUrl) {
       return res.status(404).json({ message: "Certificate file not found" })
     }
 
-    res.setHeader("Content-Type", "application/pdf")
-    res.setHeader("Content-Disposition", `attachment; filename="${certificate.certificateNumber}.pdf"`)
-
-    const fileStream = require("fs").createReadStream(filePath)
-    fileStream.pipe(res)
+    try {
+      const response = await axios.get(pdfUrl, { responseType: "arraybuffer" })
+      res.setHeader("Content-Type", "application/pdf")
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${certificate.certificateNumber || certificate.certificateId}.pdf"`
+      )
+      res.send(response.data)
+    } catch (fetchErr) {
+      console.error("Failed to fetch PDF from Cloudinary:", fetchErr.message)
+      res.status(500).json({ message: "Failed to download certificate" })
+    }
   } catch (error) {
     console.error("Certificate download error:", error)
     res.status(500).json({ message: "Failed to download certificate" })
@@ -238,17 +284,22 @@ router.get("/pdf/:certificateId", async (req, res) => {
       return res.status(404).json({ message: "Certificate not found" })
     }
 
-    const filePath = certificate.pdfPath
-
-    if (!require("fs").existsSync(filePath)) {
+    const pdfUrl = await ensureCloudPdf(certificate)
+    if (!pdfUrl) {
       return res.status(404).json({ message: "Certificate file not found" })
     }
 
-    res.setHeader("Content-Type", "application/pdf")
-    res.setHeader("Content-Disposition", `inline; filename="${certificate.certificateNumber}.pdf"`)
-
-    const fileStream = require("fs").createReadStream(filePath)
-    fileStream.pipe(res)
+    try {
+      // Add transformation to force inline display in browser
+      // Use fl_attachment=false to prevent download
+      const separator = pdfUrl.includes("?") ? "&" : "?"
+      const inlineUrl = `${pdfUrl}${separator}fl_attachment=false`
+      
+      return res.redirect(inlineUrl)
+    } catch (fetchErr) {
+      console.error("Failed to fetch PDF from Cloudinary:", fetchErr.message)
+      res.status(500).json({ message: "Failed to serve certificate" })
+    }
   } catch (error) {
     console.error("Certificate PDF serve error:", error)
     res.status(500).json({ message: "Failed to serve certificate" })

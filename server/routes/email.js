@@ -22,7 +22,7 @@ router.post('/send-enrollment', async (req, res) => {
       subject: `Enrollment Confirmation - ${courseTitle}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #4f46e5;">Welcome to LearnHub!</h2>
+          <h2 style="color: #4f46e5;">Welcome to Ryma Academy!</h2>
           <p>Thank you for enrolling in our course. Here are your enrollment details:</p>
           
           <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">

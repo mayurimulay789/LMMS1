@@ -26,7 +26,11 @@ router.post("/:id/reviews", auth, async (req, res) => {
       user: req.user?._id,
       course: course._id,
     });
-    if (!enrollment) return res.status(403).json({ message: "Enroll first to review" });
+
+    // Only allow review if the user has a paid/active enrollment
+    if (!enrollment || (!enrollment.payment && !["active", "completed"].includes(enrollment.status))) {
+      return res.status(403).json({ message: "You must purchase this course to submit a review" });
+    }
 
     const review = new CourseReview({
       course: course._id,

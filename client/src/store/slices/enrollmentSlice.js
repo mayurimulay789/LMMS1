@@ -5,6 +5,7 @@ export const fetchUserEnrollments = createAsyncThunk(
   "enrollment/fetchUserEnrollments",
   async (_, { getState, rejectWithValue }) => {
     try {
+      console.log("fetchUserEnrollments thunk called");
       const { auth } = getState()
       const token = auth.token || localStorage.getItem("token");
 

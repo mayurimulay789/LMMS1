@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
 import { Award, Download, Search, Filter, Calendar, BookOpen, Trophy, X } from "lucide-react"
 import toast from "react-hot-toast"
+import { createApiUrl } from "../config/api"
 import CertificateCard from "../Components/CertificateCard"
 
 const CertificatesPage = () => {
@@ -16,8 +17,6 @@ const CertificatesPage = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("newest")
   const [selectedCertificate, setSelectedCertificate] = useState(null)
-  const [showShareModal, setShowShareModal] = useState(false)
-  const [shareUrl, setShareUrl] = useState("")
 
   useEffect(() => {
     fetchCertificates()
@@ -30,7 +29,8 @@ const CertificatesPage = () => {
   const fetchCertificates = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch("/api/certificates/me", {
+      const url = createApiUrl("certificates/me")
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -86,7 +86,8 @@ const CertificatesPage = () => {
 
   const handleDownload = async (certificateId) => {
     try {
-      const response = await fetch(`/api/certificates/download/${certificateId}`, {
+      const downloadUrl = createApiUrl(`certificates/download/${certificateId}`)
+      const response = await fetch(downloadUrl, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -113,17 +114,7 @@ const CertificatesPage = () => {
     }
   }
 
-  const handleShare = (certificate) => {
-    setSelectedCertificate(certificate)
-    setShareUrl(
-      certificate.verificationUrl || `${window.location.origin}/verify-certificate/${certificate.certificateId}`,
-    )
-    setShowShareModal(true)
-  }
 
-  const handleView = (certificate) => {
-    window.open(`/api/certificates/pdf/${certificate.certificateId}`, "_blank")
-  }
 
   const copyToClipboard = async (text) => {
     try {
@@ -137,7 +128,7 @@ const CertificatesPage = () => {
 
   const shareToSocial = (platform, certificate) => {
     const text = `I just earned a certificate in ${certificate.courseName}! 🎓`
-    const url = shareUrl
+    const url = `${window.location.origin}/verify-certificate/${certificate.certificateId}`
 
     let shareLink = ""
     switch (platform) {
@@ -362,78 +353,12 @@ const CertificatesPage = () => {
                 <CertificateCard
                   certificate={certificate}
                   onDownload={handleDownload}
-                  onShare={handleShare}
-                  onView={handleView}
+                  onShare={() => {}}
+                  onView={() => {}}
                 />
               </motion.div>
             ))}
           </motion.div>
-        )}
-
-        {/* Share Modal */}
-        {showShareModal && selectedCertificate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="w-full max-w-md p-6 bg-white rounded-lg"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Share Certificate</h3>
-                <button onClick={() => setShowShareModal(false)} className="text-gray-400 hover:text-gray-600">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="mb-6">
-                <p className="mb-2 text-sm text-gray-600">Certificate for:</p>
-                <p className="font-medium text-gray-900">{selectedCertificate.courseName}</p>
-              </div>
-
-              <div className="mb-6">
-                <label className="block mb-2 text-sm font-medium text-gray-700">Verification Link</label>
-                <div className="flex">
-                  <input type="text" value={shareUrl} readOnly className="flex-1 rounded-r-none input" />
-                  <button
-                    onClick={() => copyToClipboard(shareUrl)}
-                    className="border-l-0 rounded-l-none btn btn-outline"
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-sm font-medium text-gray-700">Share on social media:</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => shareToSocial("linkedin", selectedCertificate)}
-                    className="flex items-center justify-center space-x-2 btn btn-outline"
-                  >
-                    <span>LinkedIn</span>
-                  </button>
-                  <button
-                    onClick={() => shareToSocial("twitter", selectedCertificate)}
-                    className="flex items-center justify-center space-x-2 btn btn-outline"
-                  >
-                    <span>Twitter</span>
-                  </button>
-                  <button
-                    onClick={() => shareToSocial("facebook", selectedCertificate)}
-                    className="flex items-center justify-center space-x-2 btn btn-outline"
-                  >
-                    <span>Facebook</span>
-                  </button>
-                  <button
-                    onClick={() => shareToSocial("email", selectedCertificate)}
-                    className="flex items-center justify-center space-x-2 btn btn-outline"
-                  >
-                    <span>Email</span>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
         )}
       </div>
     </div>

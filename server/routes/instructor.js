@@ -135,12 +135,70 @@ router.get("/courses", async (req, res) => {
 })
 
 // Create new course
+// router.post("/courses", async (req, res) => {
+//   try {
+//     const { calculateLessonsDurations } = require("../utils/videoUtils")
+
+//     // Convert lessons to modules structure if lessons are provided
+//     let courseData = { ...req.body }
+//     if (courseData.lessons && courseData.lessons.length > 0) {
+//       courseData.modules = [{
+//         name: "Course Content",
+//         order: 1,
+//         subcourses: courseData.lessons
+//       }]
+//       delete courseData.lessons
+//     }
+
+//     const course = new Course({
+//       ...courseData,
+//       instructor: req.user.name, // Set instructor name
+//       instructorId: req.user.id, // Set instructor ObjectId reference
+//       createdBy: req.user.id, // Set who created the course
+//     })
+
+//     // Calculate durations for subcourses with video URLs
+//     if (course.modules && course.modules.length > 0) {
+//       try {
+//         let allSubcourses = []
+//         course.modules.forEach(module => {
+//           allSubcourses = [...allSubcourses, ...module.subcourses]
+//         })
+//         const result = await calculateLessonsDurations(allSubcourses)
+//         // Update subcourses back into modules
+//         let subcourseIndex = 0
+//         course.modules.forEach(module => {
+//           module.subcourses = result.lessons.slice(subcourseIndex, subcourseIndex + module.subcourses.length)
+//           subcourseIndex += module.subcourses.length
+//         })
+//         course.duration = result.totalDuration
+//       } catch (durationError) {
+//         // Continue with course creation even if duration calculation fails
+//       }
+//     }
+
+//     await course.save()
+//     res.status(201).json(course)
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to create course" })
+//   }
+// })
+
+// Create new course
 router.post("/courses", async (req, res) => {
   try {
+    console.log("=== CREATE COURSE START ===")
+    console.log("📥 Received course data:", JSON.stringify(req.body, null, 2))
+    console.log("👤 User ID:", req.user.id)
+    console.log("👤 User Name:", req.user.name)
+
     const { calculateLessonsDurations } = require("../utils/videoUtils")
 
     // Convert lessons to modules structure if lessons are provided
     let courseData = { ...req.body }
+    
+    console.log("📋 Course data before processing:", courseData)
+    
     if (courseData.lessons && courseData.lessons.length > 0) {
       courseData.modules = [{
         name: "Course Content",
@@ -150,12 +208,16 @@ router.post("/courses", async (req, res) => {
       delete courseData.lessons
     }
 
+    console.log("📋 Course data after processing:", courseData)
+
     const course = new Course({
       ...courseData,
       instructor: req.user.name, // Set instructor name
       instructorId: req.user.id, // Set instructor ObjectId reference
       createdBy: req.user.id, // Set who created the course
     })
+
+    console.log("📝 Course model created:", course)
 
     // Calculate durations for subcourses with video URLs
     if (course.modules && course.modules.length > 0) {
@@ -164,6 +226,7 @@ router.post("/courses", async (req, res) => {
         course.modules.forEach(module => {
           allSubcourses = [...allSubcourses, ...module.subcourses]
         })
+        console.log("⏱️ Calculating durations for subcourses:", allSubcourses.length)
         const result = await calculateLessonsDurations(allSubcourses)
         // Update subcourses back into modules
         let subcourseIndex = 0
@@ -172,15 +235,25 @@ router.post("/courses", async (req, res) => {
           subcourseIndex += module.subcourses.length
         })
         course.duration = result.totalDuration
+        console.log("✅ Durations calculated:", result.totalDuration)
       } catch (durationError) {
+        console.error("⚠️ Duration calculation failed:", durationError)
         // Continue with course creation even if duration calculation fails
       }
     }
 
     await course.save()
+    console.log("✅ Course saved successfully:", course._id)
+    console.log("=== CREATE COURSE END ===")
     res.status(201).json(course)
   } catch (error) {
-    res.status(500).json({ message: "Failed to create course" })
+    console.error("❌ Failed to create course:", error)
+    console.error("❌ Error stack:", error.stack)
+    res.status(500).json({ 
+      message: "Failed to create course",
+      error: error.message,
+      details: error.errors || {}
+    })
   }
 })
 

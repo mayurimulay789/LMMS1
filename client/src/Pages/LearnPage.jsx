@@ -6,7 +6,7 @@ import { useSelector } from "react-redux"
 import { Play, Clock, CheckCircle, ArrowLeft, Lock, Award, Menu, X } from "lucide-react"
 import { motion } from "framer-motion"
 import toast from "react-hot-toast"
-import { apiRequest } from "../config/api"
+import { apiRequest, createApiUrl } from "../config/api"
 
 const LearnPage = () => {
   const { courseId } = useParams()
@@ -26,20 +26,99 @@ const LearnPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const youtubePlayerRef = useRef(null)
+  const playerInstanceRef = useRef(null)
 
   // Load YouTube API
   useEffect(() => {
-    if (!window.YT) {
-      const tag = document.createElement('script')
-      tag.src = 'https://www.youtube.com/iframe_api'
-      const firstScriptTag = document.getElementsByTagName('script')[0]
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+    let pollInterval = null
+    
+    // Check if YouTube API is fully loaded and ready
+    if (window.YT && window.YT.Player) {
+      console.log('YouTube API already loaded')
+      setIsYouTubeLoaded(true)
+      return
+    }
 
+    // Check if script is already being loaded
+    const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]')
+    if (existingScript) {
+      console.log('YouTube API script already exists, waiting for it to load...')
+      
+      // Poll for YouTube API readiness (in case callback doesn't fire)
+      pollInterval = setInterval(() => {
+        if (window.YT && window.YT.Player) {
+          console.log('YouTube API Ready (via polling)')
+          clearInterval(pollInterval)
+          setIsYouTubeLoaded(true)
+        }
+      }, 100)
+      
+      // Also set up callback
       window.onYouTubeIframeAPIReady = () => {
+        console.log('YouTube API Ready (via callback)')
+        if (pollInterval) clearInterval(pollInterval)
         setIsYouTubeLoaded(true)
       }
-    } else {
+      
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        if (pollInterval) {
+          clearInterval(pollInterval)
+          if (window.YT && window.YT.Player) {
+            setIsYouTubeLoaded(true)
+          } else {
+            console.error('YouTube API failed to load within timeout')
+          }
+        }
+      }, 10000)
+      
+      return () => {
+        if (pollInterval) clearInterval(pollInterval)
+      }
+    }
+
+    // Load the YouTube API script
+    console.log('Loading YouTube API script...')
+    const tag = document.createElement('script')
+    tag.src = 'https://www.youtube.com/iframe_api'
+    tag.async = true
+    tag.onerror = () => {
+      console.error('Failed to load YouTube API script')
+      if (pollInterval) clearInterval(pollInterval)
+    }
+    
+    const firstScriptTag = document.getElementsByTagName('script')[0]
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
+    // Poll for YouTube API readiness (backup for callback)
+    pollInterval = setInterval(() => {
+      if (window.YT && window.YT.Player) {
+        console.log('YouTube API Ready (via polling)')
+        clearInterval(pollInterval)
+        setIsYouTubeLoaded(true)
+      }
+    }, 100)
+
+    window.onYouTubeIframeAPIReady = () => {
+      console.log('YouTube API Ready (via callback)')
+      if (pollInterval) clearInterval(pollInterval)
       setIsYouTubeLoaded(true)
+    }
+    
+    // Timeout after 10 seconds
+    setTimeout(() => {
+      if (pollInterval) {
+        clearInterval(pollInterval)
+        if (window.YT && window.YT.Player) {
+          setIsYouTubeLoaded(true)
+        } else {
+          console.error('YouTube API failed to load within timeout')
+        }
+      }
+    }, 10000)
+    
+    return () => {
+      if (pollInterval) clearInterval(pollInterval)
     }
   }, [])
 
@@ -65,28 +144,107 @@ const LearnPage = () => {
     }
   }, [course, searchParams])
 
-  // Initialize YouTube player when lesson changes
   useEffect(() => {
+   
+    if (playerInstanceRef.current) {
+      try {
+        playerInstanceRef.current.destroy()
+        playerInstanceRef.current = null
+      } catch (e) {
+        console.error("Error destroying player:", e)
+      }
+    }
+
     if (selectedLesson && isYouTubeLoaded && youtubePlayerRef.current) {
       const videoId = getYouTubeVideoId(selectedLesson.videoUrl)
-      if (videoId) {
-        new window.YT.Player(youtubePlayerRef.current, {
-          videoId: videoId,
-          playerVars: {
-            autoplay: 0,
-            controls: 1,
-            rel: 0,
-            showinfo: 0,
-            modestbranding: 1
-          },
-          events: {
-            onStateChange: (event) => {
-              if (event.data === window.YT.PlayerState.ENDED) {
-                markLessonComplete(selectedLesson._id)
-              }
-            }
+      if (videoId && window.YT && window.YT.Player) {
+        console.log('Initializing YouTube player for video:', videoId)
+        
+        // Clear the div and recreate it
+        const container = youtubePlayerRef.current.parentNode
+        const newDiv = document.createElement('div')
+        newDiv.id = `youtube-player-${selectedLesson._id}`
+        container.replaceChild(newDiv, youtubePlayerRef.current)
+        youtubePlayerRef.current = newDiv
+
+        // Ensure DOM and YouTube API are fully ready before creating player
+        const initializePlayer = () => {
+          // Double check API is ready
+          if (!window.YT || !window.YT.Player) {
+            console.error('YouTube API not available when trying to create player')
+            return
           }
+
+          // Check if the element still exists in DOM
+          if (!document.getElementById(newDiv.id)) {
+            console.error('Player element not in DOM')
+            return
+          }
+
+          try {
+            // Create new player instance
+            playerInstanceRef.current = new window.YT.Player(newDiv.id, {
+              width: '100%', 
+              height: '100%',
+              videoId: videoId,
+              playerVars: {
+                autoplay: 1,
+                controls: 1,
+                rel: 0,
+                showinfo: 0,
+                modestbranding: 1,
+                origin: window.location.origin,
+                enablejsapi: 1
+              },
+              events: {
+                onReady: (event) => {
+                  console.log('✅ YouTube player ready and loaded')
+                  // Ensure video plays on mobile/touch devices
+                  try {
+                    event.target.playVideo()
+                  } catch (e) {
+                    console.log('Autoplay prevented:', e)
+                  }
+                },
+                onError: (event) => {
+                  console.error('❌ YouTube player error:', event.data)
+                  // Error codes: 2=Invalid ID, 5=HTML5 error, 100=Video not found, 101/150=Embedding disabled
+                },
+                onStateChange: (event) => {
+                  console.log('YouTube player state changed:', event.data)
+                  if (event.data === window.YT.PlayerState.ENDED) {
+                    handleVideoEnd(selectedLesson._id)
+                  }
+                }
+              }
+            })
+            console.log('YouTube player instance created')
+          } catch (error) {
+            console.error('Error creating YouTube player:', error)
+          }
+        }
+
+        // Use requestAnimationFrame + setTimeout for better reliability across browsers
+        requestAnimationFrame(() => {
+          setTimeout(initializePlayer, 150)
         })
+      } else if (videoId) {
+        console.warn('YouTube API or Player not ready yet:', {
+          hasYT: !!window.YT,
+          hasPlayer: !!(window.YT && window.YT.Player),
+          isYouTubeLoaded
+        })
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (playerInstanceRef.current) {
+        try {
+          playerInstanceRef.current.destroy()
+        } catch (e) {
+          console.error("Error destroying player on cleanup:", e)
+        }
       }
     }
   }, [selectedLesson, isYouTubeLoaded])
@@ -218,6 +376,22 @@ const LearnPage = () => {
     }
   }
 
+  // Handle video end - mark complete and play next
+  const handleVideoEnd = async (lessonId) => {
+    // Mark current lesson as complete
+    await markLessonComplete(lessonId)
+    
+    // Find next lesson
+    const currentIndex = course.lessons.findIndex(l => l._id === lessonId)
+    if (currentIndex !== -1 && currentIndex < course.lessons.length - 1) {
+      const nextLesson = course.lessons[currentIndex + 1]
+      toast.success(`Playing next lesson: ${nextLesson.title}`)
+      setSelectedLesson(nextLesson)
+    } else {
+      toast.success("Course completed! 🎉")
+    }
+  }
+
   const isLessonCompleted = (lessonId) =>
     completedLessons?.some(l => l.lessonId === lessonId)
 
@@ -240,8 +414,35 @@ const LearnPage = () => {
 
     if (isCourseCompleted()) {
       if (certificateId) {
-        console.log('Opening PDF for certificateId:', certificateId)
-        window.open(`/api/certificates/pdf/${certificateId}`, "_blank")
+        console.log('Downloading PDF for certificateId:', certificateId)
+        try {
+          const token = localStorage.getItem("token")
+          const downloadUrl = createApiUrl(`certificates/download/${certificateId}`)
+          console.log('Certificate download URL:', downloadUrl)
+          const response = await fetch(downloadUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          
+          if (!response.ok) {
+            throw new Error("Failed to download certificate")
+          }
+          
+          const blob = await response.blob()
+          const url = window.URL.createObjectURL(blob)
+          const link = document.createElement("a")
+          link.href = url
+          link.download = `certificate-${certificateId}.pdf`
+          document.body.appendChild(link)
+          link.click()
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(link)
+          toast.success("Certificate downloaded successfully!")
+        } catch (error) {
+          console.error("Download error:", error)
+          toast.error("Failed to download certificate")
+        }
       } else {
         console.log('No certificateId found, attempting to generate certificate')
         toast.loading("Generating certificate...")
@@ -264,7 +465,35 @@ const LearnPage = () => {
             toast.success("Certificate generated successfully!")
             await fetchProgress()
             if (data.certificate?.certificateId) {
-              window.open(`/api/certificates/pdf/${data.certificate.certificateId}`, "_blank")
+              // Download the newly generated certificate
+              try {
+                const token = localStorage.getItem("token")
+                const downloadUrl = createApiUrl(`certificates/download/${data.certificate.certificateId}`)
+                console.log('Certificate download URL:', downloadUrl)
+                const downloadResponse = await fetch(downloadUrl, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                })
+                
+                if (!downloadResponse.ok) {
+                  throw new Error("Failed to download certificate")
+                }
+                
+                const blob = await downloadResponse.blob()
+                const url = window.URL.createObjectURL(blob)
+                const link = document.createElement("a")
+                link.href = url
+                link.download = `certificate-${data.certificate.certificateId}.pdf`
+                document.body.appendChild(link)
+                link.click()
+                window.URL.revokeObjectURL(url)
+                document.body.removeChild(link)
+                toast.success("Certificate downloaded successfully!")
+              } catch (downloadError) {
+                console.error("Download error:", downloadError)
+                toast.error("Certificate generated but download failed")
+              }
             }
           } else {
             toast.dismiss()
@@ -302,10 +531,10 @@ const LearnPage = () => {
     const videoId = getYouTubeVideoId(lesson.videoUrl)
     if (videoId && isYouTubeLoaded) {
       return (
-        <div className="aspect-video">
+        <div className="relative w-full overflow-hidden rounded-lg" style={{ height: '500px' }}>
           <div
             ref={youtubePlayerRef}
-            className="w-full h-full rounded-lg"
+            className="absolute top-0 left-0 w-full h-full"
           />
         </div>
       )
@@ -319,12 +548,12 @@ const LearnPage = () => {
     }
 
     return (
-      <div className="aspect-video">
+      <div className="relative w-full overflow-hidden rounded-lg" style={{ height: '700px' }}>
         <video
           src={lesson.videoUrl}
           controls
-          className="w-full h-full rounded-lg"
-          onEnded={() => markLessonComplete(lesson._id)}
+          className="absolute top-0 left-0 w-full h-full object-cover"
+          onEnded={() => handleVideoEnd(lesson._id)}
         />
       </div>
     )
@@ -439,7 +668,7 @@ const LearnPage = () => {
               >
                 {isCourseCompleted() ? <Award className="w-5 h-5 mr-2 text-green-600" /> : <Lock className="w-5 h-5 mr-2 text-gray-400" />}
                 <span className={`${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium text-sm`}>
-                  {isCourseCompleted() ? "View Certificate" : "Certificate Locked"}
+                  {isCourseCompleted() ? "Download Certificate" : "Certificate Locked"}
                 </span>
               </button>
 
@@ -487,7 +716,7 @@ const LearnPage = () => {
           >
             {isCourseCompleted() ? <Award className="w-6 h-6 mr-3 text-green-600" /> : <Lock className="w-6 h-6 mr-3 text-gray-400" />}
             <span className={`${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium`}>
-              {isCourseCompleted() ? "View Certificate" : "Certificate Locked"}
+              {isCourseCompleted() ? "Download Certificate" : "Certificate Locked"}
             </span>
           </button>
 

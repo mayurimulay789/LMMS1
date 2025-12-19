@@ -561,9 +561,9 @@ const AdminCourseForm = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+      <div className="p-6 bg-white rounded-lg shadow-sm">
+        <div className="space-y-4 animate-pulse">
+          <div className="w-1/4 h-4 bg-gray-300 rounded"></div>
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="h-20 bg-gray-300 rounded"></div>
@@ -577,14 +577,14 @@ const AdminCourseForm = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Course Management</h3>
         <div className="flex space-x-2">
           <button
             onClick={() => setIsCreating(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            className="flex items-center px-4 py-2 space-x-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="w-4 h-4" />
             <span>Create Course</span>
           </button>
         </div>
@@ -592,19 +592,19 @@ const AdminCourseForm = () => {
 
       {/* Course Form */}
       {isCreating && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex justify-between items-center mb-6">
+        <div className="p-6 bg-white rounded-lg shadow-sm">
+          <div className="flex items-center justify-between mb-6">
             <h4 className="text-lg font-medium text-gray-900">{editingCourse ? "Edit Course" : "Create New Course"}</h4>
             <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
-              <X className="h-5 w-5" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Course Title</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Course Title</label>
                 <input
                   type="text"
                   name="title"
@@ -616,7 +616,7 @@ const AdminCourseForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Category</label>
                 <select
                   name="category"
                   value={formData.category}
@@ -637,7 +637,7 @@ const AdminCourseForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Price (₹)</label>
                 <input
                   type="number"
                   name="price"
@@ -651,7 +651,7 @@ const AdminCourseForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Level</label>
                 <select
                   name="level"
                   value={formData.level}
@@ -668,7 +668,7 @@ const AdminCourseForm = () => {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <label className="block mb-2 text-sm font-medium text-gray-700">Description</label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -681,23 +681,23 @@ const AdminCourseForm = () => {
 
             {/* Thumbnail Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Course Thumbnail</label>
+              <label className="block mb-2 text-sm font-medium text-gray-700">Course Thumbnail</label>
               
               {/* Upload Progress */}
               {isUploading && (
-                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="p-4 mb-4 border border-blue-200 rounded-lg bg-blue-50">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <div className="w-4 h-4 border-b-2 border-blue-600 rounded-full animate-spin"></div>
                       <span className="text-sm font-medium text-blue-700">Uploading...</span>
                     </div>
                     <div className="text-sm text-blue-600">
                       {uploadProgress}%
                     </div>
                   </div>
-                  <div className="w-full bg-blue-200 rounded-full h-2 mb-2">
+                  <div className="w-full h-2 mb-2 bg-blue-200 rounded-full">
                     <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                      className="h-2 transition-all duration-300 ease-out bg-blue-600 rounded-full"
                       style={{ width: `${uploadProgress}%` }}
                     ></div>
                   </div>
@@ -710,17 +710,17 @@ const AdminCourseForm = () => {
 
               {/* Upload Warning */}
               {uploadWarning && (
-                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="p-3 mb-4 border border-yellow-200 rounded-lg bg-yellow-50">
                   <div className="flex items-center">
-                    <AlertCircle className="h-4 w-4 text-yellow-600 mr-2" />
-                    <div className="text-yellow-700 text-sm">
+                    <AlertCircle className="w-4 h-4 mr-2 text-yellow-600" />
+                    <div className="text-sm text-yellow-700">
                       {uploadWarning}
                     </div>
                     <button
                       onClick={() => setUploadWarning(null)}
                       className="ml-auto text-yellow-600 hover:text-yellow-800"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -728,16 +728,16 @@ const AdminCourseForm = () => {
 
               {/* Upload Error */}
               {uploadError && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="p-3 mb-4 border border-red-200 rounded-lg bg-red-50">
                   <div className="flex items-center">
-                    <div className="text-red-600 text-sm">
+                    <div className="text-sm text-red-600">
                       <strong>Upload failed:</strong> {uploadError}
                     </div>
                     <button
                       onClick={() => setUploadError(null)}
                       className="ml-auto text-red-500 hover:text-red-700"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="mt-2 text-xs text-red-500">
@@ -747,7 +747,7 @@ const AdminCourseForm = () => {
               )}
 
               {/* Thumbnail Options Tabs */}
-              <div className="flex space-x-1 mb-4">
+              <div className="flex mb-4 space-x-1">
                 <button
                   type="button"
                   onClick={() => setThumbnailMode('upload')}
@@ -759,7 +759,7 @@ const AdminCourseForm = () => {
                 >
                   Upload Image/Video
                 </button>
-                <button
+                {/* <button
                   type="button"
                   onClick={() => setThumbnailMode('link')}
                   className={`px-4 py-2 text-sm font-medium rounded-lg ${
@@ -769,7 +769,7 @@ const AdminCourseForm = () => {
                   }`}
                 >
                   External Link
-                </button>
+                </button> */}
               </div>
 
               {/* Upload Mode */}
@@ -793,17 +793,17 @@ const AdminCourseForm = () => {
                           : 'bg-gray-50 border-gray-300 hover:bg-gray-100 text-gray-600'
                       }`}
                     >
-                      <Upload className="h-5 w-5" />
+                      <Upload className="w-5 h-5" />
                       <span className="text-sm">
                         {isUploading ? 'Uploading...' : 'Upload Thumbnail'}
                       </span>
                     </label>
                     {formData.thumbnail && formData.thumbnailSource === 'upload' && (
-                      <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center relative">
+                      <div className="relative flex items-center justify-center w-16 h-16 overflow-hidden bg-gray-100 rounded-lg">
                         {formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv)$/i) ? (
                           <video
                             src={formData.thumbnail}
-                            className="h-full w-full object-cover"
+                            className="object-cover w-full h-full"
                             muted
                             controls={false}
                             preload="metadata"
@@ -812,27 +812,27 @@ const AdminCourseForm = () => {
                           <img
                             src={formData.thumbnail}
                             alt="Thumbnail preview"
-                            className="h-full w-full object-cover"
+                            className="object-cover w-full h-full"
                           />
                         )}
                         <button
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, thumbnail: null, thumbnailSource: null }))}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          className="absolute p-1 text-white bg-red-500 rounded-full -top-2 -right-2 hover:bg-red-600"
                           disabled={isUploading}
                         >
-                          <X className="h-3 w-3" />
+                          <X className="w-3 h-3" />
                         </button>
                       </div>
                     )}
                   </div>
                   {formData.thumbnailSource === 'upload' && formData.thumbnail && !isUploading && (
-                    <div className="text-xs text-green-600 bg-green-50 p-2 rounded flex items-center space-x-2">
-                      <CheckCircle className="h-4 w-4" />
+                    <div className="flex items-center p-2 space-x-2 text-xs text-green-600 rounded bg-green-50">
+                      <CheckCircle className="w-4 h-4" />
                       <span>File uploaded successfully</span>
                     </div>
                   )}
-                  <div className="text-xs text-gray-500 space-y-1">
+                  <div className="space-y-1 text-xs text-gray-500">
                     <p>✅ Supports: Images (JPG, PNG, GIF, WebP) up to 5MB</p>
                     <p>✅ Videos (MP4, WebM, OGG, MOV, AVI, MKV) up to 150MB</p>
                    
@@ -854,24 +854,24 @@ const AdminCourseForm = () => {
                     <button
                       type="button"
                       onClick={handleThumbnailLinkAdd}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
                     >
                       Apply Link
                     </button>
                   </div>
                   {formData.thumbnail && formData.thumbnailSource === 'link' && (
                     <div className="flex items-center space-x-4">
-                      <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center relative">
+                      <div className="relative flex items-center justify-center w-16 h-16 overflow-hidden bg-gray-100 rounded-lg">
                         {isYouTubeURL(formData.thumbnail) ? (
                           <img
                             src={getYouTubeThumbnail(formData.thumbnail)}
                             alt="YouTube thumbnail"
-                            className="h-full w-full object-cover"
+                            className="object-cover w-full h-full"
                           />
                         ) : formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv)$/i) ? (
                           <video
                             src={formData.thumbnail}
-                            className="h-full w-full object-cover"
+                            className="object-cover w-full h-full"
                             muted
                             controls={false}
                             preload="metadata"
@@ -880,7 +880,7 @@ const AdminCourseForm = () => {
                           <img
                             src={formData.thumbnail}
                             alt="External thumbnail"
-                            className="h-full w-full object-cover"
+                            className="object-cover w-full h-full"
                           />
                         )}
                         <button
@@ -889,17 +889,17 @@ const AdminCourseForm = () => {
                             setFormData(prev => ({ ...prev, thumbnail: null, thumbnailSource: null }))
                             setThumbnailLink('')
                           }}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          className="absolute p-1 text-white bg-red-500 rounded-full -top-2 -right-2 hover:bg-red-600"
                         >
-                          <X className="h-3 w-3" />
+                          <X className="w-3 h-3" />
                         </button>
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                        <div className="p-2 text-xs text-blue-600 rounded bg-blue-50">
                           ✓ External Link Applied
                         </div>
                         {isYouTubeURL(formData.thumbnail) && (
-                          <div className="text-xs text-purple-600 bg-purple-50 p-1 rounded mt-1">
+                          <div className="p-1 mt-1 text-xs text-purple-600 rounded bg-purple-50">
                             YouTube video detected
                           </div>
                         )}
@@ -915,36 +915,38 @@ const AdminCourseForm = () => {
 
             {/* Modules and Lessons */}
             <div>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center justify-between mb-4">
                 <label className="block text-sm font-medium text-gray-700">Course Modules</label>
                 <button
                   type="button"
                   onClick={addModule}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center space-x-1"
+                  className="flex items-center space-x-1 text-sm font-medium text-blue-600 hover:text-blue-800"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="w-4 h-4" />
                   <span>Add Module</span>
                 </button>
               </div>
 
               <div className="space-y-6">
                 {formData.modules.map((module) => (
-                  <div key={module.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-4">
+                  <div key={module.id} className="p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center justify-between mb-4">
                       <input
                         type="text"
                         value={module.name}
                         onChange={(e) => updateModuleName(module.id, e.target.value)}
-                        className="text-lg font-medium text-gray-900 bg-transparent border-none focus:ring-0 p-0"
+                        className="p-0 text-lg font-medium text-gray-900 bg-transparent border-none focus:ring-0"
+                        required
                         placeholder="Module Name"
                       />
                       <div className="flex items-center space-x-2">
                         <button
                           type="button"
                           onClick={() => addLesson(module.id)}
-                          className="text-green-600 hover:text-green-800 text-sm"
+                          className="text-sm text-green-600 hover:text-green-800"
+                        required
                         >
-                          <Plus className="h-4 w-4" />
+                          <Plus className="w-4 h-4" />
                         </button>
                         {formData.modules.length > 1 && (
                           <button
@@ -952,7 +954,7 @@ const AdminCourseForm = () => {
                             onClick={() => removeModule(module.id)}
                             className="text-red-600 hover:text-red-800"
                           >
-                            <X className="h-4 w-4" />
+                            <X className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -960,46 +962,50 @@ const AdminCourseForm = () => {
 
                     <div className="space-y-4">
                       {module.subcourses.map((lesson, lessonIndex) => (
-                        <div key={lesson.id} className="border border-gray-100 rounded-lg p-3 bg-gray-50">
-                          <div className="flex justify-between items-center mb-3">
+                        <div key={lesson.id} className="p-3 border border-gray-100 rounded-lg bg-gray-50">
+                          <div className="flex items-center justify-between mb-3">
                             <h6 className="font-medium text-gray-900">Lesson {lessonIndex + 1}</h6>
                             <button
                               type="button"
                               onClick={() => removeLesson(module.id, lesson.id)}
                               className="text-red-600 hover:text-red-800"
+                            required
                             >
-                              <X className="h-4 w-4" />
+                              <X className="w-4 h-4" />
                             </button>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Lesson Title</label>
+                              <label className="block mb-1 text-sm font-medium text-gray-700">Lesson Title</label>
                               <input
                                 type="text"
                                 value={lesson.title}
                                 onChange={(e) => updateLesson(module.id, lesson.id, "title", e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              />
+                             required
+                             />
                             </div>
 
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Video URL</label>
+                              <label className="block mb-1 text-sm font-medium text-gray-700">Video URL</label>
                               <input
                                 type="url"
                                 value={lesson.videoUrl}
                                 onChange={(e) => updateLesson(module.id, lesson.id, "videoUrl", e.target.value)}
+                                required
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               />
                             </div>
                           </div>
 
                           <div className="mt-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Lesson Description</label>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">Lesson Description</label>
                             <textarea
                               value={lesson.description}
                               onChange={(e) => updateLesson(module.id, lesson.id, "description", e.target.value)}
                               rows={2}
+                              required
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                           </div>
@@ -1016,17 +1022,17 @@ const AdminCourseForm = () => {
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
                 disabled={isUploading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                className="flex items-center px-4 py-2 space-x-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
                 disabled={isUploading}
               >
-                <Save className="h-4 w-4" />
+                <Save className="w-4 h-4" />
                 <span>{editingCourse ? "Update Course" : "Create Course"}</span>
               </button>
             </div>
@@ -1045,11 +1051,11 @@ const AdminCourseForm = () => {
             <div key={course._id} className="p-6 hover:bg-gray-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                  <div className="flex items-center justify-center w-16 h-16 overflow-hidden bg-gray-100 rounded-lg">
                     {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv)$/i) ? (
                       <video
                         src={course.thumbnail}
-                        className="h-full w-full object-cover"
+                        className="object-cover w-full h-full"
                         muted
                         controls={false}
                         preload="metadata"
@@ -1058,14 +1064,14 @@ const AdminCourseForm = () => {
                       <img
                         src={getImageWithFallback(course.thumbnail, 'thumbnail', { title: course.title, category: course.category })}
                         alt={course.title}
-                        className="h-full w-full object-cover"
+                        className="object-cover w-full h-full"
                       />
                     )}
                   </div>
                   <div>
                     <h5 className="text-lg font-medium text-gray-900">{course.title}</h5>
                     <p className="text-sm text-gray-600">{course.description}</p>
-                    <div className="flex items-center space-x-4 mt-2">
+                    <div className="flex items-center mt-2 space-x-4">
                       <span className="text-sm text-gray-500">Category: {course.category}</span>
                       <span className="text-sm text-gray-500">Price: ₹{course.price}</span>
                       <span className="text-sm text-gray-500">Enrollments: {course.enrollments}</span>
@@ -1084,25 +1090,25 @@ const AdminCourseForm = () => {
 
                   <button
                     onClick={() => window.open(`/courses/${course._id}`, "_blank")}
-                    className="text-blue-600 hover:text-blue-800 p-2"
+                    className="p-2 text-blue-600 hover:text-blue-800"
                   >
-                    <Eye className="h-4 w-4" />
+                    <Eye className="w-4 h-4" />
                   </button>
 
                   {/* <button
                     onClick={() => recalculateCourseDurations(course._id)}
-                    className="text-purple-600 hover:text-purple-800 p-2"
+                    className="p-2 text-purple-600 hover:text-purple-800"
                     title="Recalculate Duration"
                   >
-                    <Clock className="h-4 w-4" />
+                    <Clock className="w-4 h-4" />
                   </button> */}
 
-                  <button onClick={() => startEditing(course)} className="text-green-600 hover:text-green-800 p-2">
-                    <Edit className="h-4 w-4" />
+                  <button onClick={() => startEditing(course)} className="p-2 text-green-600 hover:text-green-800">
+                    <Edit className="w-4 h-4" />
                   </button>
 
-                  <button onClick={() => deleteCourse(course._id)} className="text-red-600 hover:text-red-800 p-2">
-                    <Trash2 className="h-4 w-4" />
+                  <button onClick={() => deleteCourse(course._id)} className="p-2 text-red-600 hover:text-red-800">
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
