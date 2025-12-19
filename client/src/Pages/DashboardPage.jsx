@@ -219,17 +219,6 @@ const DashboardPage = () => {
                     </div>
                     <div className="flex space-x-2">
                       <button
-                        onClick={() =>
-                          window.open(
-                            createApiUrl(`certificates/pdf/${certificate.certificateId}`),
-                            "_blank",
-                          )
-                        }
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button
                         onClick={() => {
                           const link = document.createElement("a")
                           link.href = createApiUrl(`certificates/download/${certificate.certificateId}`)

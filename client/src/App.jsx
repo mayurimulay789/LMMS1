@@ -52,9 +52,9 @@ function AppContent() {
   }, [dispatch])
 
   return (
-    <div className="min-h-screen bg-white">
+<div className="min-h-screen bg-white">
       <Navbar />
-      <main>
+      <main >
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />

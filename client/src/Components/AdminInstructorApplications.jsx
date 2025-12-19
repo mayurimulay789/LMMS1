@@ -103,31 +103,31 @@ const AdminInstructorApplications = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm">
-      <div className="p-6 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">Instructor Applications</h3>
-        <p className="text-sm text-gray-600 mt-1">Review and manage instructor applications</p>
+      <div className="p-4 sm:p-6 border-b border-gray-200">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900">Instructor Applications</h3>
+        <p className="text-xs sm:text-sm text-gray-600 mt-1">Review and manage instructor applications</p>
       </div>
 
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Applicant
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Contact
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Experience
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Qualifications
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Submitted
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -135,59 +135,60 @@ const AdminInstructorApplications = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {applications.map((application) => (
               <tr key={application._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-700">
+                    <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
+                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                        <span className="text-xs sm:text-sm font-medium text-gray-700">
                           {application.applicantName.charAt(0).toUpperCase()}
                         </span>
                       </div>
                     </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{application.applicantName}</div>
+                    <div className="ml-2 sm:ml-4">
+                      <div className="text-xs sm:text-sm font-medium text-gray-900">{application.applicantName}</div>
+                      <div className="sm:hidden text-xs text-gray-500">{application.email}</div>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{application.email}</div>
-                  <div className="text-sm text-gray-500">{application.phone}</div>
+                <td className="hidden sm:table-cell px-3 sm:px-6 py-4 whitespace-nowrap">
+                  <div className="text-xs sm:text-sm text-gray-900">{application.email}</div>
+                  <div className="text-xs sm:text-sm text-gray-500">{application.phone}</div>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900 max-w-xs truncate" title={application.experience}>
+                <td className="hidden md:table-cell px-3 sm:px-6 py-4">
+                  <div className="text-xs sm:text-sm text-gray-900 max-w-xs truncate" title={application.experience}>
                     {application.experience.substring(0, 50)}{application.experience.length > 50 ? "..." : ""}
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900 max-w-xs truncate" title={application.qualifications}>
+                <td className="hidden lg:table-cell px-3 sm:px-6 py-4">
+                  <div className="text-xs sm:text-sm text-gray-900 max-w-xs truncate" title={application.qualifications}>
                     {application.qualifications.substring(0, 50)}{application.qualifications.length > 50 ? "..." : ""}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="hidden md:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                   {new Date(application.createdAt).toLocaleDateString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center space-x-2">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     <button
                       onClick={() => handleApprove(application._id)}
-                      className="text-green-600 hover:text-green-900"
+                      className="text-green-600 hover:text-green-900 p-1"
                       title="Approve Application"
                     >
-                      <CheckCircle className="h-5 w-5" />
+                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
                     <button
                       onClick={() => handleReject(application._id)}
-                      className="text-red-600 hover:text-red-900"
+                      className="text-red-600 hover:text-red-900 p-1"
                       title="Reject Application"
                     >
-                      <XCircle className="h-5 w-5" />
+                      <XCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
                     <button
                       onClick={() => alert(`Motivation: ${application.motivation}`)}
-                      className="text-blue-600 hover:text-blue-900"
+                      className="text-blue-600 hover:text-blue-900 p-1"
                       title="View Motivation"
                     >
-                      <Eye className="h-5 w-5" />
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
                   </div>
                 </td>

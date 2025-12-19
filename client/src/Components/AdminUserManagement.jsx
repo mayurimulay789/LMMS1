@@ -249,72 +249,72 @@ const AdminUserManagement = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-3 sm:p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-              <p className="text-gray-600">Manage all system users, roles, and permissions</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">User Management</h1>
+              <p className="text-sm sm:text-base text-gray-600">Manage all system users, roles, and permissions</p>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200">
               <div className="flex items-center gap-2">
-                <Users className="text-blue-600" size={20} />
-                <span className="text-blue-800 font-semibold">Total Users</span>
+                <Users className="text-blue-600" size={16} />
+                <span className="text-blue-800 font-semibold text-xs sm:text-sm">Total Users</span>
               </div>
-              <p className="text-2xl font-bold text-blue-900">{users.length}</p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-900">{users.length}</p>
             </div>
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+            <div className="bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200">
               <div className="flex items-center gap-2">
-                <GraduationCap className="text-green-600" size={20} />
-                <span className="text-green-800 font-semibold">Students</span>
+                <GraduationCap className="text-green-600" size={16} />
+                <span className="text-green-800 font-semibold text-xs sm:text-sm">Students</span>
               </div>
-              <p className="text-2xl font-bold text-green-900">
+              <p className="text-xl sm:text-2xl font-bold text-green-900">
                 {users.filter(u => u.role === 'student').length}
               </p>
             </div>
-            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+            <div className="bg-yellow-50 p-3 sm:p-4 rounded-lg border border-yellow-200">
               <div className="flex items-center gap-2">
-                <BookOpen className="text-yellow-600" size={20} />
-                <span className="text-yellow-800 font-semibold">Instructors</span>
+                <BookOpen className="text-yellow-600" size={16} />
+                <span className="text-yellow-800 font-semibold text-xs sm:text-sm">Instructors</span>
               </div>
-              <p className="text-2xl font-bold text-yellow-900">
+              <p className="text-xl sm:text-2xl font-bold text-yellow-900">
                 {users.filter(u => u.role === 'instructor').length}
               </p>
             </div>
-            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+            <div className="bg-purple-50 p-3 sm:p-4 rounded-lg border border-purple-200">
               <div className="flex items-center gap-2">
-                <Shield className="text-purple-600" size={20} />
-                <span className="text-purple-800 font-semibold">Admins</span>
+                <Shield className="text-purple-600" size={16} />
+                <span className="text-purple-800 font-semibold text-xs sm:text-sm">Admins</span>
               </div>
-              <p className="text-2xl font-bold text-purple-900">
+              <p className="text-xl sm:text-2xl font-bold text-purple-900">
                 {users.filter(u => u.role === 'admin').length}
               </p>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-center">
+            <div className="relative flex-1 min-w-full sm:min-w-[200px] sm:max-w-xs">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
               <input
                 type="text"
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Roles</option>
               <option value="student">Students</option>
@@ -325,7 +325,7 @@ const AdminUserManagement = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Status</option>
               <option value="verified">Verified</option>
@@ -339,7 +339,7 @@ const AdminUserManagement = () => {
                 setSortBy(field)
                 setSortOrder(order)
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="createdAt-desc">Newest First</option>
               <option value="createdAt-asc">Oldest First</option>
@@ -351,24 +351,26 @@ const AdminUserManagement = () => {
 
         {/* Bulk Actions */}
         {selectedUsers.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex justify-between items-center">
-              <span className="text-blue-800 font-medium">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <span className="text-blue-800 font-medium text-sm sm:text-base">
                 {selectedUsers.length} user(s) selected
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => handleBulkAction('delete')}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  className="flex-1 sm:flex-none bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm"
                 >
                   <Trash2 size={16} />
-                  Delete Selected
+                  <span className="hidden sm:inline">Delete Selected</span>
+                  <span className="sm:hidden">Delete</span>
                 </button>
                 <button
                   onClick={() => setSelectedUsers([])}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  className="flex-1 sm:flex-none bg-gray-600 hover:bg-gray-700 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm"
                 >
-                  Clear Selection
+                  <span className="hidden sm:inline">Clear Selection</span>
+                  <span className="sm:hidden">Clear</span>
                 </button>
               </div>
             </div>
@@ -378,10 +380,10 @@ const AdminUserManagement = () => {
         {/* Users Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[640px]">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left">
+                  <th className="px-3 sm:px-6 py-3 text-left">
                     <input
                       type="checkbox"
                       checked={selectedUsers.length === currentUsers.length && currentUsers.length > 0}
@@ -395,22 +397,22 @@ const AdminUserManagement = () => {
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Joined
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Enrollments
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -420,7 +422,7 @@ const AdminUserManagement = () => {
                   const RoleIcon = roleIcons[user.role] || Users
                   return (
                     <tr key={user._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-6 py-4">
                         <input
                           type="checkbox"
                           checked={selectedUsers.includes(user._id)}
@@ -434,32 +436,33 @@ const AdminUserManagement = () => {
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-6 py-4">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-sm font-medium text-gray-700">
+                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs sm:text-sm font-medium text-gray-700">
                               {user.name?.charAt(0)?.toUpperCase() || 'U'}
                             </span>
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                            <div className="text-sm text-gray-500 flex items-center gap-1">
-                              <Mail size={12} />
-                              {user.email}
+                          <div className="ml-2 sm:ml-4 min-w-0">
+                            <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{user.name}</div>
+                            <div className="text-xs text-gray-500 flex items-center gap-1 truncate">
+                              <Mail size={10} className="flex-shrink-0" />
+                              <span className="truncate">{user.email}</span>
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-6 py-4">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleColors[user.role]} cursor-pointer hover:opacity-80`}
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${roleColors[user.role]} cursor-pointer hover:opacity-80`}
                           onClick={() => openRoleModal(user)}
                         >
-                          <RoleIcon size={12} />
-                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                          <RoleIcon size={12} className="flex-shrink-0" />
+                          <span className="hidden sm:inline">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
+                          <span className="sm:hidden">{user.role.charAt(0).toUpperCase()}</span>
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="hidden md:table-cell px-3 sm:px-6 py-4">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           user.isEmailVerified 
                             ? 'bg-green-100 text-green-800 border border-green-200' 
@@ -469,17 +472,17 @@ const AdminUserManagement = () => {
                           {user.isEmailVerified ? 'Verified' : 'Unverified'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="hidden lg:table-cell px-3 sm:px-6 py-4 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
                           <Calendar size={12} />
                           {new Date(user.createdAt).toLocaleDateString()}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="hidden lg:table-cell px-3 sm:px-6 py-4 text-sm text-gray-500">
                         {user.enrollments || 0}
                       </td>
-                      <td className="px-6 py-4 text-right text-sm font-medium">
-                        <div className="flex justify-end gap-2">
+                      <td className="px-3 sm:px-6 py-4 text-right text-sm font-medium">
+                        <div className="flex justify-end gap-1 sm:gap-2">
                           <button
                             onClick={() => openEditModal(user)}
                             className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded transition-colors"
@@ -512,17 +515,17 @@ const AdminUserManagement = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-700">
+            <div className="bg-white px-3 py-3 border-t border-gray-200 sm:px-6">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
                   Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">
                   {Array.from({ length: totalPages }, (_, i) => (
                     <button
                       key={i + 1}
                       onClick={() => paginate(i + 1)}
-                      className={`px-3 py-1 rounded ${
+                      className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm ${
                         currentPage === i + 1
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'

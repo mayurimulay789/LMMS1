@@ -77,10 +77,10 @@ const AdminReportsChart = ({ type }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
         <div className="animate-pulse">
           <div className="h-4 bg-gray-300 rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-gray-300 rounded"></div>
+          <div className="h-48 sm:h-64 bg-gray-300 rounded"></div>
         </div>
       </div>
     )
@@ -126,18 +126,18 @@ const AdminReportsChart = ({ type }) => {
         const maxMonth = sortedData.find(item => item.revenue === maxRevenue)?.month
 
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Modern Card Design */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {/* Total Revenue Card */}
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100 text-sm font-medium">Total Revenue</p>
-                    <p className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</p>
+                    <p className="text-blue-100 text-xs sm:text-sm font-medium">Total Revenue</p>
+                    <p className="text-xl sm:text-2xl font-bold">₹{totalRevenue.toLocaleString()}</p>
                   </div>
-                  <div className="bg-blue-400 bg-opacity-30 rounded-lg p-3">
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="bg-blue-400 bg-opacity-30 rounded-lg p-2 sm:p-3">
+                    <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
                     </svg>
                   </div>
@@ -145,14 +145,14 @@ const AdminReportsChart = ({ type }) => {
               </div>
 
               {/* Average Revenue Card */}
-              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-100 text-sm font-medium">Average Revenue</p>
-                    <p className="text-2xl font-bold">₹{avgRevenue.toLocaleString()}</p>
+                    <p className="text-green-100 text-xs sm:text-sm font-medium">Average Revenue</p>
+                    <p className="text-xl sm:text-2xl font-bold">₹{avgRevenue.toLocaleString()}</p>
                   </div>
-                  <div className="bg-green-400 bg-opacity-30 rounded-lg p-3">
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="bg-green-400 bg-opacity-30 rounded-lg p-2 sm:p-3">
+                    <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd"/>
                     </svg>
                   </div>
@@ -160,19 +160,19 @@ const AdminReportsChart = ({ type }) => {
               </div>
 
               {/* Growth Rate Card */}
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-purple-100 text-sm font-medium">Growth Rate</p>
-                    <p className="text-2xl font-bold">
+                    <p className="text-purple-100 text-xs sm:text-sm font-medium">Growth Rate</p>
+                    <p className="text-xl sm:text-2xl font-bold">
                       {chartData.length > 1 ?
                         ((chartData[chartData.length - 1].revenue - chartData[0].revenue) / chartData[0].revenue * 100).toFixed(1) + '%'
                         : '0%'
                       }
                     </p>
                   </div>
-                  <div className="bg-purple-400 bg-opacity-30 rounded-lg p-3">
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="bg-purple-400 bg-opacity-30 rounded-lg p-2 sm:p-3">
+                    <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd"/>
                     </svg>
                   </div>
@@ -181,7 +181,7 @@ const AdminReportsChart = ({ type }) => {
             </div>
 
             {/* Monthly Performance Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {chartData.map((item, index) => {
                 const prevItem = chartData[index - 1]
                 const change = prevItem ? item.revenue - prevItem.revenue : 0
@@ -191,7 +191,7 @@ const AdminReportsChart = ({ type }) => {
                 const isLowest = item.revenue === minRevenue
 
                 return (
-                  <div key={index} className={`relative rounded-xl p-6 shadow-lg border-2 transition-all duration-200 hover:shadow-xl ${
+                  <div key={index} className={`relative rounded-xl p-4 sm:p-6 shadow-lg border-2 transition-all duration-200 hover:shadow-xl ${
                     isHighest
                       ? 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200'
                       : isLowest

@@ -480,9 +480,9 @@ router.put("/courses/:courseId", async (req, res) => {
 
     // Check if course was created by an instructor
     const creator = await User.findById(course.createdBy);
-    if (creator && creator.role === 'instructor') {
-      return res.status(403).json({ message: "Admins cannot update courses created by instructors" });
-    }
+    // if (creator && creator.role === 'instructor') {
+    //   return res.status(403).json({ message: "Admins cannot update courses created by instructors" });
+    // }
 
     // Prepare update fields, excluding immutable ones
     const updateFields = { ...req.body };

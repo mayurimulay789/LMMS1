@@ -561,7 +561,7 @@ const AdminCourseForm = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
         <div className="animate-pulse space-y-4">
           <div className="h-4 bg-gray-300 rounded w-1/4"></div>
           <div className="space-y-3">
@@ -575,14 +575,14 @@ const AdminCourseForm = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Course Management</h3>
-        <div className="flex space-x-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900">Course Management</h3>
+        <div className="flex space-x-2 w-full sm:w-auto">
           <button
             onClick={() => setIsCreating(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            className="flex-1 sm:flex-none bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 text-sm"
           >
             <Plus className="h-4 w-4" />
             <span>Create Course</span>
@@ -592,9 +592,9 @@ const AdminCourseForm = () => {
 
       {/* Course Form */}
       {isCreating && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h4 className="text-lg font-medium text-gray-900">{editingCourse ? "Edit Course" : "Create New Course"}</h4>
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            <h4 className="text-base sm:text-lg font-medium text-gray-900">{editingCourse ? "Edit Course" : "Create New Course"}</h4>
             <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
               <X className="h-5 w-5" />
             </button>
@@ -602,7 +602,7 @@ const AdminCourseForm = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Course Title</label>
                 <input
