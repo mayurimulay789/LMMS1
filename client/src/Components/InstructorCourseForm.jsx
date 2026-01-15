@@ -391,7 +391,7 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
         </div>
         <button
           onClick={() => setIsCreating(true)}
-          className="flex items-center px-4 py-2 space-x-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+          className="flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base space-x-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           <Plus className="w-4 h-4" />
           <span>Create Course</span>
@@ -679,7 +679,7 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
         <div className="divide-y divide-gray-200">
           {courses.map((course) => (
             <div key={course._id} className="p-6 hover:bg-gray-50">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center justify-center w-16 h-16 overflow-hidden bg-gray-100 rounded-lg">
                     {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
@@ -708,8 +708,7 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
                     </div>
                   </div>
                 </div>
-
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 self-end sm:self-auto mt-2 sm:mt-0">
                   <button
                     onClick={() => window.open(`/courses/${course._id}`, "_blank")}
                     className="p-2 text-blue-600 hover:text-blue-800"
@@ -717,7 +716,6 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
                   >
                     <Eye className="w-4 h-4" />
                   </button>
-
                   <button 
                     onClick={() => startEditing(course)} 
                     className="p-2 text-green-600 hover:text-green-800"
@@ -725,7 +723,6 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
                   >
                     <Edit className="w-4 h-4" />
                   </button>
-
                   <button 
                     onClick={() => deleteCourse(course._id)} 
                     className="p-2 text-red-600 hover:text-red-800"

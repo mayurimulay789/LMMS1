@@ -215,14 +215,14 @@ const InstructorDashboardPage = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="flex flex-col xs:flex-row xs:justify-between xs:items-center py-4 sm:py-6 gap-2 xs:gap-0">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Instructor Dashboard</h1>
-              <p className="text-gray-600">Manage your courses and students</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">Instructor Dashboard</h1>
+              <p className="text-sm sm:text-base text-gray-600">Manage your courses and students</p>
             </div>
-            <div className="flex space-x-4">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+            <div className="flex justify-end">
+              <button className="bg-blue-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
                 <Download className="h-4 w-4" />
                 <span>Export Data</span>
               </button>
@@ -233,13 +233,13 @@ const InstructorDashboardPage = () => {
 
       {/* Navigation Tabs */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <nav className="flex overflow-x-auto no-scrollbar space-x-4 sm:space-x-8 -mx-2 px-2">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`whitespace-nowrap py-3 px-2 sm:py-4 sm:px-1 border-b-2 font-medium text-xs sm:text-sm ${
                   activeTab === tab.id
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -253,24 +253,22 @@ const InstructorDashboardPage = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8">
         {activeTab === "overview" && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               {statCards.map((stat, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm p-6">
+                <div key={index} className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <p className="text-sm text-green-600 mt-1">{stat.change} from last month</p>
-                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                        <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-                      </div>
+                      <p className="text-xs sm:text-sm text-gray-600 mb-1">{stat.title}</p>
+                      <p className="text-lg sm:text-2xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-xs sm:text-sm text-green-600 mt-1">{stat.change} from last month</p>
+                      {/* Progress bar removed as per user request */}
                     </div>
-                    <div className={`w-12 h-12 rounded-lg ${stat.color} flex items-center justify-center ml-4`}>
-                      <stat.icon className="h-6 w-6 text-white" />
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${stat.color} flex items-center justify-center ml-2 sm:ml-4`}>
+                      <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                   </div>
                 </div>
@@ -278,7 +276,7 @@ const InstructorDashboardPage = () => {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
               <InstructorReportsChart type="revenue" />
               <InstructorReportsChart type="enrollments" />
             </div>
@@ -290,8 +288,8 @@ const InstructorDashboardPage = () => {
         )}
 
         {activeTab === "students" && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">My Students</h3>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">My Students</h3>
 
             {studentsLoading ? (
               <div className="flex justify-center py-8">
@@ -302,25 +300,17 @@ const InstructorDashboardPage = () => {
             ) : (
               <div className="space-y-4">
                 {students.map((enrollment) => (
-                  <div key={enrollment._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
+                  <div key={enrollment._id} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
                       <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900">{enrollment.user.name}</h4>
-                        <p className="text-gray-600 mt-1">{enrollment.user.email}</p>
-                        <p className="text-gray-600 mt-1">Course: {enrollment.course.title}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-900">{enrollment.user.name}</h4>
+                        <p className="text-gray-600 mt-1 text-xs sm:text-sm">{enrollment.user.email}</p>
+                        <p className="text-gray-600 mt-1 text-xs sm:text-sm">Course: {enrollment.course.title}</p>
+                        <div className="flex flex-wrap items-center gap-2 mt-2 text-xs sm:text-sm text-gray-500">
                           <span>Enrolled: {new Date(enrollment.createdAt).toLocaleDateString()}</span>
                           <span>Status: {enrollment.status}</span>
                         </div>
                       </div>
-                      {/* <div className="flex space-x-2">
-                        <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
-                          View Progress
-                        </button>
-                        <button className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors">
-                          Message
-                        </button>
-                      </div> */}
                     </div>
                   </div>
                 ))}

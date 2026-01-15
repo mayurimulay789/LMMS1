@@ -2,13 +2,17 @@ import { Users, Target, Heart, BookOpen, Globe, Award, TrendingUp } from "lucide
 import { Link } from "react-router-dom"
 import { generateDefaultAvatar } from "../utils/imageUtils"
 
+import React, { useState } from "react";
+
 const AboutUsPage = () => {
+  const [showFullStory, setShowFullStory] = useState(false);
+  const handleShowMore = () => setShowFullStory((prev) => !prev);
   const stats = [
     { number: "50K+", label: "Active Students" },
     { number: "1000+", label: "Courses Available" },
     { number: "100+", label: "Expert Instructors" },
     { number: "95%", label: "Success Rate" },
-  ]
+  ];
 
   const values = [
     {
@@ -101,13 +105,13 @@ const AboutUsPage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+      <section className="py-8 sm:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center p-4 sm:p-6">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-rose-600 mb-1 sm:mb-2">{stat.number}</div>
-                <div className="text-sm sm:text-base text-gray-600 font-medium">{stat.label}</div>
+              <div key={index} className="text-center p-3 sm:p-6 bg-white rounded-lg shadow-sm border border-rose-100">
+                <div className="text-xl sm:text-3xl md:text-4xl font-bold text-rose-600 mb-1 sm:mb-2">{stat.number}</div>
+                <div className="text-xs sm:text-base text-gray-600 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -121,20 +125,50 @@ const AboutUsPage = () => {
             <div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">Our Story</h2>
               <div className="space-y-3 sm:space-y-4 text-gray-600 text-sm sm:text-base">
-                <p>
-                  Founded in 2020, Ryma Academy started with a simple belief: everyone deserves access to quality education,
-                  regardless of their location, background, or circumstances.
-                </p>
-                <p>
-                  What began as a small team of educators and technologists has grown into a thriving platform that
-                  serves thousands of learners worldwide. We've partnered with industry experts and leading institutions
-                  to create courses that are not just educational, but transformational.
-                </p>
-                <p>
-                  Today, we continue to innovate and expand our offerings, always keeping our learners at the center of
-                  everything we do. Our success is measured not just in numbers, but in the success stories of our
-                  students who have achieved their dreams through learning.
-                </p>
+                {/* Mobile/Tablet: Collapsible story with Show More button */}
+                <div className="block lg:hidden">
+                  <p>
+                    Founded in 2020, Ryma Academy started with a simple belief: everyone deserves access to quality education,
+                    regardless of their location, background, or circumstances.
+                  </p>
+                  <p>
+                    What began as a small team of educators and technologists has grown into a thriving platform that
+                    serves thousands of learners worldwide. We've partnered with industry experts and leading institutions
+                    to create courses that are not just educational, but transformational.
+                  </p>
+                  {showFullStory && (
+                    <>
+                      <p>
+                        Today, we continue to innovate and expand our offerings, always keeping our learners at the center of
+                        everything we do. Our success is measured not just in numbers, but in the success stories of our
+                        students who have achieved their dreams through learning.
+                      </p>
+                    </>
+                  )}
+                  <button
+                    className="mt-2 text-rose-700 font-semibold underline focus:outline-none hover:text-rose-900 transition-colors"
+                    onClick={handleShowMore}
+                  >
+                    {showFullStory ? 'Show Less' : 'Show More'}
+                  </button>
+                </div>
+                {/* Desktop: Always show full story, no button */}
+                <div className="hidden lg:block">
+                  <p>
+                    Founded in 2020, Ryma Academy started with a simple belief: everyone deserves access to quality education,
+                    regardless of their location, background, or circumstances.
+                  </p>
+                  <p>
+                    What began as a small team of educators and technologists has grown into a thriving platform that
+                    serves thousands of learners worldwide. We've partnered with industry experts and leading institutions
+                    to create courses that are not just educational, but transformational.
+                  </p>
+                  <p>
+                    Today, we continue to innovate and expand our offerings, always keeping our learners at the center of
+                    everything we do. Our success is measured not just in numbers, but in the success stories of our
+                    students who have achieved their dreams through learning.
+                  </p>
+                </div>
               </div>
             </div>
             <div className="relative">
@@ -161,17 +195,17 @@ const AboutUsPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
             {achievements.map((achievement, index) => (
               <div 
                 key={index} 
-                className="bg-gradient-to-br from-rose-50 to-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center"
+                className="bg-gradient-to-br from-rose-50 to-white rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center flex flex-col justify-between min-h-[140px] sm:min-h-[160px]"
               >
-                <div className="bg-gradient-to-r from-rose-600 to-rose-800 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <div className="bg-gradient-to-r from-rose-600 to-rose-800 w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
                   <achievement.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-white" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">{achievement.title}</h3>
-                <p className="text-sm sm:text-base text-gray-600">{achievement.description}</p>
+                <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-3">{achievement.title}</h3>
+                <p className="text-xs sm:text-base text-gray-600">{achievement.description}</p>
               </div>
             ))}
           </div>
@@ -188,17 +222,17 @@ const AboutUsPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
             {values.map((value, index) => (
               <div 
                 key={index} 
-                className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center"
+                className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center flex flex-col justify-between min-h-[140px] sm:min-h-[160px]"
               >
-                <div className="bg-gradient-to-r from-rose-600 to-rose-800 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <div className="bg-gradient-to-r from-rose-600 to-rose-800 w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
                   <value.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-white" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">{value.title}</h3>
-                <p className="text-sm sm:text-base text-gray-600">{value.description}</p>
+                <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-3">{value.title}</h3>
+                <p className="text-xs sm:text-base text-gray-600">{value.description}</p>
               </div>
             ))}
           </div>
@@ -215,23 +249,23 @@ const AboutUsPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
             {team.map((member, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-rose-50 to-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 sm:hover:-translate-y-2 border border-rose-200"
+                className="bg-gradient-to-br from-rose-50 to-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 sm:hover:-translate-y-2 border border-rose-200 flex flex-col"
               >
                 <img 
                   src={member.image} 
                   alt={member.name} 
-                  className="w-full h-48 sm:h-56 lg:h-64 object-cover" 
+                  className="w-full h-32 sm:h-56 lg:h-64 object-cover" 
                   onError={(e) => {
                     e.target.src = generateDefaultAvatar(member.name, 300);
                   }} 
                 />
-                <div className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-rose-600 font-medium text-sm sm:text-base mb-2 sm:mb-3">{member.role}</p>
+                <div className="p-3 sm:p-6 flex-1 flex flex-col justify-between">
+                  <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-1">{member.name}</h3>
+                  <p className="text-rose-600 font-medium text-xs sm:text-base mb-1 sm:mb-3">{member.role}</p>
                   <p className="text-gray-600 text-xs sm:text-sm">{member.bio}</p>
                 </div>
               </div>

@@ -182,8 +182,8 @@ const CoursesPage = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-6 md:py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">All Courses</h1>
@@ -191,7 +191,7 @@ const CoursesPage = () => {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 mb-6 md:mb-8">
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="mb-6">
             <div className="relative">
@@ -512,7 +512,7 @@ const CoursesPage = () => {
           </button>
           </div>
         ) : (
-          <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" : "space-y-6"}>
+          <div className={viewMode === "grid" ? "grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8" : "space-y-4 sm:space-y-6"}>
             {courses.map((course, index) => (
               <CourseCard key={course._id} course={course} index={index} />
             ))}

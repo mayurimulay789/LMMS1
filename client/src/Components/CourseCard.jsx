@@ -38,9 +38,9 @@ const CourseCard = ({ course, index = 0 }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       whileHover={{ y: -5, scale: 1.02 }}
-      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 min-h-[80px] h-full flex flex-col sm:min-h-[120px] md:min-h-[500px]"
     >
-      <Link to={`/courses/${_id}`} className="block">
+      <Link to={`/courses/${_id}`} className="block h-full flex flex-col">
         {/* Course Thumbnail */}
         <div className="relative h-48 overflow-hidden bg-gray-200">
           {thumbnail && thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
@@ -102,7 +102,7 @@ const CourseCard = ({ course, index = 0 }) => {
         </div>
 
         {/* Course Content */}
-        <div className="p-6">
+        <div className="p-6 flex flex-col flex-1 justify-between">
           {/* Title and Description */}
           <div className="mb-4">
           <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-primary-600 transition-colors">

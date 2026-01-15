@@ -125,15 +125,15 @@ const ContactUsPage = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
           {/* Contact Information */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-6 sm:p-8">
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-8 mb-4 lg:mb-0">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
                 Get in Touch
               </h2>
 
-              <div className="space-y-4 sm:space-y-6">
+              <div className="space-y-3 sm:space-y-6">
                 {contactInfo.map((info, index) => (
                   <div key={index} className="flex items-start space-x-3 sm:space-x-4">
                     <div className="bg-rose-100 p-2 sm:p-3 rounded-lg flex-shrink-0">
@@ -143,7 +143,7 @@ const ContactUsPage = () => {
                       <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1">
                         {info.title}
                       </h3>
-                      <p className="text-gray-900 text-sm sm:text-base mb-1 truncate">
+                      <p className="text-gray-900 text-sm sm:text-base mb-1">
                         {info.content}
                       </p>
                       <p className="text-xs sm:text-sm text-gray-600">
@@ -161,7 +161,7 @@ const ContactUsPage = () => {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-6 sm:p-8">
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-8">
               {success ? (
                 <div className="text-center py-6 sm:py-8">
                   <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 text-green-500 mx-auto mb-3 sm:mb-4" />
@@ -185,7 +185,7 @@ const ContactUsPage = () => {
                   </h2>
 
                   <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
                       {/* Name */}
                       <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
@@ -197,7 +197,7 @@ const ContactUsPage = () => {
                           name="name"
                           value={formData.name}
                           onChange={handleChange}
-                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors text-sm sm:text-base ${
+                          className={`w-full px-3 py-2 sm:px-4 sm:py-3 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors text-sm sm:text-base ${
                             errors.name ? "border-red-500" : "border-gray-300"
                           }`}
                           placeholder="Your full name"
@@ -218,7 +218,7 @@ const ContactUsPage = () => {
                           name="email"
                           value={formData.email}
                           onChange={handleChange}
-                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors text-sm sm:text-base ${
+                          className={`w-full px-3 py-2 sm:px-4 sm:py-3 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors text-sm sm:text-base ${
                             errors.email ? "border-red-500" : "border-gray-300"
                           }`}
                           placeholder="your.email@example.com"
@@ -240,7 +240,7 @@ const ContactUsPage = () => {
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
-                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors text-sm sm:text-base ${
+                        className={`w-full px-3 py-2 sm:px-4 sm:py-3 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors text-sm sm:text-base ${
                           errors.subject ? "border-red-500" : "border-gray-300"
                         }`}
                         placeholder="What is this about?"
@@ -261,7 +261,7 @@ const ContactUsPage = () => {
                         rows={4}
                         value={formData.message}
                         onChange={handleChange}
-                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors resize-none text-sm sm:text-base ${
+                        className={`w-full px-3 py-2 sm:px-4 sm:py-3 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors resize-none text-sm sm:text-base ${
                           errors.message ? "border-red-500" : "border-gray-300"
                         }`}
                         placeholder="Tell us more about your inquiry..."
@@ -276,7 +276,7 @@ const ContactUsPage = () => {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-rose-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base"
+                        className="w-full bg-rose-700 text-white py-2 px-4 sm:py-3 sm:px-6 rounded-lg font-semibold hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base"
                       >
                         {loading ? (
                           <>

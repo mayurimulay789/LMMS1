@@ -256,7 +256,7 @@ const HomePage = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 md:gap-8"> 
+		  <div className="grid grid-cols-2 gap-4 md:grid-cols-4 sm:gap-6 md:gap-8"> 
             {features.map((feature, index) => (
               <motion.div
                 key={index}
@@ -308,16 +308,16 @@ const HomePage = () => {
               ))}
             </div>
           ) : (
-            <div className="flex pb-4 space-x-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-x-0 snap-x scroll-p-4"> 
-              {featuredCourses.map((course, index) => (
-                <div 
-                  key={course._id} 
-                  className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-full lg:w-full snap-start"
-                > 
-                  <CourseCard course={course} index={index} />
-                </div>
-              ))}
-            </div>
+						<div className="flex pb-4 space-x-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-x-0 snap-x scroll-p-4"> 
+							{featuredCourses.map((course, index) => (
+								<div 
+									key={course._id} 
+									className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-full lg:w-full snap-start"
+								> 
+									<CourseCard course={course} index={index} />
+								</div>
+							))}
+						</div>
           )}
 
           <div className="mt-6 text-center sm:mt-8 md:mt-12">

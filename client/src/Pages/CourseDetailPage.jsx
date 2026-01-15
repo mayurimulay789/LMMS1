@@ -883,8 +883,8 @@ const CourseDetailPage = () => {
 
       {/* Hero Section */}
       <div className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             <div className="lg:col-span-2">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
                 <div className="flex items-center space-x-2 mb-4">
@@ -1037,12 +1037,12 @@ const CourseDetailPage = () => {
       </div>
 
       {/* Course Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-10 lg:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <div className="lg:col-span-2">
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-8">
-              <nav className="flex space-x-8">
+              <nav className="flex space-x-8 overflow-x-auto whitespace-nowrap no-scrollbar">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
