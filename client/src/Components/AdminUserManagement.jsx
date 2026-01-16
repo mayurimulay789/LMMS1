@@ -252,16 +252,16 @@ const AdminUserManagement = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
+        <div className=" rounded-lg shadow-sm p-3 mb-3 bg-white">
+          <div className="flex justify-between items-center mb-4 ">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+              <h1 className="text-xl font-bold text-gray-900">User Management</h1>
               <p className="text-gray-600">Manage all system users, roles, and permissions</p>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <div className="flex items-center gap-2">
                 <Users className="text-blue-600" size={20} />
@@ -300,6 +300,7 @@ const AdminUserManagement = () => {
 
           {/* Filters */}
           <div className="flex flex-wrap gap-4 items-center">
+          <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
@@ -307,16 +308,16 @@ const AdminUserManagement = () => {
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="pl-10 pr-4 py-2 w-[100%] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-
+            
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Roles</option>
+              <option value="all" >All Roles</option>
               <option value="student">Students</option>
               <option value="instructor">Instructors</option>
               <option value="admin">Admins</option>
@@ -346,6 +347,7 @@ const AdminUserManagement = () => {
               <option value="name-asc">Name A-Z</option>
               <option value="name-desc">Name Z-A</option>
             </select>
+            </div>
           </div>
         </div>
 

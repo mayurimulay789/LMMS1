@@ -143,13 +143,13 @@ const AdminDashboardPage = () => {
         {activeTab === "overview" && (
           <div className="space-y-6 sm:space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-7">
               {statCards.map((stat, index) => (
                 <div key={index} className="p-4 bg-white rounded-lg shadow-sm sm:p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <p className="mb-1 text-xs text-gray-600 truncate sm:text-sm">{stat.title}</p>
-                      <p className="text-xl font-bold text-gray-900 truncate sm:text-2xl">{stat.value}</p>
+                      <p className="text-md font-bold text-gray-900 truncate sm:text-xl">{stat.value}</p>
                       <p className="mt-1 text-xs text-green-600 truncate sm:text-sm">{stat.change} from last month</p>
                     </div>
                     <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${stat.color} flex items-center justify-center flex-shrink-0 ml-3`}>

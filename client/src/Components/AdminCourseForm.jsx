@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Plus, Upload, X, Save, Eye, Edit, Trash2, Clock, AlertCircle, Play, Pause, CheckCircle } from "lucide-react"
+import { Plus, Upload, X, Save, Eye, Edit, Trash2, AlertCircle, CheckCircle, ChevronDown, ChevronUp, Menu } from "lucide-react"
 import { getImageWithFallback } from "../utils/imageUtils"
 
 const AdminCourseForm = () => {
@@ -32,6 +32,8 @@ const AdminCourseForm = () => {
   const [uploadError, setUploadError] = useState(null)
   const [uploadWarning, setUploadWarning] = useState(null)
   const [uploadTime, setUploadTime] = useState(0)
+  const [expandedModules, setExpandedModules] = useState([])
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const fileInputRef = useRef(null)
 
   // File size limits (in bytes)
@@ -233,7 +235,7 @@ const AdminCourseForm = () => {
             try {
               errorData = JSON.parse(xhr.responseText)
             } catch (e) {
-              errorData = { message: `Upload failed with status: ${xhr.status}` }
+              errorData = { message: `Upload failed with status: ${xhr.status} ${e}` }
             }
             reject(new Error(errorData.message || errorData.error || `Upload failed: ${xhr.status}`))
           }
@@ -295,33 +297,30 @@ const AdminCourseForm = () => {
     }
   }
 
-  // Optimize video before upload (client-side compression suggestion)
-  const suggestOptimization = (file) => {
-    if (file.type.startsWith('video/') && file.size > 50 * 1024 * 1024) {
-      return {
-        suggestion: "Consider compressing this video for faster upload and better performance",
-        originalSize: formatFileSize(file.size),
-        targetSize: "20-50MB",
-        tools: ["HandBrake", "FFmpeg", "Online video compressors"]
-      }
-    }
-    return null
-  }
-
   const addModule = () => {
     const newModuleOrder = formData.modules.length + 1
+    const newModuleId = Date.now() + newModuleOrder
     setFormData((prev) => ({
       ...prev,
       modules: [
         ...prev.modules,
         {
-          id: Date.now() + newModuleOrder,
+          id: newModuleId,
           name: `Module ${newModuleOrder}: New Module`,
           order: newModuleOrder,
           subcourses: []
         }
       ]
     }))
+    setExpandedModules(prev => [...prev, newModuleId])
+  }
+
+  const toggleModuleExpansion = (moduleId) => {
+    setExpandedModules(prev => 
+      prev.includes(moduleId) 
+        ? prev.filter(id => id !== moduleId)
+        : [...prev, moduleId]
+    )
   }
 
   const updateModuleName = (moduleId, name) => {
@@ -341,6 +340,7 @@ const AdminCourseForm = () => {
           .filter(module => module.id !== moduleId)
           .map((module, index) => ({ ...module, order: index + 1 }))
       }))
+      setExpandedModules(prev => prev.filter(id => id !== moduleId))
     }
   }
 
@@ -480,6 +480,7 @@ const AdminCourseForm = () => {
     setUploadTime(0)
     setUploadError(null)
     setUploadWarning(null)
+    setExpandedModules([])
   }
 
   const startEditing = (course) => {
@@ -508,6 +509,10 @@ const AdminCourseForm = () => {
       setThumbnailMode('upload')
       setThumbnailLink('')
     }
+    
+    // Expand all modules when editing
+    const moduleIds = course.modules?.map(module => module.id) || []
+    setExpandedModules(moduleIds)
   }
 
   const deleteCourse = async (courseId) => {
@@ -533,35 +538,9 @@ const AdminCourseForm = () => {
     }
   }
 
-  const recalculateCourseDurations = async (courseId) => {
-    try {
-      const token = localStorage.getItem("token")
-      const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:2000/api" : "https://online.rymaacademy.cloud/api")
-      const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}/recalculate-duration`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        alert(`Duration recalculated successfully! Total duration: ${data.course.duration} minutes`)
-        fetchCourses()
-      } else {
-        const errorData = await response.json()
-        alert(`Error recalculating duration: ${errorData.message}`)
-      }
-    } catch (error) {
-      console.error("Error recalculating course duration:", error)
-      alert("Error recalculating course duration")
-    }
-  }
-
   if (isLoading) {
     return (
-      <div className="p-6 bg-white rounded-lg shadow-sm">
+      <div className="p-4 md:p-6 bg-white rounded-lg shadow-sm">
         <div className="space-y-4 animate-pulse">
           <div className="w-1/4 h-4 bg-gray-300 rounded"></div>
           <div className="space-y-3">
@@ -575,34 +554,46 @@ const AdminCourseForm = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Course Management</h3>
-        <div className="flex space-x-2">
+      <div className="flex flex-col gap-4 p-4 bg-white rounded-lg shadow-sm md:flex-row md:items-center md:justify-between md:p-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold text-gray-900">Course Management</h3>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden"
+          >
+            <Menu className="w-6 h-6 text-gray-600" />
+          </button>
+        </div>
+        
+        <div className={`flex flex-col gap-2 md:flex-row md:space-x-2 ${mobileMenuOpen ? 'block' : 'hidden md:flex'}`}>
           <button
             onClick={() => setIsCreating(true)}
-            className="flex items-center px-4 py-2 space-x-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+            className="flex items-center justify-center w-full gap-2 px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 md:w-auto"
           >
             <Plus className="w-4 h-4" />
-            <span>Create Course</span>
+            <span className="text-sm md:text-base">Create Course</span>
           </button>
         </div>
       </div>
 
       {/* Course Form */}
       {isCreating && (
-        <div className="p-6 bg-white rounded-lg shadow-sm">
+        <div className="p-4 bg-white rounded-lg shadow-sm md:p-6">
           <div className="flex items-center justify-between mb-6">
             <h4 className="text-lg font-medium text-gray-900">{editingCourse ? "Edit Course" : "Create New Course"}</h4>
-            <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
+            <button 
+              onClick={resetForm} 
+              className="p-1 text-gray-400 rounded-full hover:bg-gray-100 hover:text-gray-600"
+            >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Course Title</label>
                 <input
@@ -611,7 +602,7 @@ const AdminCourseForm = () => {
                   value={formData.title}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent md:text-base"
                 />
               </div>
 
@@ -622,7 +613,7 @@ const AdminCourseForm = () => {
                   value={formData.category}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent md:text-base"
                 >
                   <option value="">Select Category</option>
                   <option value="Programming">Programming</option>
@@ -646,7 +637,7 @@ const AdminCourseForm = () => {
                   required
                   min="0"
                   step="0.01"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent md:text-base"
                 />
               </div>
 
@@ -657,7 +648,7 @@ const AdminCourseForm = () => {
                   value={formData.level}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent md:text-base"
                 >
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
@@ -674,8 +665,8 @@ const AdminCourseForm = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 required
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                rows={3}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent md:text-base md:rows-4"
               />
             </div>
 
@@ -685,13 +676,13 @@ const AdminCourseForm = () => {
               
               {/* Upload Progress */}
               {isUploading && (
-                <div className="p-4 mb-4 border border-blue-200 rounded-lg bg-blue-50">
+                <div className="p-3 mb-3 border border-blue-200 rounded-lg bg-blue-50 md:p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-b-2 border-blue-600 rounded-full animate-spin"></div>
-                      <span className="text-sm font-medium text-blue-700">Uploading...</span>
+                      <span className="text-xs font-medium text-blue-700 md:text-sm">Uploading...</span>
                     </div>
-                    <div className="text-sm text-blue-600">
+                    <div className="text-xs text-blue-600 md:text-sm">
                       {uploadProgress}%
                     </div>
                   </div>
@@ -702,23 +693,23 @@ const AdminCourseForm = () => {
                     ></div>
                   </div>
                   <div className="flex justify-between text-xs text-blue-600">
-                    <span>Speed: {uploadSpeed}</span>
-                    <span>Time: {(uploadTime / 1000).toFixed(1)}s</span>
+                    <span className="text-xs md:text-sm">Speed: {uploadSpeed}</span>
+                    <span className="text-xs md:text-sm">Time: {(uploadTime / 1000).toFixed(1)}s</span>
                   </div>
                 </div>
               )}
 
               {/* Upload Warning */}
               {uploadWarning && (
-                <div className="p-3 mb-4 border border-yellow-200 rounded-lg bg-yellow-50">
-                  <div className="flex items-center">
-                    <AlertCircle className="w-4 h-4 mr-2 text-yellow-600" />
-                    <div className="text-sm text-yellow-700">
+                <div className="p-3 mb-3 border border-yellow-200 rounded-lg bg-yellow-50">
+                  <div className="flex items-start">
+                    <AlertCircle className="flex-shrink-0 w-4 h-4 mt-0.5 mr-2 text-yellow-600" />
+                    <div className="text-xs text-yellow-700 md:text-sm">
                       {uploadWarning}
                     </div>
                     <button
                       onClick={() => setUploadWarning(null)}
-                      className="ml-auto text-yellow-600 hover:text-yellow-800"
+                      className="flex-shrink-0 ml-2 text-yellow-600 hover:text-yellow-800"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -728,14 +719,14 @@ const AdminCourseForm = () => {
 
               {/* Upload Error */}
               {uploadError && (
-                <div className="p-3 mb-4 border border-red-200 rounded-lg bg-red-50">
-                  <div className="flex items-center">
-                    <div className="text-sm text-red-600">
+                <div className="p-3 mb-3 border border-red-200 rounded-lg bg-red-50">
+                  <div className="flex items-start">
+                    <div className="flex-1 text-xs text-red-600 md:text-sm">
                       <strong>Upload failed:</strong> {uploadError}
                     </div>
                     <button
                       onClick={() => setUploadError(null)}
-                      className="ml-auto text-red-500 hover:text-red-700"
+                      className="flex-shrink-0 ml-2 text-red-500 hover:text-red-700"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -747,35 +738,35 @@ const AdminCourseForm = () => {
               )}
 
               {/* Thumbnail Options Tabs */}
-              <div className="flex mb-4 space-x-1">
+              <div className="flex mb-4 space-x-1 overflow-x-auto">
                 <button
                   type="button"
                   onClick={() => setThumbnailMode('upload')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  className={`flex-shrink-0 px-3 py-2 text-xs font-medium rounded-lg md:px-4 md:text-sm ${
                     thumbnailMode === 'upload'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  Upload Image/Video
+                  Upload
                 </button>
-                {/* <button
+                <button
                   type="button"
                   onClick={() => setThumbnailMode('link')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  className={`flex-shrink-0 px-3 py-2 text-xs font-medium rounded-lg md:px-4 md:text-sm ${
                     thumbnailMode === 'link'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   External Link
-                </button> */}
+                </button>
               </div>
 
               {/* Upload Mode */}
               {thumbnailMode === 'upload' && (
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-4">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:space-x-4">
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -787,19 +778,19 @@ const AdminCourseForm = () => {
                     />
                     <label
                       htmlFor="thumbnail-upload"
-                      className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer flex items-center space-x-2 min-w-[200px] ${
+                      className={`border-2 border-dashed rounded-lg p-3 md:p-4 text-center cursor-pointer flex flex-col items-center justify-center gap-2 md:flex-row md:min-w-[200px] ${
                         isUploading 
                           ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed' 
                           : 'bg-gray-50 border-gray-300 hover:bg-gray-100 text-gray-600'
                       }`}
                     >
                       <Upload className="w-5 h-5" />
-                      <span className="text-sm">
+                      <span className="text-xs md:text-sm">
                         {isUploading ? 'Uploading...' : 'Upload Thumbnail'}
                       </span>
                     </label>
                     {formData.thumbnail && formData.thumbnailSource === 'upload' && (
-                      <div className="relative flex items-center justify-center w-16 h-16 overflow-hidden bg-gray-100 rounded-lg">
+                      <div className="relative flex items-center justify-center w-full h-40 overflow-hidden bg-gray-100 rounded-lg md:w-16 md:h-16">
                         {formData.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv)$/i) ? (
                           <video
                             src={formData.thumbnail}
@@ -818,7 +809,7 @@ const AdminCourseForm = () => {
                         <button
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, thumbnail: null, thumbnailSource: null }))}
-                          className="absolute p-1 text-white bg-red-500 rounded-full -top-2 -right-2 hover:bg-red-600"
+                          className="absolute p-1 text-white bg-red-500 rounded-full top-2 right-2 hover:bg-red-600"
                           disabled={isUploading}
                         >
                           <X className="w-3 h-3" />
@@ -835,7 +826,6 @@ const AdminCourseForm = () => {
                   <div className="space-y-1 text-xs text-gray-500">
                     <p>✅ Supports: Images (JPG, PNG, GIF, WebP) up to 5MB</p>
                     <p>✅ Videos (MP4, WebM, OGG, MOV, AVI, MKV) up to 150MB</p>
-                   
                   </div>
                 </div>
               )}
@@ -843,13 +833,13 @@ const AdminCourseForm = () => {
               {/* Link Mode */}
               {thumbnailMode === 'link' && (
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-4">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:space-x-4">
                     <input
                       type="url"
                       value={thumbnailLink}
                       onChange={(e) => setThumbnailLink(e.target.value)}
                       placeholder="Enter image/video URL (YouTube, external images, etc.)"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <button
                       type="button"
@@ -860,8 +850,8 @@ const AdminCourseForm = () => {
                     </button>
                   </div>
                   {formData.thumbnail && formData.thumbnailSource === 'link' && (
-                    <div className="flex items-center space-x-4">
-                      <div className="relative flex items-center justify-center w-16 h-16 overflow-hidden bg-gray-100 rounded-lg">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:space-x-4">
+                      <div className="relative flex items-center justify-center w-full h-40 overflow-hidden bg-gray-100 rounded-lg md:w-16 md:h-16">
                         {isYouTubeURL(formData.thumbnail) ? (
                           <img
                             src={getYouTubeThumbnail(formData.thumbnail)}
@@ -889,7 +879,7 @@ const AdminCourseForm = () => {
                             setFormData(prev => ({ ...prev, thumbnail: null, thumbnailSource: null }))
                             setThumbnailLink('')
                           }}
-                          className="absolute p-1 text-white bg-red-500 rounded-full -top-2 -right-2 hover:bg-red-600"
+                          className="absolute p-1 text-white bg-red-500 rounded-full top-2 right-2 hover:bg-red-600"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -927,32 +917,56 @@ const AdminCourseForm = () => {
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 {formData.modules.map((module) => (
-                  <div key={module.id} className="p-4 border border-gray-200 rounded-lg">
-                    <div className="flex items-center justify-between mb-4">
-                      <input
-                        type="text"
-                        value={module.name}
-                        onChange={(e) => updateModuleName(module.id, e.target.value)}
-                        className="p-0 text-lg font-medium text-gray-900 bg-transparent border-none focus:ring-0"
-                        required
-                        placeholder="Module Name"
-                      />
+                  <div key={module.id} className="border border-gray-200 rounded-lg">
+                    <div 
+                      className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
+                      onClick={() => toggleModuleExpansion(module.id)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        {expandedModules.includes(module.id) ? (
+                          <ChevronUp className="w-5 h-5 text-gray-500" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-500" />
+                        )}
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center justify-center w-8 h-8 text-sm font-medium text-gray-600 bg-gray-100 rounded-full">
+                            {module.order}
+                          </div>
+                          <input
+                            type="text"
+                            value={module.name}
+                            onChange={(e) => updateModuleName(module.id, e.target.value)}
+                            className="p-0 text-base font-medium text-gray-900 bg-transparent border-none focus:ring-0"
+                            required
+                            placeholder="Module Name"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </div>
                       <div className="flex items-center space-x-2">
                         <button
                           type="button"
-                          onClick={() => addLesson(module.id)}
-                          className="text-sm text-green-600 hover:text-green-800"
-                        required
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            addLesson(module.id)
+                            if (!expandedModules.includes(module.id)) {
+                              toggleModuleExpansion(module.id)
+                            }
+                          }}
+                          className="p-1 text-green-600 rounded hover:bg-green-50"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                         {formData.modules.length > 1 && (
                           <button
                             type="button"
-                            onClick={() => removeModule(module.id)}
-                            className="text-red-600 hover:text-red-800"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              removeModule(module.id)
+                            }}
+                            className="p-1 text-red-600 rounded hover:bg-red-50"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -960,76 +974,90 @@ const AdminCourseForm = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      {module.subcourses.map((lesson, lessonIndex) => (
-                        <div key={lesson.id} className="p-3 border border-gray-100 rounded-lg bg-gray-50">
-                          <div className="flex items-center justify-between mb-3">
-                            <h6 className="font-medium text-gray-900">Lesson {lessonIndex + 1}</h6>
-                            <button
-                              type="button"
-                              onClick={() => removeLesson(module.id, lesson.id)}
-                              className="text-red-600 hover:text-red-800"
-                            required
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
+                    {expandedModules.includes(module.id) && (
+                      <div className="p-4 border-t border-gray-100 bg-gray-50">
+                        <div className="space-y-4">
+                          {module.subcourses.map((lesson, lessonIndex) => (
+                            <div key={lesson.id} className="p-4 bg-white border border-gray-200 rounded-lg">
+                              <div className="flex items-center justify-between mb-4">
+                                <h6 className="font-medium text-gray-900">
+                                  <span className="inline-block w-6 h-6 mr-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-full flex items-center justify-center">
+                                    {lessonIndex + 1}
+                                  </span>
+                                  Lesson {lessonIndex + 1}
+                                </h6>
+                                <button
+                                  type="button"
+                                  onClick={() => removeLesson(module.id, lesson.id)}
+                                  className="p-1 text-red-600 rounded hover:bg-red-50"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
 
-                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
-                              <label className="block mb-1 text-sm font-medium text-gray-700">Lesson Title</label>
-                              <input
-                                type="text"
-                                value={lesson.title}
-                                onChange={(e) => updateLesson(module.id, lesson.id, "title", e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                             required
-                             />
+                              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div>
+                                  <label className="block mb-1 text-sm font-medium text-gray-700">Lesson Title</label>
+                                  <input
+                                    type="text"
+                                    value={lesson.title}
+                                    onChange={(e) => updateLesson(module.id, lesson.id, "title", e.target.value)}
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block mb-1 text-sm font-medium text-gray-700">Video URL</label>
+                                  <input
+                                    type="url"
+                                    value={lesson.videoUrl}
+                                    onChange={(e) => updateLesson(module.id, lesson.id, "videoUrl", e.target.value)}
+                                    required
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="mt-4">
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Lesson Description</label>
+                                <textarea
+                                  value={lesson.description}
+                                  onChange={(e) => updateLesson(module.id, lesson.id, "description", e.target.value)}
+                                  rows={2}
+                                  required
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                              </div>
                             </div>
-
-                            <div>
-                              <label className="block mb-1 text-sm font-medium text-gray-700">Video URL</label>
-                              <input
-                                type="url"
-                                value={lesson.videoUrl}
-                                onChange={(e) => updateLesson(module.id, lesson.id, "videoUrl", e.target.value)}
-                                required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              />
+                          ))}
+                          
+                          {module.subcourses.length === 0 && (
+                            <div className="p-4 text-center border-2 border-dashed border-gray-300 rounded-lg">
+                              <p className="text-gray-500">No lessons added yet. Click the + button above to add a lesson.</p>
                             </div>
-                          </div>
-
-                          <div className="mt-4">
-                            <label className="block mb-1 text-sm font-medium text-gray-700">Lesson Description</label>
-                            <textarea
-                              value={lesson.description}
-                              onChange={(e) => updateLesson(module.id, lesson.id, "description", e.target.value)}
-                              rows={2}
-                              required
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex justify-end space-x-4">
+            <div className="flex flex-col-reverse gap-3 pt-4 border-t border-gray-200 md:flex-row md:justify-end md:space-x-4 md:gap-0">
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="w-full px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 md:w-auto"
                 disabled={isUploading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex items-center px-4 py-2 space-x-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                className="flex items-center justify-center w-full gap-2 px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed md:w-auto"
                 disabled={isUploading}
               >
                 <Save className="w-4 h-4" />
@@ -1042,78 +1070,97 @@ const AdminCourseForm = () => {
 
       {/* Courses List */}
       <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-200 md:p-6">
           <h4 className="text-lg font-medium text-gray-900">Existing Courses</h4>
         </div>
 
         <div className="divide-y divide-gray-200">
-          {courses.map((course) => (
-            <div key={course._id} className="p-6 hover:bg-gray-50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center justify-center w-16 h-16 overflow-hidden bg-gray-100 rounded-lg">
-                    {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv)$/i) ? (
-                      <video
-                        src={course.thumbnail}
-                        className="object-cover w-full h-full"
-                        muted
-                        controls={false}
-                        preload="metadata"
-                      />
-                    ) : (
-                      <img
-                        src={getImageWithFallback(course.thumbnail, 'thumbnail', { title: course.title, category: course.category })}
-                        alt={course.title}
-                        className="object-cover w-full h-full"
-                      />
-                    )}
+          {courses.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-gray-500">No courses found. Create your first course!</p>
+            </div>
+          ) : (
+            courses.map((course) => (
+              <div key={course._id} className="p-4 hover:bg-gray-50 md:p-6">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:space-x-4">
+                    <div className="flex-shrink-0">
+                      <div className="flex items-center justify-center w-full h-40 overflow-hidden bg-gray-100 rounded-lg md:w-16 md:h-16">
+                        {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv)$/i) ? (
+                          <video
+                            src={course.thumbnail}
+                            className="object-cover w-full h-full"
+                            muted
+                            controls={false}
+                            preload="metadata"
+                          />
+                        ) : (
+                          <img
+                            src={getImageWithFallback(course.thumbnail, 'thumbnail', { title: course.title, category: course.category })}
+                            alt={course.title}
+                            className="object-cover w-full h-full"
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="mb-1 text-lg font-medium text-gray-900">{course.title}</h5>
+                      <p className="mb-3 text-sm text-gray-600 line-clamp-2">{course.description}</p>
+                      <div className="flex flex-wrap items-center gap-2 mb-3 md:gap-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          {course.category}
+                        </span>
+                        <span className="text-sm font-medium text-gray-900">₹{course.price}</span>
+                        <span className="text-sm text-gray-500">
+                          {course.enrollments || 0} {course.enrollments === 1 ? 'enrollment' : 'enrollments'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                            course.status === "published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {course.status}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {course.level}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h5 className="text-lg font-medium text-gray-900">{course.title}</h5>
-                    <p className="text-sm text-gray-600">{course.description}</p>
-                    <div className="flex items-center mt-2 space-x-4">
-                      <span className="text-sm text-gray-500">Category: {course.category}</span>
-                      <span className="text-sm text-gray-500">Price: ₹{course.price}</span>
-                      <span className="text-sm text-gray-500">Enrollments: {course.enrollments}</span>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200 md:pt-0 md:border-t-0 md:justify-end md:space-x-2">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => window.open(`/courses/${course._id}`, "_blank")}
+                        className="p-2 text-blue-600 rounded hover:bg-blue-50"
+                        title="Preview Course"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+
+                      <button 
+                        onClick={() => startEditing(course)} 
+                        className="p-2 text-green-600 rounded hover:bg-green-50"
+                        title="Edit Course"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+
+                      <button 
+                        onClick={() => deleteCourse(course._id)} 
+                        className="p-2 text-red-600 rounded hover:bg-red-50"
+                        title="Delete Course"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      course.status === "published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {course.status}
-                  </span>
-
-                  <button
-                    onClick={() => window.open(`/courses/${course._id}`, "_blank")}
-                    className="p-2 text-blue-600 hover:text-blue-800"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-
-                  {/* <button
-                    onClick={() => recalculateCourseDurations(course._id)}
-                    className="p-2 text-purple-600 hover:text-purple-800"
-                    title="Recalculate Duration"
-                  >
-                    <Clock className="w-4 h-4" />
-                  </button> */}
-
-                  <button onClick={() => startEditing(course)} className="p-2 text-green-600 hover:text-green-800">
-                    <Edit className="w-4 h-4" />
-                  </button>
-
-                  <button onClick={() => deleteCourse(course._id)} className="p-2 text-red-600 hover:text-red-800">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

@@ -128,60 +128,47 @@ const AdminReportsChart = ({ type }) => {
         return (
           <div className="space-y-6">
             {/* Modern Card Design */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Total Revenue Card */}
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between">
-                  <div>
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
+                <div className="flex-col items-center justify-between ">
+                <div>
                     <p className="text-blue-100 text-sm font-medium">Total Revenue</p>
-                    <p className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</p>
-                  </div>
-                  <div className="bg-blue-400 bg-opacity-30 rounded-lg p-3">
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
-                    </svg>
-                  </div>
+                    <p className="sm:text-xl text-sm font-bold">₹{totalRevenue.toLocaleString()}</p>
+                    </div>
                 </div>
               </div>
 
               {/* Average Revenue Card */}
-              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-100 text-sm font-medium">Average Revenue</p>
-                    <p className="text-2xl font-bold">₹{avgRevenue.toLocaleString()}</p>
+                    <p className="sm:text-xl text-sm font-bold">₹{avgRevenue.toLocaleString()}</p>
                   </div>
-                  <div className="bg-green-400 bg-opacity-30 rounded-lg p-3">
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd"/>
-                    </svg>
-                  </div>
+                 
                 </div>
               </div>
 
               {/* Growth Rate Card */}
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-purple-100 text-sm font-medium">Growth Rate</p>
-                    <p className="text-2xl font-bold">
+                    <p className="sm:text-xl text-sm font-bold">
                       {chartData.length > 1 ?
                         ((chartData[chartData.length - 1].revenue - chartData[0].revenue) / chartData[0].revenue * 100).toFixed(1) + '%'
                         : '0%'
                       }
                     </p>
                   </div>
-                  <div className="bg-purple-400 bg-opacity-30 rounded-lg p-3">
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd"/>
-                    </svg>
-                  </div>
+                  
                 </div>
               </div>
             </div>
 
             {/* Monthly Performance Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4  pt-2">
               {chartData.map((item, index) => {
                 const prevItem = chartData[index - 1]
                 const change = prevItem ? item.revenue - prevItem.revenue : 0
@@ -191,7 +178,7 @@ const AdminReportsChart = ({ type }) => {
                 const isLowest = item.revenue === minRevenue
 
                 return (
-                  <div key={index} className={`relative rounded-xl p-6 shadow-lg border-2 transition-all duration-200 hover:shadow-xl ${
+                  <div key={index} className={`relative rounded-xl px-6 py-4 shadow-lg border-2 transition-all duration-200 hover:shadow-xl ${
                     isHighest
                       ? 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200'
                       : isLowest
@@ -232,18 +219,18 @@ const AdminReportsChart = ({ type }) => {
                       {/* Revenue Amount */}
                       <div className="space-y-2">
                         <p className="text-sm text-gray-600">Revenue</p>
-                        <p className="text-2xl font-bold text-gray-900">₹{item.revenue.toLocaleString()}</p>
+                        <p className="text-xl font-bold text-gray-900">₹{item.revenue.toLocaleString()}</p>
                       </div>
 
                       {/* Progress Bar */}
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600">Performance</span>
-                          <span className="font-medium">{Math.round((item.revenue / maxRevenue) * 100)}%</span>
+                          <span className="font-sm">{Math.round((item.revenue / maxRevenue) * 100)}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className={`h-2 rounded-full transition-all duration-500 ${
+                            className={`h-2  rounded-full transition-all duration-500 ${
                               isHighest ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
                               isLowest ? 'bg-gradient-to-r from-red-400 to-pink-500' :
                               'bg-gradient-to-r from-blue-400 to-blue-600'
@@ -282,34 +269,40 @@ const AdminReportsChart = ({ type }) => {
 
             {/* Summary Statistics */}
             <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6">
-              <h4 className="text-lg font-bold text-gray-900 mb-4">Performance Summary</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="bg-green-100 rounded-lg p-4 inline-block">
-                    <svg className="w-8 h-8 text-green-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">Performance Summary</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center flex sm:flex-col gap-8 sm:gap-0">
+                  <div className="bg-green-100 rounded-lg p-2 inline-block">
+                    <svg className="w-10 h-10 text-green-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd"/>
                     </svg>
                   </div>
+                  <div className="sm:ps-10 pt-1">
                   <p className="text-sm text-gray-600">Best Month</p>
-                  <p className="text-lg font-bold text-gray-900">{maxMonth}: ₹{maxRevenue.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-gray-800">{maxMonth} ₹{maxRevenue.toLocaleString()}</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <div className="bg-blue-100 rounded-lg p-4 inline-block">
-                    <svg className="w-8 h-8 text-blue-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                <div className="text-center flex sm:flex-col gap-8 sm:gap-0">
+                  <div className="bg-blue-100 rounded-lg p-2 inline-block">
+                    <svg className="w-10 h-10 text-blue-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clipRule="evenodd"/>
                     </svg>
                   </div>
+                  <div className="sm:ps-10 pt-1">
                   <p className="text-sm text-gray-600">Total Revenue</p>
-                  <p className="text-lg font-bold text-gray-900">₹{totalRevenue.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-gray-800">₹{totalRevenue.toLocaleString()}</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <div className="bg-orange-100 rounded-lg p-4 inline-block">
-                    <svg className="w-8 h-8 text-orange-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                <div className="text-center flex sm:flex-col gap-8 sm:gap-0">
+                  <div className="bg-orange-100 rounded-lg p-2 inline-block">
+                    <svg className="w-10 h-10 text-orange-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clipRule="evenodd"/>
                     </svg>
                   </div>
+                  <div className="sm:ps-10 pt-1">
                   <p className="text-sm text-gray-600">Average/Month</p>
                   <p className="text-lg font-bold text-gray-900">₹{avgRevenue.toLocaleString()}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -319,7 +312,8 @@ const AdminReportsChart = ({ type }) => {
 
       case "enrollments": {
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 ">
+          <div className="border border-gray-300">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -339,62 +333,63 @@ const AdminReportsChart = ({ type }) => {
                 <Tooltip formatter={(value, name) => [`${value} enrollments`, name]} />
               </PieChart>
             </ResponsiveContainer>
+            </div>
 
             {/* Color Reference Guide */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-sm font-semibold text-gray-900 mb-3">Category Color Reference</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
-                <div className="flex items-center space-x-2">
+              <h4 className="text-md font-semibold text-gray-900 mb-3">Category Color Reference</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
+                <div className="flex items-center  space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#8884d8" }}></div>
-                  <span className="text-gray-700">Programming</span>
+                  <span className="text-sm text-gray-800">Programming</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#82ca9d" }}></div>
-                  <span className="text-gray-700">Design</span>
+                  <span className=" text-sm text-gray-800">Design</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ffc658" }}></div>
-                  <span className="text-gray-700">Marketing</span>
+                  <span className="text-sm text-gray-800">Marketing</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ff7300" }}></div>
-                  <span className="text-gray-700">Business</span>
+                  <span className="text-sm text-gray-800">Business</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#00ff00" }}></div>
-                  <span className="text-gray-700">Creative</span>
+                  <span className="text-sm text-gray-800">Creative</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ff0000" }}></div>
-                  <span className="text-gray-700">Technology</span>
+                  <span className="text-sm text-gray-800">Technology</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#0000ff" }}></div>
-                  <span className="text-gray-700">Health</span>
+                  <span className="text-sm text-gray-800">Health</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ff00ff" }}></div>
-                  <span className="text-gray-700">Language</span>
+                  <span className="text-sm text-gray-800">Language</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ffa500" }}></div>
-                  <span className="text-gray-700">Other</span>
+                  <span className="text-sm text-gray-800">Other</span>
                 </div>
               </div>
             </div>
 
             {/* Legend with detailed information */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              <h4 className="text-sm font-semibold text-gray-900 mb-2 col-span-full">Enrollment Summary</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 ">
+              <h4 className="text-md font-semibold text-gray-900  mb-2 col-span-full">Enrollment Summary</h4>
               {chartData.map((entry, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <div
                     className="w-4 h-4 rounded"
                     style={{ backgroundColor: entry.color }}
                   ></div>
-                  <span className="text-gray-700">{entry.name}</span>
-                  <span className="text-gray-900 font-semibold">{entry.value} enrollments</span>
-                  <span className="text-gray-500">({((entry.value / chartData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(0)}%)</span>
+                  <span className="text-gray-700 text-sm">{entry.name}</span>
+                  <span className="text-gray-900 font-semibold text-sm">{entry.value} enrollments</span>
+                  <span className="text-gray-500 text-sm">({((entry.value / chartData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(0)}%)</span>
                 </div>
               ))}
             </div>

@@ -32,7 +32,6 @@ const Footer = () => {
       { name: "Marketing", path: "/courses?category=Marketing" },
       { name: "Business", path: "/courses?category=Business" },
     ],
-   
     quickLinks: [
       { name: "Pay Now", path: "/payment", icon: ArrowRight },
       { name: "Verify Certificate", path: "/verify-certificate", icon: ArrowRight },
@@ -50,14 +49,14 @@ const Footer = () => {
 
   return (
     <footer className="bg-white border-t border-gray-200">
-      {/* Main Footer Content */}
-      <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8 lg:py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
-          {/* Left Section - RYMA Academy with Social Links */}
+      <div className="px-8 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8 lg:py-12">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
+
+          {/* Left Section */}
           <div className="space-y-4 lg:col-span-2">
             <div className="space-y-3">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="inline-block"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
@@ -65,18 +64,22 @@ const Footer = () => {
                 <span className="text-2xl font-bold text-transparent bg-gradient-to-r from-rose-800 to-red-600 bg-clip-text sm:text-3xl">
                   RYMA Academy
                 </span>
-                <p className="mt-1 text-sm text-gray-600 sm:text-base">Learn. Grow. Lead</p>
+                <p className="mt-1 text-sm text-gray-600 sm:text-base">
+                  Learn. Grow. Lead
+                </p>
               </Link>
-              
+
               <p className="text-sm leading-relaxed text-gray-600 sm:text-base sm:max-w-md">
-                Empowering learners worldwide with high-quality online courses. 
+                Empowering learners worldwide with high-quality online courses.
                 Join thousands of students and advance your career with expert-led instruction.
               </p>
             </div>
 
-            {/* Social Links - Moved under RYMA Academy */}
+            {/* Social Links */}
             <div className="pt-2">
-              <h4 className="mb-2 text-sm font-semibold text-gray-700 sm:text-base">Connect With Us</h4>
+              <h4 className="mb-2 text-sm font-semibold text-gray-700 sm:text-base">
+                Connect With Us
+              </h4>
               <div className="flex space-x-2">
                 {socialLinks.map((social) => (
                   <a
@@ -94,82 +97,88 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Company Links */}
-          <div>
-            <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
-              Company
-            </h3>
-            <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="block py-1 text-sm text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group sm:py-2 sm:text-base"
-                  >
-                    <span className="transition-all group-hover:font-medium">{link.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* 🔥 Company + Categories (Mobile: same row | Desktop: unchanged) */}
+          <div className="grid grid-cols-2 gap-4 md:col-span-2 md:grid-cols-2 lg:col-span-2 lg:mt-2">
+            
+            {/* Company */}
+            <div>
+              <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
+                Company
+              </h3>
+              <ul className="space-y-2">
+                {footerLinks.company.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      to={link.path}
+                      className="block py-1 text-sm text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group sm:py-2 sm:text-base"
+                    >
+                      <span className="group-hover:font-medium">{link.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Categories */}
+            <div>
+              <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
+                Categories
+              </h3>
+              <ul className="space-y-2">
+                {footerLinks.courses.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      to={link.path}
+                      className="block py-1 text-sm text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group sm:py-2 sm:text-base"
+                    >
+                      <span className="group-hover:font-medium">{link.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
           </div>
 
-          {/* Course Categories */}
-          <div>
-            <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
-              Categories
-            </h3>
-            <ul className="space-y-2">
-              {footerLinks.courses.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="block py-1 text-sm text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group sm:py-2 sm:text-base"
-                  >
-                    <span className="transition-all group-hover:font-medium">{link.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact Info */}
+          {/* Contact Info (Mobile: next line | Desktop: same place) */}
           <div>
             <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
               Contact Info
             </h3>
             <div className="space-y-3">
-              <div className="flex items-start space-x-2 text-sm text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group sm:space-x-3 sm:text-base">
-                <div className="p-1 transition-colors bg-blue-100 rounded-lg shadow-sm group-hover:bg-blue-200 sm:p-2 flex-shrink-0 mt-0.5">
+              <div className="flex items-start space-x-2 text-sm text-gray-600 hover:text-gray-900 sm:space-x-3 sm:text-base">
+                <div className="p-1 bg-blue-100 rounded-lg sm:p-2">
                   <Mail className="w-4 h-4 text-blue-600 sm:w-5 sm:h-5" />
                 </div>
-                <span className="break-words">support@rymaacademy.com</span>
+                <span>support@rymaacademy.com</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group sm:space-x-3 sm:text-base">
-                <div className="flex-shrink-0 p-1 transition-colors bg-green-100 rounded-lg shadow-sm group-hover:bg-green-200 sm:p-2">
+
+              <div className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 sm:space-x-3 sm:text-base">
+                <div className="p-1 bg-green-100 rounded-lg sm:p-2">
                   <Phone className="w-4 h-4 text-green-600 sm:w-5 sm:h-5" />
                 </div>
                 <span>+91 - 9873336133</span>
               </div>
-              <div className="flex items-start space-x-2 text-sm text-gray-600 transition-colors cursor-pointer hover:text-gray-900 group sm:space-x-3 sm:text-base">
-                <div className="p-1 transition-colors bg-purple-100 rounded-lg shadow-sm group-hover:bg-purple-200 sm:p-2 flex-shrink-0 mt-0.5">
+
+              <div className="flex items-start space-x-2 text-sm text-gray-600 hover:text-gray-900 sm:space-x-3 sm:text-base">
+                <div className="p-1 bg-purple-100 rounded-lg sm:p-2">
                   <MapPin className="w-4 h-4 text-purple-600 sm:w-5 sm:h-5" />
                 </div>
-<span className="break-words">D-7/31 1st Floor Main Vishram Chowk
-Sector-6, Vishram Chowk</span>
+                <span>
+                  D-7/31 1st Floor Main Vishram Chowk
+                  Sector-6, Vishram Chowk
+                </span>
               </div>
             </div>
           </div>
+
         </div>
 
         {/* Bottom Section */}
         <div className="pt-6 mt-6 border-t border-gray-300 sm:pt-8 sm:mt-8">
-          <div className="flex flex-col space-y-3 text-center sm:text-center sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-            <p className="text-xs text-center text-gray-500 sm:text-sm">
-              © {currentYear} RYMA Academy. All rights reserved.
-            </p>
-            
-            
-          </div>
+          <p className="text-xs text-center text-gray-500 sm:text-sm">
+            © {currentYear} RYMA Academy. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

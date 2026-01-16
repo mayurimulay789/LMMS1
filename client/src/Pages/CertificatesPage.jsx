@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
-import { Award, Download, Search, Filter, Calendar, BookOpen, Trophy, X } from "lucide-react"
+import { Award, Download, Search, Filter, Calendar, BookOpen, Trophy, X, Menu, ChevronDown } from "lucide-react"
 import toast from "react-hot-toast"
 import { createApiUrl } from "../config/api"
 import CertificateCard from "../Components/CertificateCard"
@@ -17,6 +17,8 @@ const CertificatesPage = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("newest")
   const [selectedCertificate, setSelectedCertificate] = useState(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false)
 
   useEffect(() => {
     fetchCertificates()
@@ -114,8 +116,6 @@ const CertificatesPage = () => {
     }
   }
 
-
-
   const copyToClipboard = async (text) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -153,6 +153,7 @@ const CertificatesPage = () => {
 
   const downloadAllCertificates = async () => {
     try {
+      setIsDownloadingAll(true)
       toast.loading("Preparing download...")
 
       for (const certificate of certificates) {
@@ -166,6 +167,8 @@ const CertificatesPage = () => {
     } catch (error) {
       toast.dismiss()
       toast.error("Failed to download all certificates")
+    } finally {
+      setIsDownloadingAll(false)
     }
   }
 
@@ -184,14 +187,22 @@ const CertificatesPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen py-8 bg-gray-50">
-        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      <div className="min-h-screen py-4 md:py-8 bg-gray-50">
+        <div className="px-3 mx-auto max-w-7xl sm:px-4 lg:px-8">
           <div className="animate-pulse">
-            <div className="w-1/4 h-8 mb-6 bg-gray-200 rounded"></div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="w-1/2 h-6 mb-4 bg-gray-200 rounded md:w-1/4 md:h-8"></div>
+            <div className="grid grid-cols-2 gap-3 mb-6 md:grid-cols-4 md:gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="p-4 bg-white rounded-lg shadow-sm md:p-6">
+                  <div className="w-3/4 h-3 mb-3 bg-gray-200 rounded md:w-full md:h-4 md:mb-4"></div>
+                  <div className="w-1/2 h-4 bg-gray-200 rounded md:w-full md:h-6"></div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="p-6 bg-white rounded-lg shadow-sm">
-                  <div className="w-3/4 h-4 mb-4 bg-gray-200 rounded"></div>
+                <div key={i} className="p-4 bg-white rounded-lg shadow-sm md:p-6">
+                  <div className="w-3/4 h-4 mb-3 bg-gray-200 rounded md:mb-4"></div>
                   <div className="w-1/2 h-3 mb-2 bg-gray-200 rounded"></div>
                   <div className="w-2/3 h-3 bg-gray-200 rounded"></div>
                 </div>
@@ -204,22 +215,35 @@ const CertificatesPage = () => {
   }
 
   return (
-    <div className="min-h-screen py-8 bg-gray-50">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <div className="min-h-screen py-4 bg-gray-50 md:py-8">
+      <div className="px-3 mx-auto max-w-7xl sm:px-4 lg:px-8">
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="flex items-center space-x-3 text-3xl font-bold text-gray-900">
-                <Award className="w-8 h-8 text-primary-600" />
-                <span>My Certificates</span>
-              </h1>
-              <p className="mt-2 text-gray-600">View and manage your earned certificates</p>
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 md:mb-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="flex items-center gap-2 text-xl font-bold text-gray-900 md:text-3xl md:gap-3">
+                  <Award className="w-6 h-6 text-primary-600 md:w-8 md:h-8" />
+                  <span>My Certificates</span>
+                </h1>
+                <p className="mt-1 text-sm text-gray-600 md:mt-2 md:text-base">View and manage your earned certificates</p>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 md:hidden"
+              >
+                <Menu className="w-5 h-5 text-gray-600" />
+              </button>
             </div>
+            
             {certificates.length > 0 && (
-              <button onClick={downloadAllCertificates} className="flex items-center space-x-2 btn btn-primary">
+              <button
+                onClick={downloadAllCertificates}
+                disabled={isDownloadingAll}
+                className={`flex items-center justify-center gap-2 px-4 py-2 font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed w-full md:w-auto ${mobileMenuOpen ? 'flex' : 'hidden md:flex'}`}
+              >
                 <Download className="w-4 h-4" />
-                <span>Download All</span>
+                <span>{isDownloadingAll ? 'Downloading...' : 'Download All'}</span>
               </button>
             )}
           </div>
@@ -231,42 +255,42 @@ const CertificatesPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-4"
+            className="grid grid-cols-2 gap-3 mb-6 md:grid-cols-4 md:gap-6 md:mb-8"
           >
-            <div className="stat-card">
+            <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="stat-label">Total Certificates</p>
-                  <p className="stat-value">{stats.totalCertificates}</p>
+                  <p className="text-xs font-medium text-gray-500 md:text-sm">Total Certificates</p>
+                  <p className="mt-1 text-xl font-bold text-gray-900 md:text-2xl">{stats.totalCertificates}</p>
                 </div>
-                <Trophy className="w-8 h-8 text-primary-600" />
+                <Trophy className="w-6 h-6 text-blue-600 md:w-8 md:h-8" />
               </div>
             </div>
-            <div className="stat-card">
+            <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="stat-label">This Year</p>
-                  <p className="stat-value">{stats.thisYear}</p>
+                  <p className="text-xs font-medium text-gray-500 md:text-sm">This Year</p>
+                  <p className="mt-1 text-xl font-bold text-gray-900 md:text-2xl">{stats.thisYear}</p>
                 </div>
-                <Calendar className="w-8 h-8 text-success-600" />
+                <Calendar className="w-6 h-6 text-green-600 md:w-8 md:h-8" />
               </div>
             </div>
-            <div className="stat-card">
+            <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="stat-label">Average Score</p>
-                  <p className="stat-value">{stats.averageScore}%</p>
+                  <p className="text-xs font-medium text-gray-500 md:text-sm">Average Score</p>
+                  <p className="mt-1 text-xl font-bold text-gray-900 md:text-2xl">{stats.averageScore}%</p>
                 </div>
-                <BookOpen className="w-8 h-8 text-warning-600" />
+                <BookOpen className="w-6 h-6 text-yellow-600 md:w-8 md:h-8" />
               </div>
             </div>
-            <div className="stat-card">
+            <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="stat-label">Top Grades</p>
-                  <p className="stat-value">{stats.topGrades}</p>
+                  <p className="text-xs font-medium text-gray-500 md:text-sm">Top Grades</p>
+                  <p className="mt-1 text-xl font-bold text-gray-900 md:text-2xl">{stats.topGrades}</p>
                 </div>
-                <Award className="w-8 h-8 text-error-600" />
+                <Award className="w-6 h-6 text-red-600 md:w-8 md:h-8" />
               </div>
             </div>
           </motion.div>
@@ -278,7 +302,7 @@ const CertificatesPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-6 mb-8 bg-white border border-gray-200 rounded-lg shadow-sm"
+            className="p-4 mb-6 bg-white border border-gray-200 rounded-lg shadow-sm md:p-6 md:mb-8"
           >
             <div className="flex flex-col gap-4 sm:flex-row">
               <div className="flex-1">
@@ -286,23 +310,30 @@ const CertificatesPage = () => {
                   <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                   <input
                     type="text"
-                    placeholder="Search certificates by course name or instructor..."
+                    placeholder="Search certificates..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 input"
+                    className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent md:text-base"
                   />
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-3">
+                <div className="relative flex items-center gap-2">
                   <Filter className="w-4 h-4 text-gray-400" />
-                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-auto input">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="course-name">Course Name</option>
-                    <option value="instructor">Instructor</option>
-                    <option value="grade">Grade</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8 md:text-base"
+                    >
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="course-name">Course Name</option>
+                      <option value="instructor">Instructor</option>
+                      <option value="grade">Grade</option>
+                    </select>
+                    <ChevronDown className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2 pointer-events-none" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -315,40 +346,40 @@ const CertificatesPage = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="py-16 text-center"
+            className="py-12 text-center md:py-16"
           >
-            <Award className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <h3 className="mb-2 text-xl font-semibold text-gray-900">No Certificates Yet</h3>
-            <p className="mb-4 text-gray-600">You haven't earned any certificates yet. Start learning to unlock your achievements!</p>
-            <p className="mb-6 text-sm text-gray-500">Complete courses, pass assessments, and get recognized for your skills.</p>
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <a href="/courses" className="btn btn-primary">
+            <Award className="w-12 h-12 mx-auto mb-3 text-gray-300 md:w-16 md:h-16 md:mb-4" />
+            <h3 className="mb-1 text-lg font-semibold text-gray-900 md:text-xl md:mb-2">No Certificates Yet</h3>
+            <p className="mb-3 text-sm text-gray-600 md:mb-4 md:text-base">You haven't earned any certificates yet. Start learning to unlock your achievements!</p>
+            <p className="mb-4 text-xs text-gray-500 md:mb-6 md:text-sm">Complete courses, pass assessments, and get recognized for your skills.</p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-center md:gap-3">
+              <a href="/courses" className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 md:px-6 md:py-2 md:text-base">
                 Browse Courses
               </a>
-              <a href="/dashboard" className="btn btn-outline">
+              <a href="/dashboard" className="px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 md:px-6 md:py-2 md:text-base">
                 View Dashboard
               </a>
             </div>
           </motion.div>
         ) : filteredCertificates.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">
-            <Search className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <h3 className="mb-2 text-xl font-semibold text-gray-900">No Certificates Found</h3>
-            <p className="text-gray-600">Try adjusting your search terms or filters.</p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 text-center md:py-16">
+            <Search className="w-12 h-12 mx-auto mb-3 text-gray-300 md:w-16 md:h-16 md:mb-4" />
+            <h3 className="mb-1 text-lg font-semibold text-gray-900 md:text-xl md:mb-2">No Certificates Found</h3>
+            <p className="text-sm text-gray-600 md:text-base">Try adjusting your search terms or filters.</p>
           </motion.div>
         ) : (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+            className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-6"
           >
             {filteredCertificates.map((certificate, index) => (
               <motion.div
                 key={certificate.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
               >
                 <CertificateCard
                   certificate={certificate}
@@ -359,6 +390,43 @@ const CertificatesPage = () => {
               </motion.div>
             ))}
           </motion.div>
+        )}
+
+        {/* Mobile Empty State (Alternative) */}
+        {certificates.length === 0 && (
+          <div className="md:hidden">
+            <div className="fixed inset-x-0 bottom-0 p-4 bg-white border-t border-gray-200 shadow-lg">
+              <div className="text-center">
+                <h4 className="mb-2 font-medium text-gray-900">Ready to earn your first certificate?</h4>
+                <p className="mb-3 text-sm text-gray-600">Start learning today and showcase your achievements</p>
+                <a
+                  href="/courses"
+                  className="inline-block w-full px-4 py-3 font-medium text-center text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+                >
+                  Explore Courses
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Stats Summary */}
+        {certificates.length > 0 && (
+          <div className="fixed inset-x-0 bottom-0 p-4 bg-white border-t border-gray-200 shadow-lg md:hidden">
+            <div className="flex items-center justify-between">
+              <div className="text-sm">
+                <p className="font-medium text-gray-900">{stats.totalCertificates} Certificates</p>
+                <p className="text-gray-500">{stats.topGrades} Top Grades</p>
+              </div>
+              <button
+                onClick={downloadAllCertificates}
+                disabled={isDownloadingAll}
+                className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
+              >
+                {isDownloadingAll ? 'Downloading...' : 'Download All'}
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>

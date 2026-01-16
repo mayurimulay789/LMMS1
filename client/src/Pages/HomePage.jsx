@@ -448,7 +448,7 @@ const HomePage = () => {
           <div className="bg-white rounded-lg max-w-lg sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 sm:scale-100">
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h2 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">Instructor Application Form</h2>
+                <h2 className="text-lg font-bold text-gray-800 sm:text-lg md:text-xl">Instructor Application Form</h2>
                 <button
                   onClick={() => setShowApplicationForm(false)}
                   className="text-2xl leading-none text-gray-400 hover:text-gray-600 sm:text-3xl"

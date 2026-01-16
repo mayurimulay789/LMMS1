@@ -170,7 +170,6 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4 max-w-md mx-auto">
-      <h3 className="text-lg font-bold text-gray-800">Instructor Application Form</h3>
       
       {message && (
         <div className={`p-3 rounded ${message.includes('successfully') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
