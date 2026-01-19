@@ -216,8 +216,8 @@ const ReferEarn = () => {
                   <h3 className="text-base sm:text-xl font-bold text-gray-800">{program.program}</h3>
                 </div>
                 <div className="flex-1 flex items-center">
-                  <div className="w-full bg-rose-100 border border-rose-300 rounded-lg p-2 sm:p-4 shadow-inner hover:shadow transition-shadow duration-300 flex items-center justify-center">
-                    <p className="text-base sm:text-lg font-semibold text-rose-800 text-center">
+                  <div className="w-full bg-primary-800 border border-primary-700 rounded-lg p-2 sm:p-4 shadow-inner hover:shadow transition-shadow duration-300 flex items-center justify-center">
+                    <p className="text-base sm:text-lg font-semibold text-white text-center">
                       {program.reward}
                     </p>
                   </div>

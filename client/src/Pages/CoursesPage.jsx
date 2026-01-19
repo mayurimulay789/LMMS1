@@ -253,8 +253,8 @@ const CoursesPage = () => {
                             handleFilterChange("sort", option.value)
                             setSortOpen(false)
                           }}
-                          className={`w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
-                            filters.sort === option.value ? 'bg-primary-100 text-primary-600' : ''
+                          className={`w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-800 hover:text-white transition-colors ${
+                            filters.sort === option.value ? 'bg-primary-800 text-white' : ''
                           }`}
                         >
                           {option.label}
@@ -457,7 +457,7 @@ const CoursesPage = () => {
               })}
             </div>
             {Object.values(filters).some((value) => value && value !== "all" && value !== "") && (
-            <button onClick={clearFilters} className="bg-rose-700 text-white px-4 py-2 rounded-lg hover:bg-rose-800 transition-colors text-sm">
+            <button onClick={clearFilters} className="bg-primary-800 text-white px-4 py-2 rounded-lg hover:bg-rose-800 transition-colors text-sm">
               Clear All
             </button>
             )}
@@ -506,7 +506,7 @@ const CoursesPage = () => {
             <p className="text-gray-600 mb-4">Try adjusting your search criteria or filters</p>
           <button
             onClick={clearFilters}
-            className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+            className="bg-primary-800 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
           >
             Clear Filters
           </button>

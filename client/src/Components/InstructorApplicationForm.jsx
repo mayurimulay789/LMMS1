@@ -335,7 +335,7 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-rose-600 text-white py-2 rounded hover:bg-rose-700 disabled:opacity-50"
+        className="w-full bg-primary-800 text-white py-2 rounded hover:bg-primary-800 disabled:opacity-50"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Application'}
       </button>

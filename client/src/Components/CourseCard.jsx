@@ -89,7 +89,7 @@ const CourseCard = ({ course, index = 0 }) => {
             />
           )}
           <div className="absolute top-4 left-4">
-            <span className="bg-primary-600 text-white px-2 py-1 rounded-full text-xs font-medium">{category}</span>
+            <span className="text-white px-2 py-1 rounded-full text-xs font-medium bg-primary-800">{category}</span>
           </div>
           <div className="absolute top-4 right-4">
             <span className="bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs font-medium">
@@ -163,7 +163,7 @@ const CourseCard = ({ course, index = 0 }) => {
               {formatPrice(price)}
               {price > 0 && <span className="text-sm font-normal text-gray-500 ml-1">₹</span>}
             </div>
-            <button className="bg-rose-700 text-white px-4 py-2 rounded-lg hover:bg-rose-800 transition-colors font-medium text-sm">
+            <button className="text-white px-4 py-2 rounded-lg font-medium text-sm bg-primary-800">
               View Course
             </button>
           </div>

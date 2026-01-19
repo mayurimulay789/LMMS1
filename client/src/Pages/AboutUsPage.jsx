@@ -89,9 +89,9 @@ const AboutUsPage = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-white">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-rose-800 to-rose-600 text-white py-12 sm:py-16 lg:py-20">
+      <section className="bg-primary-800 text-white py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
@@ -109,8 +109,8 @@ const AboutUsPage = () => {
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center p-3 sm:p-6 bg-white rounded-lg shadow-sm border border-rose-100">
-                <div className="text-xl sm:text-3xl md:text-4xl font-bold text-rose-600 mb-1 sm:mb-2">{stat.number}</div>
+              <div key={index} className="text-center p-3 sm:p-6 bg-white rounded-lg shadow-sm border border-rose-600">
+                <div className="text-xl sm:text-3xl md:text-4xl font-bold text-primary-800 mb-1 sm:mb-2">{stat.number}</div>
                 <div className="text-xs sm:text-base text-gray-600 font-medium">{stat.label}</div>
               </div>
             ))}
@@ -119,12 +119,12 @@ const AboutUsPage = () => {
       </section>
 
       {/* Our Story Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-rose-50 to-pink-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-primary-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
             <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">Our Story</h2>
-              <div className="space-y-3 sm:space-y-4 text-gray-600 text-sm sm:text-base">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">Our Story</h2>
+              <div className="space-y-3 sm:space-y-4 text-primary-100 text-sm sm:text-base">
                 {/* Mobile/Tablet: Collapsible story with Show More button */}
                 <div className="block lg:hidden">
                   <p>
@@ -146,7 +146,7 @@ const AboutUsPage = () => {
                     </>
                   )}
                   <button
-                    className="mt-2 text-rose-700 font-semibold underline focus:outline-none hover:text-rose-900 transition-colors"
+                    className="mt-2 text-primary-200 font-semibold underline focus:outline-none hover:text-white transition-colors"
                     onClick={handleShowMore}
                   >
                     {showFullStory ? 'Show Less' : 'Show More'}
@@ -172,10 +172,10 @@ const AboutUsPage = () => {
               </div>
             </div>
             <div className="relative">
-              <div className="w-full h-48 sm:h-56 lg:h-64 bg-gradient-to-r from-rose-100 to-rose-200 rounded-lg sm:rounded-xl shadow-lg border-2 border-rose-200 flex items-center justify-center">
-                <Users className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-rose-600" />
+              <div className="w-full h-48 sm:h-56 lg:h-64 bg-primary-900 rounded-lg sm:rounded-xl shadow-lg border-2 border-primary-700 flex items-center justify-center">
+                <Users className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-primary-200" />
               </div>
-              <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-gradient-to-r from-rose-700 to-rose-800 text-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-xl">
+              <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-primary-700 text-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-xl">
                 <Globe className="h-6 w-6 sm:h-8 sm:w-8 mb-1 sm:mb-2" />
                 <div className="text-xs sm:text-sm font-medium">Serving learners in</div>
                 <div className="text-lg sm:text-xl lg:text-2xl font-bold">50+ Countries</div>
@@ -189,7 +189,7 @@ const AboutUsPage = () => {
       <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Our Achievements</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Our Achievements</h2>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
               Celebrating milestones and successes that define our journey
             </p>
@@ -199,10 +199,10 @@ const AboutUsPage = () => {
             {achievements.map((achievement, index) => (
               <div 
                 key={index} 
-                className="bg-gradient-to-br from-rose-50 to-white rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center flex flex-col justify-between min-h-[140px] sm:min-h-[160px]"
+                className="bg-primary-800 rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center flex flex-col justify-between min-h-[140px] sm:min-h-[160px]"
               >
-                <div className="bg-gradient-to-r from-rose-600 to-rose-800 w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
-                  <achievement.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-white" />
+                <div className="bg-white w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                  <achievement.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-primary-800" />
                 </div>
                 <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-3">{achievement.title}</h3>
                 <p className="text-xs sm:text-base text-gray-600">{achievement.description}</p>
@@ -213,11 +213,11 @@ const AboutUsPage = () => {
       </section>
 
       {/* Values Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-rose-50 to-pink-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-primary-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Our Values</h2>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Our Values</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-white max-w-2xl mx-auto px-4 sm:px-0">
               These core values guide everything we do and shape the learning experience we create.
             </p>
           </div>
@@ -228,7 +228,7 @@ const AboutUsPage = () => {
                 key={index} 
                 className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center flex flex-col justify-between min-h-[140px] sm:min-h-[160px]"
               >
-                <div className="bg-gradient-to-r from-rose-600 to-rose-800 w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                <div className="bg-primary-800 w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
                   <value.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-white" />
                 </div>
                 <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-3">{value.title}</h3>
@@ -243,8 +243,8 @@ const AboutUsPage = () => {
       <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Meet Our Team</h2>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Meet Our Team</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-primary-100 max-w-2xl mx-auto px-4 sm:px-0">
               The passionate individuals behind Ryma Academy who are dedicated to your learning success.
             </p>
           </div>
@@ -253,20 +253,20 @@ const AboutUsPage = () => {
             {team.map((member, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-rose-50 to-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 sm:hover:-translate-y-2 border border-rose-200 flex flex-col"
+                className="bg-primary-900 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 sm:hover:-translate-y-2 border border-primary-700 flex flex-col"
               >
                 <img 
                   src={member.image} 
                   alt={member.name} 
-                  className="w-full h-32 sm:h-56 lg:h-64 object-cover" 
+                  className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 object-cover rounded-full mx-auto mt-6" 
                   onError={(e) => {
                     e.target.src = generateDefaultAvatar(member.name, 300);
                   }} 
                 />
                 <div className="p-3 sm:p-6 flex-1 flex flex-col justify-between">
-                  <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-rose-600 font-medium text-xs sm:text-base mb-1 sm:mb-3">{member.role}</p>
-                  <p className="text-gray-600 text-xs sm:text-sm">{member.bio}</p>
+                  <h3 className="text-base sm:text-xl font-semibold text-white mb-1">{member.name}</h3>
+                  <p className="text-primary-200 font-medium text-xs sm:text-base mb-1 sm:mb-3">{member.role}</p>
+                  <p className="text-primary-100 text-xs sm:text-sm">{member.bio}</p>
                 </div>
               </div>
             ))}

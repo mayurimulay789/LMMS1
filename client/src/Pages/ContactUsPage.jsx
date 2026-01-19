@@ -136,8 +136,8 @@ const ContactUsPage = () => {
               <div className="space-y-3 sm:space-y-6">
                 {contactInfo.map((info, index) => (
                   <div key={index} className="flex items-start space-x-3 sm:space-x-4">
-                    <div className="bg-rose-100 p-2 sm:p-3 rounded-lg flex-shrink-0">
-                      <info.icon className="h-5 w-5 sm:h-6 sm:w-6 text-rose-600" />
+                    <div className="bg-primary-800 p-2 sm:p-3 rounded-lg flex-shrink-0">
+                      <info.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1">

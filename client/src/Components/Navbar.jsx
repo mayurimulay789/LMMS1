@@ -45,7 +45,7 @@ export default function Navbar() {
             <span className="text-gray-700 text-sm">Become an instructor</span>
             <button
               onClick={handleBookCall}
-              className="bg-rose-800 hover:bg-rose-900 text-white rounded-full px-4 py-1 text-sm transition-colors duration-200"
+              className="bg-primary-800 hover:bg-rose-900 text-white rounded-full px-4 py-1 text-sm transition-colors duration-200"
             >
               Fill Eligibility Call
             </button>
@@ -144,7 +144,7 @@ export default function Navbar() {
       </div>
 
       {/* Main Navigation */}
-      <div className="bg-rose-800 px-4 sm:px-6 py-2">
+      <div className="bg-primary-800 px-4 sm:px-6 py-2">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="relative z-10 -ml-2 sm:ml-0">
