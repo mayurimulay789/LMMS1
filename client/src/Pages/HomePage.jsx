@@ -101,26 +101,27 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="py-8 text-white bg-gradient-to-br from-rose-600 via-rose-900 to-rose-900 sm:py-12 md:py-20">
+	<section className="py-8 sm:py-12 md:py-20 text-white" style={{background:'#890C25'}}>
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="grid items-center grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12"> 
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-              <h1 className="mb-4 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl"> 
-                Learn Without
-                <span className="text-rose-100"> Limits</span>
-              </h1>
-              <p className="mb-6 text-base leading-relaxed text-rose-100 sm:text-lg md:text-xl"> 
-                Discover thousands of courses from expert instructors and advance your career with hands-on projects and
-                real-world skills.
-              </p>
+							<h1 className="mb-4 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl"> 
+								Learn Without
+								<span style={{color:'#fff'}}> Limits</span>
+							</h1>
+							<p className="mb-6 text-base leading-relaxed sm:text-lg md:text-xl" style={{color:'#fff'}}> 
+								Discover thousands of courses from expert instructors and advance your career with hands-on projects and
+								real-world skills.
+							</p>
               <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
-                <Link
-                  to="/courses"
-                  className="flex items-center justify-center px-5 py-3 space-x-2 text-sm font-semibold text-white transition-colors rounded-lg bg-rose-700 sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-rose-600 sm:text-base"
-                >
-                  <span>Explore Courses</span>
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Link>
+								<Link
+									to="/courses"
+									className="flex items-center justify-center px-5 py-3 space-x-2 text-sm font-semibold text-white rounded-lg sm:px-6 sm:py-3 md:px-8 md:py-4 sm:text-base"
+									style={{background:'#890C25',border:'none'}}
+								>
+									<span>Explore Courses</span>
+									<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+								</Link>
                 
               </div>
             </motion.div>
@@ -134,8 +135,8 @@ const HomePage = () => {
               <div className="p-4 bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl sm:p-6 md:p-8"> 
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6"> 
                   <div className="text-center">
-                    <div className="text-xl font-bold sm:text-2xl md:text-3xl text-rose-100">{stats.totalStudents.toLocaleString()}+</div> 
-                    <div className="text-xs sm:text-sm md:text-base text-rose-100">Students</div>
+				  <div className="text-xl font-bold sm:text-2xl md:text-3xl" style={{color:'#fff'}}>{stats.totalStudents.toLocaleString()}+</div> 
+				  <div className="text-xs sm:text-sm md:text-base" style={{color:'#fff'}}>Students</div>
                   </div>
                   <div className="text-center">
                     <div className="text-xl font-bold sm:text-2xl md:text-3xl text-rose-100">{stats.totalCourses.toLocaleString()}+</div>
@@ -256,7 +257,7 @@ const HomePage = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 md:gap-8"> 
+		  <div className="grid grid-cols-2 gap-4 md:grid-cols-4 sm:gap-6 md:gap-8"> 
             {features.map((feature, index) => (
               <motion.div
                 key={index}
@@ -265,7 +266,8 @@ const HomePage = () => {
                 whileHover={{ scale: 1.05, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="flex flex-col items-center p-4 text-center shadow-lg bg-rose-800 sm:p-6 md:p-8 rounded-xl"
+				className="flex flex-col items-center p-4 text-center shadow-lg sm:p-6 md:p-8 rounded-xl"
+				style={{background:'#890C25'}}
               >
                 <div className="flex items-center justify-center w-10 h-10 mb-2 bg-white rounded-lg sm:w-12 sm:h-12 md:w-16 md:h-16"> 
                   <feature.icon className="w-5 h-5 text-yellow-400 sm:w-6 sm:h-6 md:h-8 md:w-8" />
@@ -308,32 +310,33 @@ const HomePage = () => {
               ))}
             </div>
           ) : (
-            <div className="flex pb-4 space-x-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-x-0 snap-x scroll-p-4"> 
-              {featuredCourses.map((course, index) => (
-                <div 
-                  key={course._id} 
-                  className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-full lg:w-full snap-start"
-                > 
-                  <CourseCard course={course} index={index} />
-                </div>
-              ))}
-            </div>
+						<div className="flex pb-4 space-x-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-x-0 snap-x scroll-p-4"> 
+							{featuredCourses.map((course, index) => (
+								<div 
+									key={course._id} 
+									className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-full lg:w-full snap-start"
+								> 
+									<CourseCard course={course} index={index} />
+								</div>
+							))}
+						</div>
           )}
 
           <div className="mt-6 text-center sm:mt-8 md:mt-12">
-            <Link
-              to="/courses"
-              className="inline-flex items-center px-5 py-3 space-x-2 text-sm font-semibold text-white transition-colors rounded-lg bg-rose-900 sm:px-6 sm:py-3 md:px-8 md:py-4 hover:bg-rose-900 sm:text-base"
-            >
-              <span>View All Courses</span>
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Link>
+						<Link
+							to="/courses"
+							className="inline-flex items-center px-5 py-3 space-x-2 text-sm font-semibold text-white rounded-lg sm:px-6 sm:py-3 md:px-8 md:py-4 sm:text-base"
+							style={{background:'#890C25',border:'none'}}
+						>
+							<span>View All Courses</span>
+							<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+						</Link>
           </div>
         </div>
       </section>
       
       {/* 3 Steps to Success Section */}
-      <section className="py-8 text-white sm:py-10 md:py-12 bg-rose-900">
+      <section className="py-8 text-white sm:py-10 md:py-12 bg-primary-800">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}

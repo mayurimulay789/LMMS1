@@ -651,7 +651,7 @@ const CourseDetailPage = () => {
                   modalVideoRef.current.pause()
                 }
               }}
-              className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+              className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70"
             >
               <X className="h-6 w-6" />
             </button>
@@ -680,12 +680,12 @@ const CourseDetailPage = () => {
 
             {/* Video Error Message */}
             {videoError && (
-              <div className="p-4 bg-red-900 bg-opacity-50 text-white">
+              <div className="p-4 bg-primary-800 bg-opacity-50 text-white">
                 <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-red-300 font-semibold">Video Error:</span>
+                  <span className="font-semibold text-primary-800">Video Error:</span>
                 </div>
-                <p className="text-sm text-red-200">{videoError}</p>
-                <div className="mt-2 text-xs text-red-300">
+                <p className="text-sm text-primary-800">{videoError}</p>
+                <div className="mt-2 text-xs text-primary-800">
                   <p>Supported formats: MP4, WebM, OGG</p>
                   <p>Recommended: MP4 with H.264 codec for best compatibility</p>
                 </div>
@@ -718,7 +718,7 @@ const CourseDetailPage = () => {
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white relative">
               <button
                 onClick={() => setShowReviewModal(false)}
-                className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
+                className="absolute top-4 right-4 text-white hover:text-gray-200"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -742,7 +742,7 @@ const CourseDetailPage = () => {
                         key={star}
                         type="button"
                         onClick={() => setRating(star)}
-                        className="text-3xl transition-transform hover:scale-110 focus:scale-110"
+                        className="text-3xl hover:scale-110 focus:scale-110"
                       >
                         {star <= rating ? (
                           <Star className="h-8 w-8 text-yellow-400 fill-current" />
@@ -766,7 +766,7 @@ const CourseDetailPage = () => {
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="What did you like about this course? What could be improved?"
-                    className="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows={4}
                   />
                 </div>
@@ -775,7 +775,7 @@ const CourseDetailPage = () => {
                 <button
                   type="submit"
                   disabled={loading || rating === 0 || !comment.trim()}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-700 hover:to-purple-700 transition-all flex items-center justify-center space-x-2"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-700 hover:to-purple-700 flex items-center justify-center space-x-2"
                 >
                   {loading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -791,7 +791,7 @@ const CourseDetailPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowReviewModal(false)}
-                  className="w-full text-gray-600 py-2 rounded-lg font-medium hover:text-gray-800 transition-colors"
+                  className="w-full text-gray-600 py-2 rounded-lg font-medium hover:text-gray-800"
                 >
                   Maybe later
                 </button>
@@ -812,7 +812,7 @@ const CourseDetailPage = () => {
           animate={{ opacity: 1, scale: 1, x: 0 }}
           exit={{ opacity: 0, scale: 0, x: 100 }}
           onClick={() => setShowReviewModal(true)}
-          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-2xl z-40 hover:shadow-3xl transition-all hover:scale-110 group"
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-2xl z-40 hover:shadow-3xl hover:scale-110 group"
         >
           <div className="flex items-center space-x-2">
             <Star className="h-5 w-5" />
@@ -858,7 +858,7 @@ const CourseDetailPage = () => {
           <p className="text-gray-600 mb-4">The course you're looking for doesn't exist.</p>
           <button
             onClick={() => navigate("/courses")}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
           >
             Browse Courses
           </button>
@@ -883,17 +883,17 @@ const CourseDetailPage = () => {
 
       {/* Hero Section */}
       <div className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             <div className="lg:col-span-2">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                <div className="flex items-center space-x-2 mb-4">
-                  <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm">{course.category}</span>
-                  <span className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm">{course.level}</span>
+                <div className="flex justify-between items-center mb-4 w-full">
+                  <span className="bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-medium max-w-[120px] truncate">{course.category}</span>
+                  <span className="bg-gray-700 text-white px-2 py-0.5 rounded-full text-xs font-medium max-w-[120px] truncate">{course.level}</span>
                 </div>
 
-                <h1 className="text-3xl md:text-4xl font-bold mb-4">{course.title}</h1>
-                <p className="text-xl text-gray-300 mb-6">{course.description}</p>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">{course.title}</h1>
+                <p className="text-sm sm:text-base md:text-xl text-gray-300 mb-6">{course.description}</p>
 
                 <div className="flex items-center space-x-6 mb-6">
                   <div className="flex items-center space-x-1">
@@ -971,7 +971,7 @@ const CourseDetailPage = () => {
                     <div className="space-y-3">
                       <button
                         onClick={() => navigate(`/courses/${course._id}/learn`)}
-                        className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                        className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 flex items-center justify-center space-x-2"
                       >
                         <Play className="h-5 w-5" />
                         <span>Continue Learning</span>
@@ -979,7 +979,7 @@ const CourseDetailPage = () => {
                       {isVideoThumbnail && (
                         <button
                           onClick={handlePlayVideo}
-                          className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                          className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center space-x-2"
                         >
                           <Play className="h-4 w-4" />
                           <span>Watch Preview</span>
@@ -990,14 +990,14 @@ const CourseDetailPage = () => {
                     <div className="space-y-3">
                       <button
                         onClick={handleEnroll}
-                        className="w-full bg-rose-700 text-white py-3 rounded-lg font-semibold hover:bg-rose-800 transition-colors"
+                        className="w-full py-3 rounded-lg font-semibold bg-primary-800 text-white hover:bg-primary-800"
                       >
                         {course.price === 0 ? "Enroll for Free" : "Buy Now"}
                       </button>
                       {isVideoThumbnail && (
                         <button
                           onClick={handlePlayVideo}
-                          className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2"
+                          className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-50 flex items-center justify-center space-x-2"
                         >
                           <Play className="h-4 w-4" />
                           <span>Preview this course</span>
@@ -1037,12 +1037,12 @@ const CourseDetailPage = () => {
       </div>
 
       {/* Course Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-10 lg:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <div className="lg:col-span-2">
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-8">
-              <nav className="flex space-x-8">
+              <nav className="flex space-x-8 overflow-x-auto whitespace-nowrap no-scrollbar">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -1320,7 +1320,7 @@ const CourseDetailPage = () => {
                                 navigate(`/checkout/${course._id}`)
                               }
                             }}
-                            className="mt-2 px-4 py-2 bg-rose-700 text-white rounded hover:bg-rose-800"
+                            className="mt-2 px-4 py-2 rounded bg-primary-800 text-white"
                           >
                             {course.price === 0 ? 'Enroll for Free' : 'Buy Now'}
                           </button>
@@ -1466,7 +1466,7 @@ const CourseDetailPage = () => {
 
                             <button
                               onClick={() => handleDownloadCertificate(cert)}
-                              className="w-full bg-green-100 text-green-800 py-2 px-3 rounded text-xs hover:bg-green-200 border border-green-300 transition-colors flex items-center justify-center space-x-1 font-medium"
+                              className="w-full bg-green-100 text-green-800 py-2 px-3 rounded text-xs hover:bg-green-200 border border-green-300 flex items-center justify-center space-x-1 font-medium"
                             >
                               <Download className="h-4 w-4" />
                               <span>Download Certificate</span>
@@ -1510,7 +1510,7 @@ const CourseDetailPage = () => {
                 ) : relatedCourses.length > 0 ? (
                   <div className="space-y-4">
                     {relatedCourses.map((course) => (
-                      <div key={course._id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/courses/${course._id}`)}>
+                      <div key={course._id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:shadow-md cursor-pointer" onClick={() => navigate(`/courses/${course._id}`)}>
                         {course.thumbnail && course.thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv|mkv|m4v|3gp|wmv)$/i) ? (
                           <div className="w-16 h-12 bg-gray-800 rounded flex items-center justify-center">
                             <Play className="h-6 w-6 text-white" />

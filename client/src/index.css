@@ -33,6 +33,7 @@
     height: 8px;
   }
   
+  /* .scrollbar-red::-webkit-scrollbar-track */
   .scrollbar-red::-webkit-scrollbar-track {
     background: #FEE2E2;  /* primary-100 track */
   }
@@ -45,7 +46,7 @@
   .scrollbar-red::-webkit-scrollbar-thumb:hover {
     background: #EF4444;  /* primary-500 on hover */
   }
-
+select, select option {
 @keyframes scroll {
   0% {
     transform: translateX(0);
@@ -59,12 +60,11 @@
   animation: scroll 20s linear infinite;
 }
 
-/* Custom styles for select dropdown options to match primary theme */
 select, select option {
   background-color: white;
   color: #000000;
 }
-
+  }
 select option:checked,
 select option:focus,
 select option:hover,
