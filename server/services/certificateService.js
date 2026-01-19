@@ -147,159 +147,312 @@ class CertificateService {
     return pdfUrl
   }
 
-  async addCertificateContent(doc, data) {
-    const {
-      studentName,
-      courseName,
-      instructor,
-      completionDate,
-      finalScore,
-      hoursCompleted,
-      skills,
-      certificateId,
-      qrCodeData,
-      verificationUrl,
-    } = data
+  // async addCertificateContent(doc, data) {
+  //   const {
+  //     studentName,
+  //     courseName,
+  //     instructor,
+  //     completionDate,
+  //     finalScore,
+  //     hoursCompleted,
+  //     skills,
+  //     certificateId,
+  //     qrCodeData,
+  //     verificationUrl,
+  //   } = data
 
-    // Colors
-    const primaryColor = "#1e40af"
-    const secondaryColor = "#3b82f6"
-    const goldColor = "#f59e0b"
-    const textColor = "#1f2937"
+  //   // Colors
+  //   const primaryColor = "#1e40af"
+  //   const secondaryColor = "#3b82f6"
+  //   const goldColor = "#f59e0b"
+  //   const textColor = "#1f2937"
 
-    // Add background gradient
-    doc.rect(0, 0, doc.page.width, doc.page.height).fillAndStroke("#f8fafc", "#e2e8f0")
+  //   // Add background gradient
+  //   doc.rect(0, 0, doc.page.width, doc.page.height).fillAndStroke("#f8fafc", "#e2e8f0")
 
-    // Add decorative border
-    doc
-      .rect(30, 30, doc.page.width - 60, doc.page.height - 60)
-      .lineWidth(3)
-      .stroke(primaryColor)
+  //   // Add decorative border
+  //   doc
+  //     .rect(30, 30, doc.page.width - 60, doc.page.height - 60)
+  //     .lineWidth(3)
+  //     .stroke(primaryColor)
 
-    doc
-      .rect(40, 40, doc.page.width - 80, doc.page.height - 80)
-      .lineWidth(1)
-      .stroke(secondaryColor)
+  //   doc
+  //     .rect(40, 40, doc.page.width - 80, doc.page.height - 80)
+  //     .lineWidth(1)
+  //     .stroke(secondaryColor)
 
-    // Add header
-    doc.fontSize(32).fillColor(primaryColor).font("Helvetica-Bold").text("CERTIFICATE OF COMPLETION", 0, 100, {
+  //   // Add header
+  //   doc.fontSize(32).fillColor(primaryColor).font("Helvetica-Bold").text("CERTIFICATE OF COMPLETION", 0, 100, {
+  //     align: "center",
+  //     width: doc.page.width,
+  //   })
+
+  //   // Add decorative line
+  //   doc
+  //     .moveTo(200, 150)
+  //     .lineTo(doc.page.width - 200, 150)
+  //     .lineWidth(2)
+  //     .stroke(goldColor)
+
+  //   // Add "This is to certify that"
+  //   doc.fontSize(16).fillColor(textColor).font("Helvetica").text("This is to certify that", 0, 180, {
+  //     align: "center",
+  //     width: doc.page.width,
+  //   })
+
+  //   // Add student name
+  //   doc.fontSize(36).fillColor(primaryColor).font("Helvetica-Bold").text(studentName, 0, 220, {
+  //     align: "center",
+  //     width: doc.page.width,
+  //   })
+
+  //   // Add completion text
+  //   doc.fontSize(16).fillColor(textColor).font("Helvetica").text("has successfully completed the course", 0, 280, {
+  //     align: "center",
+  //     width: doc.page.width,
+  //   })
+
+  //   // Add course name
+  //   doc.fontSize(24).fillColor(secondaryColor).font("Helvetica-Bold").text(courseName, 0, 310, {
+  //     align: "center",
+  //     width: doc.page.width,
+  //   })
+
+  //   // Add instructor and completion details
+  //   const detailsY = 360
+  //   doc
+  //     .fontSize(14)
+  //     .fillColor(textColor)
+  //     .font("Helvetica")
+  //     .text(`Instructor: ${instructor}`, 100, detailsY)
+  //     .text(`Completion Date: ${new Date(completionDate).toLocaleDateString()}`, 100, detailsY + 20)
+  //     .text(`Final Score: ${finalScore}%`, 100, detailsY + 40)
+  //     .text(`Hours Completed: ${hoursCompleted}`, 100, detailsY + 60)
+
+  //   // Add skills if available
+  //   if (skills && skills.length > 0) {
+  //     doc
+  //       .fontSize(12)
+  //       .fillColor(textColor)
+  //       .font("Helvetica-Bold")
+  //       .text("Skills Acquired:", 100, detailsY + 90)
+
+  //     skills.slice(0, 4).forEach((skill, index) => {
+  //       doc
+  //         .fontSize(11)
+  //         .font("Helvetica")
+  //         .text(`• ${skill}`, 120, detailsY + 110 + index * 15)
+  //     })
+  //   }
+
+  //   // Add QR code
+  //   if (qrCodeData) {
+  //     const qrImage = qrCodeData.split(",")[1]
+  //     const qrBuffer = Buffer.from(qrImage, "base64")
+  //     doc.image(qrBuffer, doc.page.width - 150, detailsY, {
+  //       width: 80,
+  //       height: 80,
+  //     })
+
+  //     doc
+  //       .fontSize(10)
+  //       .fillColor(textColor)
+  //       .text("Scan to verify", doc.page.width - 150, detailsY + 90, {
+  //         width: 80,
+  //         align: "center",
+  //       })
+  //   }
+
+  //   // Add certificate ID
+  //   doc
+  //     .fontSize(10)
+  //     .fillColor("#6b7280")
+  //     .font("Helvetica")
+  //     .text(`Certificate ID: ${certificateId}`, 100, doc.page.height - 100)
+
+  //   // Add verification URL
+  //   doc
+  //     .fontSize(9)
+  //     .fillColor("#6b7280")
+  //     .text(`Verify at: ${verificationUrl}`, 100, doc.page.height - 80)
+
+  //   // Add signature area
+  //   doc
+  //     .fontSize(12)
+  //     .fillColor(textColor)
+  //     .font("Helvetica-Bold")
+  //     .text("LearnHub LMS", doc.page.width - 200, doc.page.height - 120)
+
+  //   doc
+  //     .moveTo(doc.page.width - 200, doc.page.height - 100)
+  //     .lineTo(doc.page.width - 100, doc.page.height - 100)
+  //     .stroke("#6b7280")
+
+  //   doc
+  //     .fontSize(10)
+  //     .fillColor("#6b7280")
+  //     .font("Helvetica")
+  //     .text("Authorized Signature", doc.page.width - 200, doc.page.height - 90)
+
+  //   // Add issue date
+  //   doc
+  //     .fontSize(10)
+  //     .fillColor("#6b7280")
+  //     .text(`Issued on: ${new Date().toLocaleDateString()}`, doc.page.width - 200, doc.page.height - 70)
+  // }
+
+  async  addCertificateContent(doc, data) {
+  const {
+    studentName,
+    courseName,
+    completionDate,
+    certificateId,
+    qrCodeData,
+    verificationUrl,
+  } = data
+
+  const pageWidth = doc.page.width
+  const pageHeight = doc.page.height
+
+  /* ================= COLORS ================= */
+  const primaryBlue = "#0f3c6e"
+  const accentBlue = "#2563eb"
+  const gold = "#c9b458"
+  const darkText = "#111827"
+  const mutedText = "#6b7280"
+  const bgColor = "#fffdf7"
+
+  /* ================= BACKGROUND ================= */
+  doc.rect(0, 0, pageWidth, pageHeight).fill(bgColor)
+
+  /* ================= RIGHT GOLD STRIP ================= */
+  doc
+    .rect(pageWidth - 70, 0, 70, pageHeight)
+    .fill(gold)
+
+  /* ================= TOP BRAND ================= */
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(22)
+    .fillColor(primaryBlue)
+    .text("RAYA Academy", 0, 50, {
       align: "center",
-      width: doc.page.width,
     })
 
-    // Add decorative line
-    doc
-      .moveTo(200, 150)
-      .lineTo(doc.page.width - 200, 150)
-      .lineWidth(2)
-      .stroke(goldColor)
-
-    // Add "This is to certify that"
-    doc.fontSize(16).fillColor(textColor).font("Helvetica").text("This is to certify that", 0, 180, {
+  /* ================= TITLE ================= */
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(42)
+    .fillColor(primaryBlue)
+    .text("CERTIFICATE", 0, 130, {
       align: "center",
-      width: doc.page.width,
     })
 
-    // Add student name
-    doc.fontSize(36).fillColor(primaryColor).font("Helvetica-Bold").text(studentName, 0, 220, {
+  doc
+    .font("Helvetica")
+    .fontSize(18)
+    .fillColor(primaryBlue)
+    .text("OF COMPLETION", 0, 180, {
       align: "center",
-      width: doc.page.width,
     })
 
-    // Add completion text
-    doc.fontSize(16).fillColor(textColor).font("Helvetica").text("has successfully completed the course", 0, 280, {
+  /* ================= STUDENT NAME ================= */
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(26)
+    .fillColor(darkText)
+    .text(studentName, 0, 240, {
       align: "center",
-      width: doc.page.width,
     })
 
-    // Add course name
-    doc.fontSize(24).fillColor(secondaryColor).font("Helvetica-Bold").text(courseName, 0, 310, {
+  // underline
+  doc
+    .moveTo(pageWidth / 2 - 200, 275)
+    .lineTo(pageWidth / 2 + 200, 275)
+    .lineWidth(1.5)
+    .stroke(accentBlue)
+
+  /* ================= COURSE DESCRIPTION ================= */
+  doc
+    .font("Helvetica")
+    .fontSize(14)
+    .fillColor(darkText)
+    .text(
+      `for successfully completing the course`,
+      0,
+      300,
+      { align: "center" }
+    )
+
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(18)
+    .fillColor(accentBlue)
+    .text(courseName, 0, 325, {
       align: "center",
-      width: doc.page.width,
     })
 
-    // Add instructor and completion details
-    const detailsY = 360
-    doc
-      .fontSize(14)
-      .fillColor(textColor)
-      .font("Helvetica")
-      .text(`Instructor: ${instructor}`, 100, detailsY)
-      .text(`Completion Date: ${new Date(completionDate).toLocaleDateString()}`, 100, detailsY + 20)
-      .text(`Final Score: ${finalScore}%`, 100, detailsY + 40)
-      .text(`Hours Completed: ${hoursCompleted}`, 100, detailsY + 60)
 
-    // Add skills if available
-    if (skills && skills.length > 0) {
-      doc
-        .fontSize(12)
-        .fillColor(textColor)
-        .font("Helvetica-Bold")
-        .text("Skills Acquired:", 100, detailsY + 90)
+  /* ================= QR CODE ================= */
+  if (qrCodeData) {
+    const qrImage = qrCodeData.split(",")[1]
+    const qrBuffer = Buffer.from(qrImage, "base64")
 
-      skills.slice(0, 4).forEach((skill, index) => {
-        doc
-          .fontSize(11)
-          .font("Helvetica")
-          .text(`• ${skill}`, 120, detailsY + 110 + index * 15)
-      })
-    }
+    doc.image(qrBuffer, pageWidth - 160, 380, {
+      width: 90,
+      height: 90,
+    })
 
-    // Add QR code
-    if (qrCodeData) {
-      const qrImage = qrCodeData.split(",")[1]
-      const qrBuffer = Buffer.from(qrImage, "base64")
-      doc.image(qrBuffer, doc.page.width - 150, detailsY, {
-        width: 80,
-        height: 80,
-      })
-
-      doc
-        .fontSize(10)
-        .fillColor(textColor)
-        .text("Scan to verify", doc.page.width - 150, detailsY + 90, {
-          width: 80,
-          align: "center",
-        })
-    }
-
-    // Add certificate ID
-    doc
-      .fontSize(10)
-      .fillColor("#6b7280")
-      .font("Helvetica")
-      .text(`Certificate ID: ${certificateId}`, 100, doc.page.height - 100)
-
-    // Add verification URL
     doc
       .fontSize(9)
-      .fillColor("#6b7280")
-      .text(`Verify at: ${verificationUrl}`, 100, doc.page.height - 80)
-
-    // Add signature area
-    doc
-      .fontSize(12)
-      .fillColor(textColor)
-      .font("Helvetica-Bold")
-      .text("LearnHub LMS", doc.page.width - 200, doc.page.height - 120)
-
-    doc
-      .moveTo(doc.page.width - 200, doc.page.height - 100)
-      .lineTo(doc.page.width - 100, doc.page.height - 100)
-      .stroke("#6b7280")
-
-    doc
-      .fontSize(10)
-      .fillColor("#6b7280")
-      .font("Helvetica")
-      .text("Authorized Signature", doc.page.width - 200, doc.page.height - 90)
-
-    // Add issue date
-    doc
-      .fontSize(10)
-      .fillColor("#6b7280")
-      .text(`Issued on: ${new Date().toLocaleDateString()}`, doc.page.width - 200, doc.page.height - 70)
+      .fillColor(mutedText)
+      .text("Scan to verify", pageWidth - 160, 475, {
+        width: 90,
+        align: "center",
+      })
   }
+
+  /* ================= CERTIFICATE ID ================= */
+  doc
+    .font("Helvetica")
+    .fontSize(9)
+    .fillColor(mutedText)
+    .text(`Certificate ID: ${certificateId}`, 60, pageHeight - 120)
+
+  doc
+    .fontSize(9)
+    .text(`Verify at: ${verificationUrl}`, 60, pageHeight - 100)
+
+  /* ================= SIGNATURE ================= */
+  const signX = pageWidth - 300
+
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(12)
+    .fillColor(darkText)
+    .text("raya academy", signX, pageHeight - 160)
+
+  doc
+    .moveTo(signX, pageHeight - 140)
+    .lineTo(signX + 150, pageHeight - 140)
+    .stroke(mutedText)
+
+  doc
+    .font("Helvetica")
+    .fontSize(10)
+    .fillColor(mutedText)
+    .text("Founder & Instructor", signX, pageHeight - 125)
+
+  doc
+    .fontSize(9)
+    .text(
+      `Issued on: ${new Date(completionDate).toLocaleDateString()}`,
+      signX,
+      pageHeight - 105
+    )
+}
+
+
 
   async getUserCertificates(userId) {
     try {

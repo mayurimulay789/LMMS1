@@ -447,7 +447,7 @@ const CheckoutPage = () => {
                             </div>
                             <p className="mt-1 text-sm text-gray-600">{offer.description}</p>
                           </div>
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className="transition-opacity duration-200">
                             <button className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200">
                               Apply
                             </button>
