@@ -14,7 +14,6 @@ const IndianRupeeIcon = (props) => (
 )
 
 const InstructorDashboardPage = () => {
-  const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
   const [activeTab, setActiveTab] = useState("overview")
   const [stats, setStats] = useState({
@@ -30,6 +29,34 @@ const InstructorDashboardPage = () => {
   const [studentsLoading, setStudentsLoading] = useState(false)
   const [reports, setReports] = useState([])
   const [reportsLoading, setReportsLoading] = useState(false)
+  const [message, setMessage] = useState({ type: '', text: '' }); 
+
+  const [formData, setFormData] = useState({
+  name: '',
+  email: '',
+  phone: '',
+  profileImage: '',
+  profileImageFile: null,
+  nameError: '',
+  phoneError: ''
+});
+
+const [isSaving, setIsSaving] = useState(false);
+
+// Initialize form data when user data loads
+useEffect(() => {
+  if (user) {
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      profileImage: user.profileImage || '',
+      profileImageFile: null,
+      nameError: '',
+      phoneError: ''
+    });
+  }
+}, [user]);
 
   useEffect(() => {
     fetchInstructorStats()
@@ -45,6 +72,146 @@ const InstructorDashboardPage = () => {
       fetchReports()
     }
   }, [activeTab])
+
+const handleEditProfile = async () => {
+  // Validate form
+  const nameError = !formData.name?.trim() ? 'Name is required' : 
+                    formData.name.trim().length < 2 ? 'Name must be at least 2 characters' : '';
+  
+  const phoneError = !formData.phone?.trim() ? 'Phone number is required' : 
+                     !/^\+?[\d\s\-\(\)]{10,}$/.test(formData.phone.replace(/\s/g, '')) ? 
+                     'Please enter a valid phone number (at least 10 digits)' : '';
+
+  // Update errors in state
+  setFormData(prev => ({
+    ...prev,
+    nameError,
+    phoneError
+  }));
+
+  // If there are validation errors, don't proceed
+  if (nameError || phoneError) {
+    // Scroll to first error
+    if (nameError) {
+      document.querySelector('input[name="name"]')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (phoneError) {
+      document.querySelector('input[name="phone"]')?.scrollIntoView({ behavior: 'smooth' });
+    }
+    return;
+  }
+
+  // Set saving state
+  setIsSaving(true);
+
+  try {
+    // Use your VITE_API_URL
+    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:2000/api";
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      throw new Error('Authentication token not found. Please login again.');
+    }
+
+    // Create FormData for file upload
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name.trim());
+    formDataToSend.append('phone', formData.phone.trim());
+    
+    // Append profile image file if selected
+    if (formData.profileImageFile) {
+      formDataToSend.append('profileImage', formData.profileImageFile);
+    }
+
+    console.log('📤 Sending profile update request...');
+    
+    // Use the correct endpoint - adjust based on your route structure
+    // If your route is at /api/instructor/instructor-profile
+    const response = await fetch(`${API_BASE_URL}/auth/instructor-profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        // Don't set Content-Type for FormData - browser sets it automatically
+      },
+      credentials: 'include', // Include cookies if using session-based auth
+      body: formDataToSend,
+    });
+
+    console.log('Response status:', response.status);
+
+    // Parse response
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      console.error('Server error response:', responseData);
+      throw new Error(responseData.message || `Failed to update profile (Status: ${response.status})`);
+    }
+
+    console.log('✅ Profile update successful:', responseData);
+    
+    // REMOVE or COMMENT OUT the onProfileUpdate part since it doesn't exist
+    // if (onProfileUpdate && responseData.user) {
+    //   onProfileUpdate(responseData.user);
+    // }
+    
+    // Instead, update the formData with new user data
+    if (responseData.user) {
+      setFormData(prev => ({
+        ...prev,
+        name: responseData.user.name || prev.name,
+        phone: responseData.user.phone || prev.phone,
+        profileImage: responseData.user.profileImage || prev.profileImage,
+        profileImageFile: null, // Reset file after successful upload
+        nameError: '',
+        phoneError: ''
+      }));
+      
+      // Also update the Redux user state if you're using Redux
+      // You can dispatch an action here if you have Redux set up
+      // Example:
+      // dispatch(updateUserProfile(responseData.user));
+      
+      // Or update local storage if you store user data there
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      localStorage.setItem('user', JSON.stringify({
+        ...storedUser,
+        name: responseData.user.name,
+        phone: responseData.user.phone,
+        profileImage: responseData.user.profileImage
+      }));
+      
+      // You could also trigger a page refresh to get updated data
+      // window.location.reload(); // Optional: uncomment if you want to refresh
+    }
+    
+    // Show success message
+    setMessage({ 
+      type: 'success', 
+      text: responseData.message || 'Profile updated successfully!' 
+    });
+    
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      setMessage({ type: '', text: '' });
+    }, 3000);
+    
+  } catch (error) {
+    console.error('❌ Profile update error:', error);
+    
+    // Set error message
+    setMessage({ 
+      type: 'error', 
+      text: error.message || 'Failed to update profile. Please try again.' 
+    });
+    
+    // Clear error message after 5 seconds
+    setTimeout(() => {
+      setMessage({ type: '', text: '' });
+    }, 5000);
+    
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const fetchCourses = async () => {
     setCoursesLoading(true)
@@ -109,40 +276,7 @@ const InstructorDashboardPage = () => {
     }
   }
 
-  const deleteCourse = async (courseId) => {
-    if (!confirm("Are you sure you want to delete this course?")) {
-      return
-    }
 
-    try {
-      const token = localStorage.getItem("token")
-      const response = await apiRequest(`instructor/courses/${courseId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        setCourses(courses.filter(course => course._id !== courseId))
-      } else {
-        alert("Failed to delete course")
-      }
-    } catch (error) {
-      console.error("Error deleting course:", error)
-      alert("Error deleting course")
-    }
-  }
-
-  const editCourse = (courseId) => {
-    alert(`Edit functionality for course ${courseId} will be implemented here.`)
-    // TODO: Implement edit course modal or form
-  }
-
-  const createCourse = () => {
-    alert("Create course functionality will be implemented here.")
-    // TODO: Implement create course modal or form
-  }
 
   const fetchInstructorStats = async () => {
     try {
@@ -348,7 +482,7 @@ const InstructorDashboardPage = () => {
           </div>
         )}
 
-        {activeTab === "profile" && (
+        {/* {activeTab === "profile" && (
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Management</h3>
             <div className="space-y-6">
@@ -373,25 +507,6 @@ const InstructorDashboardPage = () => {
                   </div>
                 </div>
               </div>
-              <div>
-                <h4 className="text-md font-semibold text-gray-900 mb-2">Account Settings</h4>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Current Password</label>
-                    <input
-                      type="password"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">New Password</label>
-                    <input
-                      type="password"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
               <div className="flex justify-end">
                 <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                   Save Changes
@@ -399,7 +514,142 @@ const InstructorDashboardPage = () => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
+
+
+        {message.text && (
+  <div className={`mb-4 p-3 rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>
+    {message.text}
+  </div>
+)}
+
+
+          {activeTab === "profile" && (
+  <div className="bg-white rounded-lg shadow-sm p-6">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Management</h3>
+    <div className="space-y-6">
+      <div>
+        <h4 className="text-md font-semibold text-gray-900 mb-2">Personal Information</h4>
+        
+        {/* Profile Image Section */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
+          <div className="flex items-center space-x-4">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 border-2 border-gray-300">
+              {formData.profileImage ? (
+                <img 
+                  src={formData.profileImage} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : user?.profileImage ? (
+                <img 
+                  src={user.profileImage} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        profileImage: reader.result,
+                        profileImageFile: file
+                      }));
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+              />
+              <p className="text-xs text-gray-500 mt-1">JPG, PNG, or GIF (max 5MB)</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Personal Info Fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Name *</label>
+            <input
+              type="text"
+              value={formData.name || user?.name || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+            {formData.nameError && (
+              <p className="text-red-500 text-sm mt-1">{formData.nameError}</p>
+            )}
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email *</label>
+            <input
+              type="email"
+              value={formData.email || user?.email || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              required
+              disabled
+            />
+            <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Phone Number *</label>
+            <input
+              type="tel"
+              value={formData.phone || user?.phone || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="+91 9876543210"
+              required
+            />
+            {formData.phoneError && (
+              <p className="text-red-500 text-sm mt-1">{formData.phoneError}</p>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Save Button */}
+      <div className="flex justify-end">
+        <button 
+          onClick={handleEditProfile}
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <span className="flex items-center">
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Saving...
+            </span>
+          ) : 'Save Changes'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
       </div>
     </div>
   )

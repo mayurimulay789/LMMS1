@@ -145,10 +145,24 @@ const uploadCourseVideoToCloudinary = async (videoBuffer, filename) => {
   });
 };
 
+
+const uploadProfileImageToCloudinary = async (imageBuffer, filename) => {
+  return await uploadToCloudinary(imageBuffer, 'lms/profiles', {
+    resource_type: 'auto',
+    filename: filename,
+    use_filename: true,
+    unique_filename: true,
+    transformation: [
+      { width: 400, height: 400, crop: 'fill', gravity: 'face' }
+    ]
+  });
+};
+
 module.exports = {
   uploadToCloudinary,
   uploadCertificateToCloudinary,
   uploadCourseImageToCloudinary,
   uploadCourseVideoToCloudinary,
-  deleteFromCloudinary
+  deleteFromCloudinary,
+  uploadProfileImageToCloudinary
 };

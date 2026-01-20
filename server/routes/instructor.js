@@ -1,23 +1,139 @@
-const express = require("express")
-const router = express.Router()
-const User = require("../models/User")
-const Course = require("../models/Course")
-const Payment = require("../models/Payment")
-const Enrollment = require("../models/Enrollment")
-const InstructorApplication = require("../models/InstructorApplication")
-const { sendInstructorApplicationEmail, sendAdminApplicationNotification } = require("../services/emailService")
-const auth = require("../middleware/auth")
-const instructorMiddleware = require("../middleware/instructorMiddleware")
+// const express = require("express")
+// const router = express.Router()
+// const Course = require("../models/Course")
+// const Payment = require("../models/Payment")
+// const Enrollment = require("../models/Enrollment")
+// const InstructorApplication = require("../models/InstructorApplication")
+// const { sendInstructorApplicationEmail, sendAdminApplicationNotification } = require("../services/emailService")
+// const auth = require("../middleware/auth")
+// const instructorMiddleware = require("../middleware/instructorMiddleware")
+// const mongoose = require("mongoose");
+
+// // Instructor application submission (no auth required)
+// router.post("/apply", async (req, res) => {
+//   try {
+//     const { applicantName, email, phone, experience, qualifications, motivation, password } = req.body;
+
+//     // Basic validation
+//     if (!applicantName || !email || !phone || !experience || !qualifications || !motivation || !password) {
+//       return res.status(400).json({ message: "All fields are required" });
+//     }
+
+//     // Create application
+//     const application = new InstructorApplication({
+//       applicantName,
+//       email,
+//       phone,
+//       experience,
+//       qualifications,
+//       motivation,
+//       password,
+//     });
+
+//     await application.save();
+
+//     // Send confirmation email to applicant
+//     try {
+//       const applicantEmailResult = await sendInstructorApplicationEmail({
+//         applicantName,
+//         email,
+//         phone,
+//         experience,
+//         qualifications,
+//         motivation,
+//       });
+//       if (applicantEmailResult.success) {
+//         console.log('Application confirmation email sent to:', email);
+//       } else {
+//         console.log('Application confirmation email skipped (configuration missing):', applicantEmailResult.message);
+//       }
+//     } catch (applicantEmailError) {
+//       console.error('Application confirmation email failed:', applicantEmailError);
+//       // Don't fail the application if email fails
+//     }
+
+//     // Send notification email to admin
+//     if (process.env.ADMIN_EMAIL) {
+//       try {
+//         await sendAdminApplicationNotification({
+//           applicantName,
+//           email,
+//           phone,
+//           experience,
+//           qualifications,
+//           motivation,
+//           applicationId: application._id,
+//         });
+//         console.log('Admin notification email sent for application:', application._id);
+//       } catch (adminEmailError) {
+//         console.error('Admin notification email failed:', adminEmailError);
+//         // Don't fail the application if admin email fails
+//       }
+//     }
+
+//     res.status(201).json({ message: "Application submitted successfully", applicationId: application._id });
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to submit application" });
+//   }
+// });
+
+
+
+const express = require("express");
+const router = express.Router();
+const Course = require("../models/Course");
+const Payment = require("../models/Payment");
+const Enrollment = require("../models/Enrollment");
+const InstructorApplication = require("../models/InstructorApplication");
+const { sendInstructorApplicationEmail, sendAdminApplicationNotification } = require("../services/emailService");
+const { uploadProfileImageToCloudinary } = require("../utils/cloudinary");
+const { uploadProfileImage, handleUploadErrors } = require("../middleware/uploadMiddleware"); // Updated import
+const auth = require("../middleware/auth");
+const instructorMiddleware = require("../middleware/instructorMiddleware");
 const mongoose = require("mongoose");
 
 // Instructor application submission (no auth required)
-router.post("/apply", async (req, res) => {
+router.post("/apply", (req, res, next) => {
+  uploadProfileImage(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ 
+        success: false,
+        message: err.message 
+      });
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
     const { applicantName, email, phone, experience, qualifications, motivation, password } = req.body;
+    const profileImageFile = req.file;
 
     // Basic validation
     if (!applicantName || !email || !phone || !experience || !qualifications || !motivation || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ 
+        success: false,
+        message: "All fields are required" 
+      });
+    }
+
+    let profileImageUrl = '';
+    
+    // Upload profile image to Cloudinary if provided
+    if (profileImageFile) {
+      try {
+        console.log('📤 Uploading profile image to Cloudinary...');
+        profileImageUrl = await uploadProfileImageToCloudinary(
+          profileImageFile.buffer,
+          `profile_${Date.now()}`
+        );
+        console.log('✅ Profile image uploaded:', profileImageUrl);
+      } catch (uploadError) {
+        console.error('❌ Profile image upload failed:', uploadError);
+        return res.status(500).json({ 
+          success: false,
+          message: "Failed to upload profile image. Please try again." 
+        });
+      }
     }
 
     // Create application
@@ -29,7 +145,10 @@ router.post("/apply", async (req, res) => {
       qualifications,
       motivation,
       password,
+      profileImage: profileImageUrl, // Save Cloudinary URL
     });
+
+    console.log("instructore is going to save in instructor model:",application);
 
     await application.save();
 
@@ -72,11 +191,30 @@ router.post("/apply", async (req, res) => {
       }
     }
 
-    res.status(201).json({ message: "Application submitted successfully", applicationId: application._id });
+    res.status(201).json({ 
+      success: true,
+      message: "Application submitted successfully", 
+      applicationId: application._id,
+      profileImage: profileImageUrl 
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to submit application" });
+    console.error('Application submission error:', error);
+    
+    // Handle duplicate email error
+    if (error.code === 11000 || error.keyPattern?.email) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Email already exists. Please use a different email." 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to submit application" 
+    });
   }
 });
+
 
 // Apply auth and instructor middleware to all routes
 router.use(auth)

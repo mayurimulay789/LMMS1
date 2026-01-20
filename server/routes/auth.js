@@ -5,6 +5,8 @@ const User = require("../models/User")
 const Referral = require("../models/Referral") // Add this import
 const auth = require("../middleware/auth")
 const { sendWelcomeEmail, sendAdminSignupNotification } = require("../services/emailService_updated")
+const { uploadProfileImageToCloudinary } = require("../utils/cloudinary");
+const { uploadProfileImage } = require("../middleware/uploadMiddleware");
 
 // Register user
 router.post("/register", async (req, res) => {
@@ -230,4 +232,131 @@ router.put("/profile", auth, async (req, res) => {
   }
 })
 
-module.exports = router
+
+
+
+
+// Add this route to auth routes
+router.put("/instructor-profile", 
+  auth,
+  (req, res, next) => {
+    uploadProfileImage(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({
+          success: false,
+          message: err.message
+        });
+      }
+      next();
+    });
+  },
+  async (req, res) => {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({
+          success: false,
+          message: "Authentication required"
+        });
+      }
+
+      const { name, phone } = req.body;
+      
+      // Validation
+      if (!name || !name.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Name is required"
+        });
+      }
+
+      if (!phone || !phone.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Phone number is required"
+        });
+      }
+
+      const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+      if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+        return res.status(400).json({
+          success: false,
+          message: "Please enter a valid phone number (at least 10 digits)"
+        });
+      }
+
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found"
+        });
+      }
+
+      if (user.role !== 'instructor') {
+        return res.status(403).json({
+          success: false,
+          message: "Only instructors can update instructor profile"
+        });
+      }
+
+      // Update user data
+      user.name = name.trim();
+      user.phone = phone.trim();
+
+      // Handle profile image
+      if (req.file) {
+        try {
+          console.log('📤 Uploading profile image to Cloudinary...');
+          const profileImageUrl = await uploadProfileImageToCloudinary(
+            req.file.buffer,
+            `profile_${user._id}_${Date.now()}`
+          );
+          console.log('✅ Profile image uploaded:', profileImageUrl);
+          user.profileImage = profileImageUrl;
+        } catch (uploadError) {
+          console.error('❌ Profile image upload failed:', uploadError);
+          return res.status(500).json({
+            success: false,
+            message: "Failed to upload profile image. Please try again."
+          });
+        }
+      }
+
+      await user.save();
+
+      // Response data
+      const userResponse = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        profileImage: user.profileImage,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified
+      };
+
+      res.json({
+        success: true,
+        message: "Profile updated successfully",
+        user: userResponse
+      });
+
+    } catch (error) {
+      console.error("Error updating instructor profile:", error);
+      
+      if (error.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          message: "Duplicate field value. Please use a different value."
+        });
+      }
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to update profile"
+      });
+    }
+  }
+);
+
+module.exports = router;

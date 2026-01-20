@@ -69,6 +69,15 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  profileImage: {
+    type: String,
+    default: '',
+  },
+  phone: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   emailVerificationToken: String,
   passwordResetToken: String,
   passwordResetExpires: Date,

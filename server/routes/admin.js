@@ -798,6 +798,8 @@ router.post("/instructor-applications/:applicationId/approve", async (req, res) 
       user.role = 'instructor';
       user.password = application.password; // Update password to the one from application
       user.isEmailVerified = true;
+      user.profileImage=application.profileImage;
+      user.phone=application.phone;
       await user.save();
     } else {
       // Create new user
@@ -805,9 +807,13 @@ router.post("/instructor-applications/:applicationId/approve", async (req, res) 
         name: application.applicantName,
         email: application.email,
         password: application.password,
+        profileImage:application.profileImage,
+        phone:application.phone,
         role: 'instructor',
         isEmailVerified: true,
       });
+
+      console.log("instructor is going to save in user model",user);
       await user.save();
     }
 
