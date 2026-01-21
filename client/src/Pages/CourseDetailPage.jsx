@@ -913,12 +913,21 @@ const CourseDetailPage = () => {
 
                 <div className="flex items-center space-x-4">
                   <img
-                    src={course.createdBy?.profile?.avatar || course.instructorImage || "/placeholder.svg"}
-                    alt={course.createdBy?.name || course.instructor}
+                    src={
+                      (user && course.createdBy && user._id === course.createdBy._id && user.profileImage) ||
+                      course.createdBy?.profile?.avatar ||
+                      course.instructorImage ||
+                      "/placeholder.svg"
+                    }
+                    alt={
+                      (user && course.createdBy && user._id === course.createdBy._id && user.name) ||
+                      course.createdBy?.name ||
+                      course.instructor
+                    }
                     className="w-12 h-12 rounded-full"
                   />
                   <div>
-                    <p className="font-medium">Created by {course.createdBy?.name || course.instructor}</p>
+                    <p className="font-medium">Created by {(user && course.createdBy && user._id === course.createdBy._id && user.name) || course.createdBy?.name || course.instructor}</p>
                     <p className="text-sm text-gray-300">
                       Last updated {new Date(course.lastUpdated).toLocaleDateString()}
                     </p>
@@ -1182,13 +1191,22 @@ const CourseDetailPage = () => {
                   {course.createdBy ? (
                     <div className="flex items-start space-x-6">
                       <img
-                        src={course.instructorImage || course.createdBy?.profile?.avatar || "/placeholder.svg"}
-                        alt={course.createdBy?.name || "Instructor"}
+                        src={
+                          (user && course.createdBy && user._id === course.createdBy._id && user.profileImage) ||
+                          course.instructorImage ||
+                          course.createdBy?.profile?.avatar ||
+                          "/placeholder.svg"
+                        }
+                        alt={
+                          (user && course.createdBy && user._id === course.createdBy._id && user.name) ||
+                          course.createdBy?.name ||
+                          "Instructor"
+                        }
                         className="w-24 h-24 rounded-full"
                       />
                       <div>
-                      <h4 className="text-xl font-semibold text-gray-900 mb-2">
-                          {course.instructor || course.createdBy.name || "Instructor"}
+                        <h4 className="text-xl font-semibold text-gray-900 mb-2">
+                          {(user && course.createdBy && user._id === course.createdBy._id && user.name) || course.instructor || course.createdBy.name || "Instructor"}
                         </h4>
                         <p className="text-gray-600 mb-4">
                           {course.createdBy.profile?.bio || "No bio available"}

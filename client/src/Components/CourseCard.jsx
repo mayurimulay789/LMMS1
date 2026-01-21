@@ -4,7 +4,10 @@ import { Link } from "react-router-dom"
 import { Star, Users, Clock, Play, BookOpen } from "lucide-react"
 import { motion } from "framer-motion"
 
+import { useSelector } from "react-redux"
+
 const CourseCard = ({ course, index = 0 }) => {
+  const { user } = useSelector((state) => state.auth)
   const {
     _id,
     title,
@@ -113,15 +116,18 @@ const CourseCard = ({ course, index = 0 }) => {
 
           {/* Instructor */}
           <div className="flex items-center space-x-3 mb-4">
-            {course.createdBy?.profile?.avatar && (
+            {((user && course.createdBy && user._id === course.createdBy._id && user.profileImage) || course.createdBy?.profile?.avatar) ? (
               <img
-                src={course.createdBy.profile.avatar}
+                src={
+                  (user && course.createdBy && user._id === course.createdBy._id && user.profileImage) ||
+                  course.createdBy?.profile?.avatar
+                }
                 alt={course.createdBy?.name || instructor}
                 className="w-8 h-8 rounded-full object-cover"
               />
-            )}
+            ) : null}
             <p className="text-sm text-gray-700">
-              By <span className="font-medium text-primary-600">{course.createdBy?.name || instructor}</span>
+              By <span className="font-medium text-primary-600">{(user && course.createdBy && user._id === course.createdBy._id && user.name) || course.createdBy?.name || instructor}</span>
             </p>
           </div>
 
