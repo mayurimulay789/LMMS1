@@ -2,7 +2,6 @@
 
 import { Link } from "react-router-dom"
 import {
-  BookOpen,
   Mail,
   Phone,
   MapPin,
@@ -10,33 +9,16 @@ import {
   Twitter,
   Instagram,
   Linkedin,
-  ArrowRight,
-  MessageCircle,
-  Calendar,
 } from "lucide-react"
-import { useState } from "react"
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
-  const [isHovered, setIsHovered] = useState(false)
 
   const footerLinks = {
     company: [
       { name: "About Us", path: "/about" },
       { name: "Contact", path: "/contact" },
       { name: "FAQ", path: "/about#faq" },
-    ],
-    courses: [
-      { name: "Programming", path: "/courses?category=Programming" },
-      { name: "Design", path: "/courses?category=Design" },
-      { name: "Marketing", path: "/courses?category=Marketing" },
-      { name: "Business", path: "/courses?category=Business" },
-    ],
-    quickLinks: [
-      { name: "Pay Now", path: "/payment", icon: ArrowRight },
-      { name: "Verify Certificate", path: "/verify-certificate", icon: ArrowRight },
-      { name: "Book A Schedule Call", path: "/book-call", icon: Calendar },
-      { name: "Want to see a course demo", path: "/demo", icon: MessageCircle },
     ],
   }
 
@@ -48,136 +30,112 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-white border-t border-gray-200">
-      <div className="px-8 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8 lg:py-12">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
-
-          {/* Left Section */}
-          <div className="space-y-4 lg:col-span-2">
-            <div className="space-y-3">
-              <Link
-                to="/"
-                className="inline-block"
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-              >
-                <span className="text-2xl font-bold text-transparent bg-gradient-to-r from-rose-800 to-red-600 bg-clip-text sm:text-3xl">
-                  RYMA Academy
-                </span>
-                <p className="mt-1 text-sm text-gray-600 sm:text-base">
-                  Learn. Grow. Lead
-                </p>
-              </Link>
-
-              <p className="text-sm leading-relaxed text-gray-600 sm:text-base sm:max-w-md">
-                Empowering learners worldwide with high-quality online courses.
-                Join thousands of students and advance your career with expert-led instruction.
+    <footer className="bg-white border-t border-gray-200 w-full font-sans">
+      <div className="max-w-7xl mx-auto px-6 py-12 lg:px-8">
+        
+        {/* Main Footer Container */}
+        <div className="flex flex-col lg:flex-row lg:justify-between gap-12 lg:gap-8">
+          
+          {/* Section 1: Brand - Centered on mobile, Left-aligned on desktop */}
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-4 lg:max-w-[300px]">
+            <Link to="/" className="inline-block">
+              <span className="text-2xl font-bold text-transparent bg-gradient-to-r from-rose-800 to-red-600 bg-clip-text sm:text-3xl">
+                RYMA Academy
+              </span>
+              <p className="mt-1 text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                Learn. Grow. Lead
               </p>
-            </div>
-
-            {/* Social Links */}
-            <div className="pt-2">
-              <h4 className="mb-2 text-sm font-semibold text-gray-700 sm:text-base">
-                Connect With Us
-              </h4>
-              <div className="flex space-x-2">
-                {socialLinks.map((social) => (
-                  <a
-                    key={social.name}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 transition-all duration-300 border border-gray-200 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 hover:from-rose-50 hover:to-red-50 hover:scale-110 hover:shadow-lg group sm:p-3"
-                    aria-label={social.name}
-                  >
-                    <social.icon className="w-4 h-4 text-rose-600 group-hover:text-rose-700 sm:w-5 sm:h-5" />
-                  </a>
-                ))}
-              </div>
-            </div>
+            </Link>
+            <p className="text-sm leading-relaxed text-gray-600">
+              Empowering learners worldwide with high-quality online courses.
+              Join thousands of students and advance your career.
+            </p>
           </div>
 
-          {/* 🔥 Company + Categories (Mobile: same row | Desktop: unchanged) */}
-          <div className="grid grid-cols-2 gap-4 md:col-span-2 md:grid-cols-2 lg:col-span-2 lg:mt-2">
+          {/* Middle Container: 2-Column Grid on mobile, Flex on desktop */}
+          <div className="grid grid-cols-2 gap-8 lg:flex lg:gap-16 xl:gap-24">
             
-            {/* Company */}
-            <div>
-              <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
+            {/* Section 2: Company */}
+            <div className="flex flex-col items-start">
+              <h3 className="mb-6 text-sm font-bold text-gray-900 uppercase tracking-widest">
                 Company
               </h3>
-              <ul className="space-y-2">
+              <ul className="space-y-4">
                 {footerLinks.company.map((link) => (
                   <li key={link.name}>
                     <Link
                       to={link.path}
-                      className="block py-1 text-sm text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group sm:py-2 sm:text-base"
+                      className="text-sm text-gray-600 transition-colors hover:text-rose-600"
                     >
-                      <span className="group-hover:font-medium">{link.name}</span>
+                      {link.name}
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Categories */}
-            <div>
-              <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
-                Categories
+            {/* Section 3: Contact Info */}
+            <div className="flex flex-col items-start lg:max-w-[280px]">
+              <h3 className="mb-6 text-sm font-bold text-gray-900 uppercase tracking-widest">
+                Contact Info
               </h3>
-              <ul className="space-y-2">
-                {footerLinks.courses.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      to={link.path}
-                      className="block py-1 text-sm text-gray-600 transition-all duration-200 hover:text-gray-900 hover:translate-x-1 group sm:py-2 sm:text-base"
-                    >
-                      <span className="group-hover:font-medium">{link.name}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <div className="space-y-5">
+                <div className="flex items-start gap-3 group">
+                  <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg shrink-0">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm text-gray-600 pt-0.5 break-all leading-tight">
+                    support@rymaacademy.com
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 group">
+                  <div className="p-1.5 bg-green-50 text-green-600 rounded-lg shrink-0">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm text-gray-600 leading-tight">
+                    +91 - 9873336133
+                  </span>
+                </div>
+                <div className="flex items-start gap-3 group">
+                  <div className="p-1.5 bg-purple-50 text-purple-600 rounded-lg shrink-0">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm text-gray-600 leading-snug">
+                    D-7/31 1st Floor, Sector-6, Vishram Chowk
+                  </span>
+                </div>
+              </div>
             </div>
 
           </div>
 
-          {/* Contact Info (Mobile: next line | Desktop: same place) */}
-          <div>
-            <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
-              Contact Info
+          {/* Section 4: Connect With Us - Centered on mobile, Right-aligned on desktop */}
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left lg:min-w-[180px]">
+            <h3 className="mb-6 text-sm font-bold text-gray-900 uppercase tracking-widest">
+              Connect With Us
             </h3>
-            <div className="space-y-3">
-              <div className="flex items-start space-x-2 text-sm text-gray-600 hover:text-gray-900 sm:space-x-3 sm:text-base">
-                <div className="p-1 bg-blue-100 rounded-lg sm:p-2">
-                  <Mail className="w-4 h-4 text-blue-600 sm:w-5 sm:h-5" />
-                </div>
-                <span>support@rymaacademy.com</span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 sm:space-x-3 sm:text-base">
-                <div className="p-1 bg-green-100 rounded-lg sm:p-2">
-                  <Phone className="w-4 h-4 text-green-600 sm:w-5 sm:h-5" />
-                </div>
-                <span>+91 - 9873336133</span>
-              </div>
-
-              <div className="flex items-start space-x-2 text-sm text-gray-600 hover:text-gray-900 sm:space-x-3 sm:text-base">
-                <div className="p-1 bg-purple-100 rounded-lg sm:p-2">
-                  <MapPin className="w-4 h-4 text-purple-600 sm:w-5 sm:h-5" />
-                </div>
-                <span>
-                  D-7/31 1st Floor Main Vishram Chowk
-                  Sector-6, Vishram Chowk
-                </span>
-              </div>
+            <div className="flex flex-wrap justify-center lg:justify-start gap-3">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 transition-all duration-300 border border-gray-200 rounded-lg bg-gray-50 hover:bg-rose-50 hover:border-rose-200 group"
+                  aria-label={social.name}
+                >
+                  <social.icon className="w-5 h-5 text-gray-600 group-hover:text-rose-600 group-hover:scale-110 transition-transform" />
+                </a>
+              ))}
             </div>
           </div>
 
         </div>
 
-        {/* Bottom Section */}
-        <div className="pt-6 mt-6 border-t border-gray-300 sm:pt-8 sm:mt-8">
-          <p className="text-xs text-center text-gray-500 sm:text-sm">
-            © {currentYear} RYMA Academy. All rights reserved.
+        {/* Bottom Bar */}
+        <div className="pt-8 mt-12 border-t border-gray-100 flex flex-col items-center">
+          <p className="text-sm text-gray-500 text-center">
+            © {currentYear} <span className="font-semibold text-gray-700">RYMA Academy</span>. All rights reserved.
           </p>
         </div>
       </div>

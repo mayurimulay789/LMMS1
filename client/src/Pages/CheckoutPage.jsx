@@ -415,7 +415,7 @@ const CheckoutPage = () => {
             {/* Available Offers */}
             {availableOffers && availableOffers.length > 0 && (
               <div className="p-6 bg-white rounded-lg shadow-sm">
-                <h2 className="mb-4 text-xl font-semibold text-gray-900">Available Offers</h2>
+                <h2 className="mb-4 text-xl font-semibold text-gray-900">Coupons</h2>
                 {isFetchingOffers ? (
                   <div className="flex items-center justify-center py-4">
                     <div className="w-6 h-6 border-b-2 border-blue-600 rounded-full animate-spin"></div>
