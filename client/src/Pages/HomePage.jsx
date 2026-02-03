@@ -93,18 +93,71 @@ const HomePage = () => {
 	]
 
 	const testimonials = [
-		{ name: "Sarah Johnson", role: "Software Developer", content: "Ryma Academy transformed my career. The courses are comprehensive and the instructors are amazing!", avatar: generateDefaultAvatar("Sarah Johnson", 60), rating: 5, },
-		{ name: "Michael Chen", role: "UX Designer", content: "The design courses here are top-notch. I landed my dream job after completing the UI/UX track.", avatar: generateDefaultAvatar("Michael Chen", 60), rating: 5, },
-		{ name: "Emily Davis", role: "Marketing Manager", content: "Flexible learning schedule and practical projects made all the difference in my learning journey.", avatar: generateDefaultAvatar("Emily Davis", 60), rating: 5, },
+		{ name: "Mr. Sunil Kumar", role: "Digital Growth Executive", content: "Ryma Academy is a great place for learning! The teachers are very supportive and knowledgeable. The environment is positive, and they truly focus on helping students achieve their goals. I had a wonderful experience and highly recommend it to anyone looking for quality education!", avatar: generateDefaultAvatar("Sarah Johnson", 60) },
+		{ name: "Michael Chen", role: "Social Media Marketer", content: "I recently completed the Digital Marketing course at Ryma Academy, and I must say it was an excellent experience! The instructors are highly knowledgeable and provide practical insights that help build real-world skills. The course content is up-to-date, covering all the essential tools and techniques in digital marketing.", avatar: generateDefaultAvatar("Michael Chen", 60) },
+		{ name: "Emily Davis", role: "Marketing Manager", content: "Before joining this course, I thought it would be just theory, but the classes are filled with practical examples and case studies that make learning fun and easy. The trainers genuinely care about your progress. After completing the course, I feel ready to take on job opportunities in digital marketing!", avatar: generateDefaultAvatar("Emily Davis", 60) },
+		{ name: "Mr. Rohit", role: "Paid Ads Expert", content: "Namaste; I am Ram and the student of RYMA ACADEMY, Here each and every part of training in Digital Marketing is admirable and practical. I came to learn only but became a practical person with practical knowledge with the help of RYMA ACADEMY, and under the guidance of good trainer. Thanks", avatar: generateDefaultAvatar("Ram Bharos Shah", 60) },
+		{ name: "Ms. Simran", role: "Funnel Strategiest", content: "I was looking for something career-oriented after college, and this internpresso program was perfect. The best part? The live projects! I’m now confident about handling real marketing campaigns. Highly recommend it to everyone!", avatar: generateDefaultAvatar("Ms. Simran", 60) },
+		{ name: "Mr. Samarthan Jamwal", role: "SEO Executive", content: "The trainers here are so good and helpful. I was scared about learning something new, but they made everything easy to understand. I did SEO and social media marketing, and now I feel ready for a job", avatar: generateDefaultAvatar("Samarthan Jamwal", 60) },
+
 	]
 
 	return (
 		<div className="min-h-screen">
 			{/* Hero Section */}
-			<section >
-				
-				<img src='/heroimg.jpeg' alt='hero img' className="h-50 w-full"/>
-			</section>
+			<section className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden">
+  {/* Background Image */}
+  <img
+    src="/banner-three-img1.png"
+    alt="Hero"
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+
+  {/* Dark Gradient Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+
+  {/* Content on Image */}
+  <div className="relative z-10 flex items-center h-full">
+    <div className="w-full max-w-7xl px-6 md:px-12 mx-auto">
+      <div className="max-w-2xl text-left">
+        
+        {/* Brand */}
+        <div className="flex items-center mb-4 space-x-2">
+          <span className="inline-block w-3 h-3 bg-blue-500 rounded-sm"></span>
+          <span className="text-yellow-400 font-semibold tracking-wide">
+            RYMA ACADEMY
+          </span>
+        </div>
+
+        {/* Heading */}
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white">
+          AI-Powered <br />
+          <span className="text-yellow-400">Digital Marketing</span> <br />
+          Course
+        </h1>
+
+        {/* Description */}
+        <p className="mt-6 text-sm md:text-base text-gray-200">
+          Welcome to RYMA ACADEMY, Learn modern digital marketing using AI tools for
+          smarter campaigns, automation, analytics, and faster business growth.
+        </p>
+
+        {/* Buttons */}
+        <div className="flex flex-wrap items-center gap-4 mt-8">
+          <button className="px-6 py-3 font-semibold text-white transition bg-blue-600 rounded-full hover:bg-blue-700">
+            Find Courses →
+          </button>
+
+          <button className="flex items-center gap-3 px-6 py-3 font-semibold text-white transition bg-orange-500 rounded-full hover:bg-orange-600">
+            ▶ Look Offline
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
 
 			{/* RYMA Academy Promotional Section */}
 			<section className="py-8 bg-white sm:py-10 md:py-12">
@@ -118,10 +171,11 @@ const HomePage = () => {
 					>
 						<div className="md:pr-8">
 							<h2 className="mb-2 text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl lg:text-4xl">
-								Join <span className="text-red-600">RYMA ACADEMY</span>
-								<span className="text-xs align-super">™</span>,{" "}
+								<span className="text-gray-600">Join </span>
+								<span className="text-primary-800">RYMA ACADEMY</span>
+								<span className="text-xs align-super text-primary-800">™</span>,{" "}
 								<span className="text-gray-600">#1 Training Institute in</span>{" "}
-								<span className="text-red-600">Marketing & Development</span>
+								<span className="text-primary-800">Marketing & Development</span>
 							</h2>
 						</div>
 
@@ -275,7 +329,7 @@ const HomePage = () => {
 						<Link
 							to="/courses"
 							className="inline-flex items-center px-5 py-3 space-x-2 text-sm font-semibold text-white rounded-lg sm:px-6 sm:py-3 md:px-8 md:py-4 sm:text-base"
-							style={{ background: '#890C25', border: 'none' }}
+							style={{ background: '#79061d', border: 'none' }}
 						>
 							<span>View All Courses</span>
 							<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -344,53 +398,129 @@ const HomePage = () => {
 
 			{/* Testimonials Section */}
 			<section className="py-8 bg-white sm:py-10 md:py-12 lg:py-20">
-				<div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-					<motion.div
-						initial={{ opacity: 0, y: 50 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8 }}
-						viewport={{ once: true }}
-						className="mb-6 text-center sm:mb-8 md:mb-16"
-					>
-						<h2 className="mb-2 text-xl font-bold text-black sm:text-2xl md:text-3xl lg:text-4xl">What Our Students Say</h2>
-						<p className="max-w-3xl mx-auto text-sm text-gray-700 sm:text-base md:text-xl">
-							Join thousands of successful learners who transformed their careers
-						</p>
-					</motion.div>
+  <style>{`
+    @keyframes marquee {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+    @keyframes marquee-desktop {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-33.33%);
+      }
+    }
+    .animate-marquee-mobile {
+      animation: marquee 25s linear infinite;
+    }
+    .animate-marquee-desktop {
+      animation: marquee-desktop 15s linear infinite;
+    }
+    .animate-marquee-mobile:hover,
+    .animate-marquee-desktop:hover {
+      animation-play-state: paused;
+    }
+  `}</style>
 
-					<div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3 md:gap-8">
-						{testimonials.map((testimonial, index) => (
-							<motion.div
-								key={index}
-								initial={{ opacity: 0, y: 50 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.8, delay: index * 0.1 }}
-								viewport={{ once: true }}
-								className="p-4 bg-white border border-gray-100 shadow-lg sm:p-6 md:p-8 rounded-xl"
-							>
-								<Quote className="w-6 h-6 mb-3 text-rose-900 sm:w-8 sm:h-8" />
-								<p className="mb-4 text-sm italic text-gray-700 sm:text-base md:mb-6">&ldquo;{testimonial.content}&rdquo;</p>
-								<div className="flex items-center space-x-3 sm:space-x-4">
-									<img
-										src={testimonial.avatar || "/placeholder.svg"}
-										alt={testimonial.name}
-										className="object-cover w-8 h-8 rounded-full sm:w-10 sm:h-10 md:w-12 md:h-12"
-									/>
-									<div>
-										<div className="text-xs font-semibold text-black sm:text-sm md:text-base">{testimonial.name}</div>
-										<div className="text-xs text-gray-700 sm:text-sm">{testimonial.role}</div>
-										<div className="flex items-center mt-1">
-											{[...Array(testimonial.rating)].map((_, i) => (
-												<Star key={i} className="w-3 h-3 fill-current sm:h-4 sm:w-4 text-rose-400" />
-											))}
-										</div>
-									</div>
-								</div>
-							</motion.div>
-						))}
-					</div>
-				</div>
-			</section>
+  <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      viewport={{ once: true }}
+      className="mb-6 text-center sm:mb-8 md:mb-16"
+    >
+      <h2 className="mb-2 text-xl font-bold text-black sm:text-2xl md:text-3xl lg:text-4xl">
+        What Our Students Say
+      </h2>
+      <p className="max-w-3xl mx-auto text-sm text-gray-700 sm:text-base md:text-xl">
+        Join thousands of successful learners who transformed their careers
+      </p>
+    </motion.div>
+
+    {/* Desktop/TABLET - Single Row Marquee (3 cards visible at once) */}
+    <div className="hidden md:block overflow-hidden py-4">
+      <div className="flex animate-marquee-desktop">
+        {/* Triple the testimonials for seamless loop */}
+        {[...testimonials, ...testimonials, ...testimonials].map((testimonial, index) => (
+          <div
+            key={index}
+            className="w-[calc(33.33%-1rem)] mx-2 p-6 bg-primary-800 text-white border border-gray-100 shadow-lg rounded-xl flex-shrink-0 flex flex-col min-h-[250px]"
+          >
+            <p className="mb-6 text-base italic flex-grow">
+              &ldquo;{testimonial.content}&rdquo;
+            </p>
+            <div className="flex items-center space-x-4 mt-auto">
+              <img
+                src={testimonial.avatar || "/placeholder.svg"}
+                alt={testimonial.name}
+                className="object-cover w-10 h-10 rounded-full md:w-12 md:h-12"
+              />
+              <div>
+                <div className="text-sm font-semibold text-white md:text-base">
+                  {testimonial.name}
+                </div>
+                <div className="text-sm text-white">
+                  {testimonial.role}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* MOBILE - Single Row Marquee (1 card visible at once) */}
+    <div className="md:hidden overflow-hidden py-4">
+      <div className="flex animate-marquee-mobile">
+        {/* Double the testimonials for seamless loop */}
+        {[...testimonials, ...testimonials].map((testimonial, index) => (
+          <div
+            key={index}
+            className="w-[85vw] mx-2 p-6 bg-primary-800 text-white border border-gray-100 shadow-lg rounded-xl flex-shrink-0 flex flex-col min-h-[220px]"
+          >
+            <p className="mb-4 text-sm italic flex-grow">
+              &ldquo;{testimonial.content}&rdquo;
+            </p>
+            <div className="flex items-center space-x-3 mt-auto">
+              <img
+                src={testimonial.avatar || "/placeholder.svg"}
+                alt={testimonial.name}
+                className="object-cover w-8 h-8 rounded-full"
+              />
+              <div>
+                <div className="text-xs font-semibold text-white">
+                  {testimonial.name}
+                </div>
+                <div className="text-xs text-white">
+                  {testimonial.role}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Navigation Dots (Optional) */}
+    <div className="flex justify-center mt-6 space-x-2">
+      {testimonials.map((_, index) => (
+        <div
+          key={index}
+          className="w-2 h-2 rounded-full bg-gray-300"
+        />
+      ))}
+    </div>
+
+  </div>
+</section>
+
+
 
 
 

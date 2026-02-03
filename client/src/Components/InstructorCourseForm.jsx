@@ -660,7 +660,7 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
               </button>
               <button
                 type="submit"
-                className="flex items-center px-4 py-2 space-x-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+                className="flex items-center px-4 py-2 space-x-2 text-white transition-colors bg-primary-600 rounded-lg hover:bg-primary-700"
               >
                 <Save className="w-4 h-4" />
                 <span>{editingCourse ? "Update Course" : "Create Course"}</span>

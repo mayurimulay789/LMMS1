@@ -118,12 +118,12 @@ const CertificateCard = ({ certificate, onDownload }) => {
       </div>
 
       {/* Actions */}
-      <div className="p-4 bg-white border-t border-gray-100">
+      <div className="p-4  border-t border-gray-100">
         <div className="flex items-center justify-center w-full">
           <button
             onClick={handleDownload}
             disabled={isLoading}
-            className="btn btn-sm btn-primary flex items-center space-x-1 w-full justify-center"
+            className="btn btn-sm btn-primary flex items-center space-x-1 w-full justify-center bg-primary-600 hover:bg-primary-700 text-white p-2 border border-transparent rounded-md transition-colors disabled:bg-primary-400 disabled:cursor-not-allowed"
           >
             {isLoading ? <div className="spinner h-4 w-4" /> : <Download className="h-4 w-4" />}
             <span>{isLoading ? "Downloading..." : "Download"}</span>

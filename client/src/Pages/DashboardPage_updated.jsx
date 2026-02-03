@@ -198,7 +198,7 @@ const DashboardPage = () => {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                     <User className="h-5 w-5 mr-2" />
-                    Personal Information
+                    Personal Informationn
                   </h3>
                   <button
                     onClick={() => setShowProfileForm(true)}

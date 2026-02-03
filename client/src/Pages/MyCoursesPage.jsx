@@ -618,7 +618,7 @@ const MyCoursesPage = () => {
       label: "All Courses", 
       count: enrollmentsWithProgress.length,
       color: "bg-blue-100 hover:bg-blue-200 text-blue-700 border-blue-300",
-      activeColor: "bg-blue-600 text-white border-blue-700"
+      activeColor: "bg-primary-600 text-white border-primay-700"
     },
     { 
       key: "in-progress", 
@@ -886,7 +886,7 @@ const MyCoursesPage = () => {
 
               <Link
                 to="/courses"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-all bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 whitespace-nowrap hover:shadow-md"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-all bg-purple-600 rounded-lg shadow-sm hover:bg-purple-700 whitespace-nowrap hover:shadow-md"
               >
                 <BookOpen className="w-4 h-4" />
                 Browse Courses

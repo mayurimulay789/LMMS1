@@ -240,7 +240,7 @@ const CertificatesPage = () => {
               <button
                 onClick={downloadAllCertificates}
                 disabled={isDownloadingAll}
-                className={`flex items-center justify-center gap-2 px-4 py-2 font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed w-full md:w-auto ${mobileMenuOpen ? 'flex' : 'hidden md:flex'}`}
+                className={`flex items-center justify-center gap-2 px-4 py-2 font-medium text-white transition-colors bg-primary-600 rounded-lg hover:bg-primary-700 disabled:bg-primary-400 disabled:cursor-not-allowed w-full md:w-auto ${mobileMenuOpen ? 'flex' : 'hidden md:flex'}`}
               >
                 <Download className="w-4 h-4" />
                 <span>{isDownloadingAll ? 'Downloading...' : 'Download All'}</span>
@@ -421,7 +421,7 @@ const CertificatesPage = () => {
               <button
                 onClick={downloadAllCertificates}
                 disabled={isDownloadingAll}
-                className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
+                className="px-4 py-2 text-sm font-medium text-white transition-colors bg-primary-600 rounded-lg hover:bg-primary-700 disabled:bg-primary-400"
               >
                 {isDownloadingAll ? 'Downloading...' : 'Download All'}
               </button>

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 
+
 // Helper function to handle API responses
 const handleApiResponse = async (response) => {
   const contentType = response.headers.get('content-type')
@@ -53,6 +54,10 @@ export const loginUser = createAsyncThunk("auth/login", async ({ email, password
     if (data.user) {
       localStorage.setItem("user", JSON.stringify(data.user))
     }
+
+
+
+
     
     return data
   } catch (error) {

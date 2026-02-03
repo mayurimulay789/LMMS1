@@ -22,6 +22,10 @@ const PaymentSuccessPage = () => {
   const razorpay_signature = searchParams.get("razorpay_signature")
 
   useEffect(() => {
+        window.scrollTo(0, 0);
+      }, []);
+
+  useEffect(() => {
     if (razorpay_order_id && razorpay_payment_id && razorpay_signature) {
       verifyPaymentAndEnroll()
     } else {
@@ -91,42 +95,42 @@ const PaymentSuccessPage = () => {
     )
   }
 
-  if (verificationStatus === "error") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="w-full max-w-md p-8 text-center bg-white rounded-lg shadow-sm">
-          <div className="mb-4 text-red-500">
-            <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-              />
-            </svg>
-          </div>
-          <h2 className="mb-4 text-2xl font-bold text-gray-900">Payment Verification Failed</h2>
-          <p className="mb-6 text-gray-600">
-            We couldn't verify your payment. Please contact support if you believe this is an error.
-          </p>
-          <div className="space-y-3">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="w-full px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
-            >
-              Go to Dashboard
-            </button>
-            <button
-              onClick={() => navigate("/contact")}
-              className="w-full px-4 py-2 text-gray-700 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Contact Support
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // if (verificationStatus === "error") {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen bg-gray-50">
+  //       <div className="w-full max-w-md p-8 text-center bg-white rounded-lg shadow-sm">
+  //         <div className="mb-4 text-red-500">
+  //           <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //             <path
+  //               strokeLinecap="round"
+  //               strokeLinejoin="round"
+  //               strokeWidth={2}
+  //               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+  //             />
+  //           </svg>
+  //         </div>
+  //         <h2 className="mb-4 text-2xl font-bold text-gray-900">Payment Verification Failed</h2>
+  //         <p className="mb-6 text-gray-600">
+  //           We couldn't verify your payment. Please contact support if you believe this is an error.
+  //         </p>
+  //         <div className="space-y-3">
+  //           <button
+  //             onClick={() => navigate("/dashboard")}
+  //             className="w-full px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+  //           >
+  //             Go to Dashboard
+  //           </button>
+  //           <button
+  //             onClick={() => navigate("/contact")}
+  //             className="w-full px-4 py-2 text-gray-700 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50"
+  //           >
+  //             Contact Support
+  //           </button>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className="min-h-screen py-8 bg-gray-50">
@@ -244,13 +248,13 @@ const PaymentSuccessPage = () => {
                 className="p-4 text-center transition-shadow border border-gray-200 rounded-lg hover:shadow-md"
               >
                 <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-blue-100 rounded-full">
-                  <step.icon className="w-6 h-6 text-blue-600" />
+                  <step.icon className="w-6 h-6 text-primary-700" />
                 </div>
                 <h3 className="mb-2 font-semibold text-gray-900">{step.title}</h3>
                 <p className="mb-4 text-sm text-gray-600">{step.description}</p>
                 <Link
                   to={step.link}
-                  className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800"
+                  className="inline-flex items-center text-sm font-medium text-primary-700 hover:text-blue-800"
                 >
                   {step.action}
                   <ArrowRight className="w-4 h-4 ml-1" />
@@ -263,13 +267,13 @@ const PaymentSuccessPage = () => {
        
 
         {/* Receipt Download */}
-        <div className="mt-8 text-center">
+        {/* <div className="mt-8 text-center">
           <p className="mb-4 text-gray-600">Need a receipt for your records?</p>
           <button className="font-medium text-blue-600 hover:text-blue-800">
             <Download className="inline w-4 h-4 mr-2" />
             Download Receipt
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   )

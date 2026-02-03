@@ -3,7 +3,15 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { Eye, EyeOff, Mail, Lock, User, BookOpen, CheckCircle, X } from "lucide-react"
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  User,
+  BookOpen,
+  CheckCircle,
+} from "lucide-react"
 import { registerUser, clearError } from "../store/slices/authSlice"
 
 const RegisterPage = () => {
@@ -15,117 +23,58 @@ const RegisterPage = () => {
     role: "student",
     referralCode: "",
   })
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [errors, setErrors] = useState({})
-  const [referralStatus, setReferralStatus] = useState({
-    isValid: false,
-    referrerName: "",
-    message: ""
-  })
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const [countdown, setCountdown] = useState(5)
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth)
+  const { isLoading, error } = useSelector((state) => state.auth)
 
-  // Countdown and navigate after success
   useEffect(() => {
-    if (showSuccessPopup) {
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer)
-            handleRedirect()
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
+    window.scrollTo(0, 0);
+  }, []);
 
-      return () => clearInterval(timer)
-    }
+  useEffect(() => {
+    if (!showSuccessPopup) return
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          handleRedirect()
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
   }, [showSuccessPopup])
 
   const handleRedirect = () => {
-    const user = JSON.parse(localStorage.getItem("user"))
-    const from = location.state?.from
-
-    if (from && from !== '/register') {
-      navigate(from, { replace: true })
-    } else {
-      if (user?.role === "admin") {
-        navigate("/admin", { replace: true })
-      } else if (user?.role === "instructor") {
-        navigate("/instructor", { replace: true })
-      } else {
-        navigate("/dashboard", { replace: true })
-      }
-    }
+    navigate("/dashboard", { replace: true })
   }
 
   useEffect(() => {
-    return () => {
-      dispatch(clearError())
-    }
+    return () => dispatch(clearError())
   }, [dispatch])
-
-  const validateReferralCode = async (email) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/validate-referral?email=${encodeURIComponent(email)}`)
-      if (response.ok) {
-        const data = await response.json()
-        setReferralStatus({
-          isValid: true,
-          referrerName: data.name,
-          message: `Referred by ${data.name}`
-        })
-      } else {
-        setReferralStatus({
-          isValid: false,
-          referrerName: "",
-          message: "Invalid referral code"
-        })
-      }
-    } catch {
-      setReferralStatus({
-        isValid: false,
-        referrerName: "",
-        message: "Error validating referral"
-      })
-    }
-  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }))
-    if (error) dispatch(clearError())
-
-    // Referral code validation
-    if (name === "referralCode") {
-      if (value && /\S+@\S+\.\S+/.test(value)) validateReferralCode(value)
-      else if (!value) setReferralStatus({ isValid: false, referrerName: "", message: "" })
-      else setReferralStatus({ isValid: false, referrerName: "", message: "Please enter a valid email address" })
-    }
   }
 
   const validateForm = () => {
     const newErrors = {}
-    if (!formData.name.trim()) newErrors.name = "Name is required"
-    else if (formData.name.trim().length < 2) newErrors.name = "Name must be at least 2 characters"
-
-    if (!formData.email.trim()) newErrors.email = "Email is required"
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid"
-
-    if (!formData.password) newErrors.password = "Password is required"
-    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters"
-
-    if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password"
-    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match"
-
+    if (!formData.name.trim()) newErrors.name = "Full name is required"
+    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Valid email required"
+    if (formData.password.length < 6) newErrors.password = "Minimum 6 characters"
+    if (formData.password !== formData.confirmPassword)
+      newErrors.confirmPassword = "Passwords do not match"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -133,273 +82,173 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validateForm()) return
-
-    const { confirmPassword, ...userData } = formData
-
-    try {
-      await dispatch(registerUser(userData)).unwrap()
-      setShowSuccessPopup(true)
-      setCountdown(5) // Reset countdown to 5 seconds
-    } catch (err) {
-      console.error("Registration failed:", err)
-    }
-  }
-
-  // Simple Success Popup Component
-  const SuccessPopup = () => {
-    if (!showSuccessPopup) return null
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-sm w-full mx-auto p-6 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="h-8 w-8 text-green-600" />
-          </div>
-          
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
-            Account Registered Successfully!
-          </h3>
-          
-          <p className="text-gray-600 mb-4">
-            You will be redirected to your dashboard in {countdown} seconds.
-          </p>
-
-          <div className="flex flex-col space-y-3">
-            <div className="flex items-center justify-center space-x-2 text-blue-600 text-sm">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-              <span>Redirecting in {countdown} seconds...</span>
-            </div>
-            
-            <button
-              onClick={handleRedirect}
-              className="text-sm text-red-600 hover:text-red-800 font-medium underline"
-            >
-              Click here to redirect immediately
-            </button>
-          </div>
-        </div>
-      </div>
-    )
+    const { confirmPassword, ...payload } = formData
+    await dispatch(registerUser(payload))
+    setShowSuccessPopup(true)
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      {/* Success Popup */}
-      <SuccessPopup />
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 flex  justify-center px-4 py-10">
+      {/* Success Modal */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex  justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm text-center">
+            <CheckCircle className="w-14 h-14 text-green-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">
+              Registration Successful
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Redirecting in {countdown} seconds...
+            </p>
+            <button
+              onClick={handleRedirect}
+              className="text-sm text-rose-600 underline"
+            >
+              Go now
+            </button>
+          </div>
+        </div>
+      )}
 
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <Link to="/" className="flex items-center justify-center space-x-2 mb-6">
-            <BookOpen className="h-10 w-10 text-red-600" />
-            <span className="text-2xl font-bold text-gray-900">Ryma Academy</span>
-          </Link>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
-          <p className="text-gray-600">Join thousands of learners and start your journey today</p>
+      <div className="w-full max-w-lg">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          
+          <p className="text-primary-600 text-xl ">
+            Create your account and start learning today!
+          </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-8">
-          {/* Error Message */}
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-xl px-8 py-4">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">
-                {typeof error === "string" ? error : "Registration failed. Please try again."}
-              </p>
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-2">
+              {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${
-                    errors.name ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Enter your full name"
-                />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Input Field */}
+            {[
+              {
+                label: "Full Name",
+                name: "name",
+                type: "text",
+                icon: User,
+                placeholder: "John Doe",
+              },
+              {
+                label: "Email Address",
+                name: "email",
+                type: "email",
+                icon: Mail,
+                placeholder: "you@example.com",
+              },
+            ].map(({ label, name, type, icon: Icon, placeholder }) => (
+              <div key={name}>
+                <label className="text-sm font-medium text-gray-700">
+                  {label}
+                </label>
+                <div className="relative mt-1">
+                  <Icon className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    placeholder={placeholder}
+                    className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-rose-500 outline-none ${
+                      errors[name]
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </div>
+                {errors[name] && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {errors[name]}
+                  </p>
+                )}
               </div>
-              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-            </div>
-
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Enter your email"
-                />
-              </div>
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-            </div>
+            ))}
 
             {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                    errors.password ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Create a password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLoading}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
+            {[
+              {
+                label: "Password",
+                name: "password",
+                show: showPassword,
+                setShow: setShowPassword,
+              },
+              {
+                label: "Confirm Password",
+                name: "confirmPassword",
+                show: showConfirmPassword,
+                setShow: setShowConfirmPassword,
+              },
+            ].map(({ label, name, show, setShow }) => (
+              <div key={name}>
+                <label className="text-sm font-medium text-gray-700">
+                  {label}
+                </label>
+                <div className="relative mt-1">
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <input
+                    type={show ? "text" : "password"}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    className={`w-full pl-10 pr-12 py-3 rounded-lg border focus:ring-2 focus:ring-rose-500 outline-none ${
+                      errors[name]
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShow(!show)}
+                    className="absolute right-3 top-3.5 text-gray-400"
+                  >
+                    {show ? <EyeOff /> : <Eye />}
+                  </button>
+                </div>
+                {errors[name] && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {errors[name]}
+                  </p>
+                )}
               </div>
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                    errors.confirmPassword ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Confirm your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  disabled={isLoading}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-              {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
-            </div>
-
-            {/* Referral */}
-            <div>
-              <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 mb-2">
-                Referral Code (Optional)
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  id="referralCode"
-                  name="referralCode"
-                  value={formData.referralCode}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:border-transparent transition-colors ${
-                    referralStatus.isValid
-                      ? "border-green-500 focus:ring-green-500"
-                      : referralStatus.message && !referralStatus.isValid
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-blue-500"
-                  }`}
-                  placeholder="Enter referrer's email (optional)"
-                />
-              </div>
-              {referralStatus.message && (
-                <p
-                  className={`mt-1 text-sm ${
-                    referralStatus.isValid ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {referralStatus.message}
-                </p>
-              )}
-            </div>
+            ))}
 
             {/* Terms */}
-            <div className="flex items-center">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                required
-                disabled={isLoading}
-                className="h-4 w-4 text-red-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-                I agree to the{" "}
-                <Link to="/terms" className="text-red-600 hover:text-red-800">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link to="/privacy" className="text-blue-600 hover:text-red-800">
-                  Privacy Policy
-                </Link>
-              </label>
-            </div>
+            <label className="flex items-center gap-2 text-sm text-gray-600">
+              <input type="checkbox" required />
+              I agree to the{" "}
+              <Link to="/terms-conditions" className="text-rose-600 underline">
+                Terms-Conditions
+              </Link>{" "}
+              &{" "}
+              <Link to="/privacy-policy" className="text-rose-600 underline">
+                Privacy-Policy
+              </Link>
+            </label>
 
             {/* Submit */}
             <button
-              type="submit"
               disabled={isLoading}
-              className="w-full bg-rose-700 text-white py-3 px-4 rounded-lg font-semibold hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center shadow-lg"
+              className="w-full bg-rose-700 hover:bg-rose-800 text-white py-3 rounded-lg font-semibold transition shadow-md"
             >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Creating account...
-                </>
-              ) : (
-                "Create Account"
-              )}
+              {isLoading ? "Creating account..." : "Create Account"}
             </button>
           </form>
 
-          {/* Login link */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Already have an account?{" "}
-              <Link to="/login" className="text-blue-600 hover:text-blue-800 font-medium">
-                Sign in here
-              </Link>
-            </p>
-          </div>
+          {/* Footer */}
+          <p className="text-center text-sm text-gray-600 mt-6">
+            Already have an account?{" "}
+            <Link to="/login" className="text-rose-700 font-medium">
+              Sign in
+            </Link>
+          </p>
         </div>
       </div>
     </div>

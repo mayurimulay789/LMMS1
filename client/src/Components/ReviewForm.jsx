@@ -64,14 +64,14 @@ const ReviewForm = ({ courseId, onReviewSubmit }) => {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         rows="4"
-        placeholder="Write your review..."
+        placeholder="Write your reviews..."
         className="w-full border border-gray-300 rounded p-2"
       />
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        className="bg-primary-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
         {isSubmitting ? "Submitting..." : "Submit Review"}
       </button>

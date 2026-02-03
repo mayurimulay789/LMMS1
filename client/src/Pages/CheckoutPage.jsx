@@ -412,53 +412,7 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-            {/* Available Offers */}
-            {availableOffers && availableOffers.length > 0 && (
-              <div className="p-6 bg-white rounded-lg shadow-sm">
-                <h2 className="mb-4 text-xl font-semibold text-gray-900">Coupons</h2>
-                {isFetchingOffers ? (
-                  <div className="flex items-center justify-center py-4">
-                    <div className="w-6 h-6 border-b-2 border-blue-600 rounded-full animate-spin"></div>
-                    <span className="ml-2 text-gray-600">Loading offers...</span>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {availableOffers.map((offer) => (
-                      <div
-                        key={offer.code}
-                        className="relative p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 group"
-                        onClick={() => {
-                          setPromoCodeInput(offer.code)
-                          dispatch(clearError())
-                          dispatch(validatePromoCode({
-                            code: offer.code,
-                            courseId: course._id,
-                          }))
-                        }}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <Tag className="w-4 h-4 text-green-600" />
-                              <span className="font-semibold text-gray-900">{offer.code}</span>
-                              <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded">
-                                {offer.discountType === "percentage" ? `${offer.discountValue}% off` : `₹${offer.discountValue} off`}
-                              </span>
-                            </div>
-                            <p className="mt-1 text-sm text-gray-600">{offer.description}</p>
-                          </div>
-                          <div className="transition-opacity duration-200">
-                            <button className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200">
-                              Apply
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+           
 
             {/* Promo Code - Hidden on mobile to save space */}
             <div className="hidden sm:block p-4 sm:p-6 bg-white rounded-lg shadow-sm">
@@ -704,15 +658,15 @@ const CheckoutPage = () => {
                     />
                     <label htmlFor="terms" className="text-xs sm:text-sm text-gray-700">
                       I agree to the{" "}
-                      <a href="/terms" className="text-blue-600 underline hover:text-blue-800">
+                      <a href="/terms-conditions" className="text-primary-800 underline hover:text-blue-800">
                         Terms of Service
                       </a>
                       ,{" "}
-                      <a href="/privacy" className="text-blue-600 underline hover:text-blue-800">
+                      <a href="/privacy-policy" className="text-primary-800 underline hover:text-blue-800">
                         Privacy Policy
                       </a>
                       , and{" "}
-                      <a href="/refund" className="text-blue-600 underline hover:text-blue-800">
+                      <a href="/refund-cancelation" className="text-primary-800 underline hover:text-blue-800">
                         Refund Policy
                       </a>
                       . I understand that I will have immediate access to this course upon successful payment.
@@ -726,7 +680,7 @@ const CheckoutPage = () => {
           {/* Sidebar */}
           <div className="space-y-4 sm:space-y-6">
             {/* Order Summary */}
-            <div className="sticky p-4 sm:p-6 bg-white rounded-lg shadow-sm top-4 sm:top-8">
+            <div className=" p-4 sm:p-6 bg-white rounded-lg shadow-sm top-4 sm:top-8">
               <h3 className="mb-3 sm:mb-4 text-lg font-semibold text-gray-900">Order Summary</h3>
               <div className="mb-4 sm:mb-6 space-y-2 sm:space-y-3">
                 <div className="flex justify-between">
@@ -775,35 +729,10 @@ const CheckoutPage = () => {
                 <p>By completing your purchase, you agree to our terms and conditions</p>
               </div>
             </div>
-
-            {/* What's Included */}
-            <div className="p-3 sm:p-4 border border-blue-200 rounded-lg bg-blue-50">
-              <h4 className="mb-2 sm:mb-3 font-semibold text-blue-800 text-sm sm:text-base">What's Included:</h4>
-              <ul className="space-y-1 text-xs sm:text-sm text-blue-700">
-                <li>• Lifetime access to course</li>
-                <li>• Mobile and desktop access</li>
-                <li>• Certificate of completion</li>
-                <li>• Direct instructor support</li>
-                <li>• 30-day money-back guarantee</li>
-                <li>• Downloadable resources</li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div className="p-3 sm:p-4 rounded-lg bg-gray-50">
-              <div className="flex items-center mb-2 space-x-2">
-                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                <span className="font-semibold text-gray-800 text-sm sm:text-base">Need Help?</span>
-              </div>
-              <p className="mb-2 sm:mb-3 text-xs sm:text-sm text-gray-600">
-                Our support team is here to help with any questions about your purchase.
-              </p>
-              <button className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-800">Contact Support →</button>
             </div>
           </div>
         </div>
       </div>
-    </div>
   )
 }
 

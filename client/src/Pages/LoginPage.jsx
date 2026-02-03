@@ -1,213 +1,201 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Link, useNavigate, useLocation } from "react-router-dom"
-import { useDispatch, useSelector } from "react-redux"
-import { Eye, EyeOff, Mail, Lock, BookOpen } from "lucide-react"
-import { loginUser, clearError } from "../store/slices/authSlice"
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Eye, EyeOff, Mail, Lock, BookOpen } from "lucide-react";
+import { loginUser, clearError,loadUser } from "../store/slices/authSlice";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [errors, setErrors] = useState({})
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoading, error, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from
-      if (from && from !== '/login') {
-        navigate(from, { replace: true })
+      const from = location.state?.from;
+      if (from && from !== "/login") {
+        navigate(from, { replace: true });
       } else {
-        const user = JSON.parse(localStorage.getItem("user"))
-        if (user?.role === "admin") {
-          navigate("/admin")
-        } else if (user?.role === "instructor") {
-          navigate("/instructor")
-        } else {
-          navigate("/dashboard")
-        }
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (user?.role === "admin") navigate("/admin");
+        else if (user?.role === "instructor") navigate("/instructor");
+        else navigate("/dashboard");
       }
     }
-  }, [isAuthenticated, navigate, location])
+  }, [isAuthenticated, navigate, location]);
 
   useEffect(() => {
     return () => {
-      dispatch(clearError())
-    }
-  }, [dispatch])
+      dispatch(clearError());
+    };
+  }, [dispatch]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-    // Clear field error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }))
-    }
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Invalid email address";
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid"
-    }
+    if (!formData.password)
+      newErrors.password = "Password is required";
+    else if (formData.password.length < 6)
+      newErrors.password = "Minimum 6 characters required";
 
-    if (!formData.password) {
-      newErrors.password = "Password is required"
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
-    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
-
-    dispatch(loginUser(formData))
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    dispatch(loginUser(formData));
+    dispatch(loadUser());
+  };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-6">
-        {/* Header */}
-        <div className="text-center">
-          <Link to="/" className="flex items-center justify-center space-x-2 mb-4">
-            <BookOpen className="h-8 w-8 text-red-600 sm:h-10 sm:w-10" />
-            <span className="text-xl font-bold text-gray-900 sm:text-2xl">Ryma Academy</span>
-          </Link>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2 sm:text-3xl">Welcome back</h2>
-          <p className="text-sm text-gray-600 sm:text-base">Sign in to your account to continue learning</p>
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 flex mt-4 justify-center px-4">
+      <div className="w-full max-w-md">
+
+        {/* BRAND HEADER */}
+        <div className="text-center mb-3">
+          
+          <p className="text-primary-600 text-base font-semibold flex items-center justify-center gap-2 mb-2">
+            Sign in to continue your learning journey
+          </p>
         </div>
 
-        {/* Form */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
+        {/* FORM CARD */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="email"
-                  id="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors text-sm sm:text-base sm:py-3 ${
+                  placeholder="you@example.com"
+                  className={`w-full rounded-lg border px-10 py-3 text-sm focus:ring-2 focus:ring-rose-600 focus:border-transparent ${
                     errors.email ? "border-red-500" : "border-gray-300"
                   }`}
-                  placeholder="Enter your email"
                 />
               </div>
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              )}
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-sm sm:text-base sm:py-3 ${
+                  placeholder="••••••••"
+                  className={`w-full rounded-lg border px-10 py-3 pr-12 text-sm focus:ring-2 focus:ring-rose-600 focus:border-transparent ${
                     errors.password ? "border-red-500" : "border-gray-300"
                   }`}
-                  placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.password}
+                </p>
+              )}
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+            {/* Remember / Forgot */}
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 text-gray-700">
                 <input
-                  id="remember-me"
-                  name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-red-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="rounded border-gray-300 text-rose-600 focus:ring-rose-500"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-              <Link to="/forgot-password" className="text-sm text-red-600 hover:text-red-800">
+                Remember me
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-rose-700 hover:text-rose-800 font-medium"
+              >
                 Forgot password?
               </Link>
             </div>
 
-            {/* Submit Button */}
+            {/* Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-rose-700 text-white py-2 px-4 rounded-lg font-semibold hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center text-sm sm:text-base sm:py-3"
+              className="w-full rounded-lg bg-rose-700 py-3 text-white font-semibold hover:bg-rose-800 transition disabled:opacity-50"
             >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 sm:h-5 sm:w-5"></div>
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
+              {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
-          {/* Sign Up Link */}
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600 sm:text-base">
-              Don't have an account?{" "}
-              <Link to="/register" className="text-red-600 hover:text-red-800 font-medium">
-                Sign up here
-              </Link>
-            </p>
-          </div>
+          {/* Footer */}
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Don’t have an account?{" "}
+            <Link
+              to="/register"
+              className="font-medium text-rose-700 hover:text-rose-800"
+            >
+              Create one
+            </Link>
+          </p>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

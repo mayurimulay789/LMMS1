@@ -77,32 +77,32 @@ const ReferEarn = () => {
     {
       program: "Full Stack Development",
       reward: "₹5,000 per referral",
-      color: "bg-rose-500"
+      color: "bg-primary-700"
     },
     {
       program: "Data Science",
       reward: "₹6,000 per referral",
-      color: "bg-rose-600"
+      color: "bg-primary-700"
     },
     {
       program: "AI & Machine Learning",
       reward: "₹7,000 per referral",
-      color: "bg-rose-700"
+     color: "bg-primary-700"
     },
     {
       program: "Cyber Security",
       reward: "₹6,500 per referral",
-      color: "bg-rose-800"
+      color: "bg-primary-700"
     },
     {
       program: "Cloud Computing",
       reward: "₹5,500 per referral",
-      color: "bg-pink-500"
+      color: "bg-primary-700"
     },
     {
       program: "Digital Marketing",
       reward: "₹4,500 per referral",
-      color: "bg-pink-600"
+      color: "bg-primary-700"
     }
   ];
 
@@ -136,7 +136,7 @@ const ReferEarn = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 to-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-rose-800 to-rose-600 text-white py-16 sm:py-20">
+      <section className="bg-gradient-to-r from-primary-800 to-primary-800 text-white py-16 sm:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center">
             <h1 className="text-3xl sm:text-5xl font-bold mb-4 sm:mb-6">Refer a Friend and Win</h1>
@@ -170,7 +170,7 @@ const ReferEarn = () => {
                 <div className="text-center">
                   {/* Step Number Badge */}
                   <div className="relative mb-4 sm:mb-6">
-                    <div className="bg-gradient-to-br from-rose-600 to-rose-800 w-16 sm:w-20 h-16 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <div className="bg-gradient-to-br from-primary-600 to-primary-800 w-16 sm:w-20 h-16 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <div className="bg-white w-12 sm:w-16 h-12 sm:h-16 rounded-full flex items-center justify-center shadow-inner">
                         <div className="text-rose-600 group-hover:scale-110 transition-transform duration-300">
                           {step.icon}
@@ -182,7 +182,7 @@ const ReferEarn = () => {
                     </div>
                   </div>
                   {/* Content */}
-                  <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-gray-800 group-hover:text-rose-700 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-gray-800 group-hover:text-primary-800 transition-colors">
                     {step.title}
                   </h3>
                   <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors text-sm sm:text-base">
@@ -229,14 +229,8 @@ const ReferEarn = () => {
       </section>
 
       {/* Modern FAQ Section */}
-      <section className="py-10 sm:py-16 bg-gradient-to-br from-rose-900 via-rose-800 to-pink-900 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full"></div>
-          <div className="absolute top-40 right-20 w-16 h-16 bg-white rounded-full"></div>
-          <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-white rounded-full"></div>
-          <div className="absolute bottom-10 right-10 w-12 h-12 bg-white rounded-full"></div>
-        </div>
+      <section className="py-10 sm:py-16 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-800 relative overflow-hidden">
+        
         
         <div className="max-w-2xl sm:max-w-4xl md:max-w-5xl lg:max-w-7xl mx-auto px-3 sm:px-6 relative z-10">
           <div className="text-center mb-10 sm:mb-16">
@@ -252,7 +246,7 @@ const ReferEarn = () => {
             {faqItems.map((faq, index) => (
               <div 
                 key={index}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden transition-all duration-300 hover:bg-white/15 hover:border-white/30"
+                className="bg-white/1 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden transition-all duration-300 hover:bg-white/15 hover:border-white/30"
               >
                 <button
                   onClick={() => toggleFAQ(index)}

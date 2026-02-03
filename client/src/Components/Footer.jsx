@@ -18,7 +18,11 @@ const Footer = () => {
     company: [
       { name: "About Us", path: "/about" },
       { name: "Contact", path: "/contact" },
-      { name: "FAQ", path: "/about#faq" },
+      { name: "FAQ", path: "/faq" },
+      { name: "Privacy Policy", path: "/privacy-policy" },
+      { name: "Terms & Conditions", path: "/terms-conditions" },
+      { name: "Refund & Cancelation", path: "/refund-cancelation" },
+
     ],
   }
 
@@ -39,14 +43,14 @@ const Footer = () => {
           {/* Section 1: Brand - Centered on mobile, Left-aligned on desktop */}
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-4 lg:max-w-[300px]">
             <Link to="/" className="inline-block">
-              <span className="text-2xl font-bold text-transparent bg-gradient-to-r from-rose-800 to-red-600 bg-clip-text sm:text-3xl">
+              <span className="text-2xl font-bold text-transparent bg-gradient-to-r from-primary-800 to-primary-700 bg-clip-text sm:text-4xl">
                 RYMA Academy
               </span>
               <p className="mt-1 text-sm font-semibold text-gray-500 uppercase tracking-wider">
                 Learn. Grow. Lead
               </p>
             </Link>
-            <p className="text-sm leading-relaxed text-gray-600">
+            <p className="text-md leading-relaxed text-gray-600">
               Empowering learners worldwide with high-quality online courses.
               Join thousands of students and advance your career.
             </p>
@@ -60,12 +64,12 @@ const Footer = () => {
               <h3 className="mb-6 text-sm font-bold text-gray-900 uppercase tracking-widest">
                 Company
               </h3>
-              <ul className="space-y-4">
+              <ul className="space-y-2">
                 {footerLinks.company.map((link) => (
                   <li key={link.name}>
                     <Link
                       to={link.path}
-                      className="text-sm text-gray-600 transition-colors hover:text-rose-600"
+                      className="text-md text-gray-600 transition-colors hover:text-primary-800"
                     >
                       {link.name}
                     </Link>
@@ -79,12 +83,12 @@ const Footer = () => {
               <h3 className="mb-6 text-sm font-bold text-gray-900 uppercase tracking-widest">
                 Contact Info
               </h3>
-              <div className="space-y-5">
+              <div className="space-y-3">
                 <div className="flex items-start gap-3 group">
                   <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg shrink-0">
                     <Mail className="w-4 h-4" />
                   </div>
-                  <span className="text-sm text-gray-600 pt-0.5 break-all leading-tight">
+                  <span className="text-md text-gray-600 pt-0.5 break-all leading-tight">
                     support@rymaacademy.com
                   </span>
                 </div>
@@ -92,7 +96,7 @@ const Footer = () => {
                   <div className="p-1.5 bg-green-50 text-green-600 rounded-lg shrink-0">
                     <Phone className="w-4 h-4" />
                   </div>
-                  <span className="text-sm text-gray-600 leading-tight">
+                  <span className="text-md text-gray-600 leading-tight">
                     +91 - 9873336133
                   </span>
                 </div>

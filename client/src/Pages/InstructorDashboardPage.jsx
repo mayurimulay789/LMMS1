@@ -354,10 +354,6 @@ const handleEditProfile = async () => {
               <div className="py-6 text-center flex flex-col items-center justify-center">
                 <h1 className="text-3xl font-bold text-gray-900">Instructor Dashboard</h1>
                 <p className="text-gray-600 mb-2">Manage your courses and students</p>
-                <button className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-1 text-xs sm:text-sm mx-auto">
-                  <Download className="h-4 w-4" />
-                  <span>Export</span>
-                </button>
               </div>
           </div>
         </div>

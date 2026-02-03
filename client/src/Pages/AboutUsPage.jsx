@@ -2,11 +2,17 @@ import { Users, Target, Heart, BookOpen, Globe, Award, TrendingUp } from "lucide
 import { Link } from "react-router-dom"
 import { generateDefaultAvatar } from "../utils/imageUtils"
 
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 
 const AboutUsPage = () => {
   const [showFullStory, setShowFullStory] = useState(false);
   const handleShowMore = () => setShowFullStory((prev) => !prev);
+
+  useEffect(() => {
+        window.scrollTo(0, 0);
+      }, []);
+
+
   const stats = [
     { number: "50K+", label: "Active Students" },
     { number: "1000+", label: "Courses Available" },
@@ -87,6 +93,8 @@ const AboutUsPage = () => {
       description: "Serving students across 50+ countries worldwide"
     }
   ]
+
+
 
   return (
     <div className="min-h-screen bg-white">

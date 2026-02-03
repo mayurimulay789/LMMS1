@@ -31,6 +31,10 @@ const CourseDetailPage = () => {
   const [certificatesLoading, setCertificatesLoading] = useState(false)
 
   const modalVideoRef = useRef(null)
+
+   useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
   
   useEffect(() => {
     fetchCourseDetails()
@@ -980,7 +984,7 @@ const CourseDetailPage = () => {
                     <div className="space-y-3">
                       <button
                         onClick={() => navigate(`/courses/${course._id}/learn`)}
-                        className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 flex items-center justify-center space-x-2"
+                        className="w-full bg-primary-800 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 flex items-center justify-center space-x-2"
                       >
                         <Play className="h-5 w-5" />
                         <span>Continue Learning</span>
@@ -1058,7 +1062,7 @@ const CourseDetailPage = () => {
                     onClick={() => setActiveTab(tab.id)}
                     className={`py-4 px-1 border-b-2 font-medium text-sm ${
                       activeTab === tab.id
-                        ? "border-blue-500 text-blue-600"
+                        ? "border-primary-800 text-primary-800"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
@@ -1083,7 +1087,7 @@ const CourseDetailPage = () => {
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">Course Details</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
-                        <BookOpen className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                        <BookOpen className="h-8 w-8 text-primary-800 mx-auto mb-2" />
                         <div className="font-semibold">
                           {Array.isArray(course.modules) ? 
                             course.modules.reduce((total, module) => 
@@ -1093,17 +1097,17 @@ const CourseDetailPage = () => {
                         <div className="text-sm text-gray-600">Lessons</div>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
-                        <Clock className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                        <Clock className="h-8 w-8 text-primary-800 mx-auto mb-2" />
                         <div className="font-semibold">{formatDuration(course.duration)}</div>
                         <div className="text-sm text-gray-600">Duration</div>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
-                        <Globe className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                        <Globe className="h-8 w-8 text-primary-800 mx-auto mb-2" />
                         <div className="font-semibold">{course.language}</div>
                         <div className="text-sm text-gray-600">Language</div>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
-                        <Award className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                        <Award className="h-8 w-8 text-primary-800 mx-auto mb-2" />
                         <div className="font-semibold">Certificate</div>
                         <div className="text-sm text-gray-600">Included</div>
                       </div>
@@ -1139,7 +1143,7 @@ const CourseDetailPage = () => {
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
                                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <span className="text-sm font-medium text-blue-600">
+                                    <span className="text-sm font-medium text-primary-600">
                                       {moduleIndex + 1}.{lessonIndex + 1}
                                     </span>
                                   </div>
@@ -1160,7 +1164,7 @@ const CourseDetailPage = () => {
                                 </div>
                                 {subcourse.preview ? (
                                   <button
-                                    className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                                    className="text-primary-600 hover:text-blue-800 flex items-center space-x-1"
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       navigate(`/courses/${course._id}/learn?module=${module._id}&lesson=${subcourse._id}`)
@@ -1170,7 +1174,7 @@ const CourseDetailPage = () => {
                                     <span>Preview</span>
                                   </button>
                                 ) : isEnrolled ? (
-                                  <div className="text-blue-600 flex items-center space-x-1">
+                                  <div className="text-primary-600 flex items-center space-x-1">
                                     <Play className="h-4 w-4" />
                                     <span className="text-sm">Watch</span>
                                   </div>
@@ -1318,7 +1322,7 @@ const CourseDetailPage = () => {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        className="px-4 py-2 bg-primary-800 text-white rounded hover:bg-primary-600"
                       >
                         {loading ? "Submitting..." : "Submit Review"}
                       </button>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react"
 import { apiRequest } from "../config/api"
 
@@ -14,6 +14,11 @@ const ContactUsPage = () => {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [errors, setErrors] = useState({})
+
+useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target

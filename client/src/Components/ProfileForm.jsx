@@ -5,6 +5,8 @@ import { updateProfile, clearProfileError, clearProfileSuccess } from "../store/
 import { uploadAvatar } from "../store/slices/authSlice"
 
 const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
+
+  console.log("ProfileForm rendered with user:", user);
   const dispatch = useDispatch()
   const { isLoading, error, success } = useSelector((state) => state.profile)
 
@@ -32,7 +34,9 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
       let avatarUrl = user?.profile?.avatar
       if (avatarFile) {
         avatarUrl = await handleAvatarUpload()
+        console.log("Avatar upload result URL:", avatarUrl);
         if (!avatarUrl) return // Upload failed, don't proceed
+        console.log("Avatar uploaded, URL1:", avatarUrl);
       }
 
       // Prepare update data
@@ -89,7 +93,7 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
 
   const handleCancel = () => {
     setFormData({
-      bio: user?.profile?.bio || "",
+      bio: user ?.profile?.bio || "",
       website: user?.profile?.website || "",
     })
     setAvatarFile(null)
@@ -113,7 +117,7 @@ const ProfileForm = ({ user, onCancel, onSave, startEditing = false }) => {
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800"
+            className="flex items-center space-x-1 text-sm text-primary-600 hover:text-primary-800"
           >
             <Edit2 className="w-4 h-4" />
             <span>Edit</span>

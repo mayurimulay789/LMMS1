@@ -21,6 +21,9 @@ import CourseDetailPage from "./Pages/CourseDetailPage";
 
 import ContactUsPage from "./Pages/ContactUsPage"
 import AboutUsPage from "./Pages/AboutUsPage"
+import PrivacyPolicy from "./Pages/PrivacyPolicy"
+import TermsConditions from "./Pages/TermsConditions"
+import RefundCancelation from "./Pages/RefundCancelation"
 import LoginPage from "./Pages/LoginPage"
 import RegisterPage from "./Pages/RegisterPage"
 
@@ -63,6 +66,11 @@ function AppContent() {
           <Route path="/contact" element={<ContactUsPage />} />
           <Route path="/refer-earn" element={<ReferEarn />} />
           <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/faq" element={<AboutUsPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/refund-cancelation" element={<RefundCancelation />} />
+
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 

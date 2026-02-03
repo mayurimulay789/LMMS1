@@ -301,7 +301,305 @@ class CertificateService {
   //     .text(`Issued on: ${new Date().toLocaleDateString()}`, doc.page.width - 200, doc.page.height - 70)
   // }
 
-  async  addCertificateContent(doc, data) {
+//   async  addCertificateContent(doc, data) {
+//   const {
+//     studentName,
+//     courseName,
+//     completionDate,
+//     certificateId,
+//     qrCodeData,
+//     verificationUrl,
+//   } = data
+
+//   const pageWidth = doc.page.width
+//   const pageHeight = doc.page.height
+
+//   /* ================= COLORS ================= */
+//   const primaryBlue = "#0f3c6e"
+//   const accentBlue = "#2563eb"
+//   const gold = "#c9b458"
+//   const darkText = "#111827"
+//   const mutedText = "#6b7280"
+//   const bgColor = "#fffdf7"
+
+//   /* ================= BACKGROUND ================= */
+//   doc.rect(0, 0, pageWidth, pageHeight).fill(bgColor)
+
+//   /* ================= RIGHT GOLD STRIP ================= */
+//   doc
+//     .rect(pageWidth - 70, 0, 70, pageHeight)
+//     .fill(gold)
+
+//   /* ================= TOP BRAND ================= */
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(22)
+//     .fillColor(primaryBlue)
+//     .text("RAYA Academy", 0, 50, {
+//       align: "center",
+//     })
+
+//   /* ================= TITLE ================= */
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(42)
+//     .fillColor(primaryBlue)
+//     .text("CERTIFICATE", 0, 130, {
+//       align: "center",
+//     })
+
+//   doc
+//     .font("Helvetica")
+//     .fontSize(18)
+//     .fillColor(primaryBlue)
+//     .text("OF COMPLETION", 0, 180, {
+//       align: "center",
+//     })
+
+//   /* ================= STUDENT NAME ================= */
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(26)
+//     .fillColor(darkText)
+//     .text(studentName, 0, 240, {
+//       align: "center",
+//     })
+
+//   // underline
+//   doc
+//     .moveTo(pageWidth / 2 - 200, 275)
+//     .lineTo(pageWidth / 2 + 200, 275)
+//     .lineWidth(1.5)
+//     .stroke(accentBlue)
+
+//   /* ================= COURSE DESCRIPTION ================= */
+//   doc
+//     .font("Helvetica")
+//     .fontSize(14)
+//     .fillColor(darkText)
+//     .text(
+//       `for successfully completing the course`,
+//       0,
+//       300,
+//       { align: "center" }
+//     )
+
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(18)
+//     .fillColor(accentBlue)
+//     .text(courseName, 0, 325, {
+//       align: "center",
+//     })
+
+
+//   /* ================= QR CODE ================= */
+//   if (qrCodeData) {
+//     const qrImage = qrCodeData.split(",")[1]
+//     const qrBuffer = Buffer.from(qrImage, "base64")
+
+//     doc.image(qrBuffer, pageWidth - 160, 380, {
+//       width: 90,
+//       height: 90,
+//     })
+
+//     doc
+//       .fontSize(9)
+//       .fillColor(mutedText)
+//       .text("Scan to verify", pageWidth - 160, 475, {
+//         width: 90,
+//         align: "center",
+//       })
+//   }
+
+//   /* ================= CERTIFICATE ID ================= */
+//   doc
+//     .font("Helvetica")
+//     .fontSize(9)
+//     .fillColor(mutedText)
+//     .text(`Certificate ID: ${certificateId}`, 60, pageHeight - 120)
+
+//   doc
+//     .fontSize(9)
+//     .text(`Verify at: ${verificationUrl}`, 60, pageHeight - 100)
+
+//   /* ================= SIGNATURE ================= */
+//   const signX = pageWidth - 300
+
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(12)
+//     .fillColor(darkText)
+//     .text("raya academy", signX, pageHeight - 160)
+
+//   doc
+//     .moveTo(signX, pageHeight - 140)
+//     .lineTo(signX + 150, pageHeight - 140)
+//     .stroke(mutedText)
+
+//   doc
+//     .font("Helvetica")
+//     .fontSize(10)
+//     .fillColor(mutedText)
+//     .text("Founder & Instructor", signX, pageHeight - 125)
+
+//   doc
+//     .fontSize(9)
+//     .text(
+//       `Issued on: ${new Date(completionDate).toLocaleDateString()}`,
+//       signX,
+//       pageHeight - 105
+//     )
+// }
+
+
+// async addCertificateContent(doc, data) {
+//   const {
+//     studentName,
+//     courseName,
+//     completionDate,
+//     certificateId,
+//     qrCodeData,
+//     verificationUrl,
+//   } = data
+
+//   const pageWidth = doc.page.width
+//   const pageHeight = doc.page.height
+
+//   /* ================= COLORS ================= */
+//   const primary = "#1f2937"       // dark gray
+//   const accent = "#b45309"        // gold accent
+//   const muted = "#6b7280"
+//   const bg = "#ffffff"
+
+//   /* ================= BACKGROUND ================= */
+//   doc.rect(0, 0, pageWidth, pageHeight).fill(bg)
+
+//   /* ================= BORDER ================= */
+//   doc
+//     .rect(30, 30, pageWidth - 60, pageHeight - 60)
+//     .lineWidth(2)
+//     .stroke(accent)
+
+//   doc
+//     .rect(45, 45, pageWidth - 90, pageHeight - 90)
+//     .lineWidth(0.5)
+//     .stroke(muted)
+
+//   /* ================= BRAND ================= */
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(20)
+//     .fillColor(primary)
+//     .text("RAYA ACADEMY", 0, 90, { align: "center", letterSpacing: 2 })
+
+//   /* ================= TITLE ================= */
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(38)
+//     .fillColor(primary)
+//     .text("Certificate of Completion", 0, 150, { align: "center" })
+
+//   /* ================= SUBTITLE ================= */
+//   doc
+//     .font("Helvetica")
+//     .fontSize(14)
+//     .fillColor(muted)
+//     .text("This is proudly presented to", 0, 210, { align: "center" })
+
+//   /* ================= STUDENT NAME ================= */
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(28)
+//     .fillColor(primary)
+//     .text(studentName, 0, 245, { align: "center" })
+
+//   doc
+//     .moveTo(pageWidth / 2 - 180, 285)
+//     .lineTo(pageWidth / 2 + 180, 285)
+//     .lineWidth(1)
+//     .stroke(accent)
+
+//   /* ================= COURSE ================= */
+//   doc
+//     .font("Helvetica")
+//     .fontSize(14)
+//     .fillColor(muted)
+//     .text("for successfully completing the course", 0, 315, {
+//       align: "center",
+//     })
+
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(18)
+//     .fillColor(primary)
+//     .text(courseName, 0, 345, { align: "center", width: pageWidth - 120 })
+
+//   /* ================= FOOTER LINE ================= */
+//   doc
+//     .moveTo(80, pageHeight - 220)
+//     .lineTo(pageWidth - 80, pageHeight - 220)
+//     .lineWidth(0.5)
+//     .stroke(muted)
+
+//   /* ================= QR CODE ================= */
+//   if (qrCodeData) {
+//     const qrImage = qrCodeData.split(",")[1]
+//     const qrBuffer = Buffer.from(qrImage, "base64")
+
+//     doc.image(qrBuffer, 90, pageHeight - 190, {
+//       width: 80,
+//       height: 80,
+//     })
+
+//     doc
+//       .fontSize(8)
+//       .fillColor(muted)
+//       .text("Scan to verify", 90, pageHeight - 100, {
+//         width: 80,
+//         align: "center",
+//       })
+//   }
+
+//   /* ================= SIGNATURE ================= */
+//   const signX = pageWidth - 260
+
+//   doc
+//     .font("Helvetica-Bold")
+//     .fontSize(12)
+//     .fillColor(primary)
+//     .text("Raya Academy", signX, pageHeight - 185)
+
+//   doc
+//     .moveTo(signX, pageHeight - 165)
+//     .lineTo(signX + 140, pageHeight - 165)
+//     .stroke(muted)
+
+//   doc
+//     .font("Helvetica")
+//     .fontSize(10)
+//     .fillColor(muted)
+//     .text("Founder & Instructor", signX, pageHeight - 150)
+
+//   doc
+//     .fontSize(9)
+//     .text(
+//       `Issued on: ${new Date(completionDate).toLocaleDateString()}`,
+//       signX,
+//       pageHeight - 130
+//     )
+
+//   /* ================= META ================= */
+//   doc
+//     .fontSize(8)
+//     .fillColor(muted)
+//     .text(`Certificate ID: ${certificateId}`, 80, pageHeight - 80)
+
+//   doc
+//     .text(`Verify at: ${verificationUrl}`, 80, pageHeight - 65)
+// }
+
+async  addCertificateContent(doc, data) {
   const {
     studentName,
     courseName,
@@ -315,113 +613,110 @@ class CertificateService {
   const pageHeight = doc.page.height
 
   /* ================= COLORS ================= */
-  const primaryBlue = "#0f3c6e"
-  const accentBlue = "#2563eb"
-  const gold = "#c9b458"
-  const darkText = "#111827"
-  const mutedText = "#6b7280"
-  const bgColor = "#fffdf7"
+  const primary = "#1f3a5f"     // deep royal blue
+  const accent = "#c9a24d"      // soft premium gold
+  const muted = "#6b7280"       // neutral gray
+  const bg = "#ffffff"
+  const red= "#7c0f0f"
 
   /* ================= BACKGROUND ================= */
-  doc.rect(0, 0, pageWidth, pageHeight).fill(bgColor)
+  doc.rect(0, 0, pageWidth, pageHeight).fill(bg)
 
-  /* ================= RIGHT GOLD STRIP ================= */
+  /* ================= PREMIUM DOUBLE BORDER ================= */
   doc
-    .rect(pageWidth - 70, 0, 70, pageHeight)
-    .fill(gold)
+    .rect(28, 28, pageWidth - 56, pageHeight - 56)
+    .lineWidth(2.5)
+    .stroke(red)
 
-  /* ================= TOP BRAND ================= */
+  doc
+    .rect(44, 44, pageWidth - 88, pageHeight - 88)
+    .lineWidth(0.8)
+    .stroke(primary)
+
+  /* ================= BRAND ================= */
   doc
     .font("Helvetica-Bold")
-    .fontSize(22)
-    .fillColor(primaryBlue)
-    .text("RAYA Academy", 0, 50, {
+    .fontSize(20)
+    .fillColor(red)
+    .text("RAYA ACADEMY", 0, 85, {
       align: "center",
+      characterSpacing: 2,
     })
 
   /* ================= TITLE ================= */
   doc
     .font("Helvetica-Bold")
-    .fontSize(42)
-    .fillColor(primaryBlue)
-    .text("CERTIFICATE", 0, 130, {
+    .fontSize(30)
+    .fillColor(primary)
+    .text("CERTIFICATE OF COMPLETION", 0, 145, {
       align: "center",
     })
 
+  /* ================= PRESENTATION TEXT ================= */
   doc
     .font("Helvetica")
-    .fontSize(18)
-    .fillColor(primaryBlue)
-    .text("OF COMPLETION", 0, 180, {
+    .fontSize(14)
+    .fillColor(muted)
+    .text("This is proudly presented to", 0, 215, {
       align: "center",
     })
 
   /* ================= STUDENT NAME ================= */
   doc
     .font("Helvetica-Bold")
-    .fontSize(26)
-    .fillColor(darkText)
-    .text(studentName, 0, 240, {
-      align: "center",
-    })
+    .fontSize(30)
+    .fillColor("#111827")
+    .text(studentName, 0, 245, { align: "center" })
 
-  // underline
   doc
-    .moveTo(pageWidth / 2 - 200, 275)
-    .lineTo(pageWidth / 2 + 200, 275)
+    .moveTo(pageWidth / 2 - 200, 290)
+    .lineTo(pageWidth / 2 + 200, 290)
     .lineWidth(1.5)
-    .stroke(accentBlue)
+    .stroke(accent)
 
-  /* ================= COURSE DESCRIPTION ================= */
+  /* ================= COURSE TEXT ================= */
   doc
     .font("Helvetica")
     .fontSize(14)
-    .fillColor(darkText)
-    .text(
-      `for successfully completing the course`,
-      0,
-      300,
-      { align: "center" }
-    )
-
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(18)
-    .fillColor(accentBlue)
-    .text(courseName, 0, 325, {
+    .fillColor(muted)
+    .text("for successfully completing the course", 0, 315, {
       align: "center",
     })
 
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(20)
+    .fillColor(primary)
+    .text(courseName, 0, 345, {
+      align: "center",
+      
+    })
+
+  /* ================= SOFT SEPARATOR ================= */
+  doc
+    .moveTo(100, pageHeight - 220)
+    .lineTo(pageWidth - 100, pageHeight - 220)
+    .lineWidth(0.6)
+    .stroke(muted)
 
   /* ================= QR CODE ================= */
   if (qrCodeData) {
     const qrImage = qrCodeData.split(",")[1]
     const qrBuffer = Buffer.from(qrImage, "base64")
 
-    doc.image(qrBuffer, pageWidth - 160, 380, {
-      width: 90,
-      height: 90,
+    doc.image(qrBuffer, 110, pageHeight - 190, {
+      width: 80,
+      height: 80,
     })
 
     doc
-      .fontSize(9)
-      .fillColor(mutedText)
-      .text("Scan to verify", pageWidth - 160, 475, {
-        width: 90,
+      .fontSize(8)
+      .fillColor(muted)
+      .text("Scan to verify", 110, pageHeight - 100, {
+        width: 80,
         align: "center",
       })
   }
-
-  /* ================= CERTIFICATE ID ================= */
-  doc
-    .font("Helvetica")
-    .fontSize(9)
-    .fillColor(mutedText)
-    .text(`Certificate ID: ${certificateId}`, 60, pageHeight - 120)
-
-  doc
-    .fontSize(9)
-    .text(`Verify at: ${verificationUrl}`, 60, pageHeight - 100)
 
   /* ================= SIGNATURE ================= */
   const signX = pageWidth - 300
@@ -429,27 +724,37 @@ class CertificateService {
   doc
     .font("Helvetica-Bold")
     .fontSize(12)
-    .fillColor(darkText)
-    .text("raya academy", signX, pageHeight - 160)
+    .fillColor(primary)
+    .text("Raya Academy", signX, pageHeight - 185)
 
   doc
-    .moveTo(signX, pageHeight - 140)
-    .lineTo(signX + 150, pageHeight - 140)
-    .stroke(mutedText)
+    .moveTo(signX, pageHeight - 165)
+    .lineTo(signX + 170, pageHeight - 165)
+    .lineWidth(1)
+    .stroke(muted)
 
   doc
     .font("Helvetica")
     .fontSize(10)
-    .fillColor(mutedText)
-    .text("Founder & Instructor", signX, pageHeight - 125)
+    .fillColor(muted)
+    .text("Authorized Signatory", signX, pageHeight - 148)
 
   doc
     .fontSize(9)
     .text(
       `Issued on: ${new Date(completionDate).toLocaleDateString()}`,
       signX,
-      pageHeight - 105
+      pageHeight - 128
     )
+
+  /* ================= META ================= */
+  doc
+    .fontSize(8)
+    .fillColor(muted)
+    .text(`Certificate ID: ${certificateId}`, 100, pageHeight - 85)
+
+  doc
+    .text(`Verify at: ${verificationUrl}`, 100, pageHeight - 70)
 }
 
 

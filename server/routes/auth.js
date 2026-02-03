@@ -151,6 +151,9 @@ router.post("/login", async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        bio: user.profile.bio || "",
+        profileImage: user.profileImage || "",
+        phone: user.phone || "",
       },
     })
   } catch (error) {
@@ -259,7 +262,7 @@ router.put("/instructor-profile",
         });
       }
 
-      const { name, phone } = req.body;
+      const { name, phone,bio } = req.body;
       
       // Validation
       if (!name || !name.trim()) {
@@ -292,16 +295,16 @@ router.put("/instructor-profile",
         });
       }
 
-      if (user.role !== 'instructor') {
-        return res.status(403).json({
-          success: false,
-          message: "Only instructors can update instructor profile"
-        });
-      }
+     
+
+      console.log('Updating profile for user:', user._id, name, phone, bio);
 
       // Update user data
       user.name = name.trim();
       user.phone = phone.trim();
+      if(bio!==undefined){
+        user.profile.bio = bio.trim();
+      }
 
       // Handle profile image
       if (req.file) {
@@ -331,9 +334,12 @@ router.put("/instructor-profile",
         email: user.email,
         phone: user.phone,
         profileImage: user.profileImage,
+        bio: user.profile.bio,
         role: user.role,
         isEmailVerified: user.isEmailVerified
       };
+
+      console.log("userresponse",userResponse);
 
       res.json({
         success: true,
