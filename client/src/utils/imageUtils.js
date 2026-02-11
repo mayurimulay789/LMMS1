@@ -102,16 +102,18 @@ export const handleImageError = (event, fallback) => {
  * @returns {string} - Image source with fallback
  */
 export const getImageWithFallback = (src, type = 'generic', options = {}) => {
-  if (src && src !== '/placeholder.svg' && !src.includes('placeholder')) {
+  // Check if src is a valid, non-empty string and not a placeholder
+  if (src && typeof src === 'string' && src.trim() !== '' && src !== '/placeholder.svg' && !src.includes('placeholder')) {
     return src;
   }
 
+  // Generate fallback based on type
   switch (type) {
     case 'avatar':
       return generateDefaultAvatar(options.name || 'User', options.size || 40);
     case 'thumbnail':
       return generateDefaultThumbnail(options.title || 'Course', options.category || 'General');
     default:
-      return generateDefaultAvatar('', 40);
+      return generateDefaultAvatar('User', 40);
   }
 };
