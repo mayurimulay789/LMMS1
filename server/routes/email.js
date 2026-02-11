@@ -4,11 +4,13 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 
 // Configure nodemailer (using Gmail as example)
-const transporter = nodemailer.createTransporter({
-  service: 'gmail',
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: process.env.SMTP_PORT || process.env.EMAIL_PORT || 587,
+  secure: true, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Use app password for Gmail
+    user: process.env.SMTP_USER || process.env.EMAIL_USER,
+    pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
   },
 });
 

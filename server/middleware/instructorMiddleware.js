@@ -7,7 +7,6 @@ const instructorMiddleware = (req, res, next) => {
         message: "Please log in to access this resource",
       })
     }
-
     // Check if user has instructor or admin role
     if (req.user.role !== "instructor" && req.user.role !== "admin") {
       return res.status(403).json({
@@ -17,7 +16,6 @@ const instructorMiddleware = (req, res, next) => {
         requiredRoles: ["instructor", "admin"],
       })
     }
-
     // User has appropriate role, proceed
     next()
   } catch (error) {
@@ -28,5 +26,4 @@ const instructorMiddleware = (req, res, next) => {
     })
   }
 }
-
 module.exports = instructorMiddleware

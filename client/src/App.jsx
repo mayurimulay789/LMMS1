@@ -42,6 +42,8 @@ import InstructorDashboardPage from "./Pages/InstructorDashboardPage"
 import PaymentSuccessPage from "./Pages/PaymentSucessPage"
 import PaymentFailedPage from "./Pages/PaymentFailedPage"
 import MyCoursesPage from "./Pages/MyCoursesPage.jsx"
+import UserDetailsforForgetPassword from "./Components/ForgetPassword/UserDetailsforForgetPassword.jsx"
+import OtpValidationPage from "./Components/ForgetPassword/OtpValidationPage.jsx"
 
 function AppContent() {
   const dispatch = useDispatch()
@@ -73,6 +75,8 @@ function AppContent() {
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/userDetailsforForgetPassword" element={<UserDetailsforForgetPassword/>} />
+          <Route path="/otpvalidationpage" element={<OtpValidationPage/>} />
 
           {/* Protected Routes */}
           <Route

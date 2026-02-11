@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com',
   port: process.env.SMTP_PORT || process.env.EMAIL_PORT || 587,
-  secure: false, // true for 465, false for other ports
+  secure: true, // true for 465, false for other ports
   auth: {
     user: process.env.SMTP_USER || process.env.EMAIL_USER,
     pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 const sendInstructorApplicationEmail = async (applicationData) => {
   try {
-    const { applicantName, email, phone, experience, qualifications, motivation } = applicationData;
+    const { applicantName, email, phone, experience, qualifications } = applicationData;
 
     // Check if email configuration is available
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {

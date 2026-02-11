@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-
 const pollResponseSchema = new mongoose.Schema(
   {
     poll: {
@@ -25,7 +24,6 @@ const pollResponseSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 // Compound index to ensure one response per user per poll
 pollResponseSchema.index({ poll: 1, user: 1 }, { unique: true })
 

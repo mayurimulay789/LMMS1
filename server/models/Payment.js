@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-
 const paymentSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -74,7 +73,6 @@ const paymentSchema = new mongoose.Schema({
     type: Date,
   },
 })
-
 // Generate unique transaction ID
 paymentSchema.pre("save", function (next) {
   if (!this.transactionId) {
@@ -82,5 +80,4 @@ paymentSchema.pre("save", function (next) {
   }
   next()
 })
-
 module.exports = mongoose.model("Payment", paymentSchema)

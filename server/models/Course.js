@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-
 const lessonSchema = new mongoose.Schema(
   {
     title: {
@@ -38,7 +37,6 @@ const lessonSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 const moduleSchema = new mongoose.Schema(
   {
     name: {
@@ -55,7 +53,6 @@ const moduleSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 const reviewSchema = new mongoose.Schema(
   {
     user: {
@@ -83,7 +80,6 @@ const reviewSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 const courseSchema = new mongoose.Schema(
   {
     title: {
@@ -267,7 +263,6 @@ const courseSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 // Indexes for better performance
 courseSchema.index({ category: 1, level: 1, status: 1 })
 courseSchema.index({ price: 1, status: 1 })
@@ -279,7 +274,6 @@ courseSchema.index({ tags: 1, status: 1 })
 courseSchema.index({ createdAt: -1, status: 1 })
 courseSchema.index({ title: 1, description: 1 })  // For text search performance
 courseSchema.index({ status: 1, isPublished: 1, category: 1 }) // Compound index for main filters
-
 // Text search index
 courseSchema.index({
   title: "text",
@@ -287,14 +281,12 @@ courseSchema.index({
   instructor: "text",
   tags: "text",
 })
-
 // Virtual for average rating calculation
 courseSchema.virtual("averageRating").get(function () {
   if (this.reviews.length === 0) return 0
   const sum = this.reviews.reduce((acc, review) => acc + review.rating, 0)
   return Math.round((sum / this.reviews.length) * 10) / 10
 })
-
 // Pre-save hook to calculate lesson durations and total course duration
 courseSchema.pre("save", async function (next) {
   try {
@@ -304,17 +296,14 @@ courseSchema.pre("save", async function (next) {
       this.rating = Math.round((sum / this.reviews.length) * 10) / 10
       this.reviewCount = this.reviews.length
     }
-
     // Update total lessons count
     if (this.modules) {
       this.totalLessons = this.modules.reduce((acc, module) => acc + module.subcourses.length, 0)
-
       // Calculate total duration from subcourses
       this.duration = this.modules.reduce((acc, module) =>
         acc + module.subcourses.reduce((modAcc, lesson) => modAcc + (lesson.duration || 0), 0), 0
       )
     }
-
     // Generate slug if not provided
     if (!this.seo.slug && this.title) {
       this.seo.slug = this.title
@@ -322,19 +311,16 @@ courseSchema.pre("save", async function (next) {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "")
     }
-
     next()
   } catch (error) {
     console.error("Error in course pre-save hook:", error)
     next(error)
   }
 })
-
 // Pre-save hook specifically for calculating lesson durations from video URLs
 courseSchema.pre("save", async function (next) {
   try {
     const { calculateLessonsDurations } = require("../utils/videoUtils")
-
     // Calculate durations for subcourses with video URLs
     if (this.modules && this.modules.length > 0) {
       try {
@@ -344,12 +330,10 @@ courseSchema.pre("save", async function (next) {
         })
         const totalSubcourses = allSubcourses.length
         console.log(`Calculating durations for ${totalSubcourses} subcourses in course: ${this.title}`)
-
         // Check if any subcourse has a video URL but duration is 0 or missing
         const needsDurationCalculation = allSubcourses.some(lesson =>
           lesson.videoUrl && (lesson.duration === 0 || lesson.duration === undefined || lesson.duration === null)
         )
-
         if (needsDurationCalculation) {
           const result = await calculateLessonsDurations(allSubcourses)
           // Update subcourses back into modules
@@ -376,19 +360,16 @@ courseSchema.pre("save", async function (next) {
         this.duration = allSubcourses.reduce((acc, lesson) => acc + (lesson.duration || 0), 0)
       }
     }
-
     next()
   } catch (error) {
     console.error("Error in lesson duration pre-save hook:", error)
     next()
   }
 })
-
 // Static method to get popular courses
 courseSchema.statics.getPopularCourses = function (limit = 10) {
   return this.find({ isPublished: true, isPopular: true }).sort({ enrollmentCount: -1, rating: -1 }).limit(limit)
 }
-
 // Static method to get courses by category
 courseSchema.statics.getCoursesByCategory = function (category, limit = 20) {
   return this.find({
@@ -398,12 +379,10 @@ courseSchema.statics.getCoursesByCategory = function (category, limit = 20) {
     .sort({ rating: -1, enrollmentCount: -1 })
     .limit(limit)
 }
-
 // Instance method to add review
 courseSchema.methods.addReview = function (userId, rating, comment, isVerifiedPurchase = false) {
   // Check if user already reviewed
   const existingReview = this.reviews.find((review) => review.user.toString() === userId.toString())
-
   if (existingReview) {
     // Update existing review
     existingReview.rating = rating
@@ -418,21 +397,17 @@ courseSchema.methods.addReview = function (userId, rating, comment, isVerifiedPu
       isVerifiedPurchase,
     })
   }
-
   return this.save()
 }
-
 // Instance method to remove review
 courseSchema.methods.removeReview = function (userId) {
   this.reviews = this.reviews.filter((review) => review.user.toString() !== userId.toString())
   return this.save()
 }
-
 // Instance method to recalculate durations
 courseSchema.methods.recalculateDurations = async function () {
   try {
     const { calculateLessonsDurations } = require("../utils/videoUtils")
-
     if (this.modules && this.modules.length > 0) {
       let allSubcourses = []
       this.modules.forEach(module => {
@@ -456,19 +431,16 @@ courseSchema.methods.recalculateDurations = async function () {
     return false
   }
 }
-
 // Static method to recalculate durations for all courses
 courseSchema.statics.recalculateAllDurations = async function () {
   try {
     const courses = await this.find({ "modules.subcourses.videoUrl": { $exists: true, $ne: "" } })
     console.log(`Found ${courses.length} courses with video URLs to recalculate`)
-
     const results = {
       success: 0,
       failed: 0,
       errors: []
     }
-
     for (const course of courses) {
       try {
         const updated = await course.recalculateDurations()
@@ -487,7 +459,6 @@ courseSchema.statics.recalculateAllDurations = async function () {
         })
       }
     }
-
     console.log(`Duration recalculation completed: ${results.success} success, ${results.failed} failed`)
     return results
   } catch (error) {
@@ -495,5 +466,4 @@ courseSchema.statics.recalculateAllDurations = async function () {
     throw error
   }
 }
-
 module.exports = mongoose.model("Course", courseSchema)
