@@ -144,14 +144,19 @@ const HomePage = () => {
 
         {/* Buttons */}
         <div className="flex flex-wrap items-center gap-4 mt-8">
-          <button className="px-6 py-3 font-semibold text-white transition bg-blue-600 rounded-full hover:bg-blue-700">
-            Find Courses →
-          </button>
+  <Link to="/courses">
+    <button className="px-6 py-3 font-semibold text-white transition bg-blue-600 rounded-full hover:bg-blue-700">
+      Find Courses →
+    </button>
+  </Link>
 
-          <button className="flex items-center gap-3 px-6 py-3 font-semibold text-white transition bg-orange-500 rounded-full hover:bg-orange-600">
-            ▶ Look Offline
-          </button>
-        </div>
+  <Link to="/courses">
+    <button className="flex items-center gap-3 px-6 py-3 font-semibold text-white transition bg-orange-500 rounded-full hover:bg-orange-600">
+      ▶ Look Offline
+    </button>
+  </Link>
+</div>
+
 
       </div>
     </div>

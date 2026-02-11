@@ -688,7 +688,7 @@ const CheckoutPage = () => {
                   <span className="font-medium text-sm sm:text-base">₹{originalPrice.toFixed(2)}</span>
                 </div>
                 {discount > 0 && (
-                  <div className="flex justify-between text-green-600">
+                  <div className="flex justify-between text-red-600">
                     <span className="flex items-center text-xs sm:text-sm">
                       <Percent className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       Discount ({discount}%):
@@ -703,14 +703,14 @@ const CheckoutPage = () => {
                 <hr className="border-gray-200" />
                 <div className="flex justify-between text-base sm:text-lg font-bold">
                   <span>Total:</span>
-                  <span className="text-blue-600">₹{displayedFinal.toFixed(2)}</span>
+                  <span className="text-red-600">₹{displayedFinal.toFixed(2)}</span>
                 </div>
               </div>
 
               <button
                 onClick={handlePayment}
                 disabled={processingPayment || paymentLoading || !termsAccepted}
-                className="flex items-center justify-center w-full px-4 py-3 sm:py-4 mb-3 sm:mb-4 font-semibold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                className="flex items-center justify-center w-full px-4 py-3 sm:py-4 mb-3 sm:mb-4 font-semibold text-white transition-colors bg-red-800 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 {processingPayment || paymentLoading ? (
                   <>

@@ -3,6 +3,7 @@
 import { Link } from "react-router-dom"
 import { Star, Users, Clock, Play, BookOpen } from "lucide-react"
 import { motion } from "framer-motion"
+import { getImageWithFallback } from "../utils/imageUtils"
 
 const EnrollmentCard = ({ enrollment, progress, index = 0 }) => {
   const course = enrollment.course
@@ -117,15 +118,19 @@ const EnrollmentCard = ({ enrollment, progress, index = 0 }) => {
 
           {/* Instructor */}
           <div className="flex items-center space-x-3 mb-4">
-            {course.createdBy?.profile?.avatar && (
-              <img
-                src={course.createdBy.profile.avatar}
-                alt={course.createdBy?.name || instructor}
-                className="w-8 h-8 rounded-full object-cover"
-              />
-            )}
+            <img
+              src={
+                getImageWithFallback(
+                  course.instructorImage || course.createdBy?.profileImage || course.createdBy?.avatar || course.createdBy?.profile?.avatar || null,
+                  'avatar',
+                  { name: course.createdBy?.name || instructor || 'Instructor', size: 32 }
+                )
+              }
+              alt={course.createdBy?.name || instructor || 'Instructor'}
+              className="w-8 h-8 rounded-full object-cover"
+            />
             <p className="text-sm text-gray-700">
-              By <span className="font-medium text-primary-600">{course.createdBy?.name || instructor}</span>
+              By <span className="font-medium text-primary-600">{course.createdBy?.name || instructor || 'Instructor'}</span>
             </p>
           </div>
 

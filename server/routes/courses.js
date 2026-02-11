@@ -94,7 +94,7 @@ router.get("/", async (req, res) => {
       .sort(sortOptions)
       .limit(limit * 1)
       .skip((page - 1) * limit)
-      .populate("createdBy", "name email profile.avatar")
+      .populate("createdBy", "name email profileImage profile")
 
     // Get enrollment count for each course
     const coursesWithStats = await Promise.all(
@@ -159,7 +159,7 @@ router.get("/:id", async (req, res) => {
     }
 
     const course = await Course.findById(req.params.id)
-      .populate("createdBy", "name email avatar profile")
+      .populate("createdBy", "name email profileImage profile")
       .populate("reviews.user", "name avatar")
 
     if (!course) {
