@@ -114,7 +114,7 @@ const RegisterPage = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           
-          <p className="text-primary-600 text-xl ">
+          <p className="text-red-800 text-xl ">
             Create your account and start learning today!
           </p>
         </div>
@@ -159,7 +159,7 @@ const RegisterPage = () => {
                     placeholder={placeholder}
                     className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-rose-500 outline-none ${
                       errors[name]
-                        ? "border-red-500"
+                        ? "border-red-800"
                         : "border-gray-300"
                     }`}
                   />
@@ -213,7 +213,7 @@ const RegisterPage = () => {
                   </button>
                 </div>
                 {errors[name] && (
-                  <p className="text-xs text-red-600 mt-1">
+                  <p className="text-xs text-red-800 mt-1">
                     {errors[name]}
                   </p>
                 )}
@@ -224,11 +224,11 @@ const RegisterPage = () => {
             <label className="flex items-center gap-2 text-sm text-gray-600">
               <input type="checkbox" required />
               I agree to the{" "}
-              <Link to="/terms-conditions" className="text-rose-600 underline">
+              <Link to="/terms-conditions" className="text-red-800 underline">
                 Terms-Conditions
               </Link>{" "}
               &{" "}
-              <Link to="/privacy-policy" className="text-rose-600 underline">
+              <Link to="/privacy-policy" className="text-red-800 underline">
                 Privacy-Policy
               </Link>
             </label>
@@ -236,7 +236,7 @@ const RegisterPage = () => {
             {/* Submit */}
             <button
               disabled={isLoading}
-              className="w-full bg-rose-700 hover:bg-rose-800 text-white py-3 rounded-lg font-semibold transition shadow-md"
+              className="w-full bg-red-800 hover:bg-red-800 text-white py-3 rounded-lg font-semibold transition shadow-md"
             >
               {isLoading ? "Creating account..." : "Create Account"}
             </button>

@@ -78,14 +78,14 @@ const LoginPage = () => {
       <div className="w-full max-w-md">
         {/* BRAND HEADER */}
         <div className="text-center mb-3">
-          <p className="text-primary-600 text-base font-semibold flex items-center justify-center gap-2 mb-2">
+          <p className="text-red-800 text-base font-semibold flex items-center justify-center gap-2 mb-2">
             Sign in to continue your learning journey
           </p>
         </div>
         {/* FORM CARD */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
           {error && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+            <div className="mb-4 rounded-lg bg-red-800 border border-red-200 px-4 py-3">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
@@ -102,9 +102,9 @@ const LoginPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="you@example.com"
+                  placeholder="name@gmail.com"
                   className={`w-full rounded-lg border px-10 py-3 text-sm focus:ring-2 focus:ring-rose-600 focus:border-transparent ${
-                    errors.email ? "border-red-500" : "border-gray-300"
+                    errors.email ? "border-red-800" : "border-gray-300"
                   }`}
                 />
               </div>
@@ -169,7 +169,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-rose-700 py-3 text-white font-semibold hover:bg-rose-800 transition disabled:opacity-50"
+              className="w-full rounded-lg bg-red-800 py-3 text-white font-semibold hover:bg-red-800 transition disabled:opacity-50"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>

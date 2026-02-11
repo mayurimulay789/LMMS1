@@ -315,7 +315,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
           <span className="text-sm">Enrollment confirmation sent to your email</span>
         </div>
         <button
-          className="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          className="w-full py-2 bg-red-800 text-white rounded-lg hover:bg-red-800 transition-colors"
           onClick={() => {
             onClose();
             setPaymentStatus(null);
@@ -409,7 +409,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
                   </div>
                   
                   <button
-                    className="w-full py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-3 text-white bg-red-800 rounded-lg hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleCODConfirmation}
                     disabled={loading}
                   >

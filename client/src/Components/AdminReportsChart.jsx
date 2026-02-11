@@ -207,7 +207,7 @@ const AdminReportsChart = ({ type }) => {
                         <h3 className="text-lg font-bold text-gray-900">{item.month}</h3>
                         <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
                           isIncrease
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-red-800 text-green-800'
                             : change < 0
                             ? 'bg-red-100 text-red-800'
                             : 'bg-gray-100 text-gray-800'
@@ -272,7 +272,7 @@ const AdminReportsChart = ({ type }) => {
               <h4 className="text-lg font-semibold text-gray-800 mb-4">Performance Summary</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="text-center flex sm:flex-col gap-8 sm:gap-0">
-                  <div className="bg-green-100 rounded-lg p-2 inline-block">
+                  <div className="bg-red-800 rounded-lg p-2 inline-block">
                     <svg className="w-10 h-10 text-green-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd"/>
                     </svg>
