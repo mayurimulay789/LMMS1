@@ -109,7 +109,7 @@ const AdminDashboardPage = () => {
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between gap-4 py-4 sm:flex-row sm:items-center sm:py-6">
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-gray-900 truncate sm:text-3xl">Admin Dashboard</h1>
+              <h1 className="text-2xl font-bold mt-5 text-gray-900 truncate sm:text-3xl">Admin Dashboard</h1>
               <p className="text-sm text-gray-600 sm:text-base">Manage your LMS platform</p>
             </div>
             

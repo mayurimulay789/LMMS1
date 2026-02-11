@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.gmail.com',
   port: process.env.EMAIL_PORT || 587,
-  secure: false, // true for 465, false for other ports
+  secure: true, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -111,7 +111,7 @@ const sendAdminApplicationNotification = async (applicationData) => {
           <p>If you need more information, contact the applicant at ${email} or ${phone}.</p>
 
           <p>Best regards,<br>
-          <strong>RYMAACADEMY Automated System</strong></p>
+          <strong>RYMAACADEMY System</strong></p>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #666; text-align: center;">
@@ -382,7 +382,7 @@ const sendWelcomeEmail = async (userData) => {
     console.log('Sending welcome email to:', email);
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"RYMAACADEMY" <${process.env.SMTP_USER}>`,
       to: email,
       subject: 'Welcome to RYMAACADEMY! Your Account Has Been Created',
       html: `
@@ -440,16 +440,22 @@ const sendWelcomeEmail = async (userData) => {
   }
 };
 
+
 const sendAdminSignupNotification = async (userData) => {
   try {
-    const { name, email, role, userId, password } = userData;
+    const { name, email, role, userId } = userData;
 
-    console.log('Sending admin signup notification from:', process.env.EMAIL_USER ? process.env.EMAIL_USER.substring(0, 5) + '...' : 'MISSING');
-    console.log('To admin:', process.env.ADMIN_EMAIL || 'MISSING');
+    console.log('Sending admin signup notification from:', process.env.SMTP_USER ? process.env.SMTP_USER.substring(0, 5) + '...' : 'MISSING');
+    console.log('To admin:', ADMIN_EMAIL || 'MISSING');
+
+    if (!ADMIN_EMAIL) {
+      console.error('ADMIN_EMAIL is not set in .env');
+      return;
+    }
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.ADMIN_EMAIL,
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
       subject: `New User Registration - ${name} (${role})`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
@@ -464,18 +470,10 @@ const sendAdminSignupNotification = async (userData) => {
             <p><strong>User ID:</strong> ${userId}</p>
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Password:</strong> ${password}</p>
             <p><strong>Role:</strong> ${role}</p>
             <p><strong>Registration Date:</strong> ${new Date().toLocaleString()}</p>
             <p><strong>Email Verified:</strong> Yes</p>
           </div>
-
-          <p><strong>Next Steps:</strong></p>
-          <ul>
-            <li>Monitor user activity and engagement</li>
-            <li>Check for any suspicious registrations</li>
-            <li>Review user statistics in the admin dashboard</li>
-          </ul>
 
           <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/dashboard?tab=users"
@@ -484,15 +482,8 @@ const sendAdminSignupNotification = async (userData) => {
             </a>
           </div>
 
-          <p>If you notice any unusual activity or need to take action, you can manage users through the admin panel.</p>
-
           <p>Best regards,<br>
           <strong>RYMAACADEMY Automated System</strong></p>
-
-          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-          <p style="font-size: 12px; color: #666; text-align: center;">
-            This is an automated notification for new user registrations.
-          </p>
         </div>
       `,
     };
@@ -500,6 +491,7 @@ const sendAdminSignupNotification = async (userData) => {
     const info = await transporter.sendMail(mailOptions);
     console.log('Admin signup notification email sent successfully:', info.messageId);
     return { success: true, messageId: info.messageId };
+
   } catch (error) {
     console.error('Error sending admin signup notification email:', error);
     throw error;

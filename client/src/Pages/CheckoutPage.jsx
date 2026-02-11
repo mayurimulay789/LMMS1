@@ -696,10 +696,10 @@ const CheckoutPage = () => {
                     <span className="font-medium text-xs sm:text-sm">-₹{discountAmount.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <span className="text-sm sm:text-base text-gray-600">Tax:</span>
                   <span className="font-medium text-sm sm:text-base">₹0.00</span>
-                </div>
+                </div> */}
                 <hr className="border-gray-200" />
                 <div className="flex justify-between text-base sm:text-lg font-bold">
                   <span>Total:</span>

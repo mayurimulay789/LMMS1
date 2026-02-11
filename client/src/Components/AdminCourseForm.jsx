@@ -1914,7 +1914,7 @@ const AdminCourseForm = () => {
 
             {/* Thumbnail Upload */}
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">Course Thumbnail</label>
+              <label className="block mb-2 text-sm font-medium text-gray-700">Course Image</label>
               
               {/* Upload Progress */}
               {isUploading && (
@@ -1992,7 +1992,7 @@ const AdminCourseForm = () => {
                 >
                   Upload
                 </button>
-                <button
+                {/* <button
                   type="button"
                   onClick={() => setThumbnailMode('link')}
                   className={`flex-shrink-0 px-3 py-2 text-xs font-medium rounded-lg md:px-4 md:text-sm ${
@@ -2002,7 +2002,7 @@ const AdminCourseForm = () => {
                   }`}
                 >
                   External Link
-                </button>
+                </button> */}
               </div>
 
               {/* Upload Mode */}
@@ -2028,7 +2028,7 @@ const AdminCourseForm = () => {
                     >
                       <Upload className="w-5 h-5" />
                       <span className="text-xs md:text-sm">
-                        {isUploading ? 'Uploading...' : 'Upload Thumbnail'}
+                        {isUploading ? 'Uploading...' : 'Upload Image'}
                       </span>
                     </label>
                     {formData.thumbnail && formData.thumbnailSource === 'upload' && (
@@ -2073,7 +2073,7 @@ const AdminCourseForm = () => {
               )}
 
               {/* Link Mode */}
-              {thumbnailMode === 'link' && (
+              {/* {thumbnailMode === 'link' && (
                 <div className="space-y-3">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:space-x-4">
                     <input
@@ -2142,7 +2142,7 @@ const AdminCourseForm = () => {
                     Supports: YouTube URLs, direct image links, video links
                   </p>
                 </div>
-              )}
+              )} */}
             </div>
 
             {/* Modules and Lessons */}

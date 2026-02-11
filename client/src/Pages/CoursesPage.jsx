@@ -186,7 +186,7 @@ const CoursesPage = () => {
       <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">All Courses</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mt-5">All Courses</h1>
           <p className="text-gray-600">Discover {pagination.total} courses to advance your skills</p>
         </div>
 

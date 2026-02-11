@@ -65,6 +65,22 @@ const AdminUserManagement = () => {
     admin: 'bg-purple-100 text-purple-800 border-purple-200'
   }
 
+  // Safe user data formatter
+  const formatUser = useCallback((user) => {
+    if (!user) return null
+    
+    return {
+      _id: user._id || `temp-${Math.random()}`,
+      name: user.name || 'Unknown User',
+      email: user.email || 'No email',
+      role: user.role || 'student',
+      isEmailVerified: user.isEmailVerified || false,
+      createdAt: user.createdAt || new Date().toISOString(),
+      enrollments: user.enrollments || 0,
+      ...user
+    }
+  }, [])
+
   const filterUsers = useCallback(() => {
     let filtered = [...users]
 
@@ -96,8 +112,8 @@ const AdminUserManagement = () => {
       let bValue = b[sortBy]
 
       if (sortBy === 'createdAt') {
-        aValue = new Date(aValue)
-        bValue = new Date(bValue)
+        aValue = new Date(aValue || 0).getTime()
+        bValue = new Date(bValue || 0).getTime()
       }
 
       if (sortOrder === 'asc') {
@@ -121,12 +137,14 @@ const AdminUserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      // Fetch all users without pagination for proper filtering
       const response = await api.get('/admin/users?limit=10000')
-      setUsers(response.data.users || [])
+      const userData = response.data.users || []
+      // Format all users to ensure they have required fields
+      const formattedUsers = userData.map(user => formatUser(user)).filter(Boolean)
+      setUsers(formattedUsers)
     } catch (error) {
       console.error('Error fetching users:', error)
-      // Handle error silently or show notification
+      setUsers([])
     } finally {
       setLoading(false)
     }
@@ -148,6 +166,8 @@ const AdminUserManagement = () => {
 
   const handleEditUser = async (e) => {
     e.preventDefault()
+    if (!currentUser?._id) return
+    
     try {
       await api.put(`/admin/users/${currentUser._id}`, editForm)
       setShowEditModal(false)
@@ -161,6 +181,8 @@ const AdminUserManagement = () => {
   }
 
   const handleDeleteUser = async () => {
+    if (!currentUser?._id) return
+    
     try {
       await api.post(`/admin/users/${currentUser._id}/delete`)
       setShowDeleteModal(false)
@@ -174,6 +196,8 @@ const AdminUserManagement = () => {
   }
 
   const handleRoleChange = async (newRole) => {
+    if (!currentUser?._id) return
+    
     try {
       await api.post(`/admin/users/${currentUser._id}/role`, { role: newRole })
       setShowRoleModal(false)
@@ -212,23 +236,28 @@ const AdminUserManagement = () => {
   }
 
   const openEditModal = (user) => {
-    setCurrentUser(user)
+    if (!user) return
+    
+    const formattedUser = formatUser(user)
+    setCurrentUser(formattedUser)
     setEditForm({
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      isEmailVerified: user.isEmailVerified
+      name: formattedUser.name || '',
+      email: formattedUser.email || '',
+      role: formattedUser.role || 'student',
+      isEmailVerified: formattedUser.isEmailVerified || false
     })
     setShowEditModal(true)
   }
 
   const openDeleteModal = (user) => {
-    setCurrentUser(user)
+    if (!user) return
+    setCurrentUser(formatUser(user))
     setShowDeleteModal(true)
   }
 
   const openRoleModal = (user) => {
-    setCurrentUser(user)
+    if (!user) return
+    setCurrentUser(formatUser(user))
     setShowRoleModal(true)
   }
 
@@ -252,12 +281,19 @@ const AdminUserManagement = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className=" rounded-lg shadow-sm p-3 mb-3 bg-white">
-          <div className="flex justify-between items-center mb-4 ">
+        <div className="rounded-lg shadow-sm p-3 mb-3 bg-white">
+          <div className="flex justify-between items-center mb-4">
             <div>
               <h1 className="text-xl font-bold text-gray-900">User Management</h1>
               <p className="text-gray-600">Manage all system users, roles, and permissions</p>
             </div>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            >
+              <Plus size={20} />
+              Add User
+            </button>
           </div>
 
           {/* Stats */}
@@ -267,7 +303,7 @@ const AdminUserManagement = () => {
                 <Users className="text-blue-600" size={20} />
                 <span className="text-blue-800 font-semibold">Total Users</span>
               </div>
-              <p className="text-2xl font-bold text-blue-900">{users.length}</p>
+              <p className="text-2xl font-bold text-blue-900">{users?.length || 0}</p>
             </div>
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
               <div className="flex items-center gap-2">
@@ -275,7 +311,7 @@ const AdminUserManagement = () => {
                 <span className="text-green-800 font-semibold">Students</span>
               </div>
               <p className="text-2xl font-bold text-green-900">
-                {users.filter(u => u.role === 'student').length}
+                {users?.filter(u => u?.role === 'student')?.length || 0}
               </p>
             </div>
             <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
@@ -284,7 +320,7 @@ const AdminUserManagement = () => {
                 <span className="text-yellow-800 font-semibold">Instructors</span>
               </div>
               <p className="text-2xl font-bold text-yellow-900">
-                {users.filter(u => u.role === 'instructor').length}
+                {users?.filter(u => u?.role === 'instructor')?.length || 0}
               </p>
             </div>
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
@@ -293,60 +329,60 @@ const AdminUserManagement = () => {
                 <span className="text-purple-800 font-semibold">Admins</span>
               </div>
               <p className="text-2xl font-bold text-purple-900">
-                {users.filter(u => u.role === 'admin').length}
+                {users?.filter(u => u?.role === 'admin')?.length || 0}
               </p>
             </div>
           </div>
 
           {/* Filters */}
           <div className="flex flex-wrap gap-4 items-center">
-          <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-[100%] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all" >All Roles</option>
-              <option value="student">Students</option>
-              <option value="instructor">Instructors</option>
-              <option value="admin">Admins</option>
-            </select>
+            <div className='grid grid-cols-2 md:grid-cols-4 gap-4 w-full'>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Roles</option>
+                <option value="student">Students</option>
+                <option value="instructor">Instructors</option>
+                <option value="admin">Admins</option>
+              </select>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Status</option>
-              <option value="verified">Verified</option>
-              <option value="unverified">Unverified</option>
-            </select>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Status</option>
+                <option value="verified">Verified</option>
+                <option value="unverified">Unverified</option>
+              </select>
 
-            <select
-              value={`${sortBy}-${sortOrder}`}
-              onChange={(e) => {
-                const [field, order] = e.target.value.split('-')
-                setSortBy(field)
-                setSortOrder(order)
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="createdAt-desc">Newest First</option>
-              <option value="createdAt-asc">Oldest First</option>
-              <option value="name-asc">Name A-Z</option>
-              <option value="name-desc">Name Z-A</option>
-            </select>
+              <select
+                value={`${sortBy}-${sortOrder}`}
+                onChange={(e) => {
+                  const [field, order] = e.target.value.split('-')
+                  setSortBy(field)
+                  setSortOrder(order)
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="createdAt-desc">Newest First</option>
+                <option value="createdAt-asc">Oldest First</option>
+                <option value="name-asc">Name A-Z</option>
+                <option value="name-desc">Name Z-A</option>
+              </select>
             </div>
           </div>
         </div>
@@ -389,7 +425,7 @@ const AdminUserManagement = () => {
                       checked={selectedUsers.length === currentUsers.length && currentUsers.length > 0}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedUsers(currentUsers.map(u => u._id))
+                          setSelectedUsers(currentUsers.map(u => u._id).filter(Boolean))
                         } else {
                           setSelectedUsers([])
                         }
@@ -418,8 +454,12 @@ const AdminUserManagement = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {currentUsers.map((user) => {
+                {currentUsers.map((rawUser) => {
+                  if (!rawUser) return null
+                  
+                  const user = formatUser(rawUser)
                   const RoleIcon = roleIcons[user.role] || Users
+                  
                   return (
                     <tr key={user._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
@@ -440,25 +480,29 @@ const AdminUserManagement = () => {
                         <div className="flex items-center">
                           <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                             <span className="text-sm font-medium text-gray-700">
-                              {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                             </span>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.name || 'N/A'}
+                            </div>
                             <div className="text-sm text-gray-500 flex items-center gap-1">
                               <Mail size={12} />
-                              {user.email}
+                              {user.email || 'No email'}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleColors[user.role]} cursor-pointer hover:opacity-80`}
-                          onClick={() => openRoleModal(user)}
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                            roleColors[user.role] || 'bg-gray-100 text-gray-800 border-gray-200'
+                          } cursor-pointer hover:opacity-80`}
+                          onClick={() => openRoleModal(rawUser)}
                         >
                           <RoleIcon size={12} />
-                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                          {user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -474,7 +518,7 @@ const AdminUserManagement = () => {
                       <td className="px-6 py-4 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
                           <Calendar size={12} />
-                          {new Date(user.createdAt).toLocaleDateString()}
+                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
@@ -483,21 +527,21 @@ const AdminUserManagement = () => {
                       <td className="px-6 py-4 text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
                           <button
-                            onClick={() => openEditModal(user)}
+                            onClick={() => openEditModal(rawUser)}
                             className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded transition-colors"
                             title="Edit User"
                           >
                             <Edit size={16} />
                           </button>
                           <button
-                            onClick={() => openRoleModal(user)}
+                            onClick={() => openRoleModal(rawUser)}
                             className="text-green-600 hover:text-green-900 p-1 hover:bg-green-50 rounded transition-colors"
                             title="Change Role"
                           >
                             <UserCheck size={16} />
                           </button>
                           <button
-                            onClick={() => openDeleteModal(user)}
+                            onClick={() => openDeleteModal(rawUser)}
                             className="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded transition-colors"
                             title="Delete User"
                           >
@@ -508,12 +552,21 @@ const AdminUserManagement = () => {
                     </tr>
                   )
                 })}
+                {currentUsers.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                      <Users size={48} className="mx-auto mb-4 text-gray-400" />
+                      <p className="text-lg font-medium">No users found</p>
+                      <p className="text-sm">Try adjusting your search or filter criteria</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {totalPages > 1 && filteredUsers.length > 0 && (
             <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
               <div className="flex justify-between items-center">
                 <div className="text-sm text-gray-700">
@@ -677,7 +730,7 @@ const AdminUserManagement = () => {
                     <input
                       type="text"
                       required
-                      value={editForm.name}
+                      value={editForm.name || ''}
                       onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -690,7 +743,7 @@ const AdminUserManagement = () => {
                     <input
                       type="email"
                       required
-                      value={editForm.email}
+                      value={editForm.email || ''}
                       onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -701,7 +754,7 @@ const AdminUserManagement = () => {
                       Role
                     </label>
                     <select
-                      value={editForm.role}
+                      value={editForm.role || 'student'}
                       onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
@@ -715,7 +768,7 @@ const AdminUserManagement = () => {
                     <input
                       type="checkbox"
                       id="emailVerified"
-                      checked={editForm.isEmailVerified}
+                      checked={editForm.isEmailVerified || false}
                       onChange={(e) => setEditForm({ ...editForm, isEmailVerified: e.target.checked })}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
@@ -768,7 +821,7 @@ const AdminUserManagement = () => {
                 </div>
 
                 <p className="text-gray-600 mb-6">
-                  Are you sure you want to delete <strong>{currentUser.name}</strong>? 
+                  Are you sure you want to delete <strong>{currentUser.name || 'this user'}</strong>? 
                   This action cannot be undone and will remove all associated data.
                 </p>
 
@@ -817,7 +870,7 @@ const AdminUserManagement = () => {
                 </div>
 
                 <p className="text-gray-600 mb-6">
-                  Change role for <strong>{currentUser.name}</strong>:
+                  Change role for <strong>{currentUser.name || 'this user'}</strong>:
                 </p>
 
                 <div className="space-y-3">
@@ -847,7 +900,7 @@ const AdminUserManagement = () => {
                             'text-purple-600'
                           } />
                         </div>
-                        <div className="text-left">
+                        <div className="flex-1 text-left">
                           <div className="font-medium text-gray-900">
                             {role.charAt(0).toUpperCase() + role.slice(1)}
                           </div>
