@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-
 const progressSchema = new mongoose.Schema(
   {
     user: {
@@ -76,11 +75,9 @@ const progressSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 // Compound index for efficient querying
 progressSchema.index({ user: 1, course: 1, lesson: 1 }, { unique: true })
 progressSchema.index({ user: 1, course: 1 })
-
 // Auto-complete when progress reaches 100%
 progressSchema.pre("save", function (next) {
   if (this.progress >= 100 && !this.isCompleted) {
@@ -89,5 +86,4 @@ progressSchema.pre("save", function (next) {
   }
   next()
 })
-
 module.exports = mongoose.model("Progress", progressSchema)

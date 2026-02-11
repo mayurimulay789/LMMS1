@@ -7,7 +7,6 @@ const adminMiddleware = (req, res, next) => {
         message: "Please log in to access this resource",
       })
     }
-
     // Check if user has admin role
     if (req.user.role !== "admin") {
       return res.status(403).json({
@@ -17,7 +16,6 @@ const adminMiddleware = (req, res, next) => {
         requiredRole: "admin",
       })
     }
-
     // User is admin, proceed to next middleware
     next()
   } catch (error) {
@@ -28,5 +26,4 @@ const adminMiddleware = (req, res, next) => {
     })
   }
 }
-
 module.exports = adminMiddleware

@@ -3,10 +3,8 @@ const QRCode = require("qrcode")
 const { v4: uuidv4 } = require("uuid")
 const { uploadToCloudinary } = require("../utils/cloudinary")
 const Certificate = require("../models/Certificate")
-
 class CertificateService {
   constructor() {}
-
   async generateCertificate(data) {
     try {
       const {
@@ -22,14 +20,11 @@ class CertificateService {
         skills = [],
         metadata = {},
       } = data
-
       // Generate unique certificate ID
       const certificateId = `CERT_${Date.now()}_${uuidv4().substr(0, 8).toUpperCase()}`
       const verificationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/verify-certificate/${certificateId}`
-
       // Generate QR code for verification
       const qrCodeData = await QRCode.toDataURL(verificationUrl)
-
       // Build PDF in-memory (no local file storage)
       const pdfBuffer = await this.createCertificatePdfBuffer({
         studentName,
@@ -43,17 +38,14 @@ class CertificateService {
         qrCodeData,
         verificationUrl,
       })
-
       // Upload PDF to Cloudinary as a raw file (keeps it private to a single URL)
       const cloudFolder = process.env.CLOUDINARY_CERT_FOLDER || "lms/certificates"
       const pdfUrl = await uploadToCloudinary(pdfBuffer, cloudFolder, "raw", "application/pdf")
-
       // Generate certificate number
       const year = new Date().getFullYear()
       const month = String(new Date().getMonth() + 1).padStart(2, "0")
       const random = Math.random().toString(36).substr(2, 6).toUpperCase()
       const certificateNumber = `CERT-${year}${month}-${random}`
-
       // Create certificate record in database
       const certificate = new Certificate({
         certificateId,
@@ -78,16 +70,13 @@ class CertificateService {
           fileSize: pdfBuffer.length,
         },
       })
-
       await certificate.save()
-
       return certificate
     } catch (error) {
       console.error("Certificate generation error:", error)
       throw new Error(`Failed to generate certificate: ${error.message}`)
     }
   }
-
   async createCertificatePdfBuffer(content) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -96,12 +85,10 @@ class CertificateService {
           layout: "landscape",
           margins: { top: 50, bottom: 50, left: 50, right: 50 },
         })
-
         const chunks = []
         doc.on("data", (chunk) => chunks.push(chunk))
         doc.on("end", () => resolve(Buffer.concat(chunks)))
         doc.on("error", reject)
-
         await this.addCertificateContent(doc, content)
         doc.end()
       } catch (err) {
@@ -109,15 +96,12 @@ class CertificateService {
       }
     })
   }
-
   // Regenerate a certificate PDF from an existing certificate record (used for migrations)
   async regenerateCertificateAsset(certificate) {
     const verificationUrl =
       certificate.verificationUrl ||
       `${process.env.FRONTEND_URL || "http://localhost:3000"}/verify-certificate/${certificate.certificateId}`
-
     const qrCodeData = await QRCode.toDataURL(verificationUrl)
-
     const pdfBuffer = await this.createCertificatePdfBuffer({
       studentName: certificate.studentName,
       courseName: certificate.courseName,

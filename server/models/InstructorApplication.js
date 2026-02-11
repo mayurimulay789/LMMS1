@@ -48,12 +48,8 @@
 //     default: Date.now,
 //   },
 // });
-
 // module.exports = mongoose.model("InstructorApplication", instructorApplicationSchema);
-
-
 const mongoose = require("mongoose");
-
 const instructorApplicationSchema = new mongoose.Schema({
   applicantName: {
     type: String,
@@ -106,5 +102,4 @@ const instructorApplicationSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-
 module.exports = mongoose.model("InstructorApplication", instructorApplicationSchema);

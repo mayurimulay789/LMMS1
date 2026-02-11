@@ -1,14 +1,17 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: process.env.EMAIL_PORT || 587,
+
+ 
+  host: process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: process.env.SMTP_PORT || process.env.EMAIL_PORT || 587,
   secure: true, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.SMTP_USER || process.env.EMAIL_USER,
+    pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
   },
 });
+
 
 const sendInstructorApplicationEmail = async (applicationData) => {
   try {
@@ -498,6 +501,350 @@ const sendAdminSignupNotification = async (userData) => {
   }
 };
 
+
+const sendOTPEmail = async ({ email, name, otp }) => {
+  try {
+    console.log('Sending OTP email to:', email);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your OTP for Password Reset - RYMAACADEMY',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="display: inline-block; background-color: #e11d48; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">
+              SECURE OTP
+            </div>
+          </div>
+          
+          <h2 style="color: #333; text-align: center;">Password Reset Request</h2>
+
+          <p>Hello <strong>${name}</strong>,</p>
+
+          <p>You requested to reset your password. Use the OTP below to verify your identity:</p>
+
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; margin: 25px 0; text-align: center; border: 2px dashed #e11d48;">
+            <div style="font-size: 32px; letter-spacing: 10px; font-weight: bold; color: #e11d48; margin: 10px 0;">
+              ${otp}
+            </div>
+            <div style="color: #666; font-size: 14px; margin-top: 10px;">
+              This OTP is valid for 10 minutes
+            </div>
+          </div>
+
+          <div style="background-color: #fff7ed; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f97316;">
+            <h4 style="color: #f97316; margin-top: 0;">⚠️ Security Alert</h4>
+            <p style="margin: 5px 0; font-size: 14px;">
+              • Never share this OTP with anyone<br>
+              • RYMAACADEMY will never ask for your OTP<br>
+              • This OTP is for password reset only
+            </p>
+          </div>
+
+          <p>If you didn't request this password reset, please ignore this email or contact our support team immediately.</p>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?email=${encodeURIComponent(email)}"
+               style="background-color: #e11d48; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Reset Password Now
+            </a>
+          </div>
+
+          <p>Need help? Contact our support team at <a href="mailto:support@RYMAACADEMY.com" style="color: #e11d48;">support@RYMAACADEMY.com</a></p>
+
+          <p>Stay secure,<br>
+          <strong>The RYMAACADEMY Security Team</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated security message. Please do not reply to this email.<br>
+            © ${new Date().getFullYear()} RYMAACADEMY. All rights reserved.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('OTP email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending OTP email:', error);
+    throw error;
+  }
+};
+
+// Password Reset Success Email
+const sendPasswordResetSuccessEmail = async ({ email, name, ipAddress, deviceInfo }) => {
+  try {
+    console.log('Sending password reset success email to:', email);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Password Successfully Reset - RYMAACADEMY',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="display: inline-block; background-color: #10b981; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">
+              PASSWORD UPDATED
+            </div>
+          </div>
+          
+          <h2 style="color: #10b981; text-align: center;">✅ Password Reset Successful</h2>
+
+          <p>Hello <strong>${name}</strong>,</p>
+
+          <p>Your RYMAACADEMY password has been successfully reset.</p>
+
+          <div style="background-color: #f0fdf4; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #10b981;">
+            <h4 style="color: #333; margin-top: 0;">📋 Reset Details:</h4>
+            <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+            ${ipAddress ? `<p><strong>IP Address:</strong> ${ipAddress}</p>` : ''}
+            ${deviceInfo ? `<p><strong>Device:</strong> ${deviceInfo}</p>` : ''}
+          </div>
+
+          <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+            <h4 style="color: #f59e0b; margin-top: 0;">🔒 Security Notice</h4>
+            <p style="margin: 5px 0; font-size: 14px;">
+              If you did NOT perform this password reset:<br>
+              1. Reset your password immediately<br>
+              2. Contact our support team<br>
+              3. Check your account for suspicious activity
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login"
+               style="background-color: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Login to Your Account
+            </a>
+          </div>
+
+          <p>For security questions or to report suspicious activity, contact us immediately at <a href="mailto:security@RYMAACADEMY.com" style="color: #e11d48;">security@RYMAACADEMY.com</a></p>
+
+          <p>Stay secure,<br>
+          <strong>The RYMAACADEMY Security Team</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated security notification.<br>
+            © ${new Date().getFullYear()} RYMAACADEMY. All rights reserved.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Password reset success email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending password reset success email:', error);
+    throw error;
+  }
+};
+
+// Email Verification Email
+const sendEmailVerificationEmail = async ({ email, name, verificationToken }) => {
+  try {
+    console.log('Sending email verification email to:', email);
+
+    const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Verify Your Email - RYMAACADEMY',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="display: inline-block; background-color: #3b82f6; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">
+              EMAIL VERIFICATION
+            </div>
+          </div>
+          
+          <h2 style="color: #3b82f6; text-align: center;">Welcome to RYMAACADEMY!</h2>
+
+          <p>Hello <strong>${name}</strong>,</p>
+
+          <p>Thank you for joining RYMAACADEMY! Please verify your email address to activate your account and get started with your learning journey.</p>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationLink}"
+               style="background-color: #3b82f6; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Verify Email Address
+            </a>
+          </div>
+
+          <p>Or copy and paste this link into your browser:</p>
+          <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0; word-break: break-all;">
+            <code style="font-size: 12px;">${verificationLink}</code>
+          </div>
+
+          <div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+            <h4 style="color: #3b82f6; margin-top: 0;">🎯 Why verify your email?</h4>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li>Secure your account</li>
+              <li>Receive important notifications</li>
+              <li>Reset your password if needed</li>
+              <li>Access all platform features</li>
+            </ul>
+          </div>
+
+          <p>This verification link will expire in 24 hours.</p>
+
+          <p>If you didn't create an account with RYMAACADEMY, please ignore this email.</p>
+
+          <p>Best regards,<br>
+          <strong>The RYMAACADEMY Team</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated message. Please do not reply to this email.<br>
+            © ${new Date().getFullYear()} RYMAACADEMY. All rights reserved.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email verification email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending email verification email:', error);
+    throw error;
+  }
+};
+
+// Password Changed Notification
+const sendPasswordChangedNotification = async ({ email, name }) => {
+  try {
+    console.log('Sending password changed notification to:', email);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your Password Has Been Changed - RYMAACADEMY',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="display: inline-block; background-color: #6366f1; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">
+              ACCOUNT SECURITY
+            </div>
+          </div>
+          
+          <h2 style="color: #6366f1; text-align: center;">🔐 Password Changed</h2>
+
+          <p>Hello <strong>${name}</strong>,</p>
+
+          <p>We're writing to confirm that your RYMAACADEMY account password was recently changed.</p>
+
+          <div style="background-color: #eef2ff; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #6366f1;">
+            <h4 style="color: #333; margin-top: 0;">📅 Change Details:</h4>
+            <p><strong>Date & Time:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Action:</strong> Password updated successfully</p>
+          </div>
+
+          <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+            <h4 style="color: #f59e0b; margin-top: 0;">⚠️ Important Security Information</h4>
+            <p style="margin: 5px 0; font-size: 14px;">
+              If you made this change, no further action is needed.<br>
+              If you did NOT make this change:<br>
+              1. Reset your password immediately<br>
+              2. Contact our security team<br>
+              3. Review your account activity
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/security"
+               style="background-color: #6366f1; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Review Account Security
+            </a>
+          </div>
+
+          <p>If you have any concerns about your account security, please contact us immediately at <a href="mailto:security@RYMAACADEMY.com" style="color: #e11d48;">security@RYMAACADEMY.com</a></p>
+
+          <p>Stay secure,<br>
+          <strong>The RYMAACADEMY Security Team</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated security notification.<br>
+            © ${new Date().getFullYear()} RYMAACADEMY. All rights reserved.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Password changed notification sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending password changed notification:', error);
+    throw error;
+  }
+};
+
+// Test Email Function
+const sendTestEmail = async ({ email, name }) => {
+  try {
+    console.log('Sending test email to:', email);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Test Email - RYMAACADEMY Email Service',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #10b981; text-align: center;">✅ Email Service Working!</h2>
+
+          <p>Hello <strong>${name || 'User'}</strong>,</p>
+
+          <p>This is a test email from RYMAACADEMY's email service. If you're receiving this, our email system is working correctly!</p>
+
+          <div style="background-color: #f0fdf4; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center;">
+            <div style="font-size: 48px; color: #10b981;">✓</div>
+            <h3>Email Service Status: <span style="color: #10b981;">OPERATIONAL</span></h3>
+            <p>Timestamp: ${new Date().toLocaleString()}</p>
+          </div>
+
+          <p>All email notifications including:</p>
+          <ul>
+            <li>Account verification</li>
+            <li>Password reset OTPs</li>
+            <li>Course notifications</li>
+            <li>Instructor communications</li>
+          </ul>
+          <p>...will be delivered to your email successfully.</p>
+
+          <p>If you have any questions about our email service, please contact our support team.</p>
+
+          <p>Best regards,<br>
+          <strong>RYMAACADEMY Technical Team</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666; text-align: center;">
+            This is a test email. No action is required.<br>
+            © ${new Date().getFullYear()} RYMAACADEMY.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Test email sent successfully:', info.messageId);
+    return { 
+      success: true, 
+      messageId: info.messageId,
+      message: 'Test email sent successfully. Check your inbox.'
+    };
+  } catch (error) {
+    console.error('Error sending test email:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   sendInstructorApplicationEmail,
   sendAdminApplicationNotification,
@@ -507,4 +854,9 @@ module.exports = {
   sendAdminContactNotification,
   sendWelcomeEmail,
   sendAdminSignupNotification,
+  sendOTPEmail,
+  sendPasswordResetSuccessEmail,
+  sendEmailVerificationEmail,
+  sendPasswordChangedNotification,
+  sendTestEmail,
 };

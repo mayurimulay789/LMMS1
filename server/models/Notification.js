@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-
 const notificationSchema = new mongoose.Schema(
   {
     recipient: {
@@ -66,17 +65,14 @@ const notificationSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 // Index for efficient querying
 notificationSchema.index({ recipient: 1, createdAt: -1 })
 notificationSchema.index({ recipient: 1, isRead: 1 })
 notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
-
 // Mark as read when accessed
 notificationSchema.pre("findOne", function () {
   if (this.getQuery()._id) {
     this.updateOne({}, { isRead: true, readAt: new Date() })
   }
 })
-
 module.exports = mongoose.model("Notification", notificationSchema)

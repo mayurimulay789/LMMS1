@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Eye, EyeOff, Mail, Lock, BookOpen } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, } from "lucide-react";
 import { loginUser, clearError,loadUser } from "../store/slices/authSlice";
 
 const LoginPage = () => {
@@ -76,26 +76,20 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 flex mt-4 justify-center px-4">
       <div className="w-full max-w-md">
-
         {/* BRAND HEADER */}
         <div className="text-center mb-3">
-          
           <p className="text-primary-600 text-base font-semibold flex items-center justify-center gap-2 mb-2">
             Sign in to continue your learning journey
           </p>
         </div>
-
         {/* FORM CARD */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
-
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
-
           <form onSubmit={handleSubmit} className="space-y-5">
-
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -118,7 +112,6 @@ const LoginPage = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.email}</p>
               )}
             </div>
-
             {/* Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -165,7 +158,7 @@ const LoginPage = () => {
                 Remember me
               </label>
               <Link
-                to="/forgot-password"
+                to="/userDetailsforForgetPassword"
                 className="text-rose-700 hover:text-rose-800 font-medium"
               >
                 Forgot password?

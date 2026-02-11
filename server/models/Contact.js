@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-
 const contactSchema = new mongoose.Schema(
   {
     name: {
@@ -93,7 +92,6 @@ const contactSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 // Indexes
 contactSchema.index({ email: 1 })
 contactSchema.index({ status: 1 })
@@ -101,7 +99,6 @@ contactSchema.index({ category: 1 })
 contactSchema.index({ priority: 1 })
 contactSchema.index({ createdAt: -1 })
 contactSchema.index({ isRead: 1 })
-
 // Text search index
 contactSchema.index({
   name: "text",
@@ -109,7 +106,6 @@ contactSchema.index({
   subject: "text",
   message: "text",
 })
-
 // Mark as read method
 contactSchema.methods.markAsRead = function (userId) {
   this.isRead = true
@@ -117,7 +113,6 @@ contactSchema.methods.markAsRead = function (userId) {
   this.readBy = userId
   return this.save()
 }
-
 // Add response method
 contactSchema.methods.addResponse = function (message, respondedBy) {
   this.response = {
@@ -128,15 +123,12 @@ contactSchema.methods.addResponse = function (message, respondedBy) {
   this.status = "resolved"
   return this.save()
 }
-
 // Static method to get unread count
 contactSchema.statics.getUnreadCount = function () {
   return this.countDocuments({ isRead: false })
 }
-
 // Static method to get contacts by status
 contactSchema.statics.getByStatus = function (status) {
   return this.find({ status }).sort({ createdAt: -1 })
 }
-
 module.exports = mongoose.model("Contact", contactSchema)

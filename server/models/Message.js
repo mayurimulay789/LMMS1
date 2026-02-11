@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-
 const messageSchema = new mongoose.Schema(
   {
     sender: {
@@ -82,9 +81,7 @@ const messageSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 // Index for efficient querying
 messageSchema.index({ course: 1, createdAt: -1 })
 messageSchema.index({ sender: 1 })
-
 module.exports = mongoose.model("Message", messageSchema)

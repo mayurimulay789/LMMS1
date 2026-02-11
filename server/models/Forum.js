@@ -1,5 +1,4 @@
 import mongoose from "mongoose"
-
 const replySchema = new mongoose.Schema(
   {
     author: {
@@ -33,7 +32,6 @@ const replySchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 const forumPostSchema = new mongoose.Schema(
   {
     title: {
@@ -95,7 +93,6 @@ const forumPostSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
 // Update lastActivity when replies are added
 forumPostSchema.pre("save", function (next) {
   if (this.isModified("replies")) {
@@ -103,5 +100,4 @@ forumPostSchema.pre("save", function (next) {
   }
   next()
 })
-
 export default mongoose.model("ForumPost", forumPostSchema)
