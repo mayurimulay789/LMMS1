@@ -2,26 +2,22 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
-
 const UserDetailsforForgetPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [, setApiResponse] = useState(null);
-
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) return 'Email is required';
     if (!emailRegex.test(email)) return 'Please enter a valid email address';
     return '';
   };
-
   const handleContinue = async () => {
     // Clear previous errors
     setErrors({});
     setApiResponse(null);
-
     // Validate email
     const emailError = validateEmail(email);
     if (emailError) {
@@ -29,24 +25,19 @@ const UserDetailsforForgetPassword = () => {
       toast.error(emailError);
       return;
     }
-
     setLoading(true);
-
     try {
       // Call your API endpoint
       const response = await axios.post(
         '/api/auth/searchuserbyemailandreset',
         { email: email.toLowerCase().trim() }
       );
-
       console.log('API Response:', response.data);
       setApiResponse(response.data);
-
       if (response.data.success) {
         if (response.data.otpSent) {
           // OTP sent successfully
-          toast.success('OTP sent to your email!');
-          
+          toast.success('OTP sent to your email!');         
           // Navigate to OTP validation page with email
           navigate('/otpvalidationpage', {
             state: {
@@ -72,14 +63,11 @@ const UserDetailsforForgetPassword = () => {
         // API returned success: false
         toast.error(response.data.message || 'Something went wrong');
       }
-
     } catch (error) {
       console.error('API Error:', error);
-      
       if (error.response) {
         // Server responded with error status
-        const errorMessage = error.response.data?.message || 'Server error occurred';
-        
+        const errorMessage = error.response.data?.message || 'Server error occurred'; 
         // Handle specific status codes
         if (error.response.status === 400) {
           // Bad request (validation errors)
@@ -96,7 +84,6 @@ const UserDetailsforForgetPassword = () => {
         } else {
           toast.error(errorMessage);
         }
-        
         setApiResponse(error.response.data);
       } else if (error.request) {
         // Request made but no response
@@ -109,13 +96,11 @@ const UserDetailsforForgetPassword = () => {
       setLoading(false);
     }
   };
-
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleContinue();
     }
   };
-
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-4">
       {/* Toast Notifications */}
@@ -141,7 +126,6 @@ const UserDetailsforForgetPassword = () => {
           },
         }}
       />
-
       <div className="
         bg-white 
         border border-gray-300 
@@ -191,7 +175,6 @@ const UserDetailsforForgetPassword = () => {
             Enter the email address associated with your RYMAACADEMY account
           </p>
         </div>
-
         {/* Form */}
         <div className="w-full space-y-4">
           <div>
@@ -226,7 +209,6 @@ const UserDetailsforForgetPassword = () => {
               </p>
             )}
           </div>
-
           <button
             onClick={handleContinue}
             disabled={loading}
@@ -244,12 +226,12 @@ const UserDetailsforForgetPassword = () => {
               focus:outline-none
               focus:ring-2
               focus:ring-offset-2
-              focus:ring-orange-500
+              focus:ring-[#890c25]
               disabled:opacity-70
               disabled:cursor-not-allowed
               ${loading 
-                ? 'bg-orange-400 cursor-wait' 
-                : 'bg-orange-600 hover:bg-orange-700 active:bg-orange-800'
+                ? 'bg-[#890c25] cursor-wait' 
+                : 'bg-[#890c25] hover:bg-[#890c25] active:bg-[#890c25]'
               }
               text-white
               font-medium
@@ -285,7 +267,6 @@ const UserDetailsforForgetPassword = () => {
             )}
           </button>
         </div>
-
         {/* Additional Info */}
         <div className="mt-8 pt-6 border-t border-gray-200 w-full">
           <div className="space-y-4">
@@ -328,18 +309,6 @@ const UserDetailsforForgetPassword = () => {
               </p>
             </div>
           </div>
-
-          {/* Support Link */}
-          <p className="mt-6 text-xs sm:text-sm text-gray-500">
-            Need help?{' '}
-            <a 
-              href="mailto:support@rymaacademy.com" 
-              className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
-            >
-              Contact support
-            </a>
-          </p>
-
           {/* Back to Login */}
           <div className="mt-4">
             <button
@@ -368,5 +337,4 @@ const UserDetailsforForgetPassword = () => {
     </div>
   );
 };
-
 export default UserDetailsforForgetPassword;

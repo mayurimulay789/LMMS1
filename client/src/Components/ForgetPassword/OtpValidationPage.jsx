@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
-
 export default function OtpValidationPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,7 +14,6 @@ export default function OtpValidationPage() {
   const [step, setStep] = useState(1); // 1: OTP validation, 2: Set new password
   const [resetToken, setResetToken] = useState(null);
   const otpInputRef = useRef(null);
-
   // Get email from location state
   useEffect(() => {
     if (location.state?.email) {
@@ -24,11 +22,10 @@ export default function OtpValidationPage() {
       // If no email, redirect back
       toast.error("Email not found. Please enter your email again.");
       setTimeout(() => {
-        navigate("/forgot-password");
+        navigate("/login");
       }, 2000);
     }
   }, [location, navigate]);
-
   // Timer countdown
   useEffect(() => {
     if (timer > 0 && step === 1) {
@@ -38,27 +35,23 @@ export default function OtpValidationPage() {
       return () => clearInterval(interval);
     }
   }, [timer, step]);
-
   // Focus OTP input on mount
   useEffect(() => {
     if (otpInputRef.current && step === 1) {
       otpInputRef.current.focus();
     }
   }, [step]);
-
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-
   const handleOtpChange = (e) => {
     const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
     if (value.length <= 6) {
       setCode(value);
     }
   };
-
   const handlePaste = (e) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '');
@@ -66,7 +59,6 @@ export default function OtpValidationPage() {
       setCode(pastedData);
     }
   };
-
   const validateOTP = () => {
     if (code.length !== 6) {
       toast.error("Please enter a 6-digit OTP");
@@ -78,7 +70,6 @@ export default function OtpValidationPage() {
     }
     return true;
   };
-
   const validatePassword = () => {
     if (newPassword.length < 6) {
       toast.error("Password must be at least 6 characters");
@@ -90,13 +81,11 @@ export default function OtpValidationPage() {
     }
     return true;
   };
-
   const handleResendOtp = async () => {
     if (timer > 0) {
       toast.error(`Please wait ${formatTime(timer)} before requesting another code.`);
       return;
     }
-
     setLoading(true);
     try {
       const response = await axios.post("/api/auth/searchuserbyemailandreset", {
@@ -128,10 +117,8 @@ export default function OtpValidationPage() {
       setLoading(false);
     }
   };
-
   const handleVerifyOtp = async () => {
     if (!validateOTP()) return;
-
     setLoading(true);
     try {
       // Step 1: Verify OTP and get reset token
@@ -139,13 +126,10 @@ export default function OtpValidationPage() {
         email: email.toLowerCase().trim(),
         otp: code
       });
-
       if (response.data.success) {
         toast.success("OTP verified successfully!");
-        
         // Store the reset token for the next step
         setResetToken(response.data.resetToken);
-        
         // Move to password reset step
         setStep(2);
       } else {
@@ -174,10 +158,8 @@ export default function OtpValidationPage() {
       setLoading(false);
     }
   };
-
   const handleResetPassword = async () => {
     if (!validatePassword()) return;
-
     setLoading(true);
     try {
       // Step 2: Set new password with reset token
@@ -187,10 +169,8 @@ export default function OtpValidationPage() {
         newPassword: newPassword,
         confirmPassword: confirmPassword
       });
-
       if (response.data.success) {
         toast.success("Password reset successfully! Redirecting to login...");
-        
         // Redirect to login after 2 seconds
         setTimeout(() => {
           navigate("/login", {
@@ -201,9 +181,9 @@ export default function OtpValidationPage() {
           });
         }, 2000);
       } else {
-        toast.error(response.data.message || "Failed to reset password");
-        
+        toast.error(response.data.message || "Failed to reset password");      
         // If token expired, go back to OTP step
+        // eslint-disable-next-line no-undef
         if (error.response?.data?.tokenExpired) {
           toast.error("Reset token expired. Please verify OTP again.");
           setStep(1);
@@ -227,11 +207,9 @@ export default function OtpValidationPage() {
       setLoading(false);
     }
   };
-
   const handleBackToEmail = () => {
-    navigate("/forgot-password");
+    navigate("/login");
   };
-
   const handleBackToOtp = () => {
     setStep(1);
     setNewPassword("");
@@ -241,7 +219,6 @@ export default function OtpValidationPage() {
       otpInputRef.current.focus();
     }
   };
-
   const renderStep1 = () => (
     <>
       <div className="mb-6">
@@ -270,16 +247,13 @@ export default function OtpValidationPage() {
             Step 1 of 2
           </div>
         </div>
-
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
           Enter verification code
         </h2>
-
         <p className="text-sm text-gray-600 mb-4">
           For your security, we sent the code to your email{" "}
           <span className="font-medium text-blue-600">{email}</span>.
         </p>
-
         <div className="mb-6">
           <input
             ref={otpInputRef}
@@ -303,7 +277,6 @@ export default function OtpValidationPage() {
             )}
           </div>
         </div>
-
         <div className="mb-6">
           <div className="text-sm text-gray-500 mb-4">
             {timer > 0 ? (
@@ -353,7 +326,7 @@ export default function OtpValidationPage() {
               }
             `}
           >
-            Didn't receive code? Send again
+            Didn&apos;t receive code? Send again
           </button>
         </div>
 
@@ -364,8 +337,8 @@ export default function OtpValidationPage() {
           className={`
             w-full py-3 rounded-md font-medium transition-all duration-300
             ${loading || code.length !== 6
-              ? 'bg-yellow-300 cursor-not-allowed' 
-              : 'bg-yellow-400 hover:bg-yellow-500'
+              ? 'bg-[#890c25] cursor-not-allowed' 
+              : 'bg-[#890c25] hover:bg-[#890c25] active:bg-[#890c25]'
             }
             text-black font-medium
             flex items-center justify-center
@@ -402,7 +375,6 @@ export default function OtpValidationPage() {
       </div>
     </>
   );
-
   const renderStep2 = () => (
     <>
       <div className="mb-6">
@@ -431,21 +403,17 @@ export default function OtpValidationPage() {
             Step 2 of 2
           </div>
         </div>
-
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
           Set New Password
         </h2>
-
         <p className="text-sm text-gray-600 mb-2">
           Create a strong password for your account ({email})
         </p>
-        
         {resetToken && (
           <div className="mb-4 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700">
             ✓ OTP verified successfully. You can now set your new password.
           </div>
         )}
-
         <div className="space-y-4 mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -464,7 +432,6 @@ export default function OtpValidationPage() {
               Must be at least 6 characters long
             </p>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Confirm Password
@@ -488,7 +455,6 @@ export default function OtpValidationPage() {
             )}
           </div>
         </div>
-
         <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
           <h3 className="text-sm font-medium text-blue-800 mb-1">Password Requirements:</h3>
           <ul className="text-xs text-blue-700 space-y-1">
@@ -526,7 +492,6 @@ export default function OtpValidationPage() {
             </li>
           </ul>
         </div>
-
         <button
           type="button"
           onClick={handleResetPassword}
@@ -572,7 +537,6 @@ export default function OtpValidationPage() {
       </div>
     </>
   );
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       {/* Toast Notifications */}
@@ -598,30 +562,17 @@ export default function OtpValidationPage() {
           },
         }}
       />
-
       <div className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
         {/* Progress Bar */}
         <div className="flex">
           <div className={`w-1/2 h-1 ${step >= 1 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
           <div className={`w-1/2 h-1 ${step >= 2 ? 'bg-green-600' : 'bg-gray-200'}`}></div>
         </div>
-
         <div className="p-6 sm:p-8">
           {step === 1 ? renderStep1() : renderStep2()}
-
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="font-medium text-gray-700 mb-2 text-sm">
               Need help?
-            </p>
-            <p className="text-sm text-gray-600">
-              If you can't receive the code, or if you changed your email address,{" "}
-              <button
-                onClick={handleBackToEmail}
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                try a different way
-              </button>
-              .
             </p>
             <p className="text-sm text-gray-600 mt-2">
               Contact support at{" "}
@@ -633,7 +584,6 @@ export default function OtpValidationPage() {
               </a>
             </p>
           </div>
-
           <div className="mt-6">
             <button
               onClick={() => navigate('/login')}
