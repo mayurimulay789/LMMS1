@@ -93,12 +93,11 @@ const Footer = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-3 group">
-                  <div className="p-1.5 bg-green-50 text-green-600 rounded-lg shrink-0">
-                    <Phone className="w-4 h-4" />
-                  </div>
-                  <span className="text-md text-gray-600 leading-tight">
-                    +91 - 9873336133
+                  <div className="p-1.5 bg-green-50 text-green-600 rounded-lg shrink-0 flex items-center">
+                    <Phone className="w-4 h-4" /><span className="text-md text-gray-600 leading-tight px-4">
+                    +91-9873336133
                   </span>
+                  </div>
                 </div>
                 <div className="flex items-start gap-3 group">
                   <div className="p-1.5 bg-purple-50 text-purple-600 rounded-lg shrink-0">
