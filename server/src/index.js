@@ -48,8 +48,8 @@ app.use(helmet({
 }));
 
 // 4. CORS CONFIGURATION (Fix for "Refused to get unsafe header")
-const developmentOrigins = ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"];
-const productionOrigins = ["https://online.rymaacademy.cloud", process.env.CLIENT_URL, process.env.FRONTEND_URL].filter(Boolean);
+const developmentOrigins = ["http://localhost:5173","http://localhost:5174", "http://localhost:3000", "http://127.0.0.1:5173","http://127.0.0.1:5174"];
+const productionOrigins = ["https://online.rymaacademy.com", process.env.CLIENT_URL, process.env.FRONTEND_URL].filter(Boolean);
 const customOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) : [];
 
 const allowedOrigins = process.env.NODE_ENV === "production"
@@ -63,7 +63,7 @@ app.use(cors({
     if (!origin) return callback(null, true);
 
     // Check if origin is allowed or is a subdomain of rymaacademy.cloud
-    if (allowedOrigins.includes(origin) || origin.endsWith("rymaacademy.cloud")) {
+    if (allowedOrigins.includes(origin) || origin.endsWith("rymaacademy.com")) {
       return callback(null, true);
     }
 

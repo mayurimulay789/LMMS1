@@ -15,7 +15,6 @@ const {
 const { uploadProfileImageToCloudinary } = require("../utils/cloudinary");
 const { uploadProfileImage } = require("../middleware/uploadMiddleware");
 const crypto = require("crypto");
-
 // ✅ FIXED: Proper rate limiter configuration for OTP
 const otpLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
@@ -31,7 +30,6 @@ const otpLimiter = rateLimit({
     return ip + userAgent;
   }
 });
-
 // ✅ FIXED: Rate limiter for login
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -40,7 +38,6 @@ const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-
 // ✅ FIXED: Rate limiter for registration
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -49,7 +46,6 @@ const registerLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-
 // Test Email Route
 router.post("/test-email", async (req, res) => {
   try {
@@ -80,7 +76,6 @@ router.post("/test-email", async (req, res) => {
     });
   }
 });
-
 // Simple test route
 router.get("/test", (req, res) => {
   res.json({ 
@@ -89,15 +84,12 @@ router.get("/test", (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
-
 // Register user
 router.post("/register", registerLimiter, async (req, res) => {
   try {
     const { name, email, password, role, referralCode } = req.body;
     let referrer = null;
-
     console.log('📝 Registration request:', { name, email, role, referralCode });
-
     // Validate email
     if (!email || !email.includes('@')) {
       return res.status(400).json({ 
@@ -105,7 +97,6 @@ router.post("/register", registerLimiter, async (req, res) => {
         message: "Valid email is required" 
       });
     }
-
     // Validate password
     if (!password || password.length < 6) {
       return res.status(400).json({ 
@@ -113,15 +104,12 @@ router.post("/register", registerLimiter, async (req, res) => {
         message: "Password must be at least 6 characters" 
       });
     }
-
     // Validate role
     const validRoles = ["student", "instructor", "admin"];
     const userRole = role && validRoles.includes(role) ? role : "student";
-
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
     let user = existingUser;
-
     // Validate referral code if provided
     if (referralCode) {
       // Check if referralCode is an email or a referral code
@@ -133,7 +121,6 @@ router.post("/register", registerLimiter, async (req, res) => {
         // If it's a referral code
         referrerUser = await User.findOne({ referralCode });
       }
-      
       if (!referrerUser) {
         return res.status(400).json({ 
           success: false,
@@ -142,14 +129,12 @@ router.post("/register", registerLimiter, async (req, res) => {
       }
       referrer = referrerUser._id;
     }
-
     if (existingUser) {
       // If user exists but hasn't verified email
-      if (!existingUser.isEmailVerified && !existingUser.password) {
+      if (!existingUser.password) {
         existingUser.name = name;
         existingUser.password = password;
         existingUser.role = userRole;
-        existingUser.isEmailVerified = true;
         existingUser.isOAuthUser = false;
         await existingUser.save();
         user = existingUser;
@@ -167,14 +152,11 @@ router.post("/register", registerLimiter, async (req, res) => {
         email: email.toLowerCase().trim(),
         password,
         role: userRole,
-        isEmailVerified: true,
         isOAuthUser: false,
         referredBy: referrer,
       });
       await user.save();
-
       console.log('✅ User created:', user._id);
-
       // Create referral code for new user (if not auto-generated in pre-save)
       if (!user.referralCode) {
         try {
@@ -182,7 +164,6 @@ router.post("/register", registerLimiter, async (req, res) => {
           const emailPrefix = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
           const randomNum = Math.floor(100 + Math.random() * 900);
           const userReferralCode = `${emailPrefix}${randomNum}`;
-          
           // Check if referral code already exists
           const existingCode = await User.findOne({ referralCode: userReferralCode });
           if (existingCode) {
@@ -191,7 +172,6 @@ router.post("/register", registerLimiter, async (req, res) => {
           } else {
             user.referralCode = userReferralCode;
           }
-          
           await user.save();
           console.log('✅ Referral code created:', user.referralCode);
         } catch (referralError) {
@@ -199,7 +179,6 @@ router.post("/register", registerLimiter, async (req, res) => {
           // Continue even if referral fails
         }
       }
-
       // Update referrer's referral record
       if (referrer) {
         try {
@@ -220,7 +199,6 @@ router.post("/register", registerLimiter, async (req, res) => {
           console.error('⚠️ Error updating referrer record:', referralUpdateError.message);
         }
       }
-
       // Send welcome email and admin notification for students
       if (user.role === 'student') {
         try {
@@ -232,8 +210,7 @@ router.post("/register", registerLimiter, async (req, res) => {
           console.log('✅ Welcome email sent');
         } catch (emailError) {
           console.error('⚠️ Error sending welcome email:', emailError.message);
-        }
-        
+        }        
         try {
           // ✅ FIXED: Don't send password in admin notification
           await sendAdminSignupNotification({ 
@@ -248,7 +225,6 @@ router.post("/register", registerLimiter, async (req, res) => {
         }
       }
     }
-
     // Generate JWT token
     const token = jwt.sign({ 
       id: user._id,
@@ -257,7 +233,6 @@ router.post("/register", registerLimiter, async (req, res) => {
     }, process.env.JWT_SECRET || 'fallback-secret-key', { 
       expiresIn: "7d" 
     });
-
     res.status(201).json({
       success: true,
       message: "Registration successful",
@@ -280,7 +255,6 @@ router.post("/register", registerLimiter, async (req, res) => {
     });
   }
 });
-
 // ✅ FIXED: Search user by email and send OTP for password reset
 router.post("/searchuserbyemailandreset", otpLimiter, async (req, res) => {
   try {
@@ -294,13 +268,10 @@ router.post("/searchuserbyemailandreset", otpLimiter, async (req, res) => {
         message: "Valid email is required",
       });
     }
-
     // Normalize email
-    const normalizedEmail = email.toLowerCase().trim();
-    
+    const normalizedEmail = email.toLowerCase().trim();  
     // Find user by email
     const user = await User.findOne({ email: normalizedEmail });
-
     // For security, return same response whether user exists or not
     if (!user) {
       console.log('❌ User not found with email:', normalizedEmail);
@@ -310,40 +281,23 @@ router.post("/searchuserbyemailandreset", otpLimiter, async (req, res) => {
         otpSent: false
       });
     }
-
     console.log('✅ User found:', {
       email: user.email,
       id: user._id,
-      isEmailVerified: user.isEmailVerified
     });
-
-    // Check if email is verified
-    if (!user.isEmailVerified) {
-      console.log('⚠️ Email not verified for:', user.email);
-      return res.status(400).json({
-        success: false,
-        message: "Please verify your email first before resetting password",
-        emailVerified: false
-      });
-    }
     // Generate OTP using model method
     const otp = user.generateOTP();
-    await user.save();
-    
+    await user.save();  
     console.log('🔢 Generated OTP for', user.email, ':', otp);
-
     // Send OTP via email
     try {
-      console.log('📧 Sending OTP email to:', user.email);
-      
+      console.log('📧 Sending OTP email to:', user.email);     
       await sendOTPEmail({
         email: user.email,
         name: user.name,
         otp: otp
       });
-
       console.log('✅ OTP email sent successfully');
-
       res.status(200).json({
         success: true,
         message: "OTP sent successfully to your email",
@@ -352,11 +306,9 @@ router.post("/searchuserbyemailandreset", otpLimiter, async (req, res) => {
         expiresIn: "10 minutes"
       });
     } catch (emailError) {
-      console.error('❌ Error sending OTP email:', emailError.message);
-      
+      console.error('❌ Error sending OTP email:', emailError.message);     
       // Clear OTP if email fails
-      await user.clearOTP();
-      
+      await user.clearOTP()   
       return res.status(500).json({
         success: false,
         message: "Failed to send OTP. Please try again later.",
@@ -377,9 +329,7 @@ router.post("/searchuserbyemailandreset", otpLimiter, async (req, res) => {
 router.post("/resetpasswordwithotp", async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
-
     console.log('🔄 Password reset request for:', email);
-
     // Validation
     if (!email || !otp || !newPassword) {
       return res.status(400).json({
@@ -696,16 +646,6 @@ router.post("/login", loginLimiter, async (req, res) => {
       });
     }
 
-    // Check if email is verified
-    if (!user.isEmailVerified) {
-      console.log('⚠️ Email not verified');
-      return res.status(400).json({
-        success: false,
-        message: "Please verify your email before logging in",
-        emailVerified: false
-      });
-    }
-
     console.log('✅ Login successful for:', email);
 
     // Generate JWT token
@@ -716,7 +656,6 @@ router.post("/login", loginLimiter, async (req, res) => {
     }, process.env.JWT_SECRET || 'fallback-secret-key', { 
       expiresIn: "7d" 
     });
-
     res.json({
       success: true,
       message: "Login successful",
@@ -730,7 +669,6 @@ router.post("/login", loginLimiter, async (req, res) => {
         profileImage: user.profile.avatar || user.profileUrl || "",
         phone: user.phone || "",
         referralCode: user.referralCode || "",
-        isEmailVerified: user.isEmailVerified,
         status: user.status
       },
     });
