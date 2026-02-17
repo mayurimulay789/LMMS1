@@ -49,7 +49,7 @@ app.use(helmet({
 
 // 4. CORS CONFIGURATION (Fix for "Refused to get unsafe header")
 const developmentOrigins = ["http://localhost:5173","http://localhost:5174", "http://localhost:3000", "http://127.0.0.1:5173","http://127.0.0.1:5174"];
-const productionOrigins = ["https://online.rymaacademy.com", process.env.CLIENT_URL, process.env.FRONTEND_URL].filter(Boolean);
+const productionOrigins = ["https://online.rymaacademy.com", process.env.CLIENT_URL, process.env.FRONTEND_URL,"https://api.online.rymaacademy.com"].filter(Boolean);
 const customOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) : [];
 
 const allowedOrigins = process.env.NODE_ENV === "production"

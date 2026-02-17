@@ -14,13 +14,13 @@ const getApiBaseUrl = () => {
     const currentProtocol = window.location.protocol;
 
     // If we're on the production domain, use production API
-    if (currentHost.includes('rymaacademy.cloud')) {
-      return 'https://online.rymaacademy.cloud/api';
+    if (currentHost.includes('rymaacademy.com')) {
+      return 'https://api.online.rymaacademy.com/api';
     }
 
     // If we're on localhost, use production API (for testing)
     if (currentHost.includes('localhost') || currentHost.includes('127.0.0.1')) {
-      return 'https://online.rymaacademy.cloud/api';
+      return 'https://api.online.rymaacademy.com/api';
     }
 
     // Dynamic API URL based on current host
@@ -29,8 +29,8 @@ const getApiBaseUrl = () => {
 
   // Default fallback
   return import.meta.env.DEV
-    ? 'https://online.rymaacademy.cloud/api'
-    : 'https://online.rymaacademy.cloud/api';
+    ? 'https://api.online.rymaacademy.com/api'
+    : 'https://api.online.rymaacademy.com/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();
