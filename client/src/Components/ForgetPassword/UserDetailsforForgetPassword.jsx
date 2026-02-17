@@ -29,8 +29,8 @@ const UserDetailsforForgetPassword = () => {
     try {
       // Call your API endpoint
       const response = await axios.post(
-        '/api/auth/searchuserbyemailandreset',
-        { email: email.toLowerCase().trim() }
+         'https://api.online.rymaacademy.com/api/auth/searchuserbyemailandreset',
+         { email: email.toLowerCase().trim() }
       );
       console.log('API Response:', response.data);
       setApiResponse(response.data);

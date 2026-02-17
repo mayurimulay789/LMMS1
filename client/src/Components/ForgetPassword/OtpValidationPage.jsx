@@ -88,7 +88,7 @@ export default function OtpValidationPage() {
     }
     setLoading(true);
     try {
-      const response = await axios.post("/api/auth/searchuserbyemailandreset", {
+      const response = await axios.post("https://api.online.rymaacademy.com/api/auth/searchuserbyemailandreset", {
         email: email.toLowerCase().trim()
       });
 
@@ -122,7 +122,7 @@ export default function OtpValidationPage() {
     setLoading(true);
     try {
       // Step 1: Verify OTP and get reset token
-      const response = await axios.post("/api/auth/verify-otp", {
+      const response = await axios.post("https://api.online.rymaacademy.com/api/auth/verify-otp", {
         email: email.toLowerCase().trim(),
         otp: code
       });
@@ -163,7 +163,7 @@ export default function OtpValidationPage() {
     setLoading(true);
     try {
       // Step 2: Set new password with reset token
-      const response = await axios.post("/api/auth/set-new-password", {
+      const response = await axios.post("https://api.online.rymaacademy.com/api/auth/set-new-password", {
         email: email.toLowerCase().trim(),
         resetToken: resetToken,
         newPassword: newPassword,
