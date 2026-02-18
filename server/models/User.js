@@ -333,23 +333,6 @@ userSchema.methods.updateLastActive = function() {
   this.lastActiveAt = Date.now()
   return this.save({ validateBeforeSave: false })
 }
-// --- Remove sensitive data ---
-userSchema.methods.toJSON = function() {
-  const userObject = this.toObject()
-  delete userObject.password
-  delete userObject.otp
-  delete userObject.otpExpires
-  delete userObject.otpAttempts
-  delete userObject.otpBlockedUntil
-  delete userObject.passwordResetToken
-  delete userObject.passwordResetExpires
-  delete userObject.failedLoginAttempts
-  delete userObject.accountLockedUntil
-  delete userObject.__v
-  userObject.fullName = this.fullName
-  userObject.profileUrl = this.profileUrl
-  return userObject
-}
 // --- Static helpers ---
 userSchema.statics.findByEmail = function(email) {
   return this.findOne({ email: email.toLowerCase().trim() })
