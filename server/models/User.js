@@ -104,11 +104,8 @@ const userSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid phone number! Must have at least 10 digits.`
     }
   },
-  // Password Reset Fields
   passwordResetToken: String,
-  passwordResetExpires: Date,
-  
-  // OTP Fields
+  passwordResetExpires: Date, 
   otp: {
     type: String,
     select: false
@@ -126,15 +123,11 @@ const userSchema = new mongoose.Schema({
     type: Date,
     select: false
   },
-  
-  // Account Status
   status: {
     type: String,
     enum: ["active", "suspended", "deactivated"],
     default: "active",
   },
-  
-  // Security
   lastPasswordChange: {
     type: Date,
     default: Date.now,
@@ -143,9 +136,7 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  accountLockedUntil: Date,
-  
-  // Activity Tracking
+  accountLockedUntil: Date, 
   loginHistory: [{
     ip: String,
     userAgent: String,
@@ -154,8 +145,6 @@ const userSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
-  
-  // Timestamps
   createdAt: {
     type: Date,
     default: Date.now,
@@ -168,16 +157,13 @@ const userSchema = new mongoose.Schema({
   lastLoginAt: Date,
   lastActiveAt: Date,
 })
-// Middleware to update updatedAt timestamp
 userSchema.pre('save', function(next) {
   this.updatedAt = Date.now()
-  // Generate referral code if not exists
   if (!this.referralCode) {
     this.referralCode = crypto.randomBytes(4).toString('hex').toUpperCase()
   }
   next()
 })
-// Hash password before saving (only if modified)
 userSchema.pre("save", async function (next) {
   if (this.isOAuthUser || !this.isModified("password")) return next()
   try {
@@ -189,7 +175,6 @@ userSchema.pre("save", async function (next) {
     next(error)
   }
 })
-// Virtuals
 userSchema.virtual('fullName').get(function() {
   return this.name
 })
@@ -203,19 +188,16 @@ userSchema.virtual('profileUrl').get(function() {
   const initials = this.name.split(' ').map(n => n[0]).join('').toUpperCase()
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=random&color=fff`
 })
-// Password comparison
 userSchema.methods.comparePassword = async function (candidatePassword) {
   if (!this.password) return false
   return await bcrypt.compare(candidatePassword, this.password)
 }
-// Role checks
 userSchema.methods.isAdmin = function() {
   return this.role === 'admin'
 }
 userSchema.methods.isInstructor = function() {
   return this.role === 'instructor'
 }
-// --- OTP Methods ---
 userSchema.methods.generateOTP = function() {
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
   this.otp = crypto.createHash('sha256').update(otp).digest('hex')
@@ -243,11 +225,11 @@ userSchema.methods.verifyOTP = async function(candidateOTP) {
   if (hashedOTP !== this.otp) {
     this.otpAttempts += 1
     if (this.otpAttempts >= 5) {
-      this.otpBlockedUntil = Date.now() + 15 * 60 * 1000 // 15 minutes
+      this.otpBlockedUntil = Date.now() + 5 * 60 * 1000 // 15 minutes
       await this.save()
       return {
         valid: false,
-        message: "Too many failed attempts. OTP verification is blocked for 15 minutes.",
+        message: "Too many failed attempts. OTP verification is blocked for 5 minutes.",
         blocked: true
       }
     }
@@ -258,7 +240,6 @@ userSchema.methods.verifyOTP = async function(candidateOTP) {
       attemptsLeft: 5 - this.otpAttempts
     }
   }
-  // Valid OTP – clear fields
   this.otp = undefined
   this.otpExpires = undefined
   this.otpAttempts = 0
@@ -277,7 +258,6 @@ userSchema.methods.clearOTP = async function() {
   this.otpBlockedUntil = undefined
   return this.save()
 }
-// --- Password Reset Token ---
 userSchema.methods.createPasswordResetToken = function() {
   const resetToken = crypto.randomBytes(32).toString('hex')
   this.passwordResetToken = crypto
@@ -303,7 +283,6 @@ userSchema.methods.clearPasswordResetToken = function() {
   this.passwordResetExpires = undefined
   return this
 }
-// --- Account Locking ---
 userSchema.methods.isAccountLocked = function() {
   return this.accountLockedUntil && this.accountLockedUntil > Date.now()
 }
@@ -324,7 +303,7 @@ userSchema.methods.recordLoginAttempt = async function(success, ip, userAgent) {
   } else {
     this.failedLoginAttempts += 1
     if (this.failedLoginAttempts >= 5) {
-      this.accountLockedUntil = Date.now() + 15 * 60 * 1000 // 15 minutes
+      this.accountLockedUntil = Date.now() + 5 * 60 * 1000 // 15 minutes
     }
   }
   return this.save()
@@ -333,14 +312,12 @@ userSchema.methods.updateLastActive = function() {
   this.lastActiveAt = Date.now()
   return this.save({ validateBeforeSave: false })
 }
-// --- Static helpers ---
 userSchema.statics.findByEmail = function(email) {
   return this.findOne({ email: email.toLowerCase().trim() })
 }
 userSchema.statics.findByReferralCode = function(code) {
   return this.findOne({ referralCode: code })
 }
-// --- Indexes (TTL on otpExpires REMOVED) ---
 userSchema.index({ email: 1 }, { unique: true })
 userSchema.index({ referralCode: 1 }, { unique: true, sparse: true })
 userSchema.index({ createdAt: -1 })
@@ -348,6 +325,4 @@ userSchema.index({ role: 1 })
 userSchema.index({ status: 1 })
 userSchema.index({ 'preferences.emailNotifications': 1 })
 userSchema.index({ oauthId: 1, oauthProvider: 1 }, { sparse: true })
-// ❌ DANGEROUS TTL INDEX REMOVED – DO NOT REINTRODUCE
-// userSchema.index({ otpExpires: 1 }, { expireAfterSeconds: 600 })
 module.exports = mongoose.model("User", userSchema)

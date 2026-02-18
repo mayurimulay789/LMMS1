@@ -15,74 +15,32 @@ const {
 const { uploadProfileImageToCloudinary } = require("../utils/cloudinary");
 const { uploadProfileImage } = require("../middleware/uploadMiddleware");
 const crypto = require("crypto");
-// ✅ FIXED: Proper rate limiter configuration for OTP
 const otpLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 5, // 5 requests per windowMs
+  windowMs: 10 * 60 * 1000,
+  max: 5, 
   message: "Too many OTP requests. Please try again after 10 minutes.",
   skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    // Use IP and user agent for identification
     const ip = req.ip || req.connection.remoteAddress;
     const userAgent = req.headers['user-agent'] || '';
     return ip + userAgent;
   }
 });
-// ✅ FIXED: Rate limiter for login
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts
-  message: "Too many login attempts. Please try again after 15 minutes.",
+  windowMs: 5 * 60 * 1000,
+  max: 5, 
+  message: "Too many login attempts. Please try again after 5 minutes.",
   standardHeaders: true,
   legacyHeaders: false,
 });
-// ✅ FIXED: Rate limiter for registration
 const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // 10 registrations per hour
+  windowMs: 60 * 60 * 1000,
+  max: 10,
   message: "Too many registration attempts. Please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
-});
-// Test Email Route
-router.post("/test-email", async (req, res) => {
-  try {
-    const { email } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required for test"
-      });
-    }
-    
-    console.log('📧 Testing email to:', email);
-    
-    const result = await sendTestEmail({ email });
-    
-    res.status(200).json({
-      success: true,
-      message: "Test email sent successfully",
-      data: result
-    });
-  } catch (error) {
-    console.error("Test email error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to send test email",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
-// Simple test route
-router.get("/test", (req, res) => {
-  res.json({ 
-    success: true, 
-    message: "Auth routes are working!",
-    timestamp: new Date().toISOString()
-  });
 });
 // Register user
 router.post("/register", registerLimiter, async (req, res) => {
@@ -259,9 +217,7 @@ router.post("/register", registerLimiter, async (req, res) => {
 router.post("/searchuserbyemailandreset", otpLimiter, async (req, res) => {
   try {
     const { email } = req.body;
-
     console.log('🔍 Searching for email:', email);
-
     if (!email || !email.includes('@')) {
       return res.status(400).json({
         success: false,
