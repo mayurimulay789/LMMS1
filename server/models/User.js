@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  isEmailVerified: {
+    type: Boolean,
+    default: true, 
+  },
   referralRewards: {
     earned: {
       type: Number,
