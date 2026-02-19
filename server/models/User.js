@@ -318,11 +318,4 @@ userSchema.statics.findByEmail = function(email) {
 userSchema.statics.findByReferralCode = function(code) {
   return this.findOne({ referralCode: code })
 }
-userSchema.index({ email: 1 }, { unique: true })
-userSchema.index({ referralCode: 1 }, { unique: true, sparse: true })
-userSchema.index({ createdAt: -1 })
-userSchema.index({ role: 1 })
-userSchema.index({ status: 1 })
-userSchema.index({ 'preferences.emailNotifications': 1 })
-userSchema.index({ oauthId: 1, oauthProvider: 1 }, { sparse: true })
 module.exports = mongoose.model("User", userSchema)

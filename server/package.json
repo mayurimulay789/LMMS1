@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js",
+    "start": "node remove-ttl-indexes.js src/index.js",
     "dev": "nodemon src/index.js",
     "dev:local": "NODE_ENV=development nodemon src/index.js",
     "check-env": "node ../check-env.js"

@@ -300,18 +300,15 @@ router.post("/resetpasswordwithotp", async (req, res) => {
         message: "Password must be at least 6 characters long",
       });
     }
-
     if (!/^\d{6}$/.test(otp)) {
       return res.status(400).json({
         success: false,
         message: "OTP must be a 6-digit number",
       });
     }
-
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase().trim() })
       .select('+otp +otpExpires +otpAttempts +otpBlockedUntil');
-
     if (!user) {
       console.log('❌ User not found for password reset:', email);
       return res.status(400).json({
@@ -319,9 +316,7 @@ router.post("/resetpasswordwithotp", async (req, res) => {
         message: "Invalid email or OTP",
       });
     }
-
     console.log('✅ User found for password reset');
-
     // Verify OTP using model method
     const otpVerification = await user.verifyOTP(otp);
     
