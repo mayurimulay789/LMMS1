@@ -13,6 +13,7 @@ import InstructorApplicationForm from "../Components/InstructorApplicationForm"
 import { apiRequest } from "../config/api" // Assuming this function handles the fetch and JSON parsing internally
 
 const HomePage = () => {
+	const scrollRef = useRef(null);
 	const [featuredCourses, setFeaturedCourses] = useState([])
 	const stats = {
 		totalStudents: 50000,
@@ -52,29 +53,23 @@ const HomePage = () => {
 	// ------------------------------------------------------------------
 	const fetchFeaturedCourses = async () => {
 		try {
-			const result = await apiRequest("courses/meta/featured-five")
+			const result = await apiRequest("courses/meta/featured-all")
 
-			let coursesArray = []
-
-			// Check if the result is a plain array (Scenario 1)
-			if (Array.isArray(result)) {
-				coursesArray = result
-			}
-			// Check if the result is an object with a 'data' property that is an array (Scenario 2 - Most Common)
-			else if (result && Array.isArray(result.data)) {
-				coursesArray = result.data
-			}
-			// Check if the result is an object with a 'courses' property that is an array
-			else if (result && Array.isArray(result.courses)) {
-				coursesArray = result.courses
-			}
-			// Fallback: Log a warning if the data structure is unexpected
-			else {
-				console.warn("API response for featured courses was not a standard array or object with a 'data'/'courses' array:", result)
-				coursesArray = [] // Default to empty array to prevent map() error
-			}
-
-			setFeaturedCourses(coursesArray)
+			   let coursesArray = [];
+			   // Handle API response structure
+			   if (result && result.data && Array.isArray(result.data.courses)) {
+				   coursesArray = result.data.courses;
+			   } else if (result && Array.isArray(result.data)) {
+				   coursesArray = result.data;
+			   } else if (Array.isArray(result)) {
+				   coursesArray = result;
+			   } else if (result && Array.isArray(result.courses)) {
+				   coursesArray = result.courses;
+			   } else {
+				   console.warn("API response for featured courses was not a standard array or object with a 'data'/'courses' array:", result);
+				   coursesArray = [];
+			   }
+			   setFeaturedCourses(coursesArray);
 
 		} catch (error) {
 			console.error("Error fetching featured courses:", error)
@@ -318,15 +313,39 @@ const HomePage = () => {
 							))}
 						</div>
 					) : (
-						<div className="flex pb-4 space-x-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-x-0 snap-x scroll-p-4">
-							{featuredCourses.map((course, index) => (
-								<div
-									key={course._id}
-									className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-full lg:w-full snap-start"
-								>
-									<CourseCard course={course} index={index} />
-								</div>
-							))}
+						<div className="relative">
+							<button
+								className="absolute -left-8 top-1/2 transform -translate-y-1/2 z-10 bg-[#79061d] rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-none hover:bg-[#a01e2c] transition"
+								onClick={() => {
+									scrollRef.current && scrollRef.current.scrollBy({ left: -350, behavior: 'smooth' });
+								}}
+								aria-label="Scroll Left"
+							>
+								<ArrowRight className="w-7 h-7 rotate-180 text-white" />
+							</button>
+							<div
+								ref={scrollRef}
+								className="flex pb-4 space-x-4 overflow-x-auto flex-nowrap snap-x scroll-p-4 scrollbar-hide"
+								style={{ scrollBehavior: 'smooth' }}
+							>
+								{featuredCourses.map((course, index) => (
+									<div
+										key={course._id}
+										className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-[30vw] lg:w-[22vw] snap-start"
+									>
+										<CourseCard course={course} index={index} />
+									</div>
+								))}
+							</div>
+							<button
+								className="absolute -right-8 top-1/2 transform -translate-y-1/2 z-10 bg-[#79061d] rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-none hover:bg-[#a01e2c] transition"
+								onClick={() => {
+									scrollRef.current && scrollRef.current.scrollBy({ left: 350, behavior: 'smooth' });
+								}}
+								aria-label="Scroll Right"
+							>
+								<ArrowRight className="w-7 h-7 text-white" />
+							</button>
 						</div>
 					)}
 

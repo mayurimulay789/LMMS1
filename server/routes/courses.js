@@ -251,6 +251,18 @@ router.get("/:id", async (req, res) => {
 })
 
 // POST /courses/:id/reviews - Submit a review (used by client ReviewForm)
+// GET /courses/meta/featured-all - Get all featured courses
+router.get("/meta/featured-all", async (req, res) => {
+  try {
+    const allCourses = await Course.find({ status: "published" })
+      .sort({ createdAt: -1 })
+      .populate("createdBy", "name email profileImage profile")
+
+    res.json({ courses: allCourses })
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch courses" })
+  }
+})
 router.post('/:id/reviews', auth, async (req, res) => {
   try {
     const { rating, comment } = req.body;
