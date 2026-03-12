@@ -17,7 +17,7 @@ const { uploadProfileImage } = require("../middleware/uploadMiddleware");
 const crypto = require("crypto");
 const otpLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 5, 
+  max: 10, 
   message: "Too many OTP requests. Please try again after 10 minutes.",
   skipSuccessfulRequests: true,
   standardHeaders: true,
@@ -28,22 +28,10 @@ const otpLimiter = rateLimit({
     return ip + userAgent;
   }
 });
-const loginLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
-  max: 5, 
-  message: "Too many login attempts. Please try again after 5 minutes.",
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 10,
-  message: "Too many registration attempts. Please try again later.",
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+
+
 // Register user
-router.post("/register", registerLimiter, async (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role, referralCode } = req.body;
     let referrer = null;
@@ -534,7 +522,7 @@ router.post("/set-new-password", async (req, res) => {
 });
 
 // Login user
-router.post("/login", loginLimiter, async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -559,14 +547,14 @@ router.post("/login", loginLimiter, async (req, res) => {
     }
 
     // Check if account is locked
-    if (user.isAccountLocked()) {
-      return res.status(400).json({
-        success: false,
-        message: "Account is temporarily locked due to too many failed attempts",
-        locked: true,
-        lockedUntil: user.accountLockedUntil
-      });
-    }
+    // if (user.isAccountLocked()) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Account is temporarily locked due to too many failed attempts",
+    //     locked: true,
+    //     lockedUntil: user.accountLockedUntil
+    //   });
+    // }
 
     // Check if account is active
     if (user.status !== "active") {
