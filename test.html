@@ -1,0 +1,34 @@
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+    <h2 style="color: #e11d48; text-align: center;">Welcome to RYMAACADEMY Instructor Program!</h2>
+
+    <p>Dear <strong>${applicantName}</strong>,</p>
+
+    <p>Thank you for your interest in becoming an instructor at RYMAACADEMY! We have received your application and our team will review it shortly.</p>
+
+    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="color: #333; margin-top: 0;">Application Summary:</h3>
+        <p><strong>Name:</strong> ${applicantName}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Experience:</strong> ${experience.substring(0, 100)}${experience.length > 100 ? '...' : ''}</p>
+        <p><strong>Qualifications:</strong> ${qualifications.substring(0, 100)}${qualifications.length > 100 ? '...' : ''}</p>
+    </div>
+
+    <p><strong>What happens next?</strong></p>
+    <ol>
+        <li>Our team will review your application within 3-5 business days</li>
+        <li>If shortlisted, we'll contact you for an interview</li>
+        <li>Successful candidates will receive instructor onboarding materials</li>
+    </ol>
+
+    <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
+
+    <p>Best regards,<br>
+        <strong>RYMAACADEMY Team</strong></p>
+
+    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #666; text-align: center;">
+            This is an automated message. Please do not reply to this email.
+        </p>
+</div>
+
