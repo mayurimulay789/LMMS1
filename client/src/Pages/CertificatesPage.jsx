@@ -178,7 +178,7 @@ const CertificatesPage = () => {
       (cert) => new Date(cert.issueDate).getFullYear() === new Date().getFullYear(),
     ).length
     const averageScore = certificates.reduce((sum, cert) => sum + (cert.finalScore || 0), 0) / totalCertificates || 0
-    const topGrades = certificates.filter((cert) => ["A+", "A", "A-"].includes(cert.grade)).length
+    const topGrades = certificates.filter((cert) => ["A+", "A", "A-", "B+", "B"].includes(cert.grade)).length
 
     return { totalCertificates, thisYear, averageScore: Math.round(averageScore), topGrades }
   }

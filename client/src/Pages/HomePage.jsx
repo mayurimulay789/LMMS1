@@ -89,8 +89,8 @@ const HomePage = () => {
 
 	const testimonials = [
 		{ name: "Mr. Sunil Kumar", role: "Digital Growth Executive", content: "Ryma Academy is a great place for learning! The teachers are very supportive and knowledgeable. The environment is positive, and they truly focus on helping students achieve their goals. I had a wonderful experience and highly recommend it to anyone looking for quality education!", avatar: generateDefaultAvatar("Sarah Johnson", 60) },
-		{ name: "Michael Chen", role: "Social Media Marketer", content: "I recently completed the Digital Marketing course at Ryma Academy, and I must say it was an excellent experience! The instructors are highly knowledgeable and provide practical insights that help build real-world skills. The course content is up-to-date, covering all the essential tools and techniques in digital marketing.", avatar: generateDefaultAvatar("Michael Chen", 60) },
-		{ name: "Emily Davis", role: "Marketing Manager", content: "Before joining this course, I thought it would be just theory, but the classes are filled with practical examples and case studies that make learning fun and easy. The trainers genuinely care about your progress. After completing the course, I feel ready to take on job opportunities in digital marketing!", avatar: generateDefaultAvatar("Emily Davis", 60) },
+		{ name: "Ms. Anushka sharma", role: "Social Media Marketer", content: "I recently completed the Digital Marketing course at Ryma Academy, and I must say it was an excellent experience! The instructors are highly knowledgeable and provide practical insights that help build real-world skills. The course content is up-to-date, covering all the essential tools and techniques in digital marketing.", avatar: generateDefaultAvatar("Ms. Anushka sharma", 60) },
+		{ name: "Mr. Ritik Kumar", role: "Marketing Manager", content: "Before joining this course, I thought it would be just theory, but the classes are filled with practical examples and case studies that make learning fun and easy. The trainers genuinely care about your progress. After completing the course, I feel ready to take on job opportunities in digital marketing!", avatar: generateDefaultAvatar("Mr. Ritik Kumar", 60) },
 		{ name: "Mr. Rohit", role: "Paid Ads Expert", content: "Namaste; I am Ram and the student of RYMA ACADEMY, Here each and every part of training in Digital Marketing is admirable and practical. I came to learn only but became a practical person with practical knowledge with the help of RYMA ACADEMY, and under the guidance of good trainer. Thanks", avatar: generateDefaultAvatar("Ram Bharos Shah", 60) },
 		{ name: "Ms. Simran", role: "Funnel Strategiest", content: "I was looking for something career-oriented after college, and this internpresso program was perfect. The best part? The live projects! I’m now confident about handling real marketing campaigns. Highly recommend it to everyone!", avatar: generateDefaultAvatar("Ms. Simran", 60) },
 		{ name: "Mr. Samarthan Jamwal", role: "SEO Executive", content: "The trainers here are so good and helpful. I was scared about learning something new, but they made everything easy to understand. I did SEO and social media marketing, and now I feel ready for a job", avatar: generateDefaultAvatar("Samarthan Jamwal", 60) },
@@ -118,7 +118,7 @@ const HomePage = () => {
         
         {/* Brand */}
         <div className="flex items-center mb-4 space-x-2">
-          <span className="inline-block w-3 h-3 bg-blue-500 rounded-sm"></span>
+      
           <span className="text-yellow-400 font-semibold tracking-wide text-sm sm:text-base">
             RYMA ACADEMY
           </span>
@@ -138,16 +138,16 @@ const HomePage = () => {
         </p>
 
         {/* Buttons */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
+		<div className="flex flex-nowrap items-center gap-4 mt-6 sm:mt-8">
   <Link to="/courses">
-    <button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-blue-600 rounded-full hover:bg-blue-700 text-sm sm:text-base">
+    <button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base">
       Find Courses →
     </button>
   </Link>
 
   <Link to="/courses">
-    <button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-orange-500 rounded-full hover:bg-orange-600 text-sm sm:text-base">
-      ▶ Look Offline
+    <button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base">
+      Look Offline
     </button>
   </Link>
 </div>
@@ -276,7 +276,7 @@ const HomePage = () => {
 								style={{ background: '#890C25' }}
 							>
 								<div className="flex items-center justify-center w-10 h-10 mb-2 bg-white rounded-lg sm:w-12 sm:h-12 md:w-16 md:h-16">
-									<feature.icon className="w-5 h-5 text-yellow-400 sm:w-6 sm:h-6 md:h-8 md:w-8" />
+									   <feature.icon className="w-5 h-5 text-primary-800 sm:w-6 sm:h-6 md:h-8 md:w-8" />
 								</div>
 								<h3 className="mb-1 text-sm font-semibold leading-tight text-white sm:text-base md:text-xl">{feature.title}</h3>
 								<p className="text-xs text-white sm:text-sm">{feature.description}</p>

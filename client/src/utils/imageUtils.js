@@ -13,15 +13,9 @@ export const generateDefaultAvatar = (name = 'User', size = 40) => {
     .join('')
     .slice(0, 2);
 
-  // Generate a consistent color based on the name
-  const colors = [
-    '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
-    '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a',
-    '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722'
-  ];
-  
-  const colorIndex = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-  const backgroundColor = colors[colorIndex];
+  // Black text, white background
+  const backgroundColor = '#fff';
+  const textColor = '#000';
 
   // Create SVG
   const svg = `
@@ -29,7 +23,7 @@ export const generateDefaultAvatar = (name = 'User', size = 40) => {
       <rect width="${size}" height="${size}" fill="${backgroundColor}" rx="${size / 2}"/>
       <text x="50%" y="50%" text-anchor="middle" dy="0.35em" 
             font-family="Arial, sans-serif" font-size="${size * 0.4}" 
-            font-weight="500" fill="white">${initials}</text>
+            font-weight="500" fill="${textColor}">${initials}</text>
     </svg>
   `;
 

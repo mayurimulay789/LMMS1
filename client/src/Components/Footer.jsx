@@ -6,7 +6,7 @@ import {
   Phone,
   MapPin,
   Facebook,
-  Twitter,
+  Youtube,
   Instagram,
   Linkedin,
 } from "lucide-react"
@@ -21,15 +21,15 @@ const Footer = () => {
       { name: "FAQ", path: "/faq" },
       { name: "Privacy Policy", path: "/privacy-policy" },
       { name: "Terms & Conditions", path: "/terms-conditions" },
-      { name: "Refund & Cancelation", path: "/refund-cancelation" },
+      { name: "Refund & Cancellation", path: "/refund-cancelation" },
     ],
   }
 
   const socialLinks = [
-    { name: "Facebook", icon: Facebook, url: "https://facebook.com" },
-    { name: "Twitter", icon: Twitter, url: "https://twitter.com" },
-    { name: "Instagram", icon: Instagram, url: "https://instagram.com" },
-    { name: "LinkedIn", icon: Linkedin, url: "https://linkedin.com" },
+    { name: "Facebook", icon: Facebook, url: "https://www.facebook.com/profile.php?id=61571607902771" },
+    { name: "Youtube", icon: Youtube, url: "https://www.youtube.com/@rymaacademy" },
+    { name: "Instagram", icon: Instagram, url: "https://www.instagram.com/rymaacademy_rohini" },
+    { name: "LinkedIn", icon: Linkedin, url: "https://in.linkedin.com/company/rymaacademy" },
   ]
 
   return (
@@ -43,15 +43,15 @@ const Footer = () => {
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-3 sm:space-y-4 lg:max-w-[300px]">
             <Link to="/" className="inline-block">
               <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-transparent bg-gradient-to-r from-primary-800 to-primary-700 bg-clip-text">
-                RYMA Academy
+                RYMA ACADEMY
               </span>
               <p className="mt-1 text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">
                 Learn. Grow. Lead
               </p>
             </Link>
             <p className="text-sm sm:text-base leading-relaxed text-gray-600">
-              Empowering learners worldwide with high-quality online courses.
-              Join thousands of students and advance your career.
+              Committed to the democratisation of knowledge since 2020 — equipping learners across the globe with the skills,
+               credentials, and confidence to excel in an ever-evolving world.
             </p>
           </div>
 
@@ -88,7 +88,7 @@ const Footer = () => {
                     <Mail className="w-4 h-4" />
                   </div>
                   <span className="text-sm sm:text-base text-gray-600 pt-0.5 break-all leading-tight">
-                    support@rymaacademy.com
+                    services@rymaacademy.com
                   </span>
                 </div>
                 <div className="flex items-center gap-3 group">
@@ -104,7 +104,7 @@ const Footer = () => {
                     <MapPin className="w-4 h-4" />
                   </div>
                   <span className="text-xs sm:text-sm text-gray-600 leading-snug">
-                    D-7/31 1st Floor, Sector-6, Vishram Chowk
+                   D-7/32, 1st Floor, Main Vishram Chowk ,Sector-6 Rohini, Delhi 110085
                   </span>
                 </div>
               </div>
@@ -138,7 +138,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-6 sm:pt-8 mt-8 sm:mt-10 lg:mt-12 border-t border-gray-100 flex flex-col items-center">
           <p className="text-xs sm:text-sm text-gray-500 text-center">
-            © {currentYear} <span className="font-semibold text-gray-700">RYMA Academy</span>. All rights reserved.
+            @ 2020-2026 <span className="font-semibold text-gray-700">RYMA ACADEMY</span>. All rights reserved.
           </p>
         </div>
       </div>

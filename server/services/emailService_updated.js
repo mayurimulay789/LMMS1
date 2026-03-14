@@ -50,7 +50,7 @@ const sendInstructorApplicationEmail = async (applicationData) => {
             <li>Successful candidates will receive instructor onboarding materials</li>
           </ol>
 
-          <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
+          <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:services@rymaacademy.com">services@rymaacademy.com</a>.</p>
 
           <p>Best regards,<br>
           <strong>RYMAACADEMY Team</strong></p>
@@ -171,7 +171,7 @@ const sendInstructorApprovalEmail = async ({ applicantName, email, loginLink }) 
 
           <p>Welcome to the RYMAACADEMY instructor community! We're excited to have you on board.</p>
 
-          <p>If you have any questions, please contact us at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
+          <p>If you have any questions, please contact us at <a href="mailto:services@rymaacademy.com">services@rymaacademy.com</a>.</p>
 
           <p>Best regards,<br>
           <strong>RYMAACADEMY Team</strong></p>
@@ -224,7 +224,7 @@ const sendInstructorRejectionEmail = async ({ applicantName, email }) => {
 
           <p>We appreciate your interest in RYMAACADEMY and wish you the best in your teaching journey.</p>
 
-          <p>If you have any questions or would like feedback on your application, please contact us at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
+          <p>If you have any questions or would like feedback on your application, please contact us at <a href="mailto:services@rymaacademy.com">services@rymaacademy.com</a>.</p>
 
           <p>Best regards,<br>
           <strong>RYMAACADEMY Team</strong></p>
@@ -419,7 +419,7 @@ const sendWelcomeEmail = async (userData) => {
             </a>
           </div>
 
-          <p>If you have any questions or need assistance, please don't hesitate to contact our support team at <a href="mailto:support@RYMAACADEMY.com">support@RYMAACADEMY.com</a>.</p>
+          <p>If you have any questions or need assistance, please don't hesitate to contact our support team at <a href="mailto:services@rymaacademy.com">services@rymaacademy.com</a>.</p>
 
           <p>Happy learning!</p>
 
@@ -551,7 +551,7 @@ const sendOTPEmail = async ({ email, name, otp }) => {
             </a>
           </div>
 
-          <p>Need help? Contact our support team at <a href="mailto:support@RYMAACADEMY.com" style="color: #e11d48;">support@RYMAACADEMY.com</a></p>
+          <p>Need help? Contact our support team at <a href="mailto:services@rymaacademy.com" style="color: #e11d48;">services@rymaacademy.com</a></p>
 
           <p>Stay secure,<br>
           <strong>The RYMAACADEMY Security Team</strong></p>

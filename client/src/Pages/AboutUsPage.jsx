@@ -1,6 +1,10 @@
 import { Users, Target, Heart, BookOpen, Globe, Award, TrendingUp } from "lucide-react"
 import { Link } from "react-router-dom"
 import { generateDefaultAvatar } from "../utils/imageUtils"
+import ourStoryImage from "../assets/ourstories.jpg" // Import the image
+import raviSharma from "../assets/ravi-sharma.webp";
+import praveenJain from "../assets/mr.parveen.webp";
+import vijayBhardwaj from "../assets/vijay.webp";
 
 import React, { useState,useEffect } from "react";
 
@@ -14,73 +18,67 @@ const AboutUsPage = () => {
 
 
   const stats = [
-    { number: "50K+", label: "Active Students" },
-    { number: "1000+", label: "Courses Available" },
-    { number: "100+", label: "Expert Instructors" },
+    { number: "15K+", label: "Active Students" },
+    { number: "10+", label: "Courses Available" },
+    { number: "15+", label: "Expert Instructors" },
     { number: "95%", label: "Success Rate" },
   ];
 
   const values = [
     {
       icon: BookOpen,
-      title: "Quality Education",
+      title: "Access for All",
       description:
-        "We believe in providing high-quality, accessible education that empowers learners to achieve their goals.",
+        " Access for All Education is not a privilege — it is a right we defend daily.",
     },
     {
       icon: Users,
-      title: "Community First",
-      description: "Our vibrant learning community supports each other through every step of the educational journey.",
+      title: "Learn Anywhere",
+      description: "Learn Anywhere Online or in-person, the classroom comes to you — not the other way around..",
     },
     {
       icon: Target,
-      title: "Goal-Oriented",
-      description: "Every course is designed with clear learning objectives and practical outcomes in mind.",
+      title: "Real Skills",
+      description: " Curricula forged with industry, not for academia — because the real world demands more.",
     },
     {
       icon: Heart,
-      title: "Passion for Learning",
-      description: "We are passionate about making learning enjoyable, engaging, and effective for everyone.",
+      title: "Your Success",
+      description: " Your Success We do not measure enrollments. We measure transformations.",
     },
   ]
 
   const team = [
     {
-      name: "Sarah Johnson",
-      role: "CEO & Founder",
-      image: generateDefaultAvatar("Sarah Johnson", 300),
-      bio: "Former tech executive with 15+ years in education technology.",
+      name: "Mr. Praveen Jain",
+      role: "Founder & Chief Executive Officer",
+      image: praveenJain,
+      bio: "The vision behind Ryma Academy — a leader who turned a belief in accessible education into a thriving institution, online and offline.",
     },
     {
-      name: "Michael Chen",
-      role: "Head of Curriculum",
-      image: generateDefaultAvatar("Michael Chen", 300),
-      bio: "Educational expert with PhD in Learning Sciences from Stanford.",
+      name: "Mr. Ravi Sharma",
+      role: "Chief Training Officer",
+      image: raviSharma,
+      bio: "The architect of learning — ensuring every course at Ryma is not just taught, but truly understood and applied.",
     },
     {
-      name: "Emily Rodriguez",
-      role: "Head of Technology",
-      image: generateDefaultAvatar("Emily Rodriguez", 300),
-      bio: "Full-stack developer and former Google engineer.",
-    },
-    {
-      name: "David Kim",
-      role: "Head of Marketing",
-      image: generateDefaultAvatar("David Kim", 300),
-      bio: "Growth marketing specialist with experience at top EdTech companies.",
+      name: "Mr. Vijay Bhardwaj",
+      role: "Chief Placement Officer",
+      image: vijayBhardwaj,
+      bio: "The bridge between talent and opportunity — connecting RYMA's learners with the careers they have worked hard to deserve.",
     },
   ]
 
   const achievements = [
     {
       icon: Award,
-      title: "Best EdTech Platform 2024",
+      title: "Awarded EdTech Platform ",
       description: "Recognized as the leading educational technology platform"
     },
     {
       icon: Users,
-      title: "50K+ Students Empowered",
-      description: "Helped thousands of students achieve their career goals"
+      title: "15K+ Students Empowered",
+      description: "Learn Anywhere Online or in-person, the classroom comes to you — not the other way around."
     },
     {
       icon: TrendingUp,
@@ -90,7 +88,7 @@ const AboutUsPage = () => {
     {
       icon: Globe,
       title: "Global Reach",
-      description: "Serving students across 50+ countries worldwide"
+      description: "Serving students across 3+ countries worldwide"
     }
   ]
 
@@ -103,10 +101,10 @@ const AboutUsPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
-              About Ryma Academy
+              About RYMA ACADEMY
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl text-rose-100 max-w-3xl mx-auto px-4 sm:px-0">
-              We're on a mission to make quality education accessible to everyone, everywhere.
+              We do not just build careers. We build people who change the world.
             </p>
           </div>
         </div>
@@ -136,21 +134,19 @@ const AboutUsPage = () => {
                 {/* Mobile/Tablet: Collapsible story with Show More button */}
                 <div className="block lg:hidden">
                   <p>
-                    Founded in 2020, Ryma Academy started with a simple belief: everyone deserves access to quality education,
-                    regardless of their location, background, or circumstances.
+                    Born in <strong className="text-white">2020</strong>  — online, with one bold idea: quality education for everyone, everywhere — no excuses, no barriers.
+What started as a small gang of teachers and tech folks on a screen has turned into a thriving learning platform serving thousands of students worldwide.
                   </p>
                   <p>
-                    What began as a small team of educators and technologists has grown into a thriving platform that
-                    serves thousands of learners worldwide. We've partnered with industry experts and leading institutions
-                    to create courses that are not just educational, but transformational.
+                    We teamed up with industry experts and top institutions to build courses that don't just teach — they transform.
+Then in <strong className="text-white">October 2023</strong>, we took it to the next level — opened our very own <strong className="text-white">offline center</strong>, bringing the Ryma experience face-to-face.
                   </p>
                   {showFullStory && (
                     <>
                       <p>
-                        Today, we continue to innovate and expand our offerings, always keeping our learners at the center of
-                        everything we do. Our success is measured not just in numbers, but in the success stories of our
-                        students who have achieved their dreams through learning.
-                      </p>
+                        Real classrooms, real mentors, real energy.
+We don't measure success in clicks or signups. We measure it in your wins.</p>
+
                     </>
                   )}
                   <button
@@ -161,32 +157,35 @@ const AboutUsPage = () => {
                   </button>
                 </div>
                 {/* Desktop: Always show full story, no button */}
-                <div className="hidden lg:block">
+                <div className="hidden lg:block space-y-3 sm:space-y-4">
                   <p>
-                    Founded in 2020, Ryma Academy started with a simple belief: everyone deserves access to quality education,
+                    Founded in <strong className="text-white">2020</strong>, <strong className="text-white">Ryma Academy</strong> started with a simple belief: everyone deserves access to quality education,
                     regardless of their location, background, or circumstances.
                   </p>
                   <p>
                     What began as a small team of educators and technologists has grown into a thriving platform that
                     serves thousands of learners worldwide. We've partnered with industry experts and leading institutions
-                    to create courses that are not just educational, but transformational.
+                    to create courses that are not just educational, but transformational. In <strong className="text-white">October 2023</strong>, we opened our first <strong className="text-white">offline center</strong>bringing the Ryma experience face-to-face.
                   </p>
+                  <p> Real classrooms, real mentors, real energy.
+We don't measure success in clicks or signups. We measure it in your wins.</p>
                   <p>
-                    Today, we continue to innovate and expand our offerings, always keeping our learners at the center of
-                    everything we do. Our success is measured not just in numbers, but in the success stories of our
-                    students who have achieved their dreams through learning.
-                  </p>
+<strong className="text-white">RYMA ACADEMY</strong> — because great education shouldn't be a privilege.
+                      </p>
+                 
                 </div>
               </div>
             </div>
             <div className="relative">
-              <div className="w-full h-48 sm:h-56 lg:h-64 bg-primary-900 rounded-lg sm:rounded-xl shadow-lg border-2 border-primary-700 flex items-center justify-center">
-                <Users className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-primary-200" />
-              </div>
+              <img 
+                src={ourStoryImage} 
+                alt="Our Story" 
+                className="w-full h-auto object-cover rounded-lg sm:rounded-xl shadow-lg border-2 border-primary-700"
+              />
               <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-primary-700 text-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-xl">
                 <Globe className="h-6 w-6 sm:h-8 sm:w-8 mb-1 sm:mb-2" />
                 <div className="text-xs sm:text-sm font-medium">Serving learners in</div>
-                <div className="text-lg sm:text-xl lg:text-2xl font-bold">50+ Countries</div>
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold">3+ Countries</div>
               </div>
             </div>
           </div>
@@ -251,13 +250,13 @@ const AboutUsPage = () => {
       <section className="py-8 sm:py-12 lg:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-800 mb-3 sm:mb-4">Meet Our Team</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-800 mb-3 sm:mb-4">Meet Our Founders</h2>
             <p className="text-base sm:text-lg lg:text-xl text-primary-800 max-w-2xl mx-auto px-4 sm:px-0">
               The passionate individuals behind Ryma Academy who are dedicated to your learning success.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {team.map((member, index) => (
               <div
                 key={index}
@@ -266,7 +265,7 @@ const AboutUsPage = () => {
                 <img 
                   src={member.image} 
                   alt={member.name} 
-                  className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 object-cover rounded-full mx-auto mt-4 sm:mt-6" 
+                  className="w-full h-48 object-cover" 
                   onError={(e) => {
                     e.target.src = generateDefaultAvatar(member.name, 300);
                   }} 

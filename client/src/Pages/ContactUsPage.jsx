@@ -100,7 +100,7 @@ useEffect(() => {
     {
       icon: Mail,
       title: "Email",
-      content: "support@rymaacademy.com",
+      content: "services@rymaacademy.com",
       description: "Send us an email anytime!",
     },
     {
@@ -112,7 +112,7 @@ useEffect(() => {
     {
       icon: MapPin,
       title: "Office",
-      content: "D-7/31 1st Floor Main Vishram Chowk Sector-6, Vishram Chowk",
+      content: "D-7/32, 1st Floor, Main Vishram Chowk ,Sector-6 Rohini, Delhi 110085",
       description: "Come say hello at our office",
     },
   ]

@@ -519,9 +519,16 @@ const CoursesPage = () => {
                 : "space-y-4 sm:space-y-6"
             }
           >
-            {courses.map((course, index) => (
-              <CourseCard key={course._id} course={course} index={index} />
-            ))}
+            {courses
+              .map(course => {
+                const totalLessons = Array.isArray(course.modules)
+                  ? course.modules.reduce((sum, mod) => sum + (mod.subcourses ? mod.subcourses.length : 0), 0)
+                  : 0;
+                return { ...course, lessons: { length: totalLessons } };
+              })
+              .map((course, index) => (
+                <CourseCard key={course._id} course={course} index={index} />
+              ))}
           </div>
         )}
 

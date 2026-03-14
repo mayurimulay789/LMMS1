@@ -5,13 +5,13 @@ import { useState } from "react"
 const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
   const [formData, setFormData] = useState({
     applicantName: '',
-    applicantEmail: '',
+    email: '',
     phone: '',
     experience: '',
     qualifications: '',
     motivation: '',
-    applicantPassword: '',
-    applicantConfirmPassword: '',
+    password: '',
+    confirmPassword: '',
     profileImage: null
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -269,18 +269,18 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
       <div>
         <input
           type="email"
-          name="applicantEmail"
-          value={formData.applicantEmail}
+          name="email"
+          value={formData.email}
           onChange={handleChange}
           placeholder="Email Address"
           required
           autoComplete="off"
           className={`w-full border rounded p-2 text-sm focus:outline-none focus:ring-2 ${
-            errors.applicantEmail ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
+            errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
           }`}
         />
-        {errors.applicantEmail && (
-          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.applicantEmail}</p>
+        {errors.email && (
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>
         )}
       </div>
 
@@ -356,14 +356,14 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
-            name="applicantPassword"
-            value={formData.applicantPassword}
+            name="password"
+            value={formData.password}
             onChange={handleChange}
             placeholder="Create a Password"
             required
             autoComplete="new-password"
             className={`w-full border rounded p-2 pr-10 text-sm focus:outline-none focus:ring-2 ${
-              errors.applicantPassword ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
+              errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
             }`}
           />
           <button
@@ -383,14 +383,14 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
         <div className="relative">
           <input
             type={showConfirmPassword ? "text" : "password"}
-            name="applicantConfirmPassword"
-            value={formData.applicantConfirmPassword}
+            name="confirmPassword"
+            value={formData.confirmPassword}
             onChange={handleChange}
             placeholder="Confirm Password"
             required
             autoComplete="new-password"
             className={`w-full border rounded p-2 pr-10 text-sm focus:outline-none focus:ring-2 ${
-              errors.applicantConfirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
+              errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
             }`}
           />
           <button

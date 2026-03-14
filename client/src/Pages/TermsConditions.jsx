@@ -31,9 +31,9 @@ export default function TermsConditions() {
             <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900">
               Terms & Conditions
             </h1>
-            <p className="mt-2 text-xs sm:text-sm text-gray-500">
+            {/* <p className="mt-2 text-xs sm:text-sm text-gray-500">
               Effective Date: <span className="font-medium">[Insert Date]</span>
-            </p>
+            </p> */}
           </div>
 
           {/* Intro */}
