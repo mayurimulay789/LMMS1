@@ -41,7 +41,7 @@ const DashboardPage = () => {
         email: user.email || '',
         phone: user.phone || '',
         bio: user.profile?.bio || '',
-        profileImage: user.profileImage || ''
+        profileImage: user.profileImage || user.profile?.avatar || ''
       }))
     }
   }, [user])
@@ -441,9 +441,19 @@ const DashboardPage = () => {
                     <div className="relative">
                       <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 border-2 border-gray-300">
                         {formData.profileImage ? (
-                          <img 
-                            src={formData.profileImage} 
-                            alt="Profile" 
+                          <img
+                            src={formData.profileImage}
+                            alt="Profile Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null
+                              e.target.src = 'https://via.placeholder.com/150'
+                            }}
+                          />
+                        ) : user?.profile?.avatar ? (
+                          <img
+                            src={user.profile.avatar}
+                            alt="Profile"
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               e.target.onerror = null

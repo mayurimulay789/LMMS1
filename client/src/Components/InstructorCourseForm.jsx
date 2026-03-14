@@ -285,6 +285,7 @@ const InstructorCourseForm = ({ onCourseCreated, onCourseUpdated }) => {
 
     if (response.ok) {
       alert(editingCourse ? "Course updated successfully!" : "Course created successfully!")
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       resetForm()
       fetchCourses()
       setCourseCount(prev => editingCourse ? prev : prev + 1)

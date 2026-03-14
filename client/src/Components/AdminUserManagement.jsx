@@ -459,7 +459,7 @@ const AdminUserManagement = () => {
                   
                   const user = formatUser(rawUser)
                   const RoleIcon = roleIcons[user.role] || Users
-                  
+                  const avatarUrl = user.profile?.avatar || ''
                   return (
                     <tr key={user._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
@@ -478,10 +478,18 @@ const AdminUserManagement = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-sm font-medium text-gray-700">
-                              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                            </span>
+                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            {avatarUrl ? (
+                              <img
+                                src={avatarUrl}
+                                alt={user.name || 'Profile'}
+                                className="h-10 w-10 object-cover rounded-full"
+                              />
+                            ) : (
+                              <span className="text-sm font-medium text-gray-700">
+                                {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                              </span>
+                            )}
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
