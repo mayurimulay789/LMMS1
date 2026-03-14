@@ -798,7 +798,8 @@ router.post("/instructor-applications/:applicationId/approve", async (req, res) 
       user.role = 'instructor';
       user.password = application.password; // Update password to the one from application
       user.isEmailVerified = true;
-      user.profileImage=application.profileImage;
+      user.profile = user.profile || {};
+      user.profile.avatar = application.profileImage;
       user.phone=application.phone;
       await user.save();
     } else {
@@ -807,8 +808,8 @@ router.post("/instructor-applications/:applicationId/approve", async (req, res) 
         name: application.applicantName,
         email: application.email,
         password: application.password,
-        profileImage:application.profileImage,
-        phone:application.phone,
+        profile: { avatar: application.profileImage },
+        phone: application.phone,
         role: 'instructor',
         isEmailVerified: true,
       });

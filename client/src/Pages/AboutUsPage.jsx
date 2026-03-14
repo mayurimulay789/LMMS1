@@ -197,8 +197,8 @@ const AboutUsPage = () => {
       <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Our Achievements</h2>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-800 mb-3 sm:mb-4">Our Achievements</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-primary-800 max-w-2xl mx-auto px-4 sm:px-0">
               Celebrating milestones and successes that define our journey
             </p>
           </div>
@@ -212,8 +212,8 @@ const AboutUsPage = () => {
                 <div className="bg-white w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
                   <achievement.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-primary-800" />
                 </div>
-                <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-3">{achievement.title}</h3>
-                <p className="text-xs sm:text-base text-gray-600">{achievement.description}</p>
+                <h3 className="text-base sm:text-xl font-semibold text-white mb-1 sm:mb-3">{achievement.title}</h3>
+                <p className="text-xs sm:text-base text-white">{achievement.description}</p>
               </div>
             ))}
           </div>
@@ -251,8 +251,8 @@ const AboutUsPage = () => {
       <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Meet Our Team</h2>
-            <p className="text-base sm:text-lg lg:text-xl text-primary-100 max-w-2xl mx-auto px-4 sm:px-0">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-800 mb-3 sm:mb-4">Meet Our Team</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-primary-800 max-w-2xl mx-auto px-4 sm:px-0">
               The passionate individuals behind Ryma Academy who are dedicated to your learning success.
             </p>
           </div>

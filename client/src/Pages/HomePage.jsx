@@ -195,15 +195,18 @@ const HomePage = () => {
 			<section className="py-6 bg-white sm:py-8 md:py-12">
 				<div className="overflow-hidden">
 					<style>{`
-            @keyframes scroll {
-              0% { transform: translateX(0); }
-              100% { transform: translateX(-50%); }
-            }
-            .animate-scroll {
-              animation: scroll 30s linear infinite;
-            }
-          `}</style>
-					<div className="flex animate-scroll whitespace-nowrap min-w-[200vw]">
+						@keyframes logo-marquee {
+							0% { transform: translateX(0); }
+							100% { transform: translateX(-50%); }
+						}
+						.logo-marquee {
+							animation: logo-marquee 30s linear infinite;
+						}
+						.logo-marquee:hover {
+							animation-play-state: paused;
+						}
+					`}</style>
+					<div className="flex logo-marquee whitespace-nowrap min-w-[200vw]">
 						{[
 							{ name: "Accenture", src: "/File_Accenture.svg -.png" },
 							{ name: "Google", src: "/Google logo - Wikipe.png" },
@@ -328,14 +331,20 @@ const HomePage = () => {
 								className="flex pb-4 space-x-4 overflow-x-auto flex-nowrap snap-x scroll-p-4 scrollbar-hide"
 								style={{ scrollBehavior: 'smooth' }}
 							>
-								{featuredCourses.map((course, index) => (
-									<div
-										key={course._id}
-										className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-[30vw] lg:w-[22vw] snap-start"
-									>
-										<CourseCard course={course} index={index} />
-									</div>
-								))}
+								{featuredCourses.map((course, index) => {
+									// Calculate total lessons from modules
+									const totalLessons = Array.isArray(course.modules)
+										? course.modules.reduce((sum, mod) => sum + (mod.subcourses ? mod.subcourses.length : 0), 0)
+										: 0;
+									return (
+										<div
+											key={course._id}
+											className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-[30vw] lg:w-[22vw] snap-start"
+										>
+											<CourseCard course={{ ...course, lessons: { length: totalLessons } }} index={index} />
+										</div>
+									);
+								})}
 							</div>
 							<button
 								className="absolute -right-8 top-1/2 transform -translate-y-1/2 z-10 bg-[#79061d] rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-none hover:bg-[#a01e2c] transition"
