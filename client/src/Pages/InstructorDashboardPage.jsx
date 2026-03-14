@@ -326,7 +326,7 @@ const handleEditProfile = async () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-2 border-blue-600"></div>
       </div>
     )
   }
@@ -335,25 +335,23 @@ const handleEditProfile = async () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-          <div className="flex flex-col xs:flex-row xs:justify-between xs:items-center py-4 sm:py-6 gap-2 xs:gap-0">
-              <div className="py-6 text-center flex flex-col items-center justify-center">
-                <h1 className="text-3xl font-bold text-gray-900">Instructor Dashboard</h1>
-                <p className="text-gray-600 mb-2">Manage your courses and students</p>
-              </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-4 sm:py-6 text-center">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Instructor Dashboard</h1>
+            <p className="text-sm sm:text-base text-gray-600">Manage your courses and students</p>
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-          <nav className="flex overflow-x-auto no-scrollbar space-x-4 sm:space-x-8 -mx-2 px-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex overflow-x-auto no-scrollbar space-x-4 sm:space-x-6">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`whitespace-nowrap py-3 px-2 sm:py-4 sm:px-1 border-b-2 font-medium text-xs sm:text-sm ${
+                className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm ${
                   activeTab === tab.id
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -367,21 +365,20 @@ const handleEditProfile = async () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {activeTab === "overview" && (
           <div className="space-y-6 sm:space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {statCards.map((stat, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                <div key={index} className="bg-white rounded-lg shadow-sm p-4 sm:p-5">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="text-xs sm:text-sm text-gray-600 mb-1">{stat.title}</p>
-                      <p className="text-lg sm:text-2xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stat.value}</p>
                       <p className="text-xs sm:text-sm text-green-600 mt-1">{stat.change} from last month</p>
-                      {/* Progress bar removed as per user request */}
                     </div>
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${stat.color} flex items-center justify-center ml-2 sm:ml-4`}>
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${stat.color} flex items-center justify-center ml-2 sm:ml-4 flex-shrink-0`}>
                       <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                   </div>
@@ -410,16 +407,16 @@ const handleEditProfile = async () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
             ) : students.length === 0 ? (
-              <p className="text-gray-600 text-center py-8">No students enrolled yet.</p>
+              <p className="text-sm sm:text-base text-gray-600 text-center py-8">No students enrolled yet.</p>
             ) : (
               <div className="space-y-4">
                 {students.map((enrollment) => (
                   <div key={enrollment._id} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                       <div className="flex-1">
                         <h4 className="text-base sm:text-lg font-semibold text-gray-900">{enrollment.user.name}</h4>
-                        <p className="text-gray-600 mt-1 text-xs sm:text-sm">{enrollment.user.email}</p>
-                        <p className="text-gray-600 mt-1 text-xs sm:text-sm">Course: {enrollment.course.title}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">{enrollment.user.email}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">Course: {enrollment.course.title}</p>
                         <div className="flex flex-wrap items-center gap-2 mt-2 text-xs sm:text-sm text-gray-500">
                           <span>Enrolled: {new Date(enrollment.createdAt).toLocaleDateString()}</span>
                           <span>Status: {enrollment.status}</span>
@@ -434,27 +431,27 @@ const handleEditProfile = async () => {
         )}
 
         {activeTab === "reports" && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Reports</h3>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Reports</h3>
 
             {reportsLoading ? (
               <div className="flex justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
             ) : reports.length === 0 ? (
-              <p className="text-gray-600 text-center py-8">No reports data available.</p>
+              <p className="text-sm sm:text-base text-gray-600 text-center py-8">No reports data available.</p>
             ) : (
               <div className="space-y-4">
-                <h4 className="text-md font-semibold text-gray-900 mb-2">Revenue Reports</h4>
+                <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-2">Revenue Reports</h4>
                 {reports.map((report, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4">
+                  <div key={index} className="border border-gray-200 rounded-lg p-3 sm:p-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-gray-900 font-medium">
+                        <p className="text-sm sm:text-base text-gray-900 font-medium">
                           {new Date(report._id.year, report._id.month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
                         </p>
-                        <p className="text-gray-600">Revenue: ₹{report.revenue}</p>
-                        <p className="text-gray-600">Transactions: {report.count}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">Revenue: ₹{report.revenue}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">Transactions: {report.count}</p>
                       </div>
                     </div>
                   </div>
@@ -464,50 +461,17 @@ const handleEditProfile = async () => {
           </div>
         )}
 
-        {/* {activeTab === "profile" && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Management</h3>
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-md font-semibold text-gray-900 mb-2">Personal Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Name</label>
-                    <input
-                      type="text"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      defaultValue={user?.name || ""}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <input
-                      type="email"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      defaultValue={user?.email || ""}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </div>
-        )} */}
-
+        {/* {activeTab === "profile" && ( ... )} */}
 
         {message.text && (
-  <div className={`mb-4 p-3 rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>
-    {message.text}
-  </div>
-)}
-
-
-
-
+          <div className={`mb-4 p-3 sm:p-4 rounded-md text-sm sm:text-base ${
+            message.type === 'success' 
+              ? 'bg-green-100 text-green-700 border border-green-200' 
+              : 'bg-red-100 text-red-700 border border-red-200'
+          }`}>
+            {message.text}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -218,28 +217,35 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4 max-w-md mx-auto">
+    <form 
+      onSubmit={handleSubmit} 
+      className="bg-white p-4 sm:p-6 rounded-lg shadow-md space-y-4 max-w-full sm:max-w-md mx-auto px-4 sm:px-0"
+    >
       
       {message && (
-        <div className={`p-3 rounded ${message.includes('successfully') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+        <div className={`p-3 rounded text-sm ${message.includes('successfully') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
           {message}
         </div>
       )}
 
       <div>
-        <label className="block mb-2 font-medium">Profile Picture</label>
+        <label className="block mb-2 font-medium text-sm sm:text-base">Profile Picture</label>
         <input
           type="file"
           name="profileImage"
           accept="image/*"
           onChange={handleChange}
-          className="w-full border rounded p-2"
+          className="w-full border rounded p-2 text-sm"
         />
         {previewImage && (
-          <img src={previewImage} alt="Profile Preview" className="mt-2 w-20 h-20 rounded-full object-cover border" />
+          <img 
+            src={previewImage} 
+            alt="Profile Preview" 
+            className="mt-2 w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border" 
+          />
         )}
         {errors.profileImage && (
-          <p className="text-red-500 text-sm mt-1">{errors.profileImage}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.profileImage}</p>
         )}
       </div>
 
@@ -251,12 +257,12 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
           onChange={handleChange}
           placeholder="Full Name"
           required
-          className={`w-full border rounded p-2 focus:outline-none focus:ring-2 ${
+          className={`w-full border rounded p-2 text-sm focus:outline-none focus:ring-2 ${
             errors.applicantName ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
           }`}
         />
         {errors.applicantName && (
-          <p className="text-red-500 text-sm mt-1">{errors.applicantName}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.applicantName}</p>
         )}
       </div>
 
@@ -269,12 +275,12 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
           placeholder="Email Address"
           required
           autoComplete="off"
-          className={`w-full border rounded p-2 focus:outline-none focus:ring-2 ${
+          className={`w-full border rounded p-2 text-sm focus:outline-none focus:ring-2 ${
             errors.applicantEmail ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
           }`}
         />
         {errors.applicantEmail && (
-          <p className="text-red-500 text-sm mt-1">{errors.applicantEmail}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.applicantEmail}</p>
         )}
       </div>
 
@@ -286,12 +292,12 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
           onChange={handleChange}
           placeholder="Phone Number"
           required
-          className={`w-full border rounded p-2 focus:outline-none focus:ring-2 ${
+          className={`w-full border rounded p-2 text-sm focus:outline-none focus:ring-2 ${
             errors.phone ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
           }`}
         />
         {errors.phone && (
-          <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.phone}</p>
         )}
       </div>
 
@@ -303,12 +309,12 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
           rows="3"
           placeholder="Teaching/Professional Experience"
           required
-          className={`w-full border rounded p-2 focus:outline-none focus:ring-2 ${
+          className={`w-full border rounded p-2 text-sm focus:outline-none focus:ring-2 ${
             errors.experience ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
           }`}
         />
         {errors.experience && (
-          <p className="text-red-500 text-sm mt-1">{errors.experience}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.experience}</p>
         )}
       </div>
 
@@ -320,12 +326,12 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
           rows="3"
           placeholder="Qualifications and Certifications"
           required
-          className={`w-full border rounded p-2 focus:outline-none focus:ring-2 ${
+          className={`w-full border rounded p-2 text-sm focus:outline-none focus:ring-2 ${
             errors.qualifications ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
           }`}
         />
         {errors.qualifications && (
-          <p className="text-red-500 text-sm mt-1">{errors.qualifications}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.qualifications}</p>
         )}
       </div>
 
@@ -337,12 +343,12 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
           rows="4"
           placeholder="Why do you want to become an instructor?"
           required
-          className={`w-full border rounded p-2 focus:outline-none focus:ring-2 ${
+          className={`w-full border rounded p-2 text-sm focus:outline-none focus:ring-2 ${
             errors.motivation ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
           }`}
         />
         {errors.motivation && (
-          <p className="text-red-500 text-sm mt-1">{errors.motivation}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.motivation}</p>
         )}
       </div>
 
@@ -356,20 +362,20 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
             placeholder="Create a Password"
             required
             autoComplete="new-password"
-            className={`w-full border rounded p-2 pr-10 focus:outline-none focus:ring-2 ${
+            className={`w-full border rounded p-2 pr-10 text-sm focus:outline-none focus:ring-2 ${
               errors.applicantPassword ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
             }`}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 text-sm"
           >
             {showPassword ? '🙈' : '👁️'}
           </button>
         </div>
         {errors.password && (
-          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.password}</p>
         )}
       </div>
 
@@ -383,27 +389,27 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
             placeholder="Confirm Password"
             required
             autoComplete="new-password"
-            className={`w-full border rounded p-2 pr-10 focus:outline-none focus:ring-2 ${
+            className={`w-full border rounded p-2 pr-10 text-sm focus:outline-none focus:ring-2 ${
               errors.applicantConfirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rose-500'
             }`}
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 text-sm"
           >
             {showConfirmPassword ? '🙈' : '👁️'}
           </button>
         </div>
         {errors.confirmPassword && (
-          <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.confirmPassword}</p>
         )}
       </div>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-primary-800 text-white py-2 rounded hover:bg-primary-800 disabled:opacity-50"
+        className="w-full bg-primary-800 text-white py-2 px-4 rounded hover:bg-primary-800 disabled:opacity-50 text-sm sm:text-base"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Application'}
       </button>

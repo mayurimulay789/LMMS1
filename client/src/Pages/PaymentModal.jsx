@@ -303,19 +303,19 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
 
   // Success message component
   const SuccessMessage = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="relative bg-white rounded-lg w-96 p-6 text-center">
-        <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">Payment Successful!</h3>
-        <p className="text-gray-600 mb-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="relative bg-white rounded-lg w-11/12 max-w-md p-5 sm:p-6 text-center">
+        <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 text-green-500 mx-auto mb-3 sm:mb-4" />
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Payment Successful!</h3>
+        <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
           You have been enrolled in <strong>{courseTitle}</strong>
         </p>
-        <div className="flex items-center justify-center text-green-600 mb-4">
-          <Mail className="h-5 w-5 mr-2" />
-          <span className="text-sm">Enrollment confirmation sent to your email</span>
+        <div className="flex items-center justify-center text-green-600 mb-3 sm:mb-4">
+          <Mail className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+          <span className="text-xs sm:text-sm">Enrollment confirmation sent to your email</span>
         </div>
         <button
-          className="w-full py-2 bg-red-800 text-white rounded-lg hover:bg-red-800 transition-colors"
+          className="w-full py-2 sm:py-2.5 bg-red-800 text-white rounded-lg hover:bg-red-800 transition-colors text-sm sm:text-base"
           onClick={() => {
             onClose();
             setPaymentStatus(null);
@@ -333,20 +333,20 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
       {paymentStatus === 'success' && <SuccessMessage />}
 
       {/* Payment Modal */}
-      <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="relative bg-white rounded-lg w-96 max-w-[95vw]">
+      <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div className="relative bg-white rounded-lg w-11/12 sm:w-96 max-w-[95vw]">
           {/* Header */}
-          <div className="p-4 border-b">
-            <h3 className="text-lg font-semibold text-gray-900">Complete Your Enrollment</h3>
-            <p className="text-sm text-gray-600 mt-1">Course: {courseTitle}</p>
+          <div className="p-4 sm:p-5 border-b">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Complete Your Enrollment</h3>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">Course: {courseTitle}</p>
           </div>
 
           {/* Tabs */}
           <div className="flex border-b">
             <button
-              className={`flex-1 py-3 text-center transition-colors ${
+              className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-colors ${
                 tab === "online" 
-                  ? "font-semibold border-b-2 border-indigo-600 text-indigo-600" 
+                  ? "border-b-2 border-indigo-600 text-indigo-600" 
                   : "text-gray-500 hover:text-gray-700"
               }`}
               onClick={() => setTab("online")}
@@ -354,9 +354,9 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
               Pay Online
             </button>
             <button
-              className={`flex-1 py-3 text-center transition-colors ${
+              className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-colors ${
                 tab === "cod" 
-                  ? "font-semibold border-b-2 border-indigo-600 text-indigo-600" 
+                  ? "border-b-2 border-indigo-600 text-indigo-600" 
                   : "text-gray-500 hover:text-gray-700"
               }`}
               onClick={() => setTab("cod")}
@@ -366,33 +366,33 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4 sm:p-5">
             {/* Amount Display */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Total Amount:</span>
-                <span className="text-2xl font-bold text-gray-900">₹{amount}</span>
+                <span className="text-xs sm:text-sm text-gray-600">Total Amount:</span>
+                <span className="text-xl sm:text-2xl font-bold text-gray-900">₹{amount}</span>
               </div>
             </div>
 
             {tab === "online" ? (
               <>
-                <div className="space-y-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <CreditCard className="h-4 w-4 mr-2" />
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                    <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     Secure payment via Razorpay
                   </div>
                   
                   <button
-                    className="flex items-center justify-center w-full py-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center justify-center w-full py-2.5 sm:py-3 text-sm sm:text-base text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleRazorpayPayment}
                     disabled={loading}
                   >
                     {loading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                     ) : (
                       <>
-                        <CreditCard className="mr-2 h-5 w-5" />
+                        <CreditCard className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                         Pay ₹{amount}
                       </>
                     )}
@@ -401,20 +401,20 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
               </>
             ) : (
               <>
-                <div className="space-y-4">
-                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-xs sm:text-sm text-yellow-800">
                       <strong>Cash on Delivery:</strong> Your pay ₹{amount} when you receive course access. Enrollment confirmation will be sent to your email.
                     </p>
                   </div>
                   
                   <button
-                    className="w-full py-3 text-white bg-red-800 rounded-lg hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-2.5 sm:py-3 text-sm sm:text-base text-white bg-red-800 rounded-lg hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleCODConfirmation}
                     disabled={loading}
                   >
                     {loading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mx-auto"></div>
                     ) : (
                       "Confirm Cash on Delivery"
                     )}
@@ -426,11 +426,11 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount, selecte
 
           {/* Close button */}
           <button
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 transition-colors p-1"
             onClick={onClose}
             disabled={loading}
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
       </div>

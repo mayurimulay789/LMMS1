@@ -113,40 +113,40 @@ const HomePage = () => {
 
   {/* Content on Image */}
   <div className="relative z-10 flex items-center h-full">
-    <div className="w-full max-w-7xl px-6 md:px-12 mx-auto">
+    <div className="w-full max-w-7xl px-4 sm:px-6 md:px-12 mx-auto">
       <div className="max-w-2xl text-left">
         
         {/* Brand */}
         <div className="flex items-center mb-4 space-x-2">
           <span className="inline-block w-3 h-3 bg-blue-500 rounded-sm"></span>
-          <span className="text-yellow-400 font-semibold tracking-wide">
+          <span className="text-yellow-400 font-semibold tracking-wide text-sm sm:text-base">
             RYMA ACADEMY
           </span>
         </div>
 
         {/* Heading */}
-        <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold leading-tight text-white">
           AI-Powered <br />
           <span className="text-yellow-400">Digital Marketing</span> <br />
           Course
         </h1>
 
         {/* Description */}
-        <p className="mt-6 text-sm md:text-base text-gray-200">
+        <p className="mt-4 sm:mt-6 text-xs sm:text-sm md:text-base text-gray-200 max-w-xl">
           Welcome to RYMA ACADEMY, Learn modern digital marketing using AI tools for
           smarter campaigns, automation, analytics, and faster business growth.
         </p>
 
         {/* Buttons */}
-        <div className="flex flex-wrap items-center gap-4 mt-8">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
   <Link to="/courses">
-    <button className="px-6 py-3 font-semibold text-white transition bg-blue-600 rounded-full hover:bg-blue-700">
+    <button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-blue-600 rounded-full hover:bg-blue-700 text-sm sm:text-base">
       Find Courses →
     </button>
   </Link>
 
   <Link to="/courses">
-    <button className="flex items-center gap-3 px-6 py-3 font-semibold text-white transition bg-orange-500 rounded-full hover:bg-orange-600">
+    <button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-orange-500 rounded-full hover:bg-orange-600 text-sm sm:text-base">
       ▶ Look Offline
     </button>
   </Link>
@@ -317,8 +317,9 @@ const HomePage = () => {
 						</div>
 					) : (
 						<div className="relative">
+							{/* Scroll buttons - hidden on small screens (touch scroll only) */}
 							<button
-								className="absolute -left-8 top-1/2 transform -translate-y-1/2 z-10 bg-[#79061d] rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-none hover:bg-[#a01e2c] transition"
+								className="hidden md:flex absolute -left-8 top-1/2 transform -translate-y-1/2 z-10 bg-[#79061d] rounded-full w-12 h-12 items-center justify-center shadow-lg border-none hover:bg-[#a01e2c] transition"
 								onClick={() => {
 									scrollRef.current && scrollRef.current.scrollBy({ left: -350, behavior: 'smooth' });
 								}}
@@ -329,7 +330,7 @@ const HomePage = () => {
 							<div
 								ref={scrollRef}
 								className="flex pb-4 space-x-4 overflow-x-auto flex-nowrap snap-x scroll-p-4 scrollbar-hide"
-								style={{ scrollBehavior: 'smooth' }}
+								style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}
 							>
 								{featuredCourses.map((course, index) => {
 									// Calculate total lessons from modules
@@ -347,7 +348,7 @@ const HomePage = () => {
 								})}
 							</div>
 							<button
-								className="absolute -right-8 top-1/2 transform -translate-y-1/2 z-10 bg-[#79061d] rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-none hover:bg-[#a01e2c] transition"
+								className="hidden md:flex absolute -right-8 top-1/2 transform -translate-y-1/2 z-10 bg-[#79061d] rounded-full w-12 h-12 items-center justify-center shadow-lg border-none hover:bg-[#a01e2c] transition"
 								onClick={() => {
 									scrollRef.current && scrollRef.current.scrollBy({ left: 350, behavior: 'smooth' });
 								}}

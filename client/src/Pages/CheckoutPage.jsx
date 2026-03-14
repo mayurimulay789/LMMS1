@@ -87,7 +87,6 @@ const CheckoutPage = () => {
   useEffect(() => {
     if (error) {
       console.error("Payment Error:", error)
-      // You can show a toast notification here instead of alert
       if (error.includes("401") || error.includes("Unauthorized")) {
         alert("Session expired. Please login again.")
         navigate("/login")
@@ -112,7 +111,6 @@ const CheckoutPage = () => {
       if (response && response.ok) {
         const data = response.data
 
-        // Handle different response shapes
         let courseData = null
         if (data && data._id) {
           courseData = data
@@ -188,14 +186,12 @@ const CheckoutPage = () => {
       return false
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(billingInfo.email)) {
       alert("Please enter a valid email address")
       return false
     }
 
-    // Validate phone number (10 digits for India)
     const phoneRegex = /^[0-9]{10}$/
     if (!phoneRegex.test(billingInfo.phone)) {
       alert("Please enter a valid 10-digit phone number")
@@ -229,15 +225,13 @@ const CheckoutPage = () => {
       if (createPaymentOrder.fulfilled.match(result)) {
         const { orderId, amount, paise, currency, key } = result.payload
 
-        // Save server-returned amount so UI can reflect the authoritative value
         setServerAmount(typeof amount === 'number' ? amount : Number(amount))
 
-        // Log amounts for debugging and ensure paise is taken from server when possible
         console.debug('payment amounts', { uiFinalPrice: finalPrice, serverAmount: amount, serverPaise: paise, clientComputedPaise: Math.round(amount * 100) })
 
         const options = {
           key: key,
-          amount: paise ? paise : Math.round(amount * 100), // prefer server paise when provided
+          amount: paise ? paise : Math.round(amount * 100),
           currency: currency,
           name: "Ryma Academy",
           description: course.title,
@@ -291,8 +285,6 @@ const CheckoutPage = () => {
 
         const rzp = new window.Razorpay(options)
 
-        // Allow React to update the UI with the server-authoritative amount
-        // before opening the Razorpay modal to avoid a visual mismatch.
         setTimeout(() => {
           try {
             console.debug('Opening Razorpay with options.amount (paise):', options.amount)
@@ -315,16 +307,16 @@ const CheckoutPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen py-4 sm:py-8 bg-gray-50">
-        <div className="max-w-6xl px-3 sm:px-4 lg:px-8 mx-auto">
+      <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-8">
           <div className="animate-pulse">
-            <div className="w-32 h-6 sm:h-8 mb-4 sm:mb-6 bg-gray-300 rounded"></div>
-            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
-              <div className="space-y-4 sm:space-y-6 lg:col-span-2">
-                <div className="h-32 sm:h-48 p-4 sm:p-6 bg-white rounded-lg"></div>
-                <div className="h-48 sm:h-64 p-4 sm:p-6 bg-white rounded-lg"></div>
+            <div className="h-5 sm:h-6 bg-gray-300 rounded w-24 sm:w-32 mb-4 sm:mb-6"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+                <div className="bg-white rounded-lg p-4 sm:p-6 h-36 sm:h-48"></div>
+                <div className="bg-white rounded-lg p-4 sm:p-6 h-48 sm:h-56"></div>
               </div>
-              <div className="p-4 sm:p-6 bg-white rounded-lg h-64 sm:h-96"></div>
+              <div className="bg-white rounded-lg p-4 sm:p-6 h-64 sm:h-80"></div>
             </div>
           </div>
         </div>
@@ -336,10 +328,10 @@ const CheckoutPage = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
         <div className="text-center max-w-sm">
-          <h2 className="mb-4 text-xl sm:text-2xl font-bold text-gray-900">Course Not Found</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Course Not Found</h2>
           <button
             onClick={() => navigate("/courses")}
-            className="w-full sm:w-auto px-6 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+            className="w-full sm:w-auto px-5 sm:px-6 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 text-sm sm:text-base"
           >
             Back to Courses
           </button>
@@ -352,8 +344,8 @@ const CheckoutPage = () => {
   const displayedFinal = serverAmount ?? finalPrice
 
   return (
-    <div className="min-h-screen py-4 sm:py-8 bg-gray-50">
-      <div className="max-w-6xl px-3 sm:px-4 lg:px-8 mx-auto">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <button
@@ -372,7 +364,7 @@ const CheckoutPage = () => {
 
         {/* Error Display */}
         {error && !error.includes("promo") && (
-          <div className="mb-6 p-4 border border-red-200 rounded-lg bg-red-50">
+          <div className="mb-6 p-3 sm:p-4 border border-red-200 rounded-lg bg-red-50">
             <div className="flex items-center space-x-2">
               <X className="w-5 h-5 text-red-600 flex-shrink-0" />
               <span className="text-sm text-red-800">
@@ -382,21 +374,21 @@ const CheckoutPage = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Main Content */}
           <div className="space-y-4 sm:space-y-6 lg:col-span-2">
             {/* Course Summary */}
-            <div className="p-4 sm:p-6 bg-white rounded-lg shadow-sm">
-              <h2 className="mb-3 sm:mb-4 text-lg sm:text-xl font-semibold text-gray-900">Course Summary</h2>
-              <div className="flex items-start p-3 sm:p-4 space-x-3 sm:space-x-4 border border-gray-200 rounded-lg">
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Course Summary</h2>
+              <div className="flex items-start space-x-3 sm:space-x-4 border border-gray-200 rounded-lg p-3 sm:p-4">
                 <img
                   src={course.thumbnail || "/placeholder.svg?height=80&width=80"}
                   alt={course.title}
-                  className="object-cover w-16 h-16 sm:w-20 sm:h-20 rounded-lg flex-shrink-0"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg flex-shrink-0 object-cover"
                 />
                 <div className="flex-1 min-w-0">
-                  <h3 className="mb-1 text-base sm:text-lg font-semibold text-gray-900 truncate">{course.title}</h3>
-                  <p className="mb-2 text-xs sm:text-sm text-gray-600">By {course.instructor}</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{course.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">By {course.instructor}</p>
                   <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
                     <span>{course.duration}</span>
                     <span>•</span>
@@ -412,11 +404,9 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-           
-
             {/* Promo Code - Hidden on mobile to save space */}
-            <div className="hidden sm:block p-4 sm:p-6 bg-white rounded-lg shadow-sm">
-              <h2 className="mb-3 sm:mb-4 text-lg sm:text-xl font-semibold text-gray-900">Promo Code</h2>
+            <div className="hidden sm:block bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Promo Code</h2>
               <form onSubmit={handlePromoCodeSubmit} className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <div className="relative flex-1">
                   <Tag className="absolute w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
@@ -442,49 +432,40 @@ const CheckoutPage = () => {
               </form>
 
               {promoCode && (
-                <div className="flex items-center p-2 sm:p-3 mt-3 space-x-2 border border-green-200 rounded-lg bg-green-50">
+                <div className="flex items-center p-3 mt-3 space-x-2 border border-green-200 rounded-lg bg-green-50">
                   <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-green-800">
+                  <span className="text-sm text-green-800">
                     Promo code `${promoCode}` applied! You save ₹{discountAmount.toFixed(2)}
                   </span>
                 </div>
               )}
 
               {error && error.includes("promo") && (
-                <div className="flex items-center p-2 sm:p-3 mt-3 space-x-2 border border-red-200 rounded-lg bg-red-50">
+                <div className="flex items-center p-3 mt-3 space-x-2 border border-red-200 rounded-lg bg-red-50">
                   <X className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-red-800">{error}</span>
+                  <span className="text-sm text-red-800">{error}</span>
                 </div>
               )}
             </div>
 
             {/* Payment Method */}
-            <div className="p-4 sm:p-6 bg-white rounded-lg shadow-sm">
-              <h2 className="mb-3 sm:mb-4 text-lg sm:text-xl font-semibold text-gray-900">Payment Method</h2>
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Payment Method</h2>
               <div className="p-3 sm:p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
-                <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 text-sm sm:text-base">Razorpay Secure Payment</p>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Credit/Debit Card, UPI, Net Banking, Wallets
-                    </p>
+                    <p className="text-xs sm:text-sm text-gray-600">Credit/Debit Card, UPI, Net Banking, Wallets</p>
                   </div>
-
-                  {/* Payment Icons */}
                   <div className="flex space-x-1 sm:space-x-2 flex-shrink-0">
-                    {/* Visa */}
                     <div className="w-6 h-4 sm:w-7 sm:h-5 bg-blue-900 rounded flex items-center justify-center">
                       <span className="text-[8px] sm:text-xs font-bold text-white">VISA</span>
                     </div>
-
-                    {/* MasterCard */}
                     <div className="w-6 h-4 sm:w-7 sm:h-5 bg-white border rounded flex items-center justify-center relative overflow-hidden">
                       <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full absolute left-1"></div>
                       <div className="w-2 h-2 sm:w-3 sm:h-3 bg-orange-500 rounded-full absolute right-1"></div>
                     </div>
-
-                    {/* UPI */}
                     <div className="w-6 h-4 sm:w-7 sm:h-5 bg-green-600 rounded flex items-center justify-center">
                       <span className="text-[8px] sm:text-xs font-bold text-white">UPI</span>
                     </div>
@@ -494,12 +475,12 @@ const CheckoutPage = () => {
             </div>
 
             {/* Billing Information */}
-            <div className="p-4 sm:p-6 bg-white rounded-lg shadow-sm">
-              <h2 className="mb-3 sm:mb-4 text-lg sm:text-xl font-semibold text-gray-900">Billing Information</h2>
-              <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Billing Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {/* First Name */}
-                <div className="md:col-span-1">
-                  <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-gray-700">First Name *</label>
+                <div>
+                  <label className="block mb-1 text-xs sm:text-sm font-medium text-gray-700">First Name *</label>
                   <div className="relative">
                     <User className="absolute w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                     <input
@@ -516,8 +497,8 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Last Name */}
-                <div className="md:col-span-1">
-                  <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-gray-700">Last Name *</label>
+                <div>
+                  <label className="block mb-1 text-xs sm:text-sm font-medium text-gray-700">Last Name *</label>
                   <input
                     type="text"
                     name="lastName"
@@ -531,8 +512,8 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Email */}
-                <div className="md:col-span-1">
-                  <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-gray-700">Email Address *</label>
+                <div>
+                  <label className="block mb-1 text-xs sm:text-sm font-medium text-gray-700">Email Address *</label>
                   <div className="relative">
                     <Mail className="absolute w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                     <input
@@ -548,8 +529,8 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Phone */}
-                <div className="md:col-span-1">
-                  <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-gray-700">Phone Number *</label>
+                <div>
+                  <label className="block mb-1 text-xs sm:text-sm font-medium text-gray-700">Phone Number *</label>
                   <div className="relative">
                     <Phone className="absolute w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                     <input
@@ -568,7 +549,7 @@ const CheckoutPage = () => {
 
                 {/* Address */}
                 <div className="md:col-span-2">
-                  <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-gray-700">Address *</label>
+                  <label className="block mb-1 text-xs sm:text-sm font-medium text-gray-700">Address *</label>
                   <div className="relative">
                     <MapPin className="absolute w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                     <input
@@ -583,8 +564,8 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* City */}
-                <div className="md:col-span-1">
-                  <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-gray-700">City *</label>
+                <div>
+                  <label className="block mb-1 text-xs sm:text-sm font-medium text-gray-700">City *</label>
                   <input
                     type="text"
                     name="city"
@@ -598,8 +579,8 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* State */}
-                <div className="md:col-span-1">
-                  <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-gray-700">State *</label>
+                <div>
+                  <label className="block mb-1 text-xs sm:text-sm font-medium text-gray-700">State *</label>
                   <input
                     type="text"
                     name="state"
@@ -613,8 +594,8 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* ZIP Code */}
-                <div className="md:col-span-1">
-                  <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-gray-700">ZIP Code *</label>
+                <div>
+                  <label className="block mb-1 text-xs sm:text-sm font-medium text-gray-700">ZIP Code *</label>
                   <input
                     type="text"
                     name="zipCode"
@@ -628,8 +609,8 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Country */}
-                <div className="md:col-span-1">
-                  <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-gray-700">Country *</label>
+                <div>
+                  <label className="block mb-1 text-xs sm:text-sm font-medium text-gray-700">Country *</label>
                   <select
                     name="country"
                     value={billingInfo.country}
@@ -680,9 +661,9 @@ const CheckoutPage = () => {
           {/* Sidebar */}
           <div className="space-y-4 sm:space-y-6">
             {/* Order Summary */}
-            <div className=" p-4 sm:p-6 bg-white rounded-lg shadow-sm top-4 sm:top-8">
-              <h3 className="mb-3 sm:mb-4 text-lg font-semibold text-gray-900">Order Summary</h3>
-              <div className="mb-4 sm:mb-6 space-y-2 sm:space-y-3">
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 lg:sticky lg:top-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Order Summary</h3>
+              <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                 <div className="flex justify-between">
                   <span className="text-sm sm:text-base text-gray-600">Course Price:</span>
                   <span className="font-medium text-sm sm:text-base">₹{originalPrice.toFixed(2)}</span>
@@ -696,10 +677,6 @@ const CheckoutPage = () => {
                     <span className="font-medium text-xs sm:text-sm">-₹{discountAmount.toFixed(2)}</span>
                   </div>
                 )}
-                {/* <div className="flex justify-between">
-                  <span className="text-sm sm:text-base text-gray-600">Tax:</span>
-                  <span className="font-medium text-sm sm:text-base">₹0.00</span>
-                </div> */}
                 <hr className="border-gray-200" />
                 <div className="flex justify-between text-base sm:text-lg font-bold">
                   <span>Total:</span>
@@ -725,14 +702,14 @@ const CheckoutPage = () => {
                 )}
               </button>
 
-              <div className="space-y-1 text-xs text-center text-gray-500">
+              <div className="text-xs text-center text-gray-500">
                 <p>By completing your purchase, you agree to our terms and conditions</p>
               </div>
-            </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
   )
 }
 

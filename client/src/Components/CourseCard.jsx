@@ -42,11 +42,11 @@ const CourseCard = ({ course, index = 0 }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       whileHover={{ y: -5, scale: 1.02 }}
-      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 min-h-[80px] h-full flex flex-col sm:min-h-[120px] md:min-h-[500px]"
+      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col"
     >
       <Link to={`/courses/${_id}`} className="block h-full flex flex-col">
         {/* Course Thumbnail */}
-        <div className="relative h-48 overflow-hidden bg-gray-200">
+        <div className="relative h-36 xs:h-40 sm:h-44 md:h-48 overflow-hidden bg-gray-200">
           {thumbnail && thumbnail.match(/\.(mp4|webm|ogg|mov|avi|flv)$/i) ? (
             <video
               src={thumbnail}
@@ -59,7 +59,7 @@ const CourseCard = ({ course, index = 0 }) => {
                 console.log('CourseCard video src:', thumbnail)
                 e.target.style.display = 'none'
                 const fallback = e.target.parentElement.querySelector('.coursecard-video-fallback') || document.createElement('div')
-                fallback.className = 'coursecard-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
+                fallback.className = 'coursecard-video-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium text-xs xs:text-sm'
                 fallback.textContent = 'VIDEO'
                 if (!e.target.parentElement.querySelector('.coursecard-video-fallback')) {
                   e.target.parentElement.appendChild(fallback)
@@ -80,7 +80,7 @@ const CourseCard = ({ course, index = 0 }) => {
                 console.log('CourseCard image src:', thumbnail)
                 e.target.style.display = 'none'
                 const fallback = e.target.parentElement.querySelector('.coursecard-image-fallback') || document.createElement('div')
-                fallback.className = 'coursecard-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium'
+                fallback.className = 'coursecard-image-fallback absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-600 font-medium text-xs xs:text-sm'
                 fallback.textContent = 'IMG'
                 if (!e.target.parentElement.querySelector('.coursecard-image-fallback')) {
                   e.target.parentElement.appendChild(fallback)
@@ -92,31 +92,33 @@ const CourseCard = ({ course, index = 0 }) => {
               }}
             />
           )}
-          <div className="absolute top-4 left-4">
-            <span className="text-white px-2 py-1 rounded-full text-xs font-medium bg-primary-800">{category}</span>
+          <div className="absolute top-2 xs:top-3 sm:top-4 left-2 xs:left-3 sm:left-4">
+            <span className="text-white px-1.5 xs:px-2 py-0.5 xs:py-1 rounded-full text-2xs xs:text-xs font-medium bg-primary-800">
+              {category}
+            </span>
           </div>
-          <div className="absolute top-4 right-4">
-            <span className="bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs font-medium">
+          <div className="absolute top-2 xs:top-3 sm:top-4 right-2 xs:right-3 sm:right-4">
+            <span className="bg-black bg-opacity-70 text-white px-1.5 xs:px-2 py-0.5 xs:py-1 rounded-full text-2xs xs:text-xs font-medium">
               {level}
             </span>
           </div>
           <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-            <Play className="h-12 w-12 text-white opacity-0 hover:opacity-100 transition-opacity duration-300" />
+            <Play className="h-8 w-8 xs:h-10 xs:w-10 sm:h-12 sm:w-12 text-white opacity-0 hover:opacity-100 transition-opacity duration-300" />
           </div>
         </div>
 
         {/* Course Content */}
-        <div className="p-6 flex flex-col flex-1 justify-between">
+        <div className="p-3 xs:p-4 sm:p-5 md:p-6 flex flex-col flex-1 justify-between">
           {/* Title and Description */}
-          <div className="mb-4">
-          <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-primary-600 transition-colors">
-            {title}
-          </h3>
-            <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">{description}</p>
+          <div className="mb-2 xs:mb-3 sm:mb-4">
+            <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1 xs:mb-2 line-clamp-2 hover:text-primary-600 transition-colors">
+              {title}
+            </h3>
+            <p className="text-gray-600 text-xs xs:text-sm line-clamp-2 leading-relaxed">{description}</p>
           </div>
 
           {/* Instructor */}
-          <div className="flex items-center space-x-3 mb-4">
+          <div className="flex items-center space-x-2 xs:space-x-3 mb-2 xs:mb-3 sm:mb-4">
             <img
               src={
                 getImageWithFallback(
@@ -126,52 +128,51 @@ const CourseCard = ({ course, index = 0 }) => {
                 )
               }
               alt={course.createdBy?.name || instructor || 'Instructor'}
-              className="w-8 h-8 rounded-full object-cover"
+              className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 rounded-full object-cover"
             />
-            <p className="text-sm text-gray-700">
+            <p className="text-xs xs:text-sm text-gray-700">
               By <span className="font-medium text-primary-600">{course.createdBy?.name || instructor || 'Instructor'}</span>
             </p>
           </div>
 
           {/* Course Stats */}
-          <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between mb-2 xs:mb-3 sm:mb-4 text-xs xs:text-sm text-gray-600">
+            <div className="flex items-center gap-2 xs:gap-3 sm:gap-4 flex-wrap">
               {/* Rating */}
               {avgRating > 0 && (
-                <div className="flex items-center space-x-1">
-                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                <div className="flex items-center gap-1">
+                  <Star className="h-3 w-3 xs:h-4 xs:w-4 text-yellow-400 fill-current" />
                   <span className="font-medium">{avgRating}</span>
-                  <span className="text-gray-500">({reviewCount})</span>
+                  <span className="text-gray-500 hidden xs:inline">({reviewCount})</span>
                 </div>
               )}
 
               {/* Enrollment Count */}
-              <div className="flex items-center space-x-1">
-                <Users className="h-4 w-4" />
+              <div className="flex items-center gap-1">
+                <Users className="h-3 w-3 xs:h-4 xs:w-4" />
                 <span>{enrollmentCount}</span>
               </div>
 
               {/* Duration */}
-              <div className="flex items-center space-x-1">
-                <Clock className="h-4 w-4" />
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3 xs:h-4 xs:w-4" />
                 <span>{formatDuration(duration)}</span>
               </div>
             </div>
           </div>
 
           {/* Lessons Count */}
-          <div className="flex items-center space-x-1 mb-4 text-sm text-gray-600">
-            <BookOpen className="h-4 w-4" />
+          <div className="flex items-center gap-1 mb-2 xs:mb-3 sm:mb-4 text-xs xs:text-sm text-gray-600">
+            <BookOpen className="h-3 w-3 xs:h-4 xs:w-4" />
             <span>{lessons?.length || 0} lessons</span>
           </div>
 
           {/* Price and CTA */}
           <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
               {formatPrice(price)}
-              {price > 0 && <span className="text-sm font-normal text-gray-500 ml-1">₹</span>}
             </div>
-            <button className="text-white px-4 py-2 rounded-lg font-medium text-sm bg-primary-800">
+            <button className="text-white px-3 py-1.5 xs:px-4 xs:py-2 rounded-lg font-medium text-xs xs:text-sm bg-primary-800 hover:bg-primary-700 transition-colors">
               View Course
             </button>
           </div>

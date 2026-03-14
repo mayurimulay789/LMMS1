@@ -40,17 +40,16 @@ const ReviewForm = ({ courseId, onReviewSubmit }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4">
-      <h3 className="text-lg font-bold">Write a Review</h3>
+    <form onSubmit={handleSubmit} className="bg-white p-4 sm:p-6 rounded-lg shadow-md space-y-3 sm:space-y-4">
+      <h3 className="text-base sm:text-lg font-bold">Write a Review</h3>
       
       {/* Star rating */}
       <div className="flex space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            size={24}
-            className={`cursor-pointer transition-colors ${
-              (hoverRating || rating) >= star ? "text-yellow-400" : "text-gray-300"
+            className={`cursor-pointer transition-colors w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${
+              (hoverRating || rating) >= star ? "text-yellow-400 fill-current" : "text-gray-300"
             }`}
             onMouseEnter={() => setHoverRating(star)}
             onMouseLeave={() => setHoverRating(0)}
@@ -65,13 +64,13 @@ const ReviewForm = ({ courseId, onReviewSubmit }) => {
         onChange={(e) => setComment(e.target.value)}
         rows="4"
         placeholder="Write your reviews..."
-        className="w-full border border-gray-300 rounded p-2"
+        className="w-full border border-gray-300 rounded p-2 sm:p-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary-500"
       />
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="bg-primary-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        className="bg-primary-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded text-sm sm:text-base font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors"
       >
         {isSubmitting ? "Submitting..." : "Submit Review"}
       </button>

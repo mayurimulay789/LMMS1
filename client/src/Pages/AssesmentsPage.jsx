@@ -97,11 +97,11 @@ const AssessmentsPage = () => {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="animate-pulse">
-            <div className="bg-gray-300 h-8 w-64 rounded mb-8"></div>
+            <div className="bg-gray-300 h-6 sm:h-8 w-48 sm:w-64 rounded mb-8"></div>
             <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white rounded-lg p-6">
-                  <div className="bg-gray-300 h-6 w-48 rounded mb-4"></div>
+                <div key={i} className="bg-white rounded-lg p-4 sm:p-6">
+                  <div className="bg-gray-300 h-5 sm:h-6 w-40 sm:w-48 rounded mb-4"></div>
                   <div className="bg-gray-300 h-4 w-full rounded"></div>
                 </div>
               ))}
@@ -121,24 +121,22 @@ const AssessmentsPage = () => {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-2xl font-bold text-gray-900">{currentAssessment.title}</h1>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{currentAssessment.title}</h1>
               {timeRemaining !== null && (
-                <div className="flex items-center space-x-2 text-orange-600">
-                  <Clock className="h-5 w-5" />
-                  <span className="font-mono text-lg">{formatTime(timeRemaining)}</span>
+                <div className="flex items-center space-x-2 text-orange-600 text-sm sm:text-base">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="font-mono">{formatTime(timeRemaining)}</span>
                 </div>
               )}
             </div>
 
             {/* Progress Bar */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600">
-                  Question {currentQuestionIndex + 1} of {currentAssessment.questions.length}
-                </span>
-                <span className="text-sm text-gray-600">{Math.round(progress)}% Complete</span>
+            <div>
+              <div className="flex items-center justify-between mb-2 text-xs sm:text-sm text-gray-600">
+                <span>Question {currentQuestionIndex + 1} of {currentAssessment.questions.length}</span>
+                <span>{Math.round(progress)}% Complete</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
@@ -150,14 +148,14 @@ const AssessmentsPage = () => {
           </div>
 
           {/* Question */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">{currentQuestion.question}</h2>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+            <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">{currentQuestion.question}</h2>
 
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {currentQuestion.options.map((option, index) => (
                 <label
                   key={index}
-                  className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="flex items-center p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
                 >
                   <input
                     type="radio"
@@ -165,31 +163,31 @@ const AssessmentsPage = () => {
                     value={option}
                     checked={answers[currentQuestion._id] === option}
                     onChange={(e) => handleAnswerChange(currentQuestion._id, e.target.value)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                   />
-                  <span className="ml-3 text-gray-700">{option}</span>
+                  <span className="ml-3 text-sm sm:text-base text-gray-700">{option}</span>
                 </label>
               ))}
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <button
               onClick={previousQuestion}
               disabled={currentQuestionIndex === 0}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center justify-center space-x-2 px-4 py-2 w-full sm:w-auto border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Previous</span>
             </button>
 
-            <div className="flex space-x-3">
+            <div className="flex w-full sm:w-auto gap-3">
               {currentQuestionIndex === currentAssessment.questions.length - 1 ? (
                 <button
                   onClick={handleSubmitAssessment}
                   disabled={isSubmitting}
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center space-x-2"
+                  className="flex-1 sm:flex-none bg-green-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base"
                 >
                   {isSubmitting ? (
                     <>
@@ -203,7 +201,7 @@ const AssessmentsPage = () => {
               ) : (
                 <button
                   onClick={nextQuestion}
-                  className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
                 >
                   <span>Next</span>
                   <ArrowRight className="h-4 w-4" />
@@ -223,38 +221,38 @@ const AssessmentsPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-            <div className="mb-6">
+          <div className="bg-white rounded-lg shadow-sm p-6 sm:p-8 text-center">
+            <div className="mb-4 sm:mb-6">
               {result?.passed ? (
-                <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 text-green-500 mx-auto mb-3 sm:mb-4" />
               ) : (
-                <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                <XCircle className="h-12 w-12 sm:h-16 sm:w-16 text-red-500 mx-auto mb-3 sm:mb-4" />
               )}
 
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 {result?.passed ? "Congratulations!" : "Assessment Complete"}
               </h1>
 
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
                 {result?.passed
                   ? "You have successfully passed this assessment!"
                   : "You can retake this assessment to improve your score."}
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-50 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
-                  <p className="text-sm text-gray-600">Your Score</p>
-                  <p className="text-2xl font-bold text-gray-900">{result?.score}%</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Your Score</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{result?.score}%</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Passing Score</p>
-                  <p className="text-2xl font-bold text-gray-900">{currentAssessment.passingScore}%</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Passing Score</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{currentAssessment.passingScore}%</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Status</p>
-                  <p className={`text-2xl font-bold ${result?.passed ? "text-green-600" : "text-red-600"}`}>
+                  <p className="text-xs sm:text-sm text-gray-600">Status</p>
+                  <p className={`text-lg sm:text-xl md:text-2xl font-bold ${result?.passed ? "text-green-600" : "text-red-600"}`}>
                     {result?.passed ? "Passed" : "Failed"}
                   </p>
                 </div>
@@ -262,19 +260,19 @@ const AssessmentsPage = () => {
             </div>
 
             {result?.feedback && (
-              <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-blue-900 mb-2">Feedback</h3>
-                <p className="text-blue-800">{result.feedback}</p>
+              <div className="bg-blue-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                <h3 className="font-semibold text-blue-900 mb-2 text-sm sm:text-base">Feedback</h3>
+                <p className="text-xs sm:text-sm text-blue-800">{result.feedback}</p>
               </div>
             )}
 
-            <div className="flex justify-center space-x-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
               <button
                 onClick={() => {
                   setCurrentAssessment(null)
                   setShowResults(false)
                 }}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="bg-blue-600 text-white px-5 sm:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
               >
                 Back to Assessments
               </button>
@@ -282,7 +280,7 @@ const AssessmentsPage = () => {
               {!result?.passed && (
                 <button
                   onClick={() => startAssessment(currentAssessment)}
-                  className="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+                  className="border border-blue-600 text-blue-600 px-5 sm:px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors text-sm sm:text-base"
                 >
                   Retake Assessment
                 </button>
@@ -299,39 +297,42 @@ const AssessmentsPage = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <button onClick={() => navigate(-1)} className="flex items-center text-blue-600 hover:text-blue-800 mb-4">
+        <div className="mb-6 sm:mb-8">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="flex items-center text-blue-600 hover:text-blue-800 mb-4 text-sm sm:text-base"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Course
           </button>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Course Assessments</h1>
-          <p className="text-gray-600">Test your knowledge and track your progress</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">Course Assessments</h1>
+          <p className="text-sm sm:text-base text-gray-600">Test your knowledge and track your progress</p>
         </div>
 
         {/* Assessments List */}
         {assessments.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-            <div className="text-gray-400 mb-4">
-              <CheckCircle className="h-16 w-16 mx-auto" />
+          <div className="bg-white rounded-lg shadow-sm p-6 sm:p-8 text-center">
+            <div className="text-gray-400 mb-3 sm:mb-4">
+              <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 mx-auto" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No assessments available</h3>
-            <p className="text-gray-600">Assessments will appear here when they become available</p>
+            <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2">No assessments available</h3>
+            <p className="text-sm sm:text-base text-gray-600">Assessments will appear here when they become available</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {assessments.map((assessment) => {
               const result = getResultForAssessment(assessment._id)
 
               return (
-                <div key={assessment._id} className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex items-start justify-between">
+                <div key={assessment._id} className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{assessment.title}</h3>
-                      <p className="text-gray-600 mb-4">{assessment.description}</p>
+                      <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2">{assessment.title}</h3>
+                      <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{assessment.description}</p>
 
-                      <div className="flex items-center space-x-6 text-sm text-gray-600 mb-4">
+                      <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
                         <div className="flex items-center space-x-2">
-                          <Clock className="h-4 w-4" />
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                           <span>{assessment.timeLimit} minutes</span>
                         </div>
                         <div>
@@ -343,11 +344,11 @@ const AssessmentsPage = () => {
                       </div>
 
                       {result && (
-                        <div className="flex items-center space-x-4 mb-4">
+                        <div className="flex items-center space-x-4 mb-3 sm:mb-4">
                           <div
-                            className={`flex items-center space-x-2 ${result.passed ? "text-green-600" : "text-red-600"}`}
+                            className={`flex items-center space-x-2 text-xs sm:text-sm ${result.passed ? "text-green-600" : "text-red-600"}`}
                           >
-                            {result.passed ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                            {result.passed ? <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" /> : <XCircle className="h-4 w-4 sm:h-5 sm:w-5" />}
                             <span className="font-medium">
                               {result.passed ? "Passed" : "Failed"} - {result.score}%
                             </span>
@@ -356,10 +357,10 @@ const AssessmentsPage = () => {
                       )}
                     </div>
 
-                    <div className="ml-6">
+                    <div className="w-full sm:w-auto">
                       <button
                         onClick={() => startAssessment(assessment)}
-                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        className="w-full sm:w-auto bg-blue-600 text-white px-5 sm:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
                       >
                         {result ? "Retake" : "Start"} Assessment
                       </button>

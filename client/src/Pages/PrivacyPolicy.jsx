@@ -21,34 +21,34 @@ export default function PrivacyPolicy() {
 }, []);
 
   return (
-    <section className="py-12 bg-[#F8F9FB] md:py-20">
+    <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-[#F8F9FB]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-10 md:p-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 md:p-10 lg:p-12">
 
           {/* Header */}
-          <div className="text-center mb-10">
-            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900">
               Privacy Policy
             </h1>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-xs sm:text-sm text-gray-500">
               Effective Date: <span className="font-medium">[Insert Date]</span>
             </p>
           </div>
 
           {/* Intro */}
-          <p className="text-[16px] leading-7 text-gray-700 mb-8">
+          <p className="text-sm sm:text-base leading-6 sm:leading-7 text-gray-700 mb-6 sm:mb-8">
             <strong className="font-medium text-gray-900">At Ryma Academy</strong>, your trust is our priority.
             This Privacy Policy outlines how we collect, use, and protect your personal data
             when you interact with our services.
           </p>
 
           {/* 1 */}
-          <section className="mb-8">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-3">
-              <User className="w-5 h-5 text-[#500E1B]" />
+          <section className="mb-6 sm:mb-8 md:mb-10">
+            <h2 className="flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#500E1B]" />
               1. Information We Collect
             </h2>
-            <ul className="list-disc pl-5 space-y-2 text-[17px] leading-7 text-gray-700">
+            <ul className="list-disc pl-4 sm:pl-5 space-y-1 sm:space-y-2 text-sm sm:text-base leading-6 sm:leading-7 text-gray-700">
               <li><strong>Personal Information:</strong> Name, email, phone number, and address.</li>
               <li><strong>Payment Information:</strong> Billing details for enrollment.</li>
               <li><strong>Technical Data:</strong> IP address, browser type, cookies.</li>
@@ -57,12 +57,12 @@ export default function PrivacyPolicy() {
           </section>
 
           {/* 2 */}
-          <section className="mb-8">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-3">
-              <FileText className="w-5 h-5 text-[#500E1B]" />
+          <section className="mb-6 sm:mb-8 md:mb-10">
+            <h2 className="flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-[#500E1B]" />
               2. How We Use Your Information
             </h2>
-            <ul className="list-disc pl-5 space-y-2 text-[17px] leading-7 text-gray-700">
+            <ul className="list-disc pl-4 sm:pl-5 space-y-1 sm:space-y-2 text-sm sm:text-base leading-6 sm:leading-7 text-gray-700">
               <li>Provide and improve our services.</li>
               <li>Communicate updates, admissions, promotions.</li>
               <li>Process payments securely.</li>
@@ -72,36 +72,36 @@ export default function PrivacyPolicy() {
           </section>
 
           {/* 3 */}
-          <section className="mb-8">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-3">
-              <ExternalLink className="w-5 h-5 text-[#500E1B]" />
+          <section className="mb-6 sm:mb-8 md:mb-10">
+            <h2 className="flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+              <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 text-[#500E1B]" />
               3. Data Sharing
             </h2>
-            <p className="text-[17px] leading-7 text-gray-700">
+            <p className="text-sm sm:text-base leading-6 sm:leading-7 text-gray-700">
               We never sell or rent your data. Data is shared only with trusted partners
               for service delivery or when required by law.
             </p>
           </section>
 
           {/* 4 */}
-          <section className="mb-8">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-3">
-              <Lock className="w-5 h-5 text-[#500E1B]" />
+          <section className="mb-6 sm:mb-8 md:mb-10">
+            <h2 className="flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+              <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-[#500E1B]" />
               4. Data Security
             </h2>
-            <p className="text-[17px] leading-7 text-gray-700">
+            <p className="text-sm sm:text-base leading-6 sm:leading-7 text-gray-700">
               We use encryption, secure servers, and restricted access. However,
               no method of internet transmission is completely secure.
             </p>
           </section>
 
           {/* 5 */}
-          <section className="mb-8">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-3">
-              <ShieldCheck className="w-5 h-5 text-[#500E1B]" />
+          <section className="mb-6 sm:mb-8 md:mb-10">
+            <h2 className="flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#500E1B]" />
               5. Your Rights
             </h2>
-            <ul className="list-disc pl-5 space-y-2 text-[17px] leading-7 text-gray-700">
+            <ul className="list-disc pl-4 sm:pl-5 space-y-1 sm:space-y-2 text-sm sm:text-base leading-6 sm:leading-7 text-gray-700">
               <li>Access and review your data.</li>
               <li>Request corrections or deletion.</li>
               <li>Opt out of marketing communications.</li>
@@ -109,56 +109,56 @@ export default function PrivacyPolicy() {
           </section>
 
           {/* 6 */}
-          <section className="mb-8">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-3">
-              <Cookie className="w-5 h-5 text-[#500E1B]" />
+          <section className="mb-6 sm:mb-8 md:mb-10">
+            <h2 className="flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+              <Cookie className="w-4 h-4 sm:w-5 sm:h-5 text-[#500E1B]" />
               6. Cookies and Tracking
             </h2>
-            <p className="text-[17px] leading-7 text-gray-700">
+            <p className="text-sm sm:text-base leading-6 sm:leading-7 text-gray-700">
               Cookies help improve your experience. You may disable them via browser settings.
             </p>
           </section>
 
           {/* 7 */}
-          <section className="mb-8">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-3">
-              <ExternalLink className="w-5 h-5 text-[#500E1B]" />
+          <section className="mb-6 sm:mb-8 md:mb-10">
+            <h2 className="flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+              <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 text-[#500E1B]" />
               7. Third-Party Links
             </h2>
-            <p className="text-[17px] leading-7 text-gray-700">
+            <p className="text-sm sm:text-base leading-6 sm:leading-7 text-gray-700">
               We are not responsible for external websites’ privacy practices.
             </p>
           </section>
 
           {/* 8 */}
-          <section className="mb-10">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-3">
-              <RefreshCcw className="w-5 h-5 text-[#500E1B]" />
+          <section className="mb-6 sm:mb-8 md:mb-10">
+            <h2 className="flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+              <RefreshCcw className="w-4 h-4 sm:w-5 sm:h-5 text-[#500E1B]" />
               8. Changes to This Policy
             </h2>
-            <p className="text-[17px] leading-7 text-gray-700">
+            <p className="text-sm sm:text-base leading-6 sm:leading-7 text-gray-700">
               This policy may be updated periodically. Please review it regularly.
             </p>
           </section>
 
           {/* 9 */}
           <section>
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-3">
-              <Mail className="w-5 h-5 text-[#500E1B]" />
+            <h2 className="flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+              <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-[#500E1B]" />
               9. Contact Us
             </h2>
-            <ul className="space-y-2 text-[17px] text-gray-700">
-              <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-gray-500" />
-                services@rymaacademy.com
+            <ul className="space-y-2 text-sm sm:text-base text-gray-700">
+              <li className="flex flex-col xs:flex-row items-start xs:items-center gap-1 xs:gap-2">
+                <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 flex-shrink-0 mt-0.5 xs:mt-0" />
+                <span>services@rymaacademy.com</span>
               </li>
-              <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-gray-500" />
-                +91-9873336133
+              <li className="flex flex-col xs:flex-row items-start xs:items-center gap-1 xs:gap-2">
+                <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 flex-shrink-0 mt-0.5 xs:mt-0" />
+                <span>+91-9873336133</span>
               </li>
-              <li className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-gray-500" />
-                D-7/32, 1st Floor, Main Vishram Chowk, Sec-6 Rohini, Delhi-110085
+              <li className="flex flex-col xs:flex-row items-start xs:items-center gap-1 xs:gap-2">
+                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 flex-shrink-0 mt-0.5 xs:mt-0" />
+                <span>D-7/32, 1st Floor, Main Vishram Chowk, Sec-6 Rohini, Delhi-110085</span>
               </li>
             </ul>
           </section>

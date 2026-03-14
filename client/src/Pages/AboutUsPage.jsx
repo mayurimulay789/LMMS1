@@ -113,9 +113,9 @@ const AboutUsPage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-8 sm:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+      <section className="py-8 sm:py-12 lg:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center p-3 sm:p-6 bg-white rounded-lg shadow-sm border border-rose-600">
                 <div className="text-xl sm:text-3xl md:text-4xl font-bold text-primary-800 mb-1 sm:mb-2">{stat.number}</div>
@@ -127,7 +127,7 @@ const AboutUsPage = () => {
       </section>
 
       {/* Our Story Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-primary-800">
+      <section className="py-8 sm:py-12 lg:py-16 bg-primary-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
             <div>
@@ -194,7 +194,7 @@ const AboutUsPage = () => {
       </section>
 
       {/* Achievements Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+      <section className="py-8 sm:py-12 lg:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-800 mb-3 sm:mb-4">Our Achievements</h2>
@@ -203,17 +203,17 @@ const AboutUsPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {achievements.map((achievement, index) => (
               <div 
                 key={index} 
-                className="bg-primary-800 rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center flex flex-col justify-between min-h-[140px] sm:min-h-[160px]"
+                className="bg-primary-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center flex flex-col justify-between min-h-[160px] sm:min-h-[180px] lg:min-h-[200px]"
               >
-                <div className="bg-white w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                <div className="bg-white w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
                   <achievement.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-primary-800" />
                 </div>
-                <h3 className="text-base sm:text-xl font-semibold text-white mb-1 sm:mb-3">{achievement.title}</h3>
-                <p className="text-xs sm:text-base text-white">{achievement.description}</p>
+                <h3 className="text-sm sm:text-base lg:text-xl font-semibold text-white mb-1 sm:mb-3">{achievement.title}</h3>
+                <p className="text-xs sm:text-sm lg:text-base text-white">{achievement.description}</p>
               </div>
             ))}
           </div>
@@ -221,7 +221,7 @@ const AboutUsPage = () => {
       </section>
 
       {/* Values Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-primary-800">
+      <section className="py-8 sm:py-12 lg:py-16 bg-primary-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Our Values</h2>
@@ -230,17 +230,17 @@ const AboutUsPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {values.map((value, index) => (
               <div 
                 key={index} 
-                className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center flex flex-col justify-between min-h-[140px] sm:min-h-[160px]"
+                className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center flex flex-col justify-between min-h-[160px] sm:min-h-[180px] lg:min-h-[200px]"
               >
-                <div className="bg-primary-800 w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                <div className="bg-primary-800 w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
                   <value.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-white" />
                 </div>
-                <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-3">{value.title}</h3>
-                <p className="text-xs sm:text-base text-gray-600">{value.description}</p>
+                <h3 className="text-sm sm:text-base lg:text-xl font-semibold text-gray-900 mb-1 sm:mb-3">{value.title}</h3>
+                <p className="text-xs sm:text-sm lg:text-base text-gray-600">{value.description}</p>
               </div>
             ))}
           </div>
@@ -248,7 +248,7 @@ const AboutUsPage = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+      <section className="py-8 sm:py-12 lg:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-800 mb-3 sm:mb-4">Meet Our Team</h2>
@@ -257,7 +257,7 @@ const AboutUsPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {team.map((member, index) => (
               <div
                 key={index}
@@ -266,15 +266,15 @@ const AboutUsPage = () => {
                 <img 
                   src={member.image} 
                   alt={member.name} 
-                  className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 object-cover rounded-full mx-auto mt-6" 
+                  className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 object-cover rounded-full mx-auto mt-4 sm:mt-6" 
                   onError={(e) => {
                     e.target.src = generateDefaultAvatar(member.name, 300);
                   }} 
                 />
-                <div className="p-3 sm:p-6 flex-1 flex flex-col justify-between">
-                  <h3 className="text-base sm:text-xl font-semibold text-white mb-1">{member.name}</h3>
-                  <p className="text-primary-200 font-medium text-xs sm:text-base mb-1 sm:mb-3">{member.role}</p>
-                  <p className="text-primary-100 text-xs sm:text-sm">{member.bio}</p>
+                <div className="p-3 sm:p-5 lg:p-6 flex-1 flex flex-col justify-between">
+                  <h3 className="text-sm sm:text-base lg:text-xl font-semibold text-white mb-1">{member.name}</h3>
+                  <p className="text-primary-200 font-medium text-xs sm:text-sm lg:text-base mb-1 sm:mb-3">{member.role}</p>
+                  <p className="text-primary-100 text-xs sm:text-sm lg:text-base">{member.bio}</p>
                 </div>
               </div>
             ))}
@@ -283,7 +283,7 @@ const AboutUsPage = () => {
       </section>
 
       {/* CTA Section */}
-      
+      {/* (If you had a CTA, it would go here, but it's commented out in original) */}
     </div>
   )
 }
