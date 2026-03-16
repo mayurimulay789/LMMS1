@@ -283,7 +283,7 @@ const CertificateVerificationPage = () => {
                     className="btn btn-primary flex items-center justify-center space-x-2"
                   >
                     <Download className="h-4 w-4" />
-                    <span>View Certificate PDFfff</span>
+                    <span>View Certificate PDF</span>
                   </button>
                   <a
                     href={certificate.verificationUrl}
