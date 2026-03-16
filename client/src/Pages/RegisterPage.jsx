@@ -9,7 +9,6 @@ import {
   Mail,
   Lock,
   User,
-  BookOpen,
   CheckCircle,
 } from "lucide-react"
 import { registerUser, clearError } from "../store/slices/authSlice"
@@ -36,11 +35,13 @@ const RegisterPage = () => {
   const { isLoading, error } = useSelector((state) => state.auth)
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    window.scrollTo(0, 0)
+  }, [])
 
+  // Countdown timer for redirect after successful registration
   useEffect(() => {
     if (!showSuccessPopup) return
+
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -51,11 +52,15 @@ const RegisterPage = () => {
         return prev - 1
       })
     }, 1000)
+
     return () => clearInterval(timer)
   }, [showSuccessPopup])
 
   const handleRedirect = () => {
-    navigate("/dashboard", { replace: true })
+    navigate("/emailVerificationPage", {
+      state: { email: formData.email },
+      replace: true,
+    })
   }
 
   useEffect(() => {
@@ -82,23 +87,36 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validateForm()) return
+
     const { confirmPassword, ...payload } = formData
-    await dispatch(registerUser(payload))
-    setShowSuccessPopup(true)
+
+    const result = await dispatch(registerUser(payload))
+
+    if (registerUser.fulfilled.match(result)) {
+      // Store email in localStorage for OTP verification page
+      localStorage.setItem("pendingVerificationEmail", formData.email)
+      // Show success popup with OTP message
+      setShowSuccessPopup(true)
+    }
+    // If registration fails, error is displayed from Redux state
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 flex  justify-center px-4 py-10">
-      {/* Success Modal */}
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 flex justify-center px-4 py-10">
+      {/* Success Modal – OTP sent */}
       {showSuccessPopup && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex  justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm text-center">
             <CheckCircle className="w-14 h-14 text-green-600 mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">
-              Registration Successful
+              Registration Successful!
             </h3>
+            <p className="text-gray-600 mb-2">
+              A verification code (OTP) has been sent to{" "}
+              <span className="font-medium">{formData.email}</span>.
+            </p>
             <p className="text-gray-600 mb-4">
-              Redirecting in {countdown} seconds...
+              Redirecting to verification page in {countdown} seconds...
             </p>
             <button
               onClick={handleRedirect}
@@ -111,15 +129,14 @@ const RegisterPage = () => {
       )}
 
       <div className="w-full max-w-lg">
-        {/* Logo */}
+        {/* Header */}
         <div className="text-center mb-8">
-          
-          <p className="text-red-800 text-xl ">
+          <p className="text-red-800 text-xl">
             Create your account and start learning today!
           </p>
         </div>
 
-        {/* Card */}
+        {/* Registration Card */}
         <div className="bg-white rounded-2xl shadow-xl px-8 py-4">
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-2">
@@ -128,7 +145,7 @@ const RegisterPage = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Input Field */}
+            {/* Name & Email */}
             {[
               {
                 label: "Full Name",
@@ -158,21 +175,17 @@ const RegisterPage = () => {
                     onChange={handleChange}
                     placeholder={placeholder}
                     className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-rose-500 outline-none ${
-                      errors[name]
-                        ? "border-red-800"
-                        : "border-gray-300"
+                      errors[name] ? "border-red-800" : "border-gray-300"
                     }`}
                   />
                 </div>
                 {errors[name] && (
-                  <p className="text-xs text-red-600 mt-1">
-                    {errors[name]}
-                  </p>
+                  <p className="text-xs text-red-600 mt-1">{errors[name]}</p>
                 )}
               </div>
             ))}
 
-            {/* Password */}
+            {/* Password & Confirm Password */}
             {[
               {
                 label: "Password",
@@ -199,9 +212,7 @@ const RegisterPage = () => {
                     value={formData[name]}
                     onChange={handleChange}
                     className={`w-full pl-10 pr-12 py-3 rounded-lg border focus:ring-2 focus:ring-rose-500 outline-none ${
-                      errors[name]
-                        ? "border-red-500"
-                        : "border-gray-300"
+                      errors[name] ? "border-red-500" : "border-gray-300"
                     }`}
                   />
                   <button
@@ -213,14 +224,12 @@ const RegisterPage = () => {
                   </button>
                 </div>
                 {errors[name] && (
-                  <p className="text-xs text-red-800 mt-1">
-                    {errors[name]}
-                  </p>
+                  <p className="text-xs text-red-800 mt-1">{errors[name]}</p>
                 )}
               </div>
             ))}
 
-            {/* Terms */}
+            {/* Terms Agreement */}
             <label className="flex items-center gap-2 text-sm text-gray-600">
               <input type="checkbox" required />
               I agree to the{" "}
@@ -233,16 +242,17 @@ const RegisterPage = () => {
               </Link>
             </label>
 
-            {/* Submit */}
+            {/* Submit Button */}
             <button
+              type="submit"
               disabled={isLoading}
-              className="w-full bg-red-800 hover:bg-red-800 text-white py-3 rounded-lg font-semibold transition shadow-md"
+              className="w-full bg-red-800 hover:bg-red-800 text-white py-3 rounded-lg font-semibold transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Creating account..." : "Create Account"}
             </button>
           </form>
 
-          {/* Footer */}
+          {/* Login Link */}
           <p className="text-center text-sm text-gray-600 mt-6">
             Already have an account?{" "}
             <Link to="/login" className="text-rose-700 font-medium">

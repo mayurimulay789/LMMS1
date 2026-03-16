@@ -1,6 +1,7 @@
-const mongoose = require("mongoose")
-const bcrypt = require("bcryptjs")
-const crypto = require("crypto")
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -34,7 +35,7 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: {
       validator: function(v) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
       },
       message: props => `${props.value} is not a valid email address!`
     }
@@ -97,15 +98,21 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: function(v) {
-        if (!v) return true
+        if (!v) return true;
         const digits = v.replace(/\D/g, '');
         return digits.length >= 10;
       },
       message: props => `${props.value} is not a valid phone number! Must have at least 10 digits.`
     }
   },
+  // Email verification fields
+  emailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailVerifiedAt: Date,
   passwordResetToken: String,
-  passwordResetExpires: Date, 
+  passwordResetExpires: Date,
   otp: {
     type: String,
     select: false
@@ -136,7 +143,7 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  accountLockedUntil: Date, 
+  accountLockedUntil: Date,
   loginHistory: [{
     ip: String,
     userAgent: String,
@@ -156,166 +163,212 @@ const userSchema = new mongoose.Schema({
   },
   lastLoginAt: Date,
   lastActiveAt: Date,
-})
+});
+
+// Pre-save hooks
 userSchema.pre('save', function(next) {
-  this.updatedAt = Date.now()
+  this.updatedAt = Date.now();
   if (!this.referralCode) {
-    this.referralCode = crypto.randomBytes(4).toString('hex').toUpperCase()
+    this.referralCode = crypto.randomBytes(4).toString('hex').toUpperCase();
   }
-  next()
-})
+  next();
+});
+
 userSchema.pre("save", async function (next) {
-  if (this.isOAuthUser || !this.isModified("password")) return next()
-  try {
-    const salt = await bcrypt.genSalt(10)
-    this.password = await bcrypt.hash(this.password, salt)
-    this.lastPasswordChange = Date.now()
-    next()
-  } catch (error) {
-    next(error)
+  // If OAuth user, email is considered verified by the provider
+  if (this.isOAuthUser) {
+    this.emailVerified = true;
   }
-})
+
+  if (this.isOAuthUser || !this.isModified("password")) return next();
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    this.lastPasswordChange = Date.now();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Virtuals
 userSchema.virtual('fullName').get(function() {
-  return this.name
-})
+  return this.name;
+});
+
 userSchema.virtual('profileUrl').get(function() {
   if (this.profile.avatar) {
     if (this.profile.avatar.startsWith('http')) {
-      return this.profile.avatar
+      return this.profile.avatar;
     }
-    return `${process.env.APP_URL || ''}/uploads/profiles/${this.profile.avatar}`
+    return `${process.env.APP_URL || ''}/uploads/profiles/${this.profile.avatar}`;
   }
-  const initials = this.name.split(' ').map(n => n[0]).join('').toUpperCase()
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=random&color=fff`
-})
+  const initials = this.name.split(' ').map(n => n[0]).join('').toUpperCase();
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=random&color=fff`;
+});
+
+// Password methods
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  if (!this.password) return false
-  return await bcrypt.compare(candidatePassword, this.password)
-}
+  if (!this.password) return false;
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
 userSchema.methods.isAdmin = function() {
-  return this.role === 'admin'
-}
+  return this.role === 'admin';
+};
+
 userSchema.methods.isInstructor = function() {
-  return this.role === 'instructor'
-}
+  return this.role === 'instructor';
+};
+
+// OTP methods
 userSchema.methods.generateOTP = function() {
-  const otp = Math.floor(100000 + Math.random() * 900000).toString()
-  this.otp = crypto.createHash('sha256').update(otp).digest('hex')
-  this.otpExpires = Date.now() + 10 * 60 * 1000 // 10 minutes
-  this.otpAttempts = 0
-  this.otpBlockedUntil = null
-  return otp
-}
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.otp = crypto.createHash('sha256').update(otp).digest('hex');
+  this.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  this.otpAttempts = 0;
+  this.otpBlockedUntil = null;
+  return otp;
+};
+
 userSchema.methods.verifyOTP = async function(candidateOTP) {
   if (this.otpBlockedUntil && this.otpBlockedUntil > Date.now()) {
     return {
       valid: false,
       message: `OTP verification is blocked until ${new Date(this.otpBlockedUntil).toLocaleString()}`,
       blocked: true
-    }
+    };
   }
+
   if (!this.otp || !this.otpExpires || this.otpExpires < Date.now()) {
     return {
       valid: false,
       message: "OTP has expired or doesn't exist",
       expired: true
-    }
+    };
   }
-  const hashedOTP = crypto.createHash('sha256').update(candidateOTP).digest('hex')
+
+  const hashedOTP = crypto.createHash('sha256').update(candidateOTP).digest('hex');
   if (hashedOTP !== this.otp) {
-    this.otpAttempts += 1
+    this.otpAttempts += 1;
     if (this.otpAttempts >= 5) {
-      this.otpBlockedUntil = Date.now() + 5 * 60 * 1000 // 15 minutes
-      await this.save()
+      this.otpBlockedUntil = Date.now() + 5 * 60 * 1000; // 5 minutes
+      await this.save();
       return {
         valid: false,
         message: "Too many failed attempts. OTP verification is blocked for 5 minutes.",
         blocked: true
-      }
+      };
     }
-    await this.save()
+    await this.save();
     return {
       valid: false,
       message: `Invalid OTP. ${5 - this.otpAttempts} attempts remaining.`,
       attemptsLeft: 5 - this.otpAttempts
-    }
+    };
   }
-  this.otp = undefined
-  this.otpExpires = undefined
-  this.otpAttempts = 0
-  this.otpBlockedUntil = undefined
-  
-  await this.save()
+
+  this.otp = undefined;
+  this.otpExpires = undefined;
+  this.otpAttempts = 0;
+  this.otpBlockedUntil = undefined;
+
+  await this.save();
   return {
     valid: true,
     message: "OTP verified successfully"
+  };
+};
+
+// New method: verify email OTP and mark email as verified
+userSchema.methods.verifyEmailOTP = async function(candidateOTP) {
+  const result = await this.verifyOTP(candidateOTP);
+  if (result.valid) {
+    this.emailVerified = true;
+    this.emailVerifiedAt = Date.now();
+    await this.save();
   }
-}
+  return result;
+};
+
 userSchema.methods.clearOTP = async function() {
-  this.otp = undefined
-  this.otpExpires = undefined
-  this.otpAttempts = 0
-  this.otpBlockedUntil = undefined
-  return this.save()
-}
+  this.otp = undefined;
+  this.otpExpires = undefined;
+  this.otpAttempts = 0;
+  this.otpBlockedUntil = undefined;
+  return this.save();
+};
+
+// Password reset methods
 userSchema.methods.createPasswordResetToken = function() {
-  const resetToken = crypto.randomBytes(32).toString('hex')
+  const resetToken = crypto.randomBytes(32).toString('hex');
   this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
-    .digest('hex')
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000 // 10 minutes
-  return resetToken
-}
+    .digest('hex');
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  return resetToken;
+};
+
 userSchema.methods.verifyPasswordResetToken = function(token) {
-  if (!this.passwordResetToken || !this.passwordResetExpires) return false
+  if (!this.passwordResetToken || !this.passwordResetExpires) return false;
   const hashedToken = crypto
     .createHash('sha256')
     .update(token)
-    .digest('hex')
+    .digest('hex');
   return (
     this.passwordResetToken === hashedToken &&
     this.passwordResetExpires > Date.now()
-  )
-}
+  );
+};
+
 userSchema.methods.clearPasswordResetToken = function() {
-  this.passwordResetToken = undefined
-  this.passwordResetExpires = undefined
-  return this
-}
+  this.passwordResetToken = undefined;
+  this.passwordResetExpires = undefined;
+  return this;
+};
+
+// Account lock methods
 userSchema.methods.isAccountLocked = function() {
-  return this.accountLockedUntil && this.accountLockedUntil > Date.now()
-}
+  return this.accountLockedUntil && this.accountLockedUntil > Date.now();
+};
+
 userSchema.methods.recordLoginAttempt = async function(success, ip, userAgent) {
   if (success) {
-    this.failedLoginAttempts = 0
-    this.accountLockedUntil = undefined
-    this.lastLoginAt = Date.now()
-    this.lastActiveAt = Date.now()
+    this.failedLoginAttempts = 0;
+    this.accountLockedUntil = undefined;
+    this.lastLoginAt = Date.now();
+    this.lastActiveAt = Date.now();
     this.loginHistory.unshift({ 
       ip: ip || 'Unknown', 
       userAgent: userAgent || 'Unknown', 
       timestamp: Date.now() 
-    })
+    });
     if (this.loginHistory.length > 10) {
-      this.loginHistory = this.loginHistory.slice(0, 10)
+      this.loginHistory = this.loginHistory.slice(0, 10);
     }
   } else {
-    this.failedLoginAttempts += 1
+    this.failedLoginAttempts += 1;
     if (this.failedLoginAttempts >= 5) {
-      this.accountLockedUntil = Date.now() + 5 * 60 * 1000 // 15 minutes
+      this.accountLockedUntil = Date.now() + 5 * 60 * 1000; // 5 minutes
     }
   }
-  return this.save()
-}
+  return this.save();
+};
+
 userSchema.methods.updateLastActive = function() {
-  this.lastActiveAt = Date.now()
-  return this.save({ validateBeforeSave: false })
-}
+  this.lastActiveAt = Date.now();
+  return this.save({ validateBeforeSave: false });
+};
+
+// Static methods
 userSchema.statics.findByEmail = function(email) {
-  return this.findOne({ email: email.toLowerCase().trim() })
-}
+  return this.findOne({ email: email.toLowerCase().trim() });
+};
+
 userSchema.statics.findByReferralCode = function(code) {
-  return this.findOne({ referralCode: code })
-}
-module.exports = mongoose.model("User", userSchema)
+  return this.findOne({ referralCode: code });
+};
+
+module.exports = mongoose.model("User", userSchema);
