@@ -439,7 +439,6 @@ const CheckoutPage = () => {
                   </span>
                 </div>
               )}
-
               {error && error.includes("promo") && (
                 <div className="flex items-center p-3 mt-3 space-x-2 border border-red-200 rounded-lg bg-red-50">
                   <X className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" />
