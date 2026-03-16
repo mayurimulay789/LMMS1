@@ -602,7 +602,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Recent Certificates */}
-          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 hover:shadow-md transition-shadow duration-200">
+          {/* <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 hover:shadow-md transition-shadow duration-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-gray-900 md:text-lg">Recent Certificates</h3>
               <Link 
@@ -676,7 +676,7 @@ const DashboardPage = () => {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
         </div>
 
         {/* Mobile Bottom Bar */}
