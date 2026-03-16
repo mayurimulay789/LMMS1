@@ -43,7 +43,7 @@ const Footer = () => {
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-3 sm:space-y-4 lg:max-w-[300px]">
             <Link to="/" className="inline-block">
               <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-transparent bg-gradient-to-r from-primary-800 to-primary-700 bg-clip-text">
-                RYMA Academy
+                RYMA ACADEMY
               </span>
               <p className="mt-1 text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">
                 Learn. Grow. Lead

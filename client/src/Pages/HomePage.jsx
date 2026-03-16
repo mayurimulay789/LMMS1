@@ -55,21 +55,21 @@ const HomePage = () => {
 		try {
 			const result = await apiRequest("courses/meta/featured-all")
 
-			   let coursesArray = [];
-			   // Handle API response structure
-			   if (result && result.data && Array.isArray(result.data.courses)) {
-				   coursesArray = result.data.courses;
-			   } else if (result && Array.isArray(result.data)) {
-				   coursesArray = result.data;
-			   } else if (Array.isArray(result)) {
-				   coursesArray = result;
-			   } else if (result && Array.isArray(result.courses)) {
-				   coursesArray = result.courses;
-			   } else {
-				   console.warn("API response for featured courses was not a standard array or object with a 'data'/'courses' array:", result);
-				   coursesArray = [];
-			   }
-			   setFeaturedCourses(coursesArray);
+			let coursesArray = [];
+			// Handle API response structure
+			if (result && result.data && Array.isArray(result.data.courses)) {
+				coursesArray = result.data.courses;
+			} else if (result && Array.isArray(result.data)) {
+				coursesArray = result.data;
+			} else if (Array.isArray(result)) {
+				coursesArray = result;
+			} else if (result && Array.isArray(result.courses)) {
+				coursesArray = result.courses;
+			} else {
+				console.warn("API response for featured courses was not a standard array or object with a 'data'/'courses' array:", result);
+				coursesArray = [];
+			}
+			setFeaturedCourses(coursesArray);
 
 		} catch (error) {
 			console.error("Error fetching featured courses:", error)
@@ -78,6 +78,9 @@ const HomePage = () => {
 			setIsLoading(false)
 		}
 	}
+	const handleLookOnline = () => {
+		window.open("https://rymaacademy.com/", "_blank");
+	};
 	// ------------------------------------------------------------------
 
 	const features = [
@@ -101,62 +104,59 @@ const HomePage = () => {
 		<div className="min-h-screen">
 			{/* Hero Section */}
 			<section className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden">
-  {/* Background Image */}
-  <img
-    src="/banner-three-img1.png"
-    alt="Hero"
-    className="absolute inset-0 w-full h-full object-cover"
-  />
+				{/* Background Image */}
+				<img
+					src="/banner-three-img1.png"
+					alt="Hero"
+					className="absolute inset-0 w-full h-full object-cover"
+				/>
 
-  {/* Dark Gradient Overlay */}
-  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+				{/* Dark Gradient Overlay */}
+				<div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
 
-  {/* Content on Image */}
-  <div className="relative z-10 flex items-center h-full">
-    <div className="w-full max-w-7xl px-4 sm:px-6 md:px-12 mx-auto">
-      <div className="max-w-2xl text-left">
-        
-        {/* Brand */}
-        <div className="flex items-center mb-4 space-x-2">
-          <span className="inline-block w-3 h-3 bg-blue-500 rounded-sm"></span>
-          <span className="text-yellow-400 font-semibold tracking-wide text-sm sm:text-base">
-            RYMA ACADEMY
-          </span>
-        </div>
+				{/* Content on Image */}
+				<div className="relative z-10 flex items-center h-full">
+					<div className="w-full max-w-7xl px-4 sm:px-6 md:px-12 mx-auto">
+						<div className="max-w-2xl text-left">
 
-        {/* Heading */}
-        <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold leading-tight text-white">
-          AI-Powered <br />
-          <span className="text-yellow-400">Digital Marketing</span> <br />
-          Course
-        </h1>
+							{/* Brand */}
+							<div className="flex items-center mb-4 space-x-2">
+								<span className="text-yellow-400 font-semibold tracking-wide text-sm sm:text-base">
+									RYMA ACADEMY
+								</span>
+							</div>
 
-        {/* Description */}
-        <p className="mt-4 sm:mt-6 text-xs sm:text-sm md:text-base text-gray-200 max-w-xl">
-          Welcome to RYMA ACADEMY, Learn modern digital marketing using AI tools for
-          smarter campaigns, automation, analytics, and faster business growth.
-        </p>
+							{/* Heading */}
+							<h1 className="text-3xl sm:text-4xl md:text-6xl font-bold leading-tight text-white">
+								AI-Powered <br />
+								<span className="text-yellow-400">Digital Marketing</span> <br />
+								Course
+							</h1>
 
-        {/* Buttons */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-  <Link to="/courses">
-    <button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-blue-600 rounded-full hover:bg-blue-700 text-sm sm:text-base">
-      Find Courses →
-    </button>
-  </Link>
+							{/* Description */}
+							<p className="mt-4 sm:mt-6 text-xs sm:text-sm md:text-base text-gray-200 max-w-xl">
+								Welcome to RYMA ACADEMY, Learn modern digital marketing using AI tools for
+								smarter campaigns, automation, analytics, and faster business growth.
+							</p>
 
-  <Link to="/courses">
-    <button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-orange-500 rounded-full hover:bg-orange-600 text-sm sm:text-base">
-      ▶ Look Offline
-    </button>
-  </Link>
-</div>
+							{/* Buttons */}
+							<div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
+								<Link to="/courses">
+									<button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-blue-600 rounded-full hover:bg-blue-700 text-sm sm:text-base">
+										Find Courses →
+									</button>
+								</Link>
+
+								<button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-orange-500 rounded-full hover:bg-orange-600 text-sm sm:text-base" onClick={handleLookOnline}>
+									Look Offline
+								</button>
+							</div>
 
 
-      </div>
-    </div>
-  </div>
-</section>
+						</div>
+					</div>
+				</div>
+			</section>
 
 
 			{/* RYMA Academy Promotional Section */}
@@ -432,7 +432,7 @@ const HomePage = () => {
 
 			{/* Testimonials Section */}
 			<section className="py-8 bg-white sm:py-10 md:py-12 lg:py-20">
-  <style>{`
+				<style>{`
     @keyframes marquee {
       0% {
         transform: translateX(0);
@@ -461,98 +461,98 @@ const HomePage = () => {
     }
   `}</style>
 
-  <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      viewport={{ once: true }}
-      className="mb-6 text-center sm:mb-8 md:mb-16"
-    >
-      <h2 className="mb-2 text-xl font-bold text-black sm:text-2xl md:text-3xl lg:text-4xl">
-        What Our Students Say
-      </h2>
-      <p className="max-w-3xl mx-auto text-sm text-gray-700 sm:text-base md:text-xl">
-        Join thousands of successful learners who transformed their careers
-      </p>
-    </motion.div>
+				<div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+					<motion.div
+						initial={{ opacity: 0, y: 50 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.8 }}
+						viewport={{ once: true }}
+						className="mb-6 text-center sm:mb-8 md:mb-16"
+					>
+						<h2 className="mb-2 text-xl font-bold text-black sm:text-2xl md:text-3xl lg:text-4xl">
+							What Our Students Say
+						</h2>
+						<p className="max-w-3xl mx-auto text-sm text-gray-700 sm:text-base md:text-xl">
+							Join thousands of successful learners who transformed their careers
+						</p>
+					</motion.div>
 
-    {/* Desktop/TABLET - Single Row Marquee (3 cards visible at once) */}
-    <div className="hidden md:block overflow-hidden py-4">
-      <div className="flex animate-marquee-desktop">
-        {/* Triple the testimonials for seamless loop */}
-        {[...testimonials, ...testimonials, ...testimonials].map((testimonial, index) => (
-          <div
-            key={index}
-            className="w-[calc(33.33%-1rem)] mx-2 p-6 bg-primary-800 text-white border border-gray-100 shadow-lg rounded-xl flex-shrink-0 flex flex-col min-h-[250px]"
-          >
-            <p className="mb-6 text-base italic flex-grow">
-              &ldquo;{testimonial.content}&rdquo;
-            </p>
-            <div className="flex items-center space-x-4 mt-auto">
-              <img
-                src={testimonial.avatar || "/placeholder.svg"}
-                alt={testimonial.name}
-                className="object-cover w-10 h-10 rounded-full md:w-12 md:h-12"
-              />
-              <div>
-                <div className="text-sm font-semibold text-white md:text-base">
-                  {testimonial.name}
-                </div>
-                <div className="text-sm text-white">
-                  {testimonial.role}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+					{/* Desktop/TABLET - Single Row Marquee (3 cards visible at once) */}
+					<div className="hidden md:block overflow-hidden py-4">
+						<div className="flex animate-marquee-desktop">
+							{/* Triple the testimonials for seamless loop */}
+							{[...testimonials, ...testimonials, ...testimonials].map((testimonial, index) => (
+								<div
+									key={index}
+									className="w-[calc(33.33%-1rem)] mx-2 p-6 bg-primary-800 text-white border border-gray-100 shadow-lg rounded-xl flex-shrink-0 flex flex-col min-h-[250px]"
+								>
+									<p className="mb-6 text-base italic flex-grow">
+										&ldquo;{testimonial.content}&rdquo;
+									</p>
+									<div className="flex items-center space-x-4 mt-auto">
+										<img
+											src={testimonial.avatar || "/placeholder.svg"}
+											alt={testimonial.name}
+											className="object-cover w-10 h-10 rounded-full md:w-12 md:h-12"
+										/>
+										<div>
+											<div className="text-sm font-semibold text-white md:text-base">
+												{testimonial.name}
+											</div>
+											<div className="text-sm text-white">
+												{testimonial.role}
+											</div>
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
 
-    {/* MOBILE - Single Row Marquee (1 card visible at once) */}
-    <div className="md:hidden overflow-hidden py-4">
-      <div className="flex animate-marquee-mobile">
-        {/* Double the testimonials for seamless loop */}
-        {[...testimonials, ...testimonials].map((testimonial, index) => (
-          <div
-            key={index}
-            className="w-[85vw] mx-2 p-6 bg-primary-800 text-white border border-gray-100 shadow-lg rounded-xl flex-shrink-0 flex flex-col min-h-[220px]"
-          >
-            <p className="mb-4 text-sm italic flex-grow">
-              &ldquo;{testimonial.content}&rdquo;
-            </p>
-            <div className="flex items-center space-x-3 mt-auto">
-              <img
-                src={testimonial.avatar || "/placeholder.svg"}
-                alt={testimonial.name}
-                className="object-cover w-8 h-8 rounded-full"
-              />
-              <div>
-                <div className="text-xs font-semibold text-white">
-                  {testimonial.name}
-                </div>
-                <div className="text-xs text-white">
-                  {testimonial.role}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+					{/* MOBILE - Single Row Marquee (1 card visible at once) */}
+					<div className="md:hidden overflow-hidden py-4">
+						<div className="flex animate-marquee-mobile">
+							{/* Double the testimonials for seamless loop */}
+							{[...testimonials, ...testimonials].map((testimonial, index) => (
+								<div
+									key={index}
+									className="w-[85vw] mx-2 p-6 bg-primary-800 text-white border border-gray-100 shadow-lg rounded-xl flex-shrink-0 flex flex-col min-h-[220px]"
+								>
+									<p className="mb-4 text-sm italic flex-grow">
+										&ldquo;{testimonial.content}&rdquo;
+									</p>
+									<div className="flex items-center space-x-3 mt-auto">
+										<img
+											src={testimonial.avatar || "/placeholder.svg"}
+											alt={testimonial.name}
+											className="object-cover w-8 h-8 rounded-full"
+										/>
+										<div>
+											<div className="text-xs font-semibold text-white">
+												{testimonial.name}
+											</div>
+											<div className="text-xs text-white">
+												{testimonial.role}
+											</div>
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
 
-    {/* Navigation Dots (Optional) */}
-    <div className="flex justify-center mt-6 space-x-2">
-      {testimonials.map((_, index) => (
-        <div
-          key={index}
-          className="w-2 h-2 rounded-full bg-gray-300"
-        />
-      ))}
-    </div>
+					{/* Navigation Dots (Optional) */}
+					<div className="flex justify-center mt-6 space-x-2">
+						{testimonials.map((_, index) => (
+							<div
+								key={index}
+								className="w-2 h-2 rounded-full bg-gray-300"
+							/>
+						))}
+					</div>
 
-  </div>
-</section>
+				</div>
+			</section>
 
 
 
