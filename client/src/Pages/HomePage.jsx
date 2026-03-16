@@ -115,19 +115,10 @@ const HomePage = () => {
 				{/* Dark Gradient Overlay */}
 				<div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
 
-  {/* Content on Image */}
-  <div className="relative z-10 flex items-center h-full">
-    <div className="w-full max-w-7xl px-4 sm:px-6 md:px-12 mx-auto">
-      <div className="max-w-2xl text-left">
-        
-        {/* Brand */}
-        <div className="flex items-center mb-4 space-x-2">
-      
-          <span className="text-yellow-400 font-semibold tracking-wide text-sm sm:text-base">
-            RYMA ACADEMY
-          </span>
-        </div>
-
+				{/* Content on Image */}
+				<div className="relative z-10 flex items-center h-full">
+					<div className="w-full max-w-7xl px-4 sm:px-6 md:px-12 mx-auto">
+						<div className="max-w-2xl text-left">
 							{/* Brand */}
 							<div className="flex items-center mb-4 space-x-2">
 								<span className="text-yellow-400 font-semibold tracking-wide text-sm sm:text-base">
@@ -142,17 +133,17 @@ const HomePage = () => {
 								Course
 							</h1>
 
-        {/* Buttons */}
-		<div className="flex flex-nowrap items-center gap-4 mt-6 sm:mt-8">
-  <Link to="/courses">
-    <button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base hover:text-white">
-      Find Courses →
-    </button>
-  </Link>
-    <button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 hover:text-white text-sm sm:text-base" onClick={handleLookOnline}>
-      Look Offline
-    </button>
-</div>
+							{/* Buttons */}
+							<div className="flex flex-nowrap items-center gap-4 mt-6 sm:mt-8">
+								<Link to="/courses">
+									<button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base hover:text-white">
+										Find Courses →
+									</button>
+								</Link>
+								<button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 hover:text-white text-sm sm:text-base" onClick={handleLookOnline}>
+									Look Offline
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -276,7 +267,7 @@ const HomePage = () => {
 								style={{ background: '#890C25' }}
 							>
 								<div className="flex items-center justify-center w-10 h-10 mb-2 bg-white rounded-lg sm:w-12 sm:h-12 md:w-16 md:h-16">
-									   <feature.icon className="w-5 h-5 text-primary-800 sm:w-6 sm:h-6 md:h-8 md:w-8" />
+									<feature.icon className="w-5 h-5 text-primary-800 sm:w-6 sm:h-6 md:h-8 md:w-8" />
 								</div>
 								<h3 className="mb-1 text-sm font-semibold leading-tight text-white sm:text-base md:text-xl">{feature.title}</h3>
 								<p className="text-xs text-white sm:text-sm">{feature.description}</p>
