@@ -275,7 +275,7 @@ router.post("/users", async (req, res) => {
       email,
       password,
       role: role || "student",
-      isEmailVerified: true, // Admin created users are verified by default
+      emailVerified: true, // Admin created users are verified by default
     })
 
     await user.save()

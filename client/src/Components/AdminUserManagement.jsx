@@ -515,12 +515,12 @@ const AdminUserManagement = () => {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          user.isEmailVerified 
+                          user.emailVerified 
                             ? 'bg-green-100 text-green-800 border border-green-200' 
                             : 'bg-red-100 text-red-800 border border-red-200'
                         }`}>
-                          {user.isEmailVerified ? <UserCheck size={12} /> : <UserX size={12} />}
-                          {user.isEmailVerified ? 'Verified' : 'Unverified'}
+                          {user.emailVerified ? <UserCheck size={12} /> : <UserX size={12} />}
+                          {user.emailVerified ? 'Verified' : 'Unverified'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">

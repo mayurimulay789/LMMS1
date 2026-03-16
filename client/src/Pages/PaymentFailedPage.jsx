@@ -213,8 +213,8 @@ const PaymentFailedPage = () => {
 
                 <div className="text-center text-xs sm:text-sm text-gray-600">
                   <p>Or email us directly at:</p>
-                  <a href="mailto:support@Ryma Academy.com" className="text-blue-600 hover:text-blue-800 font-medium break-all">
-                    support@Ryma Academy.com
+                  <a href="mailto:services@rymaacademy.com" className="text-blue-600 hover:text-blue-800 font-medium break-all">
+                    services@rymaacademy.com
                   </a>
                 </div>
               </div>
