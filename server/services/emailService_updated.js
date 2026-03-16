@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
 
- 
+
   host: process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com',
   port: process.env.SMTP_PORT || process.env.EMAIL_PORT || 587,
   secure: true, // true for 465, false for other ports
@@ -834,8 +834,8 @@ const sendTestEmail = async ({ email, name }) => {
 
     const info = await transporter.sendMail(mailOptions);
     console.log('Test email sent successfully:', info.messageId);
-    return { 
-      success: true, 
+    return {
+      success: true,
       messageId: info.messageId,
       message: 'Test email sent successfully. Check your inbox.'
     };
@@ -844,6 +844,202 @@ const sendTestEmail = async ({ email, name }) => {
     throw error;
   }
 };
+
+const sendCoursePurchaseEmail = async ({
+  userEmail,
+  userName,
+  courseTitle,
+  coursePrice,
+  amountPaid,
+  discount,
+  paymentDate,
+  courseThumbnail,
+  courseInstructor,
+}) => {
+  try {
+    console.log('📧 Sending course purchase email to:', userEmail);
+
+    const subject = `🎉 Thank You for Purchasing "${courseTitle}"!`;
+
+    const formattedDate = paymentDate instanceof Date
+      ? paymentDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+      : new Date(paymentDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .content { padding: 30px; }
+          .course-detail { display: flex; gap: 20px; margin-bottom: 25px; background: #f8f9fa; border-radius: 10px; padding: 15px; }
+          .course-thumb { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+          .course-info { flex: 1; }
+          .course-title { font-size: 20px; font-weight: 600; color: #333; margin: 0; }
+          .instructor { color: #666; font-size: 14px; margin: 5px 0 0; }
+          .price-breakdown { background: #f1f8fe; border-radius: 10px; padding: 15px; margin: 25px 0; }
+          .price-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #dde5ed; }
+          .price-row:last-child { border-bottom: none; font-weight: bold; }
+          .total { color: #2e7d32; }
+          .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 12px 30px; border-radius: 50px; font-weight: 600; margin-top: 20px; }
+          .footer { text-align: center; padding: 20px; color: #888; font-size: 14px; border-top: 1px solid #eee; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 Purchase Confirmed!</h1>
+            <p>Hello, ${userName}!</p>
+          </div>
+          <div class="content">
+            <p>Thank you for enrolling in the course:</p>
+            <div class="course-detail">
+              <img src="${courseThumbnail || 'https://via.placeholder.com/100x100?text=Course'}" alt="${courseTitle}" class="course-thumb" />
+              <div class="course-info">
+                <h2 class="course-title">${courseTitle}</h2>
+                <p class="instructor">👨‍🏫 Instructor: ${courseInstructor || 'Our Team'}</p>
+              </div>
+            </div>
+            <div class="price-breakdown">
+              <h3>Payment Summary</h3>
+              <div class="price-row"><span>Course Price:</span><span>₹${coursePrice.toFixed(2)}</span></div>
+              <div class="price-row"><span>Discount:</span><span style="color:#e67e22;">- ₹${discount.toFixed(2)}</span></div>
+              <div class="price-row total"><span>Amount Paid:</span><span>₹${amountPaid.toFixed(2)}</span></div>
+              <div class="price-row"><span>Payment Date:</span><span>${formattedDate}</span></div>
+            </div>
+            <p style="text-align: center;">
+              <a href="${process.env.FRONTEND_URL || '#'}/dashboard" class="button">Go to Dashboard</a>
+            </p>
+            <p style="text-align: center;">Happy Learning!<br><strong>Team RYMAACADEMY</strong></p>
+          </div>
+          <div class="footer">
+            &copy; ${new Date().getFullYear()} RYMAACADEMY. All rights reserved.<br>
+            Contact: <a href="mailto:services@rymaacademy.com" style="color: #888; text-decoration: underline;">services@rymaacademy.com</a>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: userEmail,
+      subject,
+      html,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Course purchase email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('❌ Error sending course purchase email:', error);
+    throw error;
+  }
+};
+
+const sendAdminCoursePurchaseNotification = async ({
+  userEmail,
+  userName,
+  userId,
+  courseTitle,
+  coursePrice,
+  amountPaid,
+  discount,
+  paymentDate,
+  courseId,
+  paymentId,
+}) => {
+  try {
+    const adminEmails = process.env.ADMIN_EMAILS || 'admin@rymaacademy.com';
+    const recipients = adminEmails.split(',').map(e => e.trim());
+
+    const subject = `🛒 New Course Purchase: ${userName} - ${courseTitle}`;
+
+    const formattedDate = paymentDate instanceof Date
+      ? paymentDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : new Date(paymentDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
+          .header h2 { margin: 0; font-size: 24px; }
+          .content { padding: 30px; }
+          .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid #eee; }
+          .detail-label { width: 140px; font-weight: 600; color: #555; }
+          .detail-value { flex: 1; color: #333; }
+          .price-breakdown { background: #f1f8fe; border-radius: 10px; padding: 15px; margin: 20px 0; }
+          .price-row { display: flex; justify-content: space-between; padding: 8px 0; }
+          .total { font-weight: bold; color: #2e7d32; }
+          .link-button { display: inline-block; background: #4f46e5; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin-top: 20px; }
+          .footer { text-align: center; padding: 20px; color: #888; font-size: 14px; border-top: 1px solid #eee; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>📦 New Course Purchase</h2>
+          </div>
+          <div class="content">
+            <p>A user has successfully purchased a course. Details below:</p>
+            <div class="detail-row"><span class="detail-label">User:</span><span class="detail-value">${userName} (${userEmail})</span></div>
+            <div class="detail-row"><span class="detail-label">User ID:</span><span class="detail-value">${userId}</span></div>
+            <div class="detail-row"><span class="detail-label">Course:</span><span class="detail-value">${courseTitle}</span></div>
+            <div class="detail-row"><span class="detail-label">Course ID:</span><span class="detail-value">${courseId}</span></div>
+            <div class="detail-row"><span class="detail-label">Payment ID:</span><span class="detail-value">${paymentId}</span></div>
+            <div class="price-breakdown">
+              <h3>💰 Payment Summary</h3>
+              <div class="price-row"><span>Course Price:</span><span>₹${coursePrice.toFixed(2)}</span></div>
+              <div class="price-row"><span>Discount:</span><span style="color:#e67e22;">- ₹${discount.toFixed(2)}</span></div>
+              <div class="price-row total"><span>Amount Paid:</span><span>₹${amountPaid.toFixed(2)}</span></div>
+              <div class="price-row"><span>Payment Date:</span><span>${formattedDate}</span></div>
+            </div>
+            <p style="text-align: center;">
+              <a href="${process.env.ADMIN_DASHBOARD_URL || '#'}/orders" class="link-button">View in Admin Panel</a>
+            </p>
+          </div>
+          <div class="footer">
+            This is an automated notification from RYMAACADEMY.<br>
+            Contact: <a href="mailto:services@rymaacademy.com" style="color: #888; text-decoration: underline;">services@rymaacademy.com</a>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const results = [];
+    for (const email of recipients) {
+      try {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject,
+          html,
+        };
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`✅ Admin notification sent to ${email}:`, info.messageId);
+        results.push({ email, success: true, messageId: info.messageId });
+      } catch (err) {
+        console.error(`❌ Failed to send admin email to ${email}:`, err.message);
+        results.push({ email, success: false, error: err.message });
+      }
+    }
+    return { success: true, results };
+  } catch (error) {
+    console.error('❌ Error in admin notification function:', error);
+    throw error;
+  }
+};
+
 
 module.exports = {
   sendInstructorApplicationEmail,
@@ -859,4 +1055,6 @@ module.exports = {
   sendEmailVerificationEmail,
   sendPasswordChangedNotification,
   sendTestEmail,
+  sendCoursePurchaseEmail,
+  sendAdminCoursePurchaseNotification,
 };
