@@ -55,7 +55,7 @@ const sendInstructorApplicationEmail = async (applicationData) => {
             <li>Successful candidates will receive instructor onboarding materials</li>
           </ol>
 
-          <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:support@learnhub.com">support@learnhub.com</a>.</p>
+          <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:services@rymaacademy.com">services@rymaacademy.com</a>.</p>
 
           <p>Best regards,<br>
           <strong>Ryma Academy Team</strong></p>
@@ -184,7 +184,7 @@ const sendInstructorApprovalEmail = async ({ applicantName, email, loginLink }) 
 
           <p>Welcome to the Ryma Academy instructor community! We're excited to have you on board.</p>
 
-          <p>If you have any questions, please contact us at <a href="mailto:support@learnhub.com">support@learnhub.com</a>.</p>
+          <p>If you have any questions, please contact us at <a href="mailto:services@rymaacademy.com">services@rymaacademy.com</a>.</p>
 
           <p>Best regards,<br>
           <strong>Ryma Academy Team</strong></p>
@@ -237,7 +237,7 @@ const sendInstructorRejectionEmail = async ({ applicantName, email }) => {
 
           <p>We appreciate your interest in Ryma Academy and wish you the best in your teaching journey.</p>
 
-          <p>If you have any questions or would like feedback on your application, please contact us at <a href="mailto:support@learnhub.com">support@learnhub.com</a>.</p>
+          <p>If you have any questions or would like feedback on your application, please contact us at <a href="mailto:services@rymaacademy.com">services@rymaacademy.com</a>.</p>
 
           <p>Best regards,<br>
           <strong>Ryma Academy Team</strong></p>
