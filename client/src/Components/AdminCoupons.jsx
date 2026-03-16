@@ -360,7 +360,7 @@ const AdminCoupons = () => {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="bg-green-500/20 border border-green-500 text-green-300 px-4 py-3 rounded-lg mb-4 flex items-center gap-2"
+              className="bg-green-500 border border-green-300 text-black px-4 py-3 rounded-lg mb-4 flex items-center gap-2"
             >
               <Check size={20} />
               {successMessage}

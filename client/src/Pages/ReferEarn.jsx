@@ -1,5 +1,6 @@
 // pages/ReferEarn.jsx
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Copy, Share2, Users, Award, UserPlus, CreditCard, Gift, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 import axios from 'axios';
 
@@ -50,25 +51,25 @@ const ReferEarn = () => {
     {
       step: 1,
       title: "Sign Up",
-      description: "Create an account with Ryma Academy.",
+      description: "Join the Ryma Academy family — takes less than a minute.",
       icon: <UserPlus className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
     },
     {
       step: 2,
       title: "Refer a Friend",
-      description: "Share your unique referral link or code.",
+      description: "Share your unique referral link or code with anyone ready to level up.",
       icon: <Share2 className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
     },
     {
       step: 3,
-      title: "Your Friend Enrolls",
-      description: "Once they join and complete their payment, you're eligible for rewards.",
+      title: "Your Friend Enrolls & You Contact Us",
+      description: "Once they join & complete payment, share your referral details — name, friend's name & enrollment info — via Contact Us. We verify it instantly.",
       icon: <Users className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
     },
     {
       step: 4,
       title: "Earn Rewards",
-      description: "Get cash bonuses, discounts, or exclusive perks for every successful referral.",
+      description: "Cash bonuses, discounts, exclusive perks — because sharing should always pay off",
       icon: <Gift className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
     }
   ];
@@ -76,32 +77,32 @@ const ReferEarn = () => {
   const programBenefits = [
     {
       program: "Full Stack Development",
-      reward: "₹5,000 per referral",
+      reward: "Up to 10% Commission",
       color: "bg-primary-700"
     },
     {
       program: "Data Science",
-      reward: "₹6,000 per referral",
+      reward: "Up to 10% Commission",
       color: "bg-primary-700"
     },
     {
       program: "AI & Machine Learning",
-      reward: "₹7,000 per referral",
+      reward: "Up to 10% Commission",
      color: "bg-primary-700"
     },
     {
       program: "Cyber Security",
-      reward: "₹6,500 per referral",
+      reward: "Up to 10% Commission",
       color: "bg-primary-700"
     },
     {
       program: "Cloud Computing",
-      reward: "₹5,500 per referral",
+      reward: "Up to 10% Commission",
       color: "bg-primary-700"
     },
     {
       program: "Digital Marketing",
-      reward: "₹4,500 per referral",
+      reward: "Up to 10% Commission",
       color: "bg-primary-700"
     }
   ];
@@ -109,7 +110,7 @@ const ReferEarn = () => {
   const faqItems = [
     {
       question: "What is the Refer & Earn program?",
-      answer: "Sign up with Ryma Academy, get your personalized referral link, and refer it to your friends. When they sign up and pay, you earn!"
+      answer: "Sign up with RYMA ACADEMY, get your personalized referral link, and refer it to your friends. When they sign up and pay, you earn!"
     },
     {
       question: "What are some rewards I can receive from this program?",
@@ -160,12 +161,12 @@ const ReferEarn = () => {
                Upto ₹ 80,000!
             </div>
             <p className="text-sm sm:text-base lg:text-lg max-w-2xl sm:max-w-3xl mx-auto mb-5 sm:mb-6 lg:mb-8 leading-relaxed px-2">
-              Get your friends on board to join Ryma Academy and enjoy lucrative rewards. The more you refer, the more rewards!  
+              Get your friends on board to join RYMA ACADEMY and enjoy lucrative rewards. The more you refer, the more rewards!  
               Earn ₹80,000 at max by referring friends to our top-notch professional courses.
             </p>
-            <button className="bg-white text-rose-800 px-5 sm:px-8 lg:px-10 py-2.5 sm:py-3 lg:py-4 rounded-lg font-bold text-sm sm:text-base lg:text-lg hover:bg-rose-50 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300">
+            <Link to="/contact" className="bg-white text-rose-800 px-5 sm:px-8 lg:px-10 py-2.5 sm:py-3 lg:py-4 rounded-lg font-bold text-sm sm:text-base lg:text-lg hover:bg-rose-50 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300">
               Refer & Start Earning!
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -232,11 +233,13 @@ const ReferEarn = () => {
                   <h3 className="text-sm sm:text-base lg:text-xl font-bold text-gray-800">{program.program}</h3>
                 </div>
                 <div className="flex-1 flex items-center">
-                  <div className="w-full bg-primary-800 border border-primary-700 rounded-lg p-2 sm:p-3 lg:p-4 shadow-inner hover:shadow transition-shadow duration-300 flex items-center justify-center">
-                    <p className="text-xs sm:text-sm lg:text-lg font-semibold text-white text-center">
-                      {program.reward}
-                    </p>
-                  </div>
+                  <Link to="/contact" className="w-full">
+                    <div className="w-full bg-primary-800 border border-primary-700 rounded-lg p-2 sm:p-3 lg:p-4 shadow-inner hover:shadow transition-shadow duration-300 flex items-center justify-center cursor-pointer">
+                      <p className="text-xs sm:text-sm lg:text-lg font-semibold text-white text-center">
+                        {program.reward}
+                      </p>
+                    </div>
+                  </Link>
                 </div>
               </div>
             ))}

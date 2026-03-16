@@ -405,7 +405,11 @@ const CheckoutPage = () => {
             </div>
 
             {/* Promo Code - Hidden on mobile to save space */}
+<<<<<<< HEAD
             <div className="sm:block bg-white rounded-lg shadow-sm p-4 sm:p-6">
+=======
+            <div className="block bg-white rounded-lg shadow-sm p-4 sm:p-6">
+>>>>>>> main
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Promo Code</h2>
               <form onSubmit={handlePromoCodeSubmit} className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <div className="relative flex-1">

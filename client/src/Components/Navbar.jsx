@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../store/slices/authSlice";
 import logo from "../assets/ryma-logo.png";
+import { Phone } from "lucide-react";
 
 export default function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -198,10 +199,11 @@ export default function Navbar() {
               </Link>
               {/* link for call button +91 9873336133 */}
               <button
-                onClick={() => window.open("tel:+919873336133")}                className="bg-primary-700 hover:bg-primary-700 text-white rounded-full px-4 py-1 text-sm font-medium transition-colors duration-200"
+                onClick={() => window.open("tel:+919873336133")}
+                className="bg-primary-700 hover:bg-primary-700 text-white rounded-full px-4 py-1 text-sm font-medium transition-colors duration-200"
               >
-              {/* call icon */} 
-                📞 +91 9873336133
+                <Phone className="inline-block w-5 h-5 mr-2 text-white" />
+                +91 9873336133
               </button>
             </nav>
           </div>

@@ -655,8 +655,12 @@ const LearnPage = () => {
   }
 
   // Render module sidebar content
+  // Render module sidebar content
+   // Render module sidebar content
+   // Render module sidebar content
   const renderModuleSidebar = () => (
     <>
+<<<<<<< HEAD
       <div className="p-3 bg-white rounded-lg shadow-sm sm:p-4 h-[91%]">
         <div className="mb-3 sm:mb-4">
           <h3 className="text-base font-semibold text-gray-900 sm:text-lg">Course Content</h3>
@@ -667,6 +671,18 @@ const LearnPage = () => {
 
         <div className="space-y-2 overflow-y-auto h-[600px] sm:h-[90vh] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {course.modules.map((module) => (
+=======
+      <div className="p-3 bg-white rounded-lg shadow-sm sm:p-4 h-full overflow-y-auto">
+      <div className="mb-3 sm:mb-4">
+        <h3 className="text-base font-semibold text-gray-900 sm:text-lg">Course Content</h3>
+        <p className="text-xs text-gray-600 sm:text-sm">
+          {getCompletedLessonsCount()} of {getAllLessonsCount()} lessons completed
+        </p>
+      </div>
+        
+        <div className="space-y-2">
+          {course.modules.map((module, moduleIndex) => (
+>>>>>>> main
             <div key={module._id} className="border border-gray-200 rounded-lg">
               {/* Module Header */}
               <button
@@ -924,19 +940,25 @@ const LearnPage = () => {
         )}
 
         {/* Sidebar - Desktop */}
+               {/* Sidebar - Desktop */}
         <div className="hidden space-y-4 lg:block lg:col-span-1">
-          <button
-            type="button"
-            className={`flex items-center p-3 rounded-lg shadow-sm w-full ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer transition-colors sm:p-4`}
-            onClick={handleCertificateClick}
-          >
-            {isCourseCompleted() ? <Award className="w-5 h-5 mr-3 text-green-600 sm:h-6 sm:w-6" /> : <Lock className="w-5 h-5 mr-3 text-gray-400 sm:h-6 sm:w-6" />}
-            <span className={`text-xs sm:text-sm ${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium`}>
-              {isCourseCompleted() ? "Download Certificate" : "Certificate Locked"}
-            </span>
-          </button>
+          {/* Add h-full to the parent of the sidebar content */}
+          <div className="h-full flex flex-col">
+            <button
+              type="button"
+              className={`flex items-center p-3 rounded-lg shadow-sm w-full ${isCourseCompleted() ? "bg-green-50 border border-green-200" : "bg-gray-100 border border-gray-200"} cursor-pointer transition-colors sm:p-4 flex-shrink-0`}
+              onClick={handleCertificateClick}
+            >
+              {isCourseCompleted() ? <Award className="w-5 h-5 mr-3 text-green-600 sm:h-6 sm:w-6" /> : <Lock className="w-5 h-5 mr-3 text-gray-400 sm:h-6 sm:w-6" />}
+              <span className={`text-xs sm:text-sm ${isCourseCompleted() ? "text-green-800" : "text-gray-600"} font-medium`}>
+                {isCourseCompleted() ? "Download Certificate" : "Certificate Locked"}
+              </span>
+            </button>
 
-          {renderModuleSidebar()}
+            <div className="flex-1 min-h-0">
+              {renderModuleSidebar()}
+            </div>
+          </div>
         </div>
 
         {/* Video Player */}
@@ -963,10 +985,11 @@ const LearnPage = () => {
                   })}
                 </div>
                 <h2 className="mb-1 text-base font-bold text-gray-900 sm:text-lg md:text-xl">{selectedLesson.title}</h2>
-                {selectedLesson.description && <p className="mb-3 text-xs text-gray-600 sm:text-sm md:text-base">{selectedLesson.description}</p>}
               </div>
 
               {renderVideoPlayer(selectedLesson)}
+              
+              {selectedLesson.description && <p className="mt-3 mb-3 text-xs text-gray-600 sm:text-sm md:text-base sm:mt-4">{selectedLesson.description}</p>}
 
               {isLessonCompleted(selectedLesson._id) && (
                 <div className="flex items-center p-3 mt-3 space-x-3 border border-green-200 rounded-lg bg-green-50 sm:p-4 sm:mt-4">
