@@ -8,6 +8,7 @@ const ContactUsPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     subject: "",
     message: "",
   })
@@ -48,6 +49,17 @@ useEffect(() => {
       newErrors.email = "Email is invalid"
     }
 
+    // Phone validation - required and exactly 10 digits
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required"
+    } else {
+      // Remove any non-digit characters for validation
+      const digitsOnly = formData.phone.replace(/\D/g, '')
+      if (digitsOnly.length !== 10) {
+        newErrors.phone = "Phone number must be exactly 10 digits"
+      }
+    }
+
     if (!formData.subject.trim()) {
       newErrors.subject = "Subject is required"
     }
@@ -82,6 +94,7 @@ useEffect(() => {
         setFormData({
           name: "",
           email: "",
+          phone: "",
           subject: "",
           message: "",
         })
@@ -229,6 +242,28 @@ useEffect(() => {
                           <p className="mt-0.5 xs:mt-1 text-2xs xs:text-xs sm:text-sm text-red-600">{errors.email}</p>
                         )}
                       </div>
+                    </div>
+
+                    {/* Phone - Now Required with Validation */}
+                    <div>
+                      <label htmlFor="phone" className="block text-xs xs:text-sm font-medium text-gray-700 mb-0.5 xs:mb-1 sm:mb-2">
+                        Phone Number *
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        maxLength={10}
+                        className={`w-full px-2 xs:px-3 sm:px-4 py-1.5 xs:py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors text-xs xs:text-sm sm:text-base ${
+                          errors.phone ? "border-red-500" : "border-gray-300"
+                        }`}
+                        placeholder="10 digit mobile number"
+                      />
+                      {errors.phone && (
+                        <p className="mt-0.5 xs:mt-1 text-2xs xs:text-xs sm:text-sm text-red-600">{errors.phone}</p>
+                      )}
                     </div>
 
                     {/* Subject */}

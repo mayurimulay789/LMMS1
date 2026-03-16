@@ -99,12 +99,14 @@ contactSchema.index({ category: 1 })
 contactSchema.index({ priority: 1 })
 contactSchema.index({ createdAt: -1 })
 contactSchema.index({ isRead: 1 })
+contactSchema.index({ phone: 1 }) // Added index for phone field
 // Text search index
 contactSchema.index({
   name: "text",
   email: "text",
   subject: "text",
   message: "text",
+  phone: "text", // Added phone to text search
 })
 // Mark as read method
 contactSchema.methods.markAsRead = function (userId) {

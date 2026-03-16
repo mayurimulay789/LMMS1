@@ -405,7 +405,7 @@ const CheckoutPage = () => {
             </div>
 
             {/* Promo Code - Hidden on mobile to save space */}
-            <div className="block bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <div className="sm:block bg-white rounded-lg shadow-sm p-4 sm:p-6">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Promo Code</h2>
               <form onSubmit={handlePromoCodeSubmit} className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <div className="relative flex-1">
@@ -439,7 +439,6 @@ const CheckoutPage = () => {
                   </span>
                 </div>
               )}
-
               {error && error.includes("promo") && (
                 <div className="flex items-center p-3 mt-3 space-x-2 border border-red-200 rounded-lg bg-red-50">
                   <X className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" />
