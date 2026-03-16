@@ -150,9 +150,9 @@ const CoursesPage = () => {
   const priceRanges = [
     { value: "all", label: "All Prices" },
     { value: "free", label: "Free" },
-    { value: "0-50", label: "₹0 - ₹50" },
-    { value: "50-100", label: "₹50 - ₹100" },
-    { value: "100+", label: "₹100+" },
+    { value: "0-50000", label: "₹0 - ₹50000" },
+    { value: "50000-100000", label: "₹50000 - ₹100000" },
+    { value: "100000+", label: "₹100000+" },
   ]
 
   const levels = [
@@ -222,12 +222,12 @@ const CoursesPage = () => {
                 >
                   <Grid className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
-                <button
+                {/* <button
                   onClick={() => setViewMode("list")}
                   className={`p-1.5 sm:p-2 rounded ${viewMode === "list" ? "bg-primary-100 text-primary-600" : "text-gray-400"}`}
                 >
                   <List className="h-4 w-4 sm:h-5 sm:w-5" />
-                </button>
+                </button> */}
               </div>
 
               {/* Sort */}

@@ -150,7 +150,7 @@ const AdminDashboardPage = () => {
                     <div className="flex-1 min-w-0">
                       <p className="mb-1 text-xs text-gray-600 truncate sm:text-sm">{stat.title}</p>
                       <p className="text-md font-bold text-gray-900 truncate sm:text-xl">{stat.value}</p>
-                      <p className="mt-1 text-xs text-green-600 truncate sm:text-sm">{stat.change} from last month</p>
+                      {/* <p className="mt-1 text-xs text-green-600 truncate sm:text-sm">{stat.change} from last month</p> */}
                     </div>
                     <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${stat.color} flex items-center justify-center flex-shrink-0 ml-3`}>
                       <stat.icon className="w-5 h-5 text-white sm:h-6 sm:w-6" />

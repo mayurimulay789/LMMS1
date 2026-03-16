@@ -376,7 +376,7 @@ const handleEditProfile = async () => {
                     <div className="flex-1">
                       <p className="text-xs sm:text-sm text-gray-600 mb-1">{stat.title}</p>
                       <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <p className="text-xs sm:text-sm text-green-600 mt-1">{stat.change} from last month</p>
+                      {/* <p className="text-xs sm:text-sm text-green-600 mt-1">{stat.change} from last month</p> */}
                     </div>
                     <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${stat.color} flex items-center justify-center ml-2 sm:ml-4 flex-shrink-0`}>
                       <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
