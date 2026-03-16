@@ -328,7 +328,7 @@ async addCertificateContent(doc, data) {
 
   const logoX = 100
   const logoY = 70
-  const logoWidth = 90
+  const logoWidth = 70
   const centerX = logoX + logoWidth/2
   const centerY = logoY + logoWidth/2
 
@@ -363,11 +363,11 @@ async addCertificateContent(doc, data) {
 
   /* ================= TITLE ================= */
 
-  doc.font("Times-Bold").fontSize(52).fillColor(colors.darkBrown)
+  doc.font("Times-Bold").fontSize(45).fillColor(colors.darkBrown)
     .text("CERTIFICATE", 0, 70, { align: "center" })
 
   doc.font("Times-Italic").fontSize(24).fillColor(colors.crimson)
-    .text("of Completion", 0, 130, { align: "center" })
+    .text("of Completion", 0, 120, { align: "center" })
 
   // doc.moveTo(pageWidth / 2 - 150, 165)
   //   .lineTo(pageWidth / 2 + 150, 165)
@@ -377,33 +377,18 @@ async addCertificateContent(doc, data) {
   /* ================= STUDENT ================= */
 
   doc.font("Times-Roman").fontSize(14).fillColor(colors.gray)
-    .text("This is to certify that", 0, 185, { align: "center" })
+    .text("This is proudly presented to", 0, 165, { align: "center" })
 
-  doc.font("Helvetica-Bold").fontSize(35).fillColor(colors.darkBrown)
+  doc.font("Helvetica-Bold").fontSize(28).fillColor(colors.darkBrown)
     .text(studentName.toUpperCase(), 0, 215, { align: "center" })
 
-  doc.moveTo(pageWidth / 2 - 200, 270)
-    .lineTo(pageWidth / 2 + 200, 270)
-    .lineWidth(1.5)
-    .stroke(colors.gold)
 
   doc.font("Times-Roman").fontSize(14).fillColor(colors.gray)
-    .text("has successfully completed the course", 0, 290, { align: "center" })
+    .text("has been recognized for outstanding performance and dedication in the", 0, 260, { align: "center" })
 
   doc.font("Helvetica-Bold").fontSize(28).fillColor(colors.darkBlue)
-    .text(courseName, 0, 320, { align: "center" })
+    .text(courseName, 0, 285, { align: "center" })
 
-  doc.font("Helvetica-Bold").fontSize(13).fillColor(colors.darkBrown)
-    .text(
-      new Date(completionDate).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }),
-      0,
-      360,
-      { align: "center" }
-    )
 
   /* ================= QR CODE (MOVED UP) ================= */
 
