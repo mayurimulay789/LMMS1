@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "react-hot-toast"
 
 const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
   const [formData, setFormData] = useState({
@@ -205,11 +206,13 @@ const InstructorApplicationForm = ({ onSubmitSuccess, onClose }) => {
         profileImage: null
       });
       setPreviewImage('');
+      toast.success('Application submitted successfully!');
       setMessage('Application submitted successfully!');
       if (onSubmitSuccess) onSubmitSuccess();
       if (onClose) onClose();
     } catch (error) {
       console.error(error);
+      toast.error('Error submitting application. Please try again.');
       setMessage('Error submitting application. Please try again.');
     } finally {
       setIsSubmitting(false);

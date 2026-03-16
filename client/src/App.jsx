@@ -6,6 +6,7 @@ import { useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { store } from "./store/store"
 import { loadUser } from "./store/slices/authSlice"
+import { Toaster } from "react-hot-toast"
 
 import Navbar from "./Components/Navbar"
 import Footer from "./Components/Footer"
@@ -59,6 +60,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
+      <Toaster position="top-right" reverseOrder={false} />
       <main>
         <Routes>
           {/* Public Routes */}
