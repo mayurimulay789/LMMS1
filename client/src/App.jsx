@@ -44,6 +44,7 @@ import PaymentFailedPage from "./Pages/PaymentFailedPage"
 import MyCoursesPage from "./Pages/MyCoursesPage.jsx"
 import UserDetailsforForgetPassword from "./Components/ForgetPassword/UserDetailsforForgetPassword.jsx"
 import OtpValidationPage from "./Components/ForgetPassword/OtpValidationPage.jsx"
+import EmailVerificationPage from "./Components/OtpVerificationPageRegistration.jsx"
 
 function AppContent() {
   const dispatch = useDispatch()
@@ -72,6 +73,7 @@ function AppContent() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/refund-cancelation" element={<RefundCancelation />} />
+          <Route path="/emailVerificationPage" element={<EmailVerificationPage/>} />
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
