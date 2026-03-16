@@ -78,6 +78,10 @@ const HomePage = () => {
 			setIsLoading(false)
 		}
 	}
+
+	const handleLookOnline = () => {
+		window.open("https://rymaacademy.com/", "_blank");
+	};
 	// ------------------------------------------------------------------
 
 	const features = [
@@ -140,16 +144,13 @@ const HomePage = () => {
         {/* Buttons */}
 		<div className="flex flex-nowrap items-center gap-4 mt-6 sm:mt-8">
   <Link to="/courses">
-    <button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base">
+    <button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base hover:text-white">
       Find Courses →
     </button>
   </Link>
-
-  <Link to="/courses">
-    <button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base">
+    <button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 hover:text-white text-sm sm:text-base" onClick={handleLookOnline}>
       Look Offline
     </button>
-  </Link>
 </div>
 
 
