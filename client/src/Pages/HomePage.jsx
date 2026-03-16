@@ -78,6 +78,7 @@ const HomePage = () => {
 			setIsLoading(false)
 		}
 	}
+
 	const handleLookOnline = () => {
 		window.open("https://rymaacademy.com/", "_blank");
 	};
@@ -114,12 +115,6 @@ const HomePage = () => {
 				{/* Dark Gradient Overlay */}
 				<div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
 
-<<<<<<< HEAD
-				{/* Content on Image */}
-				<div className="relative z-10 flex items-center h-full">
-					<div className="w-full max-w-7xl px-4 sm:px-6 md:px-12 mx-auto">
-						<div className="max-w-2xl text-left">
-=======
   {/* Content on Image */}
   <div className="relative z-10 flex items-center h-full">
     <div className="w-full max-w-7xl px-4 sm:px-6 md:px-12 mx-auto">
@@ -132,7 +127,6 @@ const HomePage = () => {
             RYMA ACADEMY
           </span>
         </div>
->>>>>>> main
 
 							{/* Brand */}
 							<div className="flex items-center mb-4 space-x-2">
@@ -148,43 +142,17 @@ const HomePage = () => {
 								Course
 							</h1>
 
-<<<<<<< HEAD
-							{/* Description */}
-							<p className="mt-4 sm:mt-6 text-xs sm:text-sm md:text-base text-gray-200 max-w-xl">
-								Welcome to RYMA ACADEMY, Learn modern digital marketing using AI tools for
-								smarter campaigns, automation, analytics, and faster business growth.
-							</p>
-
-							{/* Buttons */}
-							<div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-								<Link to="/courses">
-									<button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-blue-600 rounded-full hover:bg-blue-700 text-sm sm:text-base">
-										Find Courses →
-									</button>
-								</Link>
-
-								<button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white transition bg-orange-500 rounded-full hover:bg-orange-600 text-sm sm:text-base" onClick={handleLookOnline}>
-									Look Offline
-								</button>
-							</div>
-=======
         {/* Buttons */}
 		<div className="flex flex-nowrap items-center gap-4 mt-6 sm:mt-8">
   <Link to="/courses">
-    <button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base">
+    <button className="px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base hover:text-white">
       Find Courses →
     </button>
   </Link>
-
-  <Link to="/courses">
-    <button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 text-sm sm:text-base">
+    <button className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 font-semibold text-primary-800 transition bg-white rounded-full hover:bg-primary-800 hover:text-white text-sm sm:text-base" onClick={handleLookOnline}>
       Look Offline
     </button>
-  </Link>
 </div>
->>>>>>> main
-
-
 						</div>
 					</div>
 				</div>

@@ -173,7 +173,7 @@ const AdminContactMessages = () => {
               <span className="font-medium text-gray-700 text-sm sm:text-base">Filter by Status:</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {["all", "new", "in-progress", "resolved", "closed"].map((status) => (
+              {["all", "new", "in-progress", "resolved"].map((status) => (
                 <button
                   key={status}
                   onClick={() => setFilter(status)}
@@ -230,6 +230,9 @@ const AdminContactMessages = () => {
                         <div>
                           <div className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">{contact.name}</div>
                           <div className="text-xs sm:text-sm text-gray-500 truncate max-w-[120px] sm:max-w-none">{contact.email}</div>
+                          {contact.phone && (
+                            <div className="text-xs text-gray-400 truncate max-w-[120px] sm:max-w-none">{contact.phone}</div>
+                          )}
                         </div>
                       </div>
                     </td>

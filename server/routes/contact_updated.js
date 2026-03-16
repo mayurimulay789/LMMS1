@@ -4,7 +4,7 @@ const { body, validationResult } = require("express-validator")
 const Contact = require("../models/Contact")
 const auth = require("../middleware/auth")
 const adminMiddleware = require("../middleware/AdminMiddleware")
-const { sendContactFormEmail, sendAdminContactNotification } = require("../services/emailService_updated")
+const { sendContactNotificationEmail, sendContactAutoReplyEmail } = require("../services/emailService")
 
 // Validation rules
 const contactValidation = [
@@ -51,36 +51,8 @@ router.post("/", contactValidation, async (req, res) => {
 
     await contact.save()
 
-    // Send confirmation email to user
-    try {
-      await sendContactFormEmail({
-        name,
-        email,
-        subject,
-        message,
-        category: category || "general",
-        contactId: contact._id,
-      })
-    } catch (emailError) {
-      console.error("Failed to send confirmation email:", emailError)
-      // Don't fail the request if email fails
-    }
-
-    // Send notification email to admin
-    try {
-      await sendAdminContactNotification({
-        name,
-        email,
-        subject,
-        message,
-        category: category || "general",
-        phone,
-        contactId: contact._id,
-      })
-    } catch (emailError) {
-      console.error("Failed to send admin notification:", emailError)
-      // Don't fail the request if email fails
-    }
+    // TODO: Send email notification to admin
+    // TODO: Send auto-reply email to user
 
     res.status(201).json({
       message: "Contact form submitted successfully",
@@ -88,7 +60,6 @@ router.post("/", contactValidation, async (req, res) => {
       status: "received",
     })
   } catch (error) {
-    console.error("Contact form submission error:", error)
     res.status(500).json({
       error: "Submission failed",
       message: "Failed to submit contact form. Please try again later.",
@@ -151,7 +122,6 @@ router.get("/", auth, adminMiddleware, async (req, res) => {
       },
     })
   } catch (error) {
-    console.error("Get contacts error:", error)
     res.status(500).json({
       error: "Failed to fetch contacts",
       message: error.message,
@@ -181,7 +151,6 @@ router.get("/:id", auth, adminMiddleware, async (req, res) => {
 
     res.json(contact)
   } catch (error) {
-    console.error("Get contact error:", error)
     res.status(500).json({
       error: "Failed to fetch contact",
       message: error.message,
@@ -218,7 +187,6 @@ router.put("/:id/status", auth, adminMiddleware, async (req, res) => {
       contact: updatedContact,
     })
   } catch (error) {
-    console.error("Update contact error:", error)
     res.status(500).json({
       error: "Failed to update contact",
       message: error.message,
@@ -259,7 +227,6 @@ router.post("/:id/response", auth, adminMiddleware, async (req, res) => {
       contact: updatedContact,
     })
   } catch (error) {
-    console.error("Add response error:", error)
     res.status(500).json({
       error: "Failed to add response",
       message: error.message,
@@ -285,7 +252,6 @@ router.delete("/:id", auth, adminMiddleware, async (req, res) => {
       contactId: req.params.id,
     })
   } catch (error) {
-    console.error("Delete contact error:", error)
     res.status(500).json({
       error: "Failed to delete contact",
       message: error.message,
@@ -322,12 +288,11 @@ router.get("/stats/dashboard", auth, adminMiddleware, async (req, res) => {
       recent: await Contact.find()
         .sort({ createdAt: -1 })
         .limit(5)
-        .select("name email subject status category createdAt"),
+        .select("name email subject phone status category createdAt"), // Added phone to recent contacts
     }
 
     res.json(stats)
   } catch (error) {
-    console.error("Get contact stats error:", error)
     res.status(500).json({
       error: "Failed to fetch contact statistics",
       message: error.message,
@@ -397,7 +362,6 @@ router.post("/bulk-action", auth, adminMiddleware, async (req, res) => {
       contactIds,
     })
   } catch (error) {
-    console.error("Bulk action error:", error)
     res.status(500).json({
       error: "Bulk action failed",
       message: error.message,

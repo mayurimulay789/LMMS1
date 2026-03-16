@@ -12,7 +12,7 @@ const contactSchema = new mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"],
+      match: [/^\w+([.-]?\w+)@\w+([.-]?\w+)(\.\w{2,3})+$/, "Please enter a valid email"],
     },
     subject: {
       type: String,
@@ -99,12 +99,14 @@ contactSchema.index({ category: 1 })
 contactSchema.index({ priority: 1 })
 contactSchema.index({ createdAt: -1 })
 contactSchema.index({ isRead: 1 })
+contactSchema.index({ phone: 1 }) // Added index for phone field
 // Text search index
 contactSchema.index({
   name: "text",
   email: "text",
   subject: "text",
   message: "text",
+  phone: "text", // Added phone to text search
 })
 // Mark as read method
 contactSchema.methods.markAsRead = function (userId) {
