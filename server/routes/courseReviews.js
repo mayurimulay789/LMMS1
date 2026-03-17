@@ -36,7 +36,7 @@ router.post("/:id/reviews", auth, async (req, res) => {
       course: course._id,
       user: req.user._id,
       name: req.user.name || "Anonymous",
-      avatar: req.user.avatar || null,
+      avatar: req.user.profile.avatar || null,
       rating,
       comment,
     });

@@ -901,7 +901,7 @@ const LearnPage = () => {
 
         {/* Sidebar - Desktop */}
                {/* Sidebar - Desktop */}
-        <div className="hidden space-y-4 lg:block lg:col-span-1">
+        <div className="space-y-4 lg:block lg:col-span-1">
           {/* Add h-full to the parent of the sidebar content */}
           <div className="h-full flex flex-col">
             <button

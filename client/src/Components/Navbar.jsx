@@ -272,7 +272,7 @@ export default function Navbar() {
           <div className="p-4 border-t border-gray-200">
             {isAuthenticated ? (
               <div className="space-y-2">
-                <p className="text-gray-700 font-semibold">
+                <p className="text-gray-700 font-semibold text-sm">
                   Hello, {user?.name}
                 </p>
                 <Link
