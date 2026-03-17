@@ -902,11 +902,6 @@ const CourseDetailPage = () => {
 
                 <div className="flex items-center space-x-6 mb-6">
                   <div className="flex items-center space-x-1">
-                    <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                    <span className="font-medium">{course.avgRating}</span>
-                    <span className="text-gray-300">({course.reviewCount} reviews)</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
                     <Users className="h-5 w-5" />
                     <span>{course.enrollmentCount.toLocaleString()} students</span>
                   </div>
@@ -1214,10 +1209,6 @@ const CourseDetailPage = () => {
                           <span className="flex items-center space-x-1">
                             <Users className="h-4 w-4" />
                             <span>{course.enrollmentCount.toLocaleString()} students</span>
-                          </span>
-                          <span className="flex items-center space-x-1">
-                            <Star className="h-4 w-4" />
-                            <span>{course.avgRating} rating</span>
                           </span>
                         </div>
                       </div>
@@ -1547,10 +1538,6 @@ const CourseDetailPage = () => {
                           <p className="text-xs text-gray-600 truncate">By {course.createdBy?.name || course.instructor}</p>
                           <div className="flex items-center justify-between mt-1">
                             <span className="text-sm font-semibold text-gray-900">{formatPrice(course.price)}</span>
-                            <div className="flex items-center space-x-1">
-                              <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                              <span className="text-xs text-gray-600">{course.avgRating}</span>
-                            </div>
                           </div>
                         </div>
                       </div>
