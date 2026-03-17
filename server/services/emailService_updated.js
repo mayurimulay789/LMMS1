@@ -887,6 +887,16 @@ const sendCoursePurchaseEmail = async ({
           .total { color: #2e7d32; }
           .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 12px 30px; border-radius: 50px; font-weight: 600; margin-top: 20px; }
           .footer { text-align: center; padding: 20px; color: #888; font-size: 14px; border-top: 1px solid #eee; }
+          /* Responsive styles */
+          @media only screen and (max-width: 600px) {
+            .container { max-width: 100% !important; margin: 0 !important; border-radius: 0 !important; }
+            .header, .content, .footer { padding: 15px !important; }
+            .course-detail { flex-direction: column !important; gap: 10px !important; padding: 10px !important; }
+            .course-thumb { width: 100% !important; height: auto !important; margin-bottom: 10px !important; }
+            .course-title { font-size: 18px !important; }
+            .price-breakdown { padding: 10px !important; margin: 15px 0 !important; }
+            .button { padding: 10px 20px !important; font-size: 16px !important; }
+          }
         </style>
       </head>
       <body>
@@ -911,9 +921,6 @@ const sendCoursePurchaseEmail = async ({
               <div class="price-row total"><span>Amount Paid:</span><span>₹${amountPaid.toFixed(2)}</span></div>
               <div class="price-row"><span>Payment Date:</span><span>${formattedDate}</span></div>
             </div>
-            <p style="text-align: center;">
-              <a href="${process.env.FRONTEND_URL || '#'}/dashboard" class="button">Go to Dashboard</a>
-            </p>
             <p style="text-align: center;">Happy Learning!<br><strong>Team RYMAACADEMY</strong></p>
           </div>
           <div class="footer">
