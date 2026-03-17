@@ -303,9 +303,9 @@ async addCertificateContent(doc, data) {
 
   doc.rect(0, 0, pageWidth, pageHeight).fill(colors.cream)
 
-  for (let i = 0; i < pageWidth; i += 20) {
-    doc.moveTo(i, 0).lineTo(i + 10, pageHeight).lineWidth(0.2).stroke(colors.lightGold)
-  }
+  // for (let i = 0; i < pageWidth; i += 20) {
+  //   doc.moveTo(i, 0).lineTo(i + 10, pageHeight).lineWidth(0.2).stroke(colors.lightGold)
+  // }
 
   /* ================= BORDER ================= */
 
@@ -363,20 +363,8 @@ async addCertificateContent(doc, data) {
 
   /* ================= TITLE ================= */
 
-  // doc.font("Times-Bold").fontSize(45).fillColor(colors.darkBrown)
-  //   .text("CERTIFICATE", 0, 70, { align: "center" })
-
-    // Option 1: Playfair Display (Highly Recommended)
-doc.font("PlayfairDisplay-Bold").fontSize(45).fillColor(colors.darkBrown)
-  .text("CERTIFICATE", 0, 70, { align: "center" })
-
-// Option 2: Cinzel (Elegant Roman Style)
-// doc.font("Cinzel-Bold").fontSize(45).fillColor(colors.darkBrown)
-//   .text("CERTIFICATE", 0, 70, { align: "center" })
-
-// Option 3: Copperplate Gothic Bold (Classic Certificate Look)
-// doc.font("CopperplateGothic-Bold").fontSize(45).fillColor(colors.darkBrown)
-//   .text("CERTIFICATE", 0, 70, { align: "center" })
+  doc.font("Times-Bold").fontSize(45).fillColor(colors.darkBrown)
+    .text("CERTIFICATE", 0, 70, { align: "center" })
 
   doc.font("Times-Italic").fontSize(24).fillColor(colors.crimson)
     .text("of Completion", 0, 120, { align: "center" })
@@ -398,7 +386,7 @@ doc.font("PlayfairDisplay-Bold").fontSize(45).fillColor(colors.darkBrown)
   doc.font("Times-Roman").fontSize(14).fillColor(colors.gray)
     .text("has been recognized for outstanding performance and dedication in the", 0, 260, { align: "center" })
 
-  doc.font("Helvetica-Bold").fontSize(28).fillColor(colors.darkBlue)
+  doc.font("Helvetica-Bold").fontSize(25).fillColor(colors.darkBlue)
     .text(courseName, 0, 285, { align: "center" })
 
 

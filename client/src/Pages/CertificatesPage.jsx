@@ -284,15 +284,7 @@ const CertificatesPage = () => {
                 <BookOpen className="w-6 h-6 text-yellow-600 md:w-8 md:h-8" />
               </div>
             </div>
-            <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 md:text-sm">Top Grades</p>
-                  <p className="mt-1 text-xl font-bold text-gray-900 md:text-2xl">{stats.topGrades}</p>
-                </div>
-                <Award className="w-6 h-6 text-red-600 md:w-8 md:h-8" />
-              </div>
-            </div>
+            
           </motion.div>
         )}
 

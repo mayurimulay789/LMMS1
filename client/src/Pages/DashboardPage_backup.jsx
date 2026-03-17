@@ -206,7 +206,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Certificates */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            {/* <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Recent Certificates</h3>
                 <Link to="/certificates" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
@@ -267,7 +267,7 @@ const DashboardPage = () => {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Learning Goals */}
             <div className="bg-white rounded-lg shadow-sm p-6">
