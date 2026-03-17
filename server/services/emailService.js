@@ -33,7 +33,7 @@ const sendInstructorApplicationEmail = async (applicationData) => {
       subject: 'Instructor Application Received - RymaAcademy',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-          <h2 style="color: #e11d48; text-align: center;">Welcome to Ryma Academy Instructor Program!</h2>
+          <h2 style="text-primary-800; text-align: center;">Welcome to Ryma Academy Instructor Program!</h2>
 
           <p>Dear <strong>${applicantName}</strong>,</p>
 

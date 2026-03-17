@@ -184,7 +184,9 @@ const CoursesPage = () => {
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-5">All Courses</h1>
-          <p className="text-xs sm:text-sm md:text-base text-gray-600">Discover {pagination.total} courses to advance your skills</p>
+          <p className="text-xs sm:text-sm md:text-base text-gray-600">
+            Discover {pagination.total} courses to advance your skills
+          </p>
         </div>
 
         {/* Search and Filters */}
@@ -218,13 +220,17 @@ const CoursesPage = () => {
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-1.5 sm:p-2 rounded ${viewMode === "grid" ? "bg-primary-100 text-primary-600" : "text-gray-400"}`}
+                  className={`p-1.5 sm:p-2 rounded ${
+                    viewMode === "grid" ? "bg-primary-100 text-primary-600" : "text-gray-400"
+                  }`}
                 >
                   <Grid className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-1.5 sm:p-2 rounded ${viewMode === "list" ? "bg-primary-100 text-primary-600" : "text-gray-400"}`}
+                  className={`p-1.5 sm:p-2 rounded ${
+                    viewMode === "list" ? "bg-primary-100 text-primary-600" : "text-gray-400"
+                  }`}
                 >
                   <List className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
@@ -237,8 +243,12 @@ const CoursesPage = () => {
                   onClick={() => setSortOpen(!sortOpen)}
                   className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                 >
-                  <span className="truncate">{sortOptions.find(opt => opt.value === filters.sort)?.label || 'Sort by'}</span>
-                  <ChevronDown className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+                  <span className="truncate">
+                    {sortOptions.find((opt) => opt.value === filters.sort)?.label || "Sort by"}
+                  </span>
+                  <ChevronDown
+                    className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${sortOpen ? "rotate-180" : ""}`}
+                  />
                 </button>
                 {sortOpen && (
                   <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
@@ -251,7 +261,7 @@ const CoursesPage = () => {
                             setSortOpen(false)
                           }}
                           className={`w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-primary-800 hover:text-white transition-colors ${
-                            filters.sort === option.value ? 'bg-primary-800 text-white' : ''
+                            filters.sort === option.value ? "bg-primary-800 text-white" : ""
                           }`}
                         >
                           {option.label}
@@ -281,8 +291,12 @@ const CoursesPage = () => {
                     onClick={() => setCategoryOpen(!categoryOpen)}
                     className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   >
-                    <span className="truncate">{filters.category === 'all' ? 'All Categories' : filters.category}</span>
-                    <ChevronDown className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${categoryOpen ? 'rotate-180' : ''}`} />
+                    <span className="truncate">
+                      {filters.category === "all" ? "All Categories" : filters.category}
+                    </span>
+                    <ChevronDown
+                      className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${categoryOpen ? "rotate-180" : ""}`}
+                    />
                   </button>
                   {categoryOpen && (
                     <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
@@ -294,7 +308,7 @@ const CoursesPage = () => {
                             setCategoryOpen(false)
                           }}
                           className={`w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
-                            filters.category === 'all' ? 'bg-primary-100 text-primary-600' : ''
+                            filters.category === "all" ? "bg-primary-100 text-primary-600" : ""
                           }`}
                         >
                           All Categories
@@ -309,7 +323,7 @@ const CoursesPage = () => {
                               setCategoryOpen(false)
                             }}
                             className={`w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
-                              filters.category === category ? 'bg-primary-100 text-primary-600' : ''
+                              filters.category === category ? "bg-primary-100 text-primary-600" : ""
                             }`}
                           >
                             {category}
@@ -330,8 +344,12 @@ const CoursesPage = () => {
                     onClick={() => setPriceOpen(!priceOpen)}
                     className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   >
-                    <span className="truncate">{priceRanges.find(opt => opt.value === filters.priceRange)?.label || 'All Prices'}</span>
-                    <ChevronDown className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${priceOpen ? 'rotate-180' : ''}`} />
+                    <span className="truncate">
+                      {priceRanges.find((opt) => opt.value === filters.priceRange)?.label || "All Prices"}
+                    </span>
+                    <ChevronDown
+                      className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${priceOpen ? "rotate-180" : ""}`}
+                    />
                   </button>
                   {priceOpen && (
                     <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
@@ -344,7 +362,7 @@ const CoursesPage = () => {
                               setPriceOpen(false)
                             }}
                             className={`w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
-                              filters.priceRange === range.value ? 'bg-primary-100 text-primary-600' : ''
+                              filters.priceRange === range.value ? "bg-primary-100 text-primary-600" : ""
                             }`}
                           >
                             {range.label}
@@ -365,8 +383,12 @@ const CoursesPage = () => {
                     onClick={() => setLevelOpen(!levelOpen)}
                     className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   >
-                    <span className="truncate">{levels.find(opt => opt.value === filters.level)?.label || 'All Levels'}</span>
-                    <ChevronDown className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${levelOpen ? 'rotate-180' : ''}`} />
+                    <span className="truncate">
+                      {levels.find((opt) => opt.value === filters.level)?.label || "All Levels"}
+                    </span>
+                    <ChevronDown
+                      className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${levelOpen ? "rotate-180" : ""}`}
+                    />
                   </button>
                   {levelOpen && (
                     <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
@@ -379,7 +401,7 @@ const CoursesPage = () => {
                               setLevelOpen(false)
                             }}
                             className={`w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
-                              filters.level === level.value ? 'bg-primary-100 text-primary-600' : ''
+                              filters.level === level.value ? "bg-primary-100 text-primary-600" : ""
                             }`}
                           >
                             {level.label}
@@ -400,8 +422,12 @@ const CoursesPage = () => {
                     onClick={() => setRatingOpen(!ratingOpen)}
                     className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   >
-                    <span className="truncate">{ratings.find(opt => opt.value === filters.rating)?.label || 'All Ratings'}</span>
-                    <ChevronDown className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${ratingOpen ? 'rotate-180' : ''}`} />
+                    <span className="truncate">
+                      {ratings.find((opt) => opt.value === filters.rating)?.label || "All Ratings"}
+                    </span>
+                    <ChevronDown
+                      className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform ${ratingOpen ? "rotate-180" : ""}`}
+                    />
                   </button>
                   {ratingOpen && (
                     <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
@@ -414,7 +440,7 @@ const CoursesPage = () => {
                               setRatingOpen(false)
                             }}
                             className={`w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-colors ${
-                              filters.rating === rating.value ? 'bg-primary-100 text-primary-600' : ''
+                              filters.rating === rating.value ? "bg-primary-100 text-primary-600" : ""
                             }`}
                           >
                             {rating.label}
@@ -468,12 +494,24 @@ const CoursesPage = () => {
         {hasError ? (
           <div className="text-center py-10 sm:py-12">
             <div className="text-red-500 mb-4">
-              <svg className="h-12 w-12 sm:h-16 sm:w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              <svg
+                className="h-12 w-12 sm:h-16 sm:w-16 mx-auto"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
               </svg>
             </div>
             <h3 className="text-base sm:text-lg md:text-xl font-medium text-gray-900 mb-2">Failed to load courses</h3>
-            <p className="text-xs sm:text-sm text-gray-600 mb-4">There was an error loading the courses. Please try again.</p>
+            <p className="text-xs sm:text-sm text-gray-600 mb-4">
+              There was an error loading the courses. Please try again.
+            </p>
             <button
               onClick={() => {
                 setHasError(false)
@@ -485,7 +523,7 @@ const CoursesPage = () => {
             </button>
           </div>
         ) : isLoading ? (
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {[...Array(6)].map((_, index) => (
               <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
                 <div className="h-32 xs:h-36 sm:h-40 md:h-48 bg-gray-300"></div>
@@ -515,16 +553,16 @@ const CoursesPage = () => {
           <div
             className={
               viewMode === "grid"
-                ? "grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
+                ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
                 : "space-y-4 sm:space-y-6"
             }
           >
             {courses
-              .map(course => {
+              .map((course) => {
                 const totalLessons = Array.isArray(course.modules)
                   ? course.modules.reduce((sum, mod) => sum + (mod.subcourses ? mod.subcourses.length : 0), 0)
-                  : 0;
-                return { ...course, lessons: { length: totalLessons } };
+                  : 0
+                return { ...course, lessons: { length: totalLessons } }
               })
               .map((course, index) => (
                 <CourseCard key={course._id} course={course} index={index} />

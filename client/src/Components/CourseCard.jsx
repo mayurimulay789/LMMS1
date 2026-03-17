@@ -92,13 +92,14 @@ const CourseCard = ({ course, index = 0 }) => {
               }}
             />
           )}
-          <div className="absolute top-2 xs:top-3 sm:top-4 left-2 xs:left-3 sm:left-4">
-            <span className="text-white px-1.5 xs:px-2 py-0.5 xs:py-1 rounded-full text-2xs xs:text-xs font-medium bg-primary-800">
+          <div
+            className="absolute flex flex-row flex-wrap gap-1 top-2 xs:top-3 sm:top-4 left-2 xs:left-3 sm:left-4 w-auto"
+            style={{ maxWidth: 'calc(100% - 16px)' }}
+          >
+            <span className="text-white px-1.5 xs:px-2 py-0.5 xs:py-1 rounded-full text-2xs xs:text-xs font-medium bg-primary-800 truncate max-w-[60px] xs:max-w-[90px] sm:max-w-[120px]">
               {category}
             </span>
-          </div>
-          <div className="absolute top-2 xs:top-3 sm:top-4 right-2 xs:right-3 sm:right-4">
-            <span className="bg-black bg-opacity-70 text-white px-1.5 xs:px-2 py-0.5 xs:py-1 rounded-full text-2xs xs:text-xs font-medium">
+            <span className="bg-black bg-opacity-70 text-white px-1.5 xs:px-2 py-0.5 xs:py-1 rounded-full text-2xs xs:text-xs font-medium truncate max-w-[60px] xs:max-w-[90px] sm:max-w-[120px]">
               {level}
             </span>
           </div>
@@ -172,7 +173,10 @@ const CourseCard = ({ course, index = 0 }) => {
             <div className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
               {formatPrice(price)}
             </div>
-            <button className="text-white px-3 py-1.5 xs:px-4 xs:py-2 rounded-lg font-medium text-xs xs:text-sm bg-primary-800 hover:bg-primary-700 transition-colors">
+            <button
+              className="text-white px-2 py-1 xs:px-3 xs:py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium text-xs xs:text-sm sm:text-base bg-primary-800 hover:bg-primary-700 transition-colors min-w-[70px] xs:min-w-[90px] sm:min-w-[110px]"
+              style={{ fontSize: 'clamp(10px, 3vw, 16px)' }}
+            >
               View Course
             </button>
           </div>
