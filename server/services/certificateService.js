@@ -303,9 +303,9 @@ async addCertificateContent(doc, data) {
 
   doc.rect(0, 0, pageWidth, pageHeight).fill(colors.cream)
 
-  for (let i = 0; i < pageWidth; i += 20) {
-    doc.moveTo(i, 0).lineTo(i + 10, pageHeight).lineWidth(0.2).stroke(colors.lightGold)
-  }
+  // for (let i = 0; i < pageWidth; i += 20) {
+  //   doc.moveTo(i, 0).lineTo(i + 10, pageHeight).lineWidth(0.2).stroke(colors.lightGold)
+  // }
 
   /* ================= BORDER ================= */
 
@@ -386,7 +386,7 @@ async addCertificateContent(doc, data) {
   doc.font("Times-Roman").fontSize(14).fillColor(colors.gray)
     .text("has been recognized for outstanding performance and dedication in the", 0, 260, { align: "center" })
 
-  doc.font("Helvetica-Bold").fontSize(28).fillColor(colors.darkBlue)
+  doc.font("Helvetica-Bold").fontSize(25).fillColor(colors.darkBlue)
     .text(courseName, 0, 285, { align: "center" })
 
 
